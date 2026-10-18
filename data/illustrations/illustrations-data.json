@@ -31,7 +31,7 @@
       "title": "【战争】一片石狂飚 · 万骑冲阵",
       "description": "一片石黄沙蔽日狂风骤起，两白旗万骑重铠铁骑自石河两翼惊雷般突入！数十万大军生死决战，天翻地覆！",
       "symbol": "🛡️",
-      "relativePath": "data/illustrations/qing/war.svg"
+      "relativePath": "data/illustrations/qing/war.jpg"
     },
     "qing_romance": {
       "id": "qing_romance",
@@ -88,7 +88,7 @@
       "title": "【战斗】禁军斩逆 · 殿角鏖战",
       "description": "午门回廊飞檐积雪，刺客死士踏碎青砖。锦衣卫飞鱼服翻卷如火，绣春刀连斩七人，鲜血染透御道雕龙。",
       "symbol": "⚔️",
-      "relativePath": "data/illustrations/ming/battle.svg"
+      "relativePath": "data/illustrations/ming/battle.jpg"
     },
     "ming_war": {
       "id": "ming_war",
@@ -110,7 +110,7 @@
       "title": "【风月/羁绊】深宫密约 · 孤忠相许",
       "description": "文渊阁摇红残烛之下，内阁重臣与执剑缇骑并肩而立，执手相看。天下板荡生死与共，断袖同心胜似海誓山盟。",
       "symbol": "❤️",
-      "relativePath": "data/illustrations/ming/romance.svg"
+      "relativePath": "data/illustrations/ming/romance.jpg"
     },
     "ming_victory": {
       "id": "ming_victory",
