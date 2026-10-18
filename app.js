@@ -888,6 +888,7 @@ class WebVisualNovelEngine {
     // 保存设置
     document.getElementById("btn-save-settings").addEventListener("click", () => {
       this.apiConfig.enabled = this.settingEnableApi ? this.settingEnableApi.checked : false;
+      this.apiConfig.userDisabledShared = !this.apiConfig.enabled;
       this.apiConfig.model = this.settingModel ? this.settingModel.value : "deepseek-flash";
       this.apiConfig.customModel = this.settingCustomModel ? this.settingCustomModel.value.trim() : "";
       this.apiConfig.endpoint = this.settingEndpoint ? this.settingEndpoint.value.trim() : "https://api.deepseek.com/chat/completions";
@@ -898,24 +899,8 @@ class WebVisualNovelEngine {
         localStorage.setItem("vn_api_config", JSON.stringify(this.apiConfig));
       } catch (e) {}
 
-      // 同时同步给服务端共享配置 (让全网游客直接享用此平台 API 与共享缓存)
-      if (typeof fetch !== "undefined") {
-        fetch("/api/config", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            apiKey: this.apiConfig.apiKey,
-            model: this.apiConfig.model,
-            endpoint: this.apiConfig.endpoint,
-            maxTokens: this.apiConfig.maxTokens
-          })
-        }).then(r => r.json()).then(d => {
-          if (d && d.hasServerKey) {
-            this.serverSharedConfig = d;
-            this.updateCachePillUI();
-          }
-        }).catch(() => {});
-      }
+      // 游客设置只在本机保存。严禁从静态页面更新共享 Key 或服务器模型配置。
+      this.checkServerSharedApi().catch(() => {});
 
       this.updateCachePillUI();
       this.closeDrawer(this.drawerSettings);
@@ -1044,7 +1029,8 @@ class WebVisualNovelEngine {
       let sutureResult = null;
 
       // 若启用了 API，调用 DeepSeek Live Suture API 履行修改文字卡职责
-      if (this.apiConfig && this.apiConfig.enabled && this.apiConfig.apiKey) {
+      if (this.apiConfig && this.apiConfig.enabled &&
+          ((this.serverSharedConfig && this.serverSharedConfig.hasServerKey) || this.apiConfig.apiKey)) {
         try {
           sutureResult = await this.callDeepSeekSutureAPI(node, this.extrapolationHistory);
         } catch (err) {
@@ -1168,8 +1154,8 @@ ${JSON.stringify(targetNode.originalBeats)}
       { role: "user", content: userTail }
     ];
 
-    const useGateway = Boolean(this.serverSharedConfig && this.serverSharedConfig.hasServerKey && !this.apiConfig.apiKey);
-    const endpoint = useGateway ? "/api/chat" : (this.apiConfig.endpoint || "https://api.deepseek.com/chat/completions");
+    const useGateway = Boolean(this.apiConfig.enabled && this.serverSharedConfig && this.serverSharedConfig.hasServerKey && !this.apiConfig.apiKey);
+    const endpoint = useGateway ? this.getSharedGatewayEndpoint() : (this.apiConfig.endpoint || "https://api.deepseek.com/chat/completions");
 
     const headers = { "Content-Type": "application/json" };
     if (this.apiConfig.apiKey) {
@@ -1200,10 +1186,17 @@ ${JSON.stringify(targetNode.originalBeats)}
       sutureBody.reasoning_effort = "high";
     }
 
+    if (useGateway) {
+      sutureBody.mode = "suture";
+      sutureBody.messages = this.buildGatewayMessages(messages);
+      sutureBody.max_tokens = Math.min(maxTokens, 2400);
+      sutureBody.turnstileToken = await this.getSharedGatewayToken();
+    }
     const res = await fetch(endpoint, {
       method: "POST",
       headers: headers,
-      body: JSON.stringify(sutureBody)
+      body: JSON.stringify(sutureBody),
+      signal: typeof AbortSignal !== "undefined" && AbortSignal.timeout ? AbortSignal.timeout(75000) : undefined
     });
 
     if (!res.ok) {
@@ -2378,8 +2371,8 @@ ${JSON.stringify(targetNode.originalBeats)}
       let nextBeats = null;
 
       // 若启用了 DeepSeek API (服务端平台共享网关 或 客户端已配 Key)
-      const hasLiveChannel = !!((this.serverSharedConfig && this.serverSharedConfig.hasServerKey) ||
-                                (this.apiConfig && this.apiConfig.enabled && this.apiConfig.apiKey));
+      const hasLiveChannel = !!(this.apiConfig && this.apiConfig.enabled &&
+                                ((this.serverSharedConfig && this.serverSharedConfig.hasServerKey) || this.apiConfig.apiKey));
 
       if (hasLiveChannel) {
         try {
@@ -3558,8 +3551,8 @@ ${currentProfile.npcRoster}`;
       : (this.apiConfig.model || "deepseek-flash");
 
     // 优先通过服务端平台网关 /api/chat 调用 (全网玩家共享平台 API 与故事树前缀缓存)
-    const useGateway = Boolean(this.serverSharedConfig && this.serverSharedConfig.hasServerKey && !this.apiConfig.apiKey);
-    const endpoint = useGateway ? "/api/chat" : (this.apiConfig.endpoint || "https://api.deepseek.com/chat/completions");
+    const useGateway = Boolean(this.apiConfig.enabled && this.serverSharedConfig && this.serverSharedConfig.hasServerKey && !this.apiConfig.apiKey);
+    const endpoint = useGateway ? this.getSharedGatewayEndpoint() : (this.apiConfig.endpoint || "https://api.deepseek.com/chat/completions");
 
     const isReasoner = /reasoner|r1/i.test(modelName) && !/v4|flash|pro/i.test(modelName);
     const isChat = /chat/i.test(modelName) && !/v4|flash|pro/i.test(modelName);
@@ -3605,10 +3598,17 @@ ${currentProfile.npcRoster}`;
       headers["Authorization"] = `Bearer ${this.apiConfig.apiKey}`;
     }
 
+    if (useGateway) {
+      body.mode = "story";
+      body.messages = this.buildGatewayMessages(messages);
+      body.max_tokens = Math.min(maxTokens, this.expectedLength >= 5000 ? 8000 : this.expectedLength <= 500 ? 1800 : 4700);
+      body.turnstileToken = await this.getSharedGatewayToken();
+    }
     const res = await fetch(endpoint, {
       method: "POST",
       headers: headers,
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
+      signal: typeof AbortSignal !== "undefined" && AbortSignal.timeout ? AbortSignal.timeout(75000) : undefined
     });
 
     if (!res.ok) {
@@ -3982,8 +3982,7 @@ ${currentProfile.npcRoster}`;
   // 3. 更新快捷菜单中的缓存状态胶囊
   updateCachePillUI() {
     if (!this.qmCache) return;
-    const hasLive = (this.serverSharedConfig && this.serverSharedConfig.hasServerKey) ||
-                    (this.apiConfig.enabled && this.apiConfig.apiKey);
+    const hasLive = this.apiConfig.enabled && ((this.serverSharedConfig && this.serverSharedConfig.hasServerKey) || this.apiConfig.apiKey);
     if (!hasLive) {
       this.qmCache.innerText = "⚡ 缓存: 本地模式";
       this.qmCache.classList.remove("hit");
@@ -4004,25 +4003,99 @@ ${currentProfile.npcRoster}`;
     }
   }
 
-  // 4. 检查服务端平台统一共享 API 状态 (向 /api/config 握手)
+  // 平台密钥永远只存在 Cloudflare Worker Secret 中，静态网页只知道公开地址。
+  getSharedGatewayEndpoint() {
+    const base = String(window.JIUZHOU_AI_GATEWAY?.endpoint || "").replace(/\/+$/, "");
+    if (!/^https:\/\/[a-z0-9.-]+\.workers\.dev$/i.test(base)) {
+      throw new Error("共享 AI 网关公开地址尚未正确配置");
+    }
+    return base + "/api/jiuzhou/turn";
+  }
+
+  // 保留 GM 剧本规则、当前阵营底本与最近的剧情历史，限制游客付费调用的输入规模。
+  buildGatewayMessages(messages) {
+    if (!Array.isArray(messages) || messages.length < 3) throw new Error("游戏上下文不完整");
+    const keep = messages.slice(0, 2).map((m, i) => ({
+      role: "system", content: String(m.content || "").slice(0, i === 0 ? 8500 : 18000)
+    }));
+    return keep.concat(messages.slice(2).slice(-8).map(m => ({
+      role: m.role === "assistant" ? "assistant" : "user",
+      content: String(m.content || "").slice(0, 1200)
+    })));
+  }
+
+  async getSharedGatewayToken() {
+    const sitekey = String(window.JIUZHOU_AI_GATEWAY?.turnstileSiteKey || "");
+    if (sitekey.length < 10) throw new Error("站长尚未配置公开的访问验证 Site Key");
+    if (!window.turnstile) {
+      if (!window.__jiuzhouTurnstileLoad) {
+        window.__jiuzhouTurnstileLoad = new Promise((resolve, reject) => {
+          const script = document.createElement("script");
+          script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+          script.async = true;
+          script.onload = () => window.turnstile ? resolve(window.turnstile) : reject(Error("验证组件未准备好"));
+          script.onerror = () => reject(Error("无法载入访问验证组件"));
+          document.head.appendChild(script);
+        }).catch(error => { window.__jiuzhouTurnstileLoad = null; throw error; });
+      }
+      await window.__jiuzhouTurnstileLoad;
+    }
+    const ts = window.turnstile;
+    return new Promise((resolve, reject) => {
+      const cover = document.createElement("div");
+      Object.assign(cover.style, {
+        position: "fixed", inset: "0", background: "rgba(5,9,16,.83)", zIndex: "2147483647",
+        display: "flex", alignItems: "center", justifyContent: "center"
+      });
+      const panel = document.createElement("div");
+      Object.assign(panel.style, {background:"#17202c",color:"#f5eddc",padding:"22px",
+        borderRadius:"12px",border:"1px solid #b8a06b",maxWidth:"92vw",textAlign:"center"});
+      const note=document.createElement("p");
+      note.textContent="验证后将使用站长的 AI 额度生成这一回合剧情。";
+      const widget=document.createElement("div");
+      const cancel=document.createElement("button");
+      cancel.type="button";cancel.textContent="取消本轮 AI 请求";
+      panel.append(note,widget,cancel);cover.appendChild(panel);document.body.appendChild(cover);
+      let settled=false, widgetId;
+      const cleanup=()=>{clearTimeout(timer);try{if(widgetId!==undefined)ts.remove(widgetId)}catch{}cover.remove()};
+      const finish=(err,token)=>{if(settled)return;settled=true;cleanup();err?reject(err):resolve(token)};
+      const timer=setTimeout(()=>finish(Error("验证超时")),30000);
+      cancel.onclick=()=>finish(Error("你已取消访问验证"));
+      try {
+        widgetId=ts.render(widget,{sitekey,execution:"render",appearance:"interaction-only",
+          callback:token=>finish(null,token),
+          "error-callback":()=>finish(Error("访问验证失败")),
+          "expired-callback":()=>finish(Error("验证令牌已过期"))
+        });
+      } catch(e) { finish(e); }
+    });
+  }
+
+  // GitHub Pages 不能执行仓库中的 Vercel /api/* 文件，必须访问外部 Worker。
   async checkServerSharedApi() {
     if (typeof window === "undefined" || !window.fetch) return;
+    this.serverSharedConfig = null;
     try {
-      const res = await fetch("/api/config");
-      if (!res.ok) return;
+      const base = String(window.JIUZHOU_AI_GATEWAY?.endpoint || "").replace(/\/+$/, "");
+      if (!/^https:\/\/[a-z0-9.-]+\.workers\.dev$/i.test(base)) throw Error("gateway_config_missing");
+      const res = await fetch(base + "/health", {cache: "no-store",
+        signal: typeof AbortSignal !== "undefined" && AbortSignal.timeout ? AbortSignal.timeout(9000) : undefined});
+      if (!res.ok) throw Error("gateway_not_ready");
       const data = await res.json();
-      this.serverSharedConfig = data;
-      if (data.hasServerKey) {
+      if (data.configured === true && data.enabled === true && data.jiuzhouEnabled === true) {
+        this.serverSharedConfig = {hasServerKey:true,model:"deepseek-flash",useGateway:true};
         if (!this.apiConfig.apiKey) {
-          this.apiConfig.enabled = true;
+          if (!this.apiConfig.userDisabledShared) this.apiConfig.enabled = true;
           this.apiConfig.useGateway = true;
-          if (data.model) this.apiConfig.model = data.model;
+          this.apiConfig.model = "deepseek-flash";
+          if (this.settingEnableApi) this.settingEnableApi.checked = !!this.apiConfig.enabled;
+          if (this.settingModel) this.settingModel.value = this.apiConfig.model;
         }
       }
-      this.updateCachePillUI();
-    } catch (e) {
-      // 离线或无后端环境静默降级
+    } catch(e) {
+      // Worker disabled / network offline: preserve the fully working local story engine.
     }
+    this.updateCachePillUI();
   }
 
   // 5. 更新设置抽屉中的遥测指标

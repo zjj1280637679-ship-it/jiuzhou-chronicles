@@ -94,3 +94,7 @@ npm start
 ## 📜 开源协议
 
 本项目采用 [MIT 许可证](LICENSE)。
+
+## 🔌 GitHub Pages 共享 AI 接入（待站长启用）
+
+GitHub Pages **不会**运行 `api/chat.js` 或 `api/config.js`。本项目已增加对原有 Cloudflare Worker 的共享 AI 连接（独立的 `/api/jiuzhou/turn` 路由），但默认关闭付费开关，不能将 GitHub 提交等同于已经可调用 DeepSeek。上线步骤、访客验证、配额与失败降级请参见 [共享 AI 网关说明](docs/SHARED-AI-GATEWAY.md)。
