@@ -4088,6 +4088,8 @@ ${currentProfile.npcRoster}`;
           if (!this.apiConfig.userDisabledShared) this.apiConfig.enabled = true;
           this.apiConfig.useGateway = true;
           this.apiConfig.model = "deepseek-flash";
+          if (this.settingEnableApi) this.settingEnableApi.checked = !!this.apiConfig.enabled;
+          if (this.settingModel) this.settingModel.value = this.apiConfig.model;
         }
       }
     } catch(e) {
