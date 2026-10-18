@@ -1,0 +1,21 @@
+{
+  "name": "jiuzhou-chronicles",
+  "version": "2.5.0",
+  "description": "九州沉浮录 (Chronicles of Nine Provinces) - 东方史诗文字冒险与自适应 AI GM 引擎 (Visual Novel & AVG Engine)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test-all-factions-tree.js"
+  },
+  "keywords": [
+    "visual-novel",
+    "deepseek",
+    "ai-gm",
+    "role-playing",
+    "history-fiction",
+    "interactive-fiction",
+    "webvn"
+  ],
+  "author": "zjj1280637679-ship-it",
+  "license": "MIT"
+}

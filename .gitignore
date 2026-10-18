@@ -1,0 +1,21 @@
+# DeepSeek API credentials (NEVER commit secrets!)
+config.json
+.env
+.env.local
+
+# Backups and temporary files
+*.bak
+*.tmp
+*.log
+
+# E2E Test result dumps
+*-result.json
+
+# Dependencies
+node_modules/
+.DS_Store
+Thumbs.db
+
+# Heavy reference documentation & repos
+docs/deepseek-*
+scratch/

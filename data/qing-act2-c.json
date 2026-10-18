@@ -1,0 +1,95 @@
+{
+  "id": "qing_act2_steppe",
+  "actNumber": 2,
+  "trunk": "C",
+  "trunkName": "支脉 C · 草原盟约神权线",
+  "title": "第二幕C：漠南金顶会盟 · 萨满神矛与迎奉达赖",
+  "coords": "mongol:steppe",
+  "desc": "漠南归化城金顶大帐风雪猎猎，察哈尔既定，四十九旗王公云集。古老萨满神矛的长生天血祭，与雪山翻越而来的达赖喇嘛转轮圣王金刚杵，在风雪与烈火中交相辉映。",
+  "originalBeats": [
+    {
+      "speaker": "旁白",
+      "sub": "漠南归化城 · 金顶御帐风雪之巅",
+      "type": "narrator",
+      "stageChar": "center",
+      "text": "寒冬朔风如刀，卷着冰雪抽打着漠南归化城九斿白纛与八旗黄龙大旗。金顶巨帐之内，火盆爆烈，牛油与酥油茶的浓烈气息混杂着祭兽热血漫散开来。察哈尔部归降，传国玉玺已奉入案前，漠南四十九旗蒙古王公齐聚盛会。金案之上赫然供奉着两件关乎天命的神物——一柄是满洲大萨满以黑牦牛尾与烈马心血淬炼的长生天神矛，另一柄则是拉萨五世达赖喇嘛亲遣贡使翻越雪山送抵的金刚降魔杵与转轮圣王法王敕书。"
+    },
+    {
+      "speaker": "科尔沁土谢图汗",
+      "sub": "手按狼头金刀，披鹿皮铁铠，目光桀骜",
+      "type": "npc",
+      "stageChar": "left",
+      "text": "“大汗！长生天的苍狼早已嗅出明国气数已尽！科尔沁十万精骑饮马辽河，只待大汗拔起萨满神矛指向喜峰口！只要铁骑踏破长城，中原千万顷锦绣田园、亿万金帛妇女，便皆是我塞外满蒙健儿放牧之野！”"
+    },
+    {
+      "speaker": "甘丹寺贡使诺门罕",
+      "sub": "双手合十，手转菩提念珠，声如深谷梵钟",
+      "type": "npc",
+      "stageChar": "right",
+      "text": "“阿弥陀佛。弯刀与长矛虽可破关斩将，安能降服中原万民与漠北万众之心？达赖喇嘛法旨已明：若大汗以金刚杵灌顶，尊崇黄帽格鲁圣教，受受‘转轮圣王·文殊菩萨化身’金号，则青海、漠北乃至藏卫百万僧俗皆将视大清为主，万世永固，不战而四海宾服！”"
+    },
+    {
+      "speaker": "长生天神启",
+      "sub": "【内在直觉 · 荒原与神权】",
+      "type": "voice-court",
+      "stageChar": "center",
+      "text": "“一柄是草原茹毛饮血、以杀止杀的古老血火征服；一柄是横跨青藏雪原与大漠黄沙的博大宗教冠冕。王公们匍匐的身影下暗藏着异心与贪欲。是挥矛南下席卷幽燕，还是奉印封圣收揽蒙藏，抑或暗施雷霆之腕严防藩部反噬？塞外神权与中原天命，全系于一念抉择。”"
+    }
+  ],
+  "choices": [
+    {
+      "text": "【分歧 3C-1 · 挥矛南征】拔起萨满神矛遥指居庸关，催动满蒙三十万铁骑多路破墙，以雷霆狂飙席卷幽燕！",
+      "tag": "血火狼道 · 铁骑入关",
+      "bias": {
+        "authority": 6,
+        "pragmatism": 4,
+        "progress": 2,
+        "cognition": 3
+      },
+      "diceBase": 11,
+      "isExtrapolation": false,
+      "targetNodeId": "qing_act3_steppe_charge"
+    },
+    {
+      "text": "【分歧 3C-2 · 黄教封圣】跪受达赖喇嘛金刚降魔杵与法号，以‘转轮圣王’之尊建召布道，统摄蒙藏万部神权！",
+      "tag": "转轮圣王 · 政教合一",
+      "bias": {
+        "authority": 5,
+        "pragmatism": 6,
+        "progress": 4,
+        "cognition": 6
+      },
+      "diceBase": 10,
+      "isExtrapolation": false,
+      "targetNodeId": "qing_act3_steppe_lama"
+    },
+    {
+      "text": "【分歧 3C-3 · 羁縻分权】借会盟赐封之机推行盟旗分治，拆解科尔沁等部兵权编入八旗，严防塞外尾大不掉！",
+      "tag": "盟旗改制 · 严防反噬",
+      "bias": {
+        "authority": 7,
+        "pragmatism": 3,
+        "progress": 1,
+        "cognition": 4
+      },
+      "diceBase": 12,
+      "isExtrapolation": false,
+      "targetNodeId": "qing_act3_steppe_fracture"
+    },
+    {
+      "text": "【🌿 AI局外外推】雪夜微服疾行，截探归化城召庙暗室中察哈尔遗臣秘藏的北元秘录与假玉玺残卷！",
+      "tag": "玉玺寻踪 · 局外外推",
+      "bias": {
+        "authority": 2,
+        "pragmatism": 6,
+        "progress": 3,
+        "cognition": 6
+      },
+      "diceBase": 10,
+      "isExtrapolation": true,
+      "targetNodeId": null,
+      "convergenceTargetId": "qing_act3_steppe_lama"
+    }
+  ],
+  "sutureHints": "若此前在外推中接触过漠北喀尔喀部使节、或截获山海关吴三桂密书，金顶帐中科尔沁王公的进逼言辞与黄教贡使的授封条件将据此剧烈演化。"
+}

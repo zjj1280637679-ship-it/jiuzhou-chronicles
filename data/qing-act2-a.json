@@ -1,0 +1,81 @@
+{
+  "id": "qing_act2_iron",
+  "actNumber": 2,
+  "trunk": "A",
+  "trunkName": "支脉 A · 满洲铁血八旗",
+  "title": "第二幕A：风雪围城 · 白巴牙喇与重矢破阵",
+  "coords": "qing:mukden",
+  "desc": "山海险关雪落如盖，八旗精锐白巴牙喇大弓齐射，红衣大将军炮轰击冰峰，血肉长城在狂澜中战栗。",
+  "originalBeats": [
+    {
+      "speaker": "旁白",
+      "sub": "山海要隘 · 一片石风雪前线",
+      "type": "narrator",
+      "stageChar": "center",
+      "text": "千里冰封，鹅毛暴雪撕扯着黑夜。两黄旗与两白旗精锐白甲重骑顶风冒雪连营数十里，狂风掀动猎猎黑龙旗。城头明军佛郎机子母炮烈焰撕破夜空，城下三千白巴牙喇死士挽两石硬弓，踏冰雪怒号列阵，玄铁重矢破空呼啸，杀气震裂九霄！"
+    },
+    {
+      "speaker": "多尔衮",
+      "sub": "摄政王，拔刀直指南天",
+      "type": "npc",
+      "stageChar": "left",
+      "text": "“祖宗克敌，全仗铁骑硬弓！任他铁锁险关、铜墙铁壁，在八旗白甲重矢面前不过朽木！传本王令旨：勇士登城，破关纵兵三日，先登者赏银万两、世袭牛录额真！”"
+    },
+    {
+      "speaker": "孔有德",
+      "sub": "恭顺王，抚重炮跪请",
+      "type": "npc",
+      "stageChar": "right",
+      "text": "“九王爷息怒！关头滚木雷石极猛，明军借山势死守，徒以八旗白甲血肉填城濠恐折国之锐气！汉军乌真超哈营百门红衣大将军炮已架设完毕，请允臣移炮抵近连环齐射，半日之内定教这巍峨险关灰飞烟灭！”"
+    },
+    {
+      "speaker": "铁血狼顾",
+      "sub": "【内在直觉 · 萨满铁血】",
+      "type": "voice-court",
+      "stageChar": "center",
+      "text": "“寒风掠过苏鲁锭长枪，雪泥中翻滚着满洲子弟的温热鲜血。八旗精甲是立国之本，亦是全族命脉。是逞狂暴之勇决死登城、以重炮烈火粉碎一切顽抗，抑或久顿坚城陷入饥寒绝境？胜败存亡，皆系于这临关一断。”"
+    }
+  ],
+  "choices": [
+    {
+      "text": "【分歧 3A-1 · 屠城震慑】下令白巴牙喇决死登城，破关后纵兵三日，以极道杀戮彻底摧垮关内军民抵抗胆魄！",
+      "tag": "修罗血海 · 极道杀伐",
+      "bias": {
+        "authority": 7,
+        "pragmatism": 2,
+        "progress": -3,
+        "cognition": 0
+      },
+      "diceBase": 12,
+      "isExtrapolation": false,
+      "targetNodeId": "qing_act3_iron_slaughter"
+    },
+    {
+      "text": "【分歧 3A-2 · 乌真超哈】采纳孔有德之谋，调集汉军八旗重炮营抵近猛轰，以近代毁灭火力粉碎关防！",
+      "tag": "红衣重炮 · 烈火焚城",
+      "bias": {
+        "authority": 5,
+        "pragmatism": 5,
+        "progress": 3,
+        "cognition": 3
+      },
+      "diceBase": 10,
+      "isExtrapolation": false,
+      "targetNodeId": "qing_act3_iron_cannon"
+    },
+    {
+      "text": "【分歧 3A-3 · 顿兵绝境】冒进合围久攻不下，后路遭朝鲜与辽民义军切断粮道，数万铁骑受困冰天雪地！",
+      "tag": "进退失据 · 关山梦断",
+      "bias": {
+        "authority": 2,
+        "pragmatism": -4,
+        "progress": -3,
+        "cognition": -2
+      },
+      "diceBase": 13,
+      "isExtrapolation": false,
+      "targetNodeId": "qing_act3_iron_exhaustion"
+    }
+  ],
+  "sutureHints": "若此前在外推中接触过关宁将领或截获明军粮道密报，多尔衮与孔有德在攻关调度时将以该内应军情为核心枢纽展开对撞辩驳。"
+}

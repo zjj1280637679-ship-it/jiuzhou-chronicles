@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>暮灯星栈 · 东方奇幻文字冒险 (Visual Novel & AVG)</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700;900&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- 全屏游戏主舞台视口 -->
+  <div class="webvn-viewport" id="game-viewport">
+
+    <!-- 主界面 / 标题画面 (Title Screen: 完整生命周期顶层) -->
+    <div class="title-screen active" id="title-screen">
+      <div class="title-decor-frame"></div>
+      <div class="title-content-box">
+        <div class="title-crest-icon">✦ 观星纪 ✦</div>
+        <h1 class="title-main-heading">九州沉浮录</h1>
+        <div class="title-eng-sub">CHRONICLES OF NINE PROVINCES : DESTINY MIRROR</div>
+        <div class="title-version-pill" id="title-version-badge">Build v2.5.0 (2026.10.19 纯双轨解耦版 · 主线0消耗冻结 · AI自由小说单向不可逆 · 500~8000字 · 3选项+开放输入)</div>
+        <div class="title-motto">“社稷天命在手，一念沧海桑田”</div>
+
+        <div class="title-menu-actions">
+          <button class="title-action-btn btn-hero" id="title-btn-start">
+            <span class="btn-icon">▶</span>
+            <span class="btn-text">开启新篇 (New Game)</span>
+          </button>
+          <button class="title-action-btn" id="title-btn-continue">
+            <span class="btn-icon">⎌</span>
+            <span class="btn-text">重续前缘 (Continue)</span>
+            <span class="save-status-hint" id="title-save-hint">无存档</span>
+          </button>
+          <button class="title-action-btn" id="title-btn-factions">
+            <span class="btn-icon">🚩</span>
+            <span class="btn-text">阵营抉择 (Factions DLC)</span>
+          </button>
+          <button class="title-action-btn" id="title-btn-destiny">
+            <span class="btn-icon">🪞</span>
+            <span class="btn-text">天命照影 (Destiny Gallery)</span>
+          </button>
+          <button class="title-action-btn" id="title-btn-swarm">
+            <span class="btn-icon">🌌</span>
+            <span class="btn-text">群体星盘 (Swarm Observatory)</span>
+          </button>
+          <button class="title-action-btn" id="title-btn-settings">
+            <span class="btn-icon">⚙</span>
+            <span class="btn-text">秘钥通道 (Settings)</span>
+          </button>
+        </div>
+
+        <div class="title-footer-ver">
+          <span>版本 v2.5.0 (Build 2026.10.19) · 纯双轨解耦架构 · 主线进度0消耗严格冻结 · AI自由小说单向不可逆推演 · 500~8000字长篇 · 3大选项+开放自填</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 0. 全屏背景舞台与动态环境暗角 (双缓冲微镜头推移) -->
+    <div class="stage-background">
+      <div class="bg-layer active" id="bg-active"></div>
+      <!-- 危机张力暗角 (由灾难时钟驱动的心跳暗红光晕) -->
+      <div class="vignette-overlay" id="vignette-overlay"></div>
+      <div class="ambient-fog"></div>
+      <!-- AI GM 调度的天气粒子层 (风雪/暴雨/战火硝烟) -->
+      <div class="weather-particles-overlay" id="weather-particles-overlay"></div>
+    </div>
+
+    <!-- AI GM 全屏闪光与刀光剑影 (红/白/金/暗) -->
+    <div class="screen-flash-overlay" id="screen-flash-overlay"></div>
+
+    <!-- 1. 角色立绘舞台 (左、中、右站位，支持情绪呼吸与视线聚焦) -->
+    <div class="stage-characters" id="stage-characters">
+      <div class="char-slot slot-left" id="char-slot-left">
+        <div class="char-silhouette char-shadow"></div>
+      </div>
+      <div class="char-slot slot-center active speaking" id="char-slot-center">
+        <div class="char-silhouette char-guard"></div>
+      </div>
+      <div class="char-slot slot-right" id="char-slot-right">
+        <div class="char-silhouette char-doctor"></div>
+      </div>
+    </div>
+
+    <!-- 2. 悬浮极简胶囊菜单 (Quick Menu: 15% 透明度，Hover 或触控自显) -->
+    <nav class="quick-menu" id="quick-menu">
+      <button class="qm-btn qm-accent" id="qm-home" title="返回主界面 (自动存档)">⌂ 主页</button>
+      <button class="qm-btn" id="qm-faction" title="切换四大阵营 DLC (大明/清朝/蒙古/南明)">🚩 阵营</button>
+      <button class="qm-btn" id="qm-destiny" title="查看当前隐式测评折射出的天命政治人物镜像">🪞 天命</button>
+      <button class="qm-btn" id="qm-swarm" title="透视全网玩家群体思潮星相图">🌌 群体</button>
+      <button class="qm-btn" id="qm-log" title="滚轮向上或点击查看回溯卷宗">📜 卷宗</button>
+      <button class="qm-btn" id="qm-pocket" title="袖里乾坤 · 行囊卡牌">🎴 行囊 <span class="badge-count" id="pocket-count">4</span></button>
+      <button class="qm-btn" id="qm-ribbon" title="拉动书签红丝带时光机">⏳ 宿命</button>
+      <button class="qm-btn" id="qm-map" title="切换薄地图空间坐标">🗺 舆图</button>
+      <button class="qm-btn" id="qm-auto" title="开启/关闭自动播放">▶ 自动</button>
+      <button class="qm-btn" id="qm-storytree" title="查看法定主剧情树、AI外推分支与动态因果弥合">🌲 剧情树</button>
+      <button class="qm-btn qm-cache-pill" id="qm-cache" title="DeepSeek 前缀缓存监控: 点击查看四层对齐架构与命中指标">⚡ 缓存: 本地模式</button>
+      <button class="qm-btn" id="qm-settings" title="配置 API 与模型通道">⚙ 秘钥</button>
+      <span class="qm-version-tag" id="qm-version-tag" title="当前引擎构建版本: v2.5.0 (Build 2026.10.19)">v2.5.0</span>
+    </nav>
+
+    <!-- 3. 环境线香与时相指示器 (替代冰冷的时钟数字) -->
+    <div class="incense-clock-hud" id="incense-hud" title="夜巡警戒时相：线香燃尽将引爆危机">
+      <div class="incense-stick">
+        <div class="incense-ash" id="incense-ash" style="height: 25%;"></div>
+        <div class="incense-spark"></div>
+      </div>
+      <div class="incense-meta">
+        <span class="incense-title" id="incense-label">夜巡更次 · 初更</span>
+        <span class="incense-sub" id="incense-sub">暗巷沉寂，巡哨渐近</span>
+      </div>
+    </div>
+
+    <!-- 4. 经典 ADV 剧场对白框 (点击推进 / 打字机全显) -->
+    <section class="dialogue-box" id="dialogue-box">
+
+      <!-- 剧情树分支状态指示器 (区分法定主干 / AI自由外推 / 因果已弥合) -->
+      <div class="story-branch-indicator" id="story-branch-indicator">
+        <span class="branch-pill canonical" id="branch-pill">📜 主剧情树 · 第一幕</span>
+        <button class="branch-explainer-btn" id="btn-branch-explainer" title="点击查看：什么是分支剧情与回归主线法则？">❓ 什么是分支剧情？</button>
+        <span class="suture-badge" id="suture-badge" style="display:none;" title="AI 已根据上一轮外推因果动态改写此主线卡片">🪡 因果已弥合</span>
+        
+        <!-- AI推演预期篇幅控制器 (少于500字 / 少于2000字 / 少于5000字) -->
+        <div class="ai-length-group" id="ai-length-group" title="设置AI推演时的预期篇幅">
+          <span class="ai-length-label">篇幅:</span>
+          <button class="btn-length" data-length="500" title="短小精悍 · 少于500字">少于500字</button>
+          <button class="btn-length active" data-length="2000" title="标准推演 · 少于2000字">少于2000字</button>
+          <button class="btn-length" data-length="5000" title="史诗长卷 · 少于5000字">少于5000字</button>
+        </div>
+      </div>
+      
+      <!-- 说话者名牌 (支持 NPC、旁白、以及极乐迪斯科式【内在嗓音】) -->
+      <div class="speaker-badge" id="speaker-badge">
+        <span class="speaker-icon" id="speaker-icon">◆</span>
+        <span class="speaker-name" id="speaker-name">旁白</span>
+        <span class="speaker-sub" id="speaker-sub">崇文门外 · 鬼市夜市</span>
+      </div>
+
+      <!-- 打字机正文内容渲染区 -->
+      <div class="dialogue-content" id="dialogue-content">
+        <span class="typewriter-text" id="typewriter-text"></span>
+        <span class="typing-cursor">▌</span>
+      </div>
+
+      <!-- 剧情对白控制栏 (返回上一段 / 点击继续) -->
+      <div class="dialogue-nav-bar" id="dialogue-nav-bar">
+        <button class="btn-dialogue-prev" id="btn-dialogue-prev" title="返回上一段对白 (快捷键: ← / Q)" disabled>
+          <span class="nav-arrow">▲</span> 返回上一段
+        </button>
+        <div class="dialogue-continue-prompt" id="continue-prompt" title="点击推进下一段 (快捷键: 空格 / 点击屏幕)">
+          <span class="continue-text">点击继续</span> <span class="cursor-arrow">▼</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. 交互抉择层 (升起于对白框上方，带检定概率与文学修饰) -->
+    <div class="choice-overlay" id="choice-overlay">
+      <div class="choice-container" id="choice-container">
+        <!-- 动态生成 3-4 个叙事抉择卡片 -->
+      </div>
+    </div>
+
+    <!-- 6. 隐匿抽屉系统 (Diegetic Drawers) -->
+
+    <!-- 抽屉 A: 卷宗回溯抽屉 (从顶部如宣纸书卷垂落) -->
+    <aside class="drawer drawer-top" id="drawer-backlog">
+      <div class="drawer-header">
+        <div class="drawer-title">📜 宿命回溯卷宗 (Scene Backlog)</div>
+        <button class="drawer-close" id="btn-close-backlog">收起卷宗 ✕</button>
+      </div>
+      <div class="drawer-body backlog-stream" id="backlog-stream">
+        <!-- 动态历史剧本 -->
+      </div>
+    </aside>
+
+    <!-- 抽屉 B: 袖里乾坤行囊 (右侧滑出的拟物大衣口袋) -->
+    <aside class="drawer drawer-right" id="drawer-pocket">
+      <div class="drawer-header">
+        <div class="drawer-title">🎴 袖里乾坤 · 秘传性相</div>
+        <button class="drawer-close" id="btn-close-pocket">收起行囊 ✕</button>
+      </div>
+      <div class="drawer-body pocket-grid" id="pocket-grid">
+        <!-- 卡牌网格 -->
+      </div>
+    </aside>
+
+    <!-- 抽屉 C: 书签红丝带时光机 (替代程序员 Git Commit 树) -->
+    <aside class="drawer drawer-modal" id="drawer-ribbon">
+      <div class="ribbon-modal-box">
+        <div class="drawer-header">
+          <div class="drawer-title">⏳ 命运之结 · 书签红丝带</div>
+          <button class="drawer-close" id="btn-close-ribbon">收起 ✕</button>
+        </div>
+        <div class="ribbon-body">
+          <p style="font-size:0.85rem; color:var(--text-dim); margin-bottom:16px;">
+            点击命运绳结，可将光阴回卷至当时的因果节点（无损回溯重新抉择）：
+          </p>
+          <div class="ribbon-rope-track" id="ribbon-knots-list">
+            <!-- 命运之结动态渲染 -->
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 抽屉 D: 空间舆图薄地图切换 (古典界画折扇) -->
+    <aside class="drawer drawer-modal" id="drawer-map">
+      <div class="ribbon-modal-box">
+        <div class="drawer-header">
+          <div class="drawer-title">🗺 天下舆图 · 空间阶层跃迁</div>
+          <button class="drawer-close" id="btn-close-map">收起 ✕</button>
+        </div>
+        <div class="map-grid-selector" id="map-grid-selector">
+          <!-- 动态渲染四个区域 -->
+        </div>
+      </div>
+    </aside>
+
+    <!-- 抽屉 E: 模型与秘钥配置 · DeepSeek 缓存对齐架构 -->
+    <aside class="drawer drawer-modal" id="drawer-settings">
+      <div class="ribbon-modal-box" style="max-width: 620px;">
+        <div class="drawer-header">
+          <div class="drawer-title">⚙ 引擎通道 · DeepSeek 缓存架构配置</div>
+          <button class="drawer-close" id="btn-close-settings">收起 ✕</button>
+        </div>
+        <div class="drawer-body" style="display:flex; flex-direction:column; gap:16px; padding:20px; overflow-y:auto; max-height:calc(82vh - 60px);">
+          <div style="background: rgba(229, 185, 92, 0.08); border: 1px solid rgba(229, 185, 92, 0.3); border-radius: 6px; padding: 10px 14px; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <strong style="color: var(--accent-gold);">当前构建版本：</strong>
+              <span id="settings-version-display" style="font-family: var(--font-mono); color: #f8fafc; font-weight: 700;">v2.5.0 (Build 2026.10.19)</span>
+            </div>
+            <span style="font-size: 0.72rem; color: var(--accent-jade); background: rgba(56, 178, 172, 0.15); padding: 2px 6px; border-radius: 4px;">纯双轨解耦·自由小说版</span>
+          </div>
+
+          <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+            <input type="checkbox" id="setting-enable-api">
+            <span style="font-weight:700; color:var(--accent-gold);">开启远端实时大模型 (Live API Mode)</span>
+          </label>
+          <div style="font-size:0.75rem; color:var(--text-dim); line-height: 1.5;">
+            未勾选或未填 Key 时，使用零延迟、纯本地自主运转的视觉小说故事生成器；勾选并填入 Key 后，启用严格遵守四层前缀对齐架构的 DeepSeek 官方 API。
+          </div>
+
+          <div class="form-group">
+            <label style="font-size:0.8rem; color:var(--text-dim); margin-bottom:4px; display:block;">模型选择 (Model ID · 遵照 DeepSeek 官方规范)：</label>
+            <select id="setting-model" class="form-select">
+              <option value="deepseek-flash" selected>deepseek-flash (DeepSeek-V4.1-Flash · 500GB · 1M上下文 · 极速思考模型)</option>
+              <option value="deepseek-v4-pro">deepseek-v4-pro (DeepSeek-V4-Pro · 3TB · 满血超大旗舰模型)</option>
+              <option value="deepseek-chat">deepseek-chat (DeepSeek-V3 / 官方通用模型 · 极速响应)</option>
+              <option value="deepseek-reasoner">deepseek-reasoner (DeepSeek-R1 / 深度推理思考模型)</option>
+              <option value="custom">自定义模型标识...</option>
+            </select>
+            <input type="text" id="setting-custom-model" class="form-input" placeholder="输入自定义模型ID..." style="display:none; margin-top:8px;">
+          </div>
+
+          <div class="form-group">
+            <label style="font-size:0.8rem; color:var(--text-dim); margin-bottom:4px; display:block;">API 端点 (Base URL)：</label>
+            <input type="text" id="setting-endpoint" class="form-input" value="https://api.deepseek.com/chat/completions">
+          </div>
+
+          <div class="form-group">
+            <label style="font-size:0.8rem; color:var(--text-dim); margin-bottom:4px; display:block;">DeepSeek API Key：</label>
+            <input type="password" id="setting-api-key" class="form-input" placeholder="sk-...">
+          </div>
+
+          <div class="form-group">
+            <label style="font-size:0.8rem; color:var(--text-dim); margin-bottom:4px; display:block;">最大输出 Token 上限 (Max Output Tokens · DeepSeek 官方上限最高 384k / 393,216)：</label>
+            <input type="number" id="setting-max-tokens" class="form-input" value="384000" min="1" max="393216" placeholder="默认 384000 (最高 384k)">
+            <div style="font-size:0.75rem; color:var(--text-dim); margin-top:3px; line-height: 1.4;">
+              DeepSeek 官方 API 支持单次生成最高达 384,000 tokens (393,216) 输出与完整思考链，拒绝人为封顶截断。
+            </div>
+          </div>
+
+          <!-- DeepSeek Prompt Caching 四层前缀缓存对齐遥测面板 -->
+          <div class="cache-telemetry-box" id="cache-telemetry-box">
+            <div style="font-size:0.85rem; font-weight:700; color:var(--accent-jade); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+              <span>⚡ DeepSeek 四层前缀缓存架构状态</span>
+              <span class="cache-status-tag" id="cache-status-tag">四层就绪 (98% 命中设计)</span>
+            </div>
+            
+            <div class="cache-layer-indicators">
+              <div class="cache-layer-badge active" title="64-Token 字典序锁定的 GM 裁决法门与 JSON Schema">L1: 静态世界律 (100% 命中)</div>
+              <div class="cache-layer-badge active" title="当前阵营史诗与薄地图空间法则，同地图内常驻">L2: 阵营薄地图 (常驻命中)</div>
+              <div class="cache-layer-badge active" title="历史剧本单调递增追加，严禁原地压缩">L3: 单调递增剧本流 (单调累积)</div>
+              <div class="cache-layer-badge active" title="骰子点数、临时卡牌与危险刻度绝对置于尾部">L4: 易变变量绝对置尾</div>
+            </div>
+
+            <div class="cache-metrics-row">
+              <div class="cache-metric-card">
+                <span class="cm-label">最近缓存命中率</span>
+                <span class="cm-value" id="cm-hit-rate">--</span>
+              </div>
+              <div class="cache-metric-card">
+                <span class="cm-label">命中 Token (Cache Hit)</span>
+                <span class="cm-value" id="cm-hit-tokens">--</span>
+              </div>
+              <div class="cache-metric-card">
+                <span class="cm-label">新算 Token (Cache Miss)</span>
+                <span class="cm-value" id="cm-miss-tokens">--</span>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn-primary" id="btn-save-settings" style="margin-top:4px;">保存通道并应用</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 抽屉 Open-Input: 开放式文字外推弹窗 (输入文字开放式外推 · AI接住写支线卡) -->
+    <aside class="drawer drawer-modal" id="drawer-open-input">
+      <div class="ribbon-modal-box" style="max-width: 600px;">
+        <div class="drawer-header">
+          <div class="drawer-title">✍️ 输入文字开放式外推 · 自由行动</div>
+          <button class="drawer-close" id="btn-close-open-input">收起 ✕</button>
+        </div>
+        <div class="drawer-body" style="padding: 20px; display:flex; flex-direction:column; gap:14px;">
+          <div style="font-size:0.85rem; color:var(--text-dim); line-height:1.6;">
+            你可以输入任意自定义行动、密谋或临场决断。
+            后台将由 <strong style="color:var(--accent-gold);">DeepSeek / AI GM</strong> 全权接住，根据你的文字即时生成一段专属的<strong style="color:#4ade80;">【野生支线场景卡】</strong>：
+          </div>
+          <textarea id="open-input-text" class="form-input" rows="4" style="width:100%; resize:vertical; font-family:inherit; padding:12px; font-size:0.95rem; line-height:1.6; border:1px solid rgba(234,179,8,0.4);" placeholder="输入你的自定义行动，例如：
+- 亲率三千白巴牙喇假扮明军夜袭镇江大营，切断南都信道...
+- 密会江南三十六商帮总把头，许以两淮盐税特许质押筹集千万银两...
+- 拔刀立誓自封大汗，斩杀阻道亲王强行改道直逼金陵..."></textarea>
+          <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:8px;">
+            <button class="title-action-btn" id="btn-cancel-open-input" style="padding:8px 16px; font-size:0.85rem;">取消</button>
+            <button class="title-action-btn btn-hero" id="btn-submit-open-input" style="padding:8px 20px; font-size:0.9rem; background:linear-gradient(135deg, #16a34a 0%, #22c55e 100%);">
+              <span>✨ 呼叫 AI 接住推演支线卡</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 抽屉 F: 天命政治人物镜像卡 (Destiny Tarot Card Modal) -->
+    <aside class="drawer drawer-modal" id="drawer-destiny">
+      <div class="ribbon-modal-box" style="max-width: 480px;">
+        <div class="drawer-header">
+          <div class="drawer-title">🪞 隐式心性映射 · 天命人物镜像</div>
+          <button class="drawer-close" id="btn-close-destiny">收起 ✕</button>
+        </div>
+        <div class="drawer-body destiny-card-container" id="destiny-card-container">
+          <!-- 动态渲染塔罗牌面与判词 -->
+        </div>
+      </div>
+    </aside>
+
+    <!-- 抽屉 G: 群体思潮星相观测台 (Swarm Observatory Modal) -->
+    <aside class="drawer drawer-modal" id="drawer-swarm">
+      <div class="ribbon-modal-box" style="max-width: 580px;">
+        <div class="drawer-header">
+          <div class="drawer-title">🌌 全网经略使 · 群体思潮星宿观测台</div>
+          <button class="drawer-close" id="btn-close-swarm">收起 ✕</button>
+        </div>
+        <div class="drawer-body" id="swarm-observatory-body" style="padding:20px;">
+          <!-- 动态渲染全服热力图与稀有度对标 -->
+        </div>
+      </div>
+    </aside>
+
+    <!-- 抽屉 H: 四大阵营 DLC 选择器 (Faction DLC Modal) -->
+    <aside class="drawer drawer-modal" id="drawer-faction">
+      <div class="ribbon-modal-box" style="max-width: 640px;">
+        <div class="drawer-header">
+          <div class="drawer-title">🚩 九州分野 · 四大阵营 DLC 选择</div>
+          <button class="drawer-close" id="btn-close-faction">收起 ✕</button>
+        </div>
+        <div class="faction-grid-selector" id="faction-grid-selector">
+          <!-- 动态渲染明廷、后金清朝、大漠蒙古、南国海邦卡片 -->
+        </div>
+      </div>
+    </aside>
+
+    <!-- 抽屉 I: 乾坤倾覆 · 危机终局模态框 (Crisis / Game Over Modal) -->
+    <aside class="drawer drawer-modal" id="drawer-crisis">
+      <div class="ribbon-modal-box crisis-modal-box" style="max-width: 520px; border-color: var(--accent-crimson);">
+        <div class="drawer-header" style="border-bottom-color: rgba(229, 62, 62, 0.3);">
+          <div class="drawer-title" style="color: #feb2b2;">⚠️ 乾坤倾覆 · 危机终局 (Crisis Climax)</div>
+          <button class="drawer-close" id="btn-close-crisis">收起 ✕</button>
+        </div>
+        <div class="drawer-body crisis-body" style="padding: 24px; text-align: center;">
+          <div class="crisis-icon" style="font-size: 3.2rem; margin-bottom: 12px; animation: heartbeat-vignette 1.5s infinite ease-in-out;">⚡</div>
+          <h2 class="crisis-heading" id="crisis-title" style="font-family: var(--font-serif); color: #fecaca; margin-bottom: 10px; font-size: 1.3rem;">山河崩裂，秩序沦亡</h2>
+          <p class="crisis-desc" id="crisis-desc" style="font-size: 0.88rem; line-height: 1.8; color: #cbd5e1; margin-bottom: 24px; text-align: justify;">
+            四野狼烟起，更次燃尽。诸方掣肘与猜忌汇聚为不可逆转的倾覆之势。天命棋盘既乱，亦可借书签红丝带重卷光阴，或重整旗鼓，另立新篇。
+          </p>
+          <div class="crisis-actions" style="display: flex; gap: 14px; justify-content: center;">
+            <button class="title-action-btn btn-hero" id="btn-crisis-rewind" style="padding: 10px 20px; font-size: 0.9rem;">
+              <span class="btn-icon">⎌</span>
+              <span class="btn-text">书签回溯 (Rewind)</span>
+            </button>
+            <button class="title-action-btn" id="btn-crisis-title" style="padding: 10px 20px; font-size: 0.9rem;">
+              <span class="btn-icon">⌂</span>
+              <span class="btn-text">重整山河 (Title)</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 抽屉 Modal-Illustration: 视觉小说插图与特写 CG 视窗 (Illustration & CG Lightbox) -->
+    <aside class="drawer-modal illustration-modal" id="modal-illustration">
+      <div class="illustration-box">
+        <div class="illustration-header">
+          <span class="illustration-badge">🖼 史诗画卷 · 特写展示</span>
+          <span class="illustration-title" id="illustration-title">画卷标题</span>
+          <button class="drawer-close" id="btn-close-illustration">收起画卷 ✕</button>
+        </div>
+        <div class="illustration-canvas-wrap" id="illustration-canvas-wrap">
+          <div class="illustration-graphic" id="illustration-graphic"></div>
+        </div>
+        <div class="illustration-caption" id="illustration-caption">
+          <!-- 历史注脚与文学意境白描 -->
+        </div>
+      </div>
+    </aside>
+
+    <!-- 抽屉 J: 法定主剧情树与 AI 动态弥合全景抽屉 (Story Tree & Suture Modal) -->
+    <aside class="drawer drawer-modal" id="drawer-storytree">
+      <div class="ribbon-modal-box storytree-modal-box" style="max-width: 1040px; width: 95vw;">
+        <div class="drawer-header">
+          <div class="drawer-title">📜 经折天机谱 · 分支叙事与节点树全景 (Branching Story & Node Tree)</div>
+          <button class="drawer-close" id="btn-close-storytree">收起 ✕</button>
+        </div>
+        <div class="drawer-body storytree-body" id="storytree-body" style="padding: 16px 20px;">
+          <!-- 叙事理论与双轨架构说明横幅 -->
+          <div class="storytree-explanation-banner">
+            <span class="st-icon">💡</span>
+            <div class="st-text">
+              <strong>预设剧情树骨架 + AI 生成分支页与微调自圆其说：</strong>
+              主剧情树（1变3, 3变9）为<strong>【开发阶段预设的法定历史大纲】</strong>；AI 的核心职责是<strong>【生成全新的局外分支剧情页】</strong>并在玩家<strong>【重归预设剧情树后微调已有剧情卡，达成因果一致性与自圆其说】</strong>。
+            </div>
+          </div>
+
+          <!-- 视觉化分支剧情树主画布与全景流程图 -->
+          <div class="storytree-canvas-container" id="storytree-canvas-container">
+            <!-- 动态渲染分层菱形分支流程树与 SVG 连线 -->
+          </div>
+
+          <!-- 交互式节点检查台 (Node Inspector: 查看分支、对话树与时光倒带) -->
+          <div class="storytree-inspector-panel" id="storytree-inspector-panel">
+            <div class="inspector-empty-hint">点击上方任意剧情节点，可查看该节点的决策分支、对话树设定与时光回溯选项。</div>
+          </div>
+
+          <!-- 剧情卡弥合比对视窗 -->
+          <div class="storytree-suture-panel" id="storytree-suture-panel" style="display:none;">
+            <div class="suture-panel-title">
+              <span>🪡 当前幕次因果弥合报告 (Narrative Suture Report)</span>
+              <span class="suture-badge-active" id="suture-panel-tag">已生效</span>
+            </div>
+            <div class="suture-note-box" id="suture-panel-note">
+              <!-- AI 弥合札记 -->
+            </div>
+            <div class="suture-diff-grid">
+              <div class="suture-card-col">
+                <div class="suture-col-header">📜 原版法定主剧情文字卡 (Kernel Baseline)</div>
+                <div class="suture-col-content" id="suture-original-card"></div>
+              </div>
+              <div class="suture-card-col sutured-col">
+                <div class="suture-col-header">🪡 AI 因果重塑后的弥合文字卡 (Reconciled Beats)</div>
+                <div class="suture-col-content" id="suture-modified-card"></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </aside>
+
+    <!-- 什么是分支剧情？专属规则说明模态框 -->
+    <aside class="drawer drawer-modal" id="drawer-branch-explainer">
+      <div class="ribbon-modal-box" style="max-width: 640px; width: 92vw;">
+        <div class="drawer-header">
+          <div class="drawer-title">🌿 剧情树与 AI 自由推进彻底解耦法则</div>
+          <button class="drawer-close" id="btn-close-branch-explainer">✕</button>
+        </div>
+        <div class="drawer-body" style="padding: 22px 26px; font-size: 0.95rem; line-height: 1.8; color: #e2e8f0;">
+          <div style="background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(74, 222, 128, 0.35); border-radius: 8px; padding: 14px 16px; margin-bottom: 18px;">
+            <div style="font-weight: 700; color: #4ade80; margin-bottom: 6px; font-size: 1.05rem;">
+              ✦ 彻底解耦 · 单向不可逆自由创作宇宙
+            </div>
+            <div>
+              <strong>核心机制：</strong>只要您在任何节点<strong>选择一次【🌿 AI自由推进】或【✍️ 自填开放行动】</strong>，游戏将<strong>永远不会回到主线</strong>，而是由 AI 历史小说家接手，开启专属于您的无限互动小说！
+            </div>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <strong style="color: var(--accent-gold);">1. 主线剧情进度绝不消耗、绝不偷偷推进：</strong><br>
+            当您进行 AI 自由探索时，预设主剧情树的进度将<strong>永久冻结在您离开的那一幕</strong>！绝不会发生“低头系鞋带，桌上的活自动干完了”的荒谬现象。主线归主线，AI 自由小说归 AI 自由小说。
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <strong style="color: var(--accent-gold);">2. AI 小说续写与 3 个全新走向：</strong><br>
+            每一回合由真实满血的 AI 历史小说家展开 500 到 8000 字（建议 1500~4000 字）见肉见血的宏大叙事，并为您量身定制 <strong>3 个全新的具体剧情走向（+ 1 个自定输入框）</strong>，不可逆地向前狂飙演进。
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <strong style="color: var(--accent-gold);">3. 适时发布大结局插图，绝不终止游戏：</strong><br>
+            当剧情推演至重大历史高潮、王朝定鼎或天命决胜的里程碑时，AI 小说家将审时度势为您发出一张<strong>【自由推进大结局插图画卷】</strong>！画卷呈现后，游戏<strong>绝不会终止（不触发 Game Over）</strong>，而是继续带领您探索下一个崭新纪元！
+          </div>
+
+          <div style="font-size: 0.85rem; color: var(--text-dim); border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 12px;">
+            💡 提示：如需享受由官方满血 DeepSeek-R1 / Reasoner 原生驱动的最高思考强度与即时深度长篇创作，请在【⚙️ 设置】中填入您的 DeepSeek API Key！
+          </div>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- 引入四大阵营近十万字史诗历史大纲底本、阵营独立展示套图库、预设与核心逻辑 -->
+  <script src="data/faction-novels.js"></script>
+  <script src="data/illustrations/illustrations-data.js"></script>
+  <script src="skills-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

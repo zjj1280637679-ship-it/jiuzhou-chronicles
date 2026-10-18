@@ -1,0 +1,6 @@
+{
+  "apiKey": "sk-your-deepseek-api-key-here",
+  "model": "deepseek-flash",
+  "endpoint": "https://api.deepseek.com/chat/completions",
+  "maxTokens": 65536
+}

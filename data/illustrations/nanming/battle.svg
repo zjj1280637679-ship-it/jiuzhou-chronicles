@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" width="100%" height="100%">
+  <defs>
+    <!-- 专属阵营背景渐变 -->
+    <radialGradient id="bgGrad" cx="50%" cy="40%" r="75%">
+      <stop offset="0%" stop-color="#0c2933" />
+      <stop offset="65%" stop-color="#05161c" />
+      <stop offset="100%" stop-color="#020408" />
+    </radialGradient>
+
+    <!-- 电影感金色光斑渐变 -->
+    <radialGradient id="sunGlow" cx="50%" cy="30%" r="45%">
+      <stop offset="0%" stop-color="#e11d48" stop-opacity="0.35" />
+      <stop offset="50%" stop-color="#06b6d4" stop-opacity="0.12" />
+      <stop offset="100%" stop-color="transparent" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- 主题流光渐变 -->
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06b6d4" />
+      <stop offset="50%" stop-color="#0891b2" />
+      <stop offset="100%" stop-color="#e11d48" />
+    </linearGradient>
+
+    <!-- 投影与光晕滤镜 -->
+    <filter id="epicGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000000" flood-opacity="0.8" />
+    </filter>
+  </defs>
+
+  <!-- 1. 画卷黑金底色 -->
+  <rect width="960" height="540" fill="url(#bgGrad)" />
+
+  <!-- 2. 电影环境光晕层 -->
+  <circle cx="480" cy="200" r="380" fill="url(#sunGlow)" />
+
+  <!-- 3. 背景剪影装饰 (根据阵营变化建筑/山水/海潮) -->
+  <g fill="#061820" opacity="0.8">
+        <path d="M 0 350 Q 180 390 360 340 T 720 360 T 960 330 L 960 540 L 0 540 Z" />
+        <!-- 巨舰桅杆与帆影 -->
+        <path d="M 450 330 L 450 180 L 455 180 L 455 330 Z" fill="#08222c" />
+        <path d="M 455 200 L 540 220 L 535 290 L 455 280 Z" fill="#0b2c39" opacity="0.8" />
+        <path d="M 280 340 L 280 220 L 284 220 L 284 340 Z M 284 230 L 330 245 L 325 300 L 284 290 Z" fill="#08222c" opacity="0.7" />
+        <path d="M 680 340 L 680 210 L 684 210 L 684 340 Z M 684 220 L 735 238 L 730 295 L 684 285 Z" fill="#08222c" opacity="0.7" />
+      </g>
+
+  <!-- 4. 核心主题视觉剪影构图 -->
+  <g transform="translate(480, 270)" filter="url(#epicGlow)">
+        <!-- 左侧突刺冲锋武将 -->
+        <path d="M -90 60 L -40 0 L -10 15 L -60 65 Z" fill="#06b6d4" />
+        <circle cx="-35" cy="-12" r="15" fill="#e11d48" />
+        <line x1="-30" y1="5" x2="20" y2="-20" stroke="#fff" stroke-width="4" />
+
+        <!-- 右侧迎头劈砍对手 -->
+        <path d="M 90 60 L 40 0 L 10 15 L 60 65 Z" fill="#0891b2" />
+        <circle cx="35" cy="-12" r="15" fill="#06b6d4" />
+        <line x1="30" y1="5" x2="-20" y2="-20" stroke="#e11d48" stroke-width="4" />
+
+        <!-- 刀兵碰撞中心十字爆闪 -->
+        <circle cx="0" cy="-20" r="18" fill="#fff" opacity="0.95" />
+        <line x1="-40" y1="-20" x2="40" y2="-20" stroke="#fff" stroke-width="3" />
+        <line x1="0" y1="-60" x2="0" y2="20" stroke="#fff" stroke-width="3" />
+        <line x1="-25" y1="-45" x2="25" y2="5" stroke="#e11d48" stroke-width="2" />
+      </g>
+
+  <!-- 5. 边框典雅暗金纹饰 -->
+  <rect x="20" y="20" width="920" height="500" rx="12" fill="none" stroke="#06b6d4" stroke-width="1.5" stroke-opacity="0.4" />
+  <rect x="26" y="26" width="908" height="488" rx="8" fill="none" stroke="#e11d48" stroke-width="0.8" stroke-opacity="0.25" stroke-dasharray="6,4" />
+
+  <!-- 四角祥云/回纹雕花 -->
+  <g stroke="#e11d48" stroke-width="1.5" fill="none" opacity="0.75">
+    <path d="M 30 50 L 30 30 L 50 30 M 35 35 L 45 35 M 35 45 L 35 35" />
+    <path d="M 930 50 L 930 30 L 910 30 M 925 35 L 915 35 M 925 45 L 925 35" />
+    <path d="M 30 490 L 30 510 L 50 510 M 35 505 L 45 505 M 35 495 L 35 505" />
+    <path d="M 930 490 L 930 510 L 910 510 M 925 505 L 915 505 M 925 495 L 925 505" />
+  </g>
+
+  <!-- 6. 阵营标识与主题徽章 (顶部悬浮) -->
+  <g transform="translate(480, 56)" text-anchor="middle">
+    <rect x="-140" y="-18" width="280" height="34" rx="17" fill="rgba(8, 14, 22, 0.85)" stroke="#06b6d4" stroke-width="1" />
+    <text y="5" font-family="'Noto Serif SC', 'Songti SC', serif" font-size="14" fill="#e11d48" font-weight="700" letter-spacing="3">
+      南国海邦 · 战斗画卷
+    </text>
+  </g>
+
+  <!-- 7. 画面底部剧场文学说明标牌 (黑金半透遮罩) -->
+  <g transform="translate(48, 420)">
+    <rect width="864" height="84" rx="8" fill="rgba(6, 10, 16, 0.85)" stroke="rgba(255, 255, 255, 0.12)" stroke-width="1" filter="url(#softShadow)" />
+    <!-- 标牌左侧主题图标 -->
+    <text x="32" y="52" font-size="32" filter="url(#epicGlow)">⚔️</text>
+    <!-- 标题 -->
+    <text x="80" y="34" font-family="'Noto Serif SC', serif" font-size="18" font-weight="900" fill="#e11d48" letter-spacing="1">
+      【战斗】接舷跳帮 · 惊涛斩浪
+    </text>
+    <!-- 意境散文白描 -->
+    <text x="80" y="60" font-family="'Noto Serif SC', serif" font-size="12" fill="#cbd5e1" opacity="0.9" letter-spacing="0.5">
+      巨浪掀起滔天狂澜，两船舷板撞击剧颤！水师健儿手持藤牌鸟铳，飞索跃登敌船甲板，刀铳齐发火光照海。
+    </text>
+  </g>
+</svg>

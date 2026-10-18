@@ -1,0 +1,274 @@
+{
+  "qing": {
+    "qing_captive": {
+      "id": "qing_captive",
+      "faction": "qing",
+      "factionName": "后金八旗",
+      "category": "captive",
+      "categoryName": "俘虏",
+      "title": "【俘虏】败将就缚 · 铁索加身",
+      "description": "盛京大殿雪泥之上，降明总兵铁索束身伏首称臣。八旗侍卫横刀逼视，杀气与劝降之意森然交织。",
+      "symbol": "⛓️",
+      "relativePath": "data/illustrations/qing/captive.svg"
+    },
+    "qing_battle": {
+      "id": "qing_battle",
+      "faction": "qing",
+      "factionName": "后金八旗",
+      "category": "battle",
+      "categoryName": "战斗",
+      "title": "【战斗】白刃肉搏 · 踏雪夺锋",
+      "description": "辽沈密林积雪齐膝，白刃交锋溅起刺目赤血。重甲步兵挺枪突刺，刀光在寒月下撕裂呼啸风雪。",
+      "symbol": "⚔️",
+      "relativePath": "data/illustrations/qing/battle.svg"
+    },
+    "qing_war": {
+      "id": "qing_war",
+      "faction": "qing",
+      "factionName": "后金八旗",
+      "category": "war",
+      "categoryName": "战争",
+      "title": "【战争】一片石狂飚 · 万骑冲阵",
+      "description": "一片石黄沙蔽日狂风骤起，两白旗万骑重铠铁骑自石河两翼惊雷般突入！数十万大军生死决战，天翻地覆！",
+      "symbol": "🛡️",
+      "relativePath": "data/illustrations/qing/war.svg"
+    },
+    "qing_romance": {
+      "id": "qing_romance",
+      "faction": "qing",
+      "factionName": "后金八旗",
+      "category": "romance",
+      "categoryName": "爱情",
+      "title": "【风月/羁绊】塞外私誓 · 同袍深情",
+      "description": "盛京风雪深宵，营帐篝火温酒。两位身披铁甲的同袍眷侣相拥卸下佩刀，在生死难料的入关夜许下一生之诺（含同袍深情羁绊）。",
+      "symbol": "❤️",
+      "relativePath": "data/illustrations/qing/romance.svg"
+    },
+    "qing_victory": {
+      "id": "qing_victory",
+      "faction": "qing",
+      "factionName": "后金八旗",
+      "category": "victory",
+      "categoryName": "胜利",
+      "title": "【胜利】问鼎燕京 · 九重登极",
+      "description": "摄政王万骑簇拥进驻紫禁城武英殿！金瓦日光炫目，文武百官降表如雪，八旗铁骑定鼎中原两百六十年大一统！",
+      "symbol": "👑",
+      "relativePath": "data/illustrations/qing/victory.svg"
+    },
+    "qing_wealth": {
+      "id": "qing_wealth",
+      "faction": "qing",
+      "factionName": "后金八旗",
+      "category": "wealth",
+      "categoryName": "财富",
+      "title": "【财富】盛京府库 · 珍宝锦帛",
+      "description": "八旗内库金铁成山，抄没勋贵府邸所得万箱金银玉器与辽东貂参鹿茸盈库，大军军饷赏赐堆积如山。",
+      "symbol": "💰",
+      "relativePath": "data/illustrations/qing/wealth.svg"
+    }
+  },
+  "ming": {
+    "ming_captive": {
+      "id": "ming_captive",
+      "faction": "ming",
+      "factionName": "大明中枢",
+      "category": "captive",
+      "categoryName": "俘虏",
+      "title": "【俘虏】诏狱严鞫 · 暗桩现形",
+      "description": "北镇抚司诏狱铁门深锁，火盆余烬照亮刑架。锦衣卫缇骑手按绣春刀，案头密信直指朝中私通大乱之通敌暗桩。",
+      "symbol": "⛓️",
+      "relativePath": "data/illustrations/ming/captive.svg"
+    },
+    "ming_battle": {
+      "id": "ming_battle",
+      "faction": "ming",
+      "factionName": "大明中枢",
+      "category": "battle",
+      "categoryName": "战斗",
+      "title": "【战斗】禁军斩逆 · 殿角鏖战",
+      "description": "午门回廊飞檐积雪，刺客死士踏碎青砖。锦衣卫飞鱼服翻卷如火，绣春刀连斩七人，鲜血染透御道雕龙。",
+      "symbol": "⚔️",
+      "relativePath": "data/illustrations/ming/battle.svg"
+    },
+    "ming_war": {
+      "id": "ming_war",
+      "faction": "ming",
+      "factionName": "大明中枢",
+      "category": "war",
+      "categoryName": "战争",
+      "title": "【战争】宁远坚城 · 炮火连天",
+      "description": "山海雄关城堞耸峙，百门红夷大炮火舌齐吐，震天巨响中城外敌潮化为齑粉，血肉城垣固若金汤！",
+      "symbol": "🛡️",
+      "relativePath": "data/illustrations/ming/war.svg"
+    },
+    "ming_romance": {
+      "id": "ming_romance",
+      "faction": "ming",
+      "factionName": "大明中枢",
+      "category": "romance",
+      "categoryName": "爱情",
+      "title": "【风月/羁绊】深宫密约 · 孤忠相许",
+      "description": "文渊阁摇红残烛之下，内阁重臣与执剑缇骑并肩而立，执手相看。天下板荡生死与共，断袖同心胜似海誓山盟。",
+      "symbol": "❤️",
+      "relativePath": "data/illustrations/ming/romance.svg"
+    },
+    "ming_victory": {
+      "id": "ming_victory",
+      "faction": "ming",
+      "factionName": "大明中枢",
+      "category": "victory",
+      "categoryName": "胜利",
+      "title": "【胜利】日月重光 · 奉天朝贺",
+      "description": "奉天殿九重天门轰然洞开，万国衣冠朝冕旒！勤王大军金甲耀日，日月旗迎风长啸，三百年礼乐江山重沐荣光！",
+      "symbol": "👑",
+      "relativePath": "data/illustrations/ming/victory.svg"
+    },
+    "ming_wealth": {
+      "id": "ming_wealth",
+      "faction": "ming",
+      "factionName": "大明中枢",
+      "category": "wealth",
+      "categoryName": "财富",
+      "title": "【财富】太仓银库 · 关税充盈",
+      "description": "户部太仓万库充盈，东南市舶司海贸抽分雪花银锭整齐罗列。国库回春，辽饷三饷尽除，天下民生大定。",
+      "symbol": "💰",
+      "relativePath": "data/illustrations/ming/wealth.svg"
+    }
+  },
+  "mongol": {
+    "mongol_captive": {
+      "id": "mongol_captive",
+      "faction": "mongol",
+      "factionName": "大漠蒙古",
+      "category": "captive",
+      "categoryName": "俘虏",
+      "title": "【俘虏】瀚海俘敌 · 毡帐按问",
+      "description": "金顶大帐外朔风呼啸，俘获的越界哨骑与敌酋卸弓下跪。苏勒德神矛影子投在雪地，生死只在可汗一瞬决断。",
+      "symbol": "⛓️",
+      "relativePath": "data/illustrations/mongol/captive.svg"
+    },
+    "mongol_battle": {
+      "id": "mongol_battle",
+      "faction": "mongol",
+      "factionName": "大漠蒙古",
+      "category": "battle",
+      "categoryName": "战斗",
+      "title": "【战斗】骑射奔袭 · 苍狼猎杀",
+      "description": "大漠落日如血，奔马回身挽拉铁胎硬弓。雕翎重箭撕破朔风呼啸贯穿追兵咽喉，马蹄踏碎漫天黄沙。",
+      "symbol": "⚔️",
+      "relativePath": "data/illustrations/mongol/battle.svg"
+    },
+    "mongol_war": {
+      "id": "mongol_war",
+      "faction": "mongol",
+      "factionName": "大漠蒙古",
+      "category": "war",
+      "categoryName": "战争",
+      "title": "【战争】长生天誓 · 千军席卷",
+      "description": "长生天苍穹如穹庐倒扣，九游白纛迎风呼啸招展！数十万苍狼铁骑如黑色巨浪淹没地平线，旌旗蔽日！",
+      "symbol": "🛡️",
+      "relativePath": "data/illustrations/mongol/war.svg"
+    },
+    "mongol_romance": {
+      "id": "mongol_romance",
+      "faction": "mongol",
+      "factionName": "大漠蒙古",
+      "category": "romance",
+      "categoryName": "爱情",
+      "title": "【风月/羁绊】穹庐同衾 · 草原长盟",
+      "description": "长生天繁星垂落茫茫草原，毡帐内烈酒甘醇。两名挽弓御敌的巴特尔勇士在苏勒德矛下结发缔盟，白头相守。",
+      "symbol": "❤️",
+      "relativePath": "data/illustrations/mongol/romance.svg"
+    },
+    "mongol_victory": {
+      "id": "mongol_victory",
+      "faction": "mongol",
+      "factionName": "大漠蒙古",
+      "category": "victory",
+      "categoryName": "胜利",
+      "title": "【胜利】黄金再起 · 汗位加冕",
+      "description": "斡难河源千顶金帐齐聚，忽里勒台大会响彻九霄！万众俯首高呼可汗万岁，黄金家族重新君临大漠南北！",
+      "symbol": "👑",
+      "relativePath": "data/illustrations/mongol/victory.svg"
+    },
+    "mongol_wealth": {
+      "id": "mongol_wealth",
+      "faction": "mongol",
+      "factionName": "大漠蒙古",
+      "category": "wealth",
+      "categoryName": "财富",
+      "title": "【财富】万顷牛羊 · 驼道金珠",
+      "description": "水草丰美牛羊塞道，万峰驼队自茶马古道满载茶砖、苏木与西域玛瑙黄金归来，黄金家族富甲瀚海。",
+      "symbol": "💰",
+      "relativePath": "data/illustrations/mongol/wealth.svg"
+    }
+  },
+  "nanming": {
+    "nanming_captive": {
+      "id": "nanming_captive",
+      "faction": "nanming",
+      "factionName": "南国海邦",
+      "category": "captive",
+      "categoryName": "俘虏",
+      "title": "【俘虏】登舰受缚 · 夷长缴械",
+      "description": "闽海万吨福船甲板之上，被俘之红毛夷舰长与走私巨室低头呈上航海图与火器图式，大明水师虎视眈眈。",
+      "symbol": "⛓️",
+      "relativePath": "data/illustrations/nanming/captive.svg"
+    },
+    "nanming_battle": {
+      "id": "nanming_battle",
+      "faction": "nanming",
+      "factionName": "南国海邦",
+      "category": "battle",
+      "categoryName": "战斗",
+      "title": "【战斗】接舷跳帮 · 惊涛斩浪",
+      "description": "巨浪掀起滔天狂澜，两船舷板撞击剧颤！水师健儿手持藤牌鸟铳，飞索跃登敌船甲板，刀铳齐发火光照海。",
+      "symbol": "⚔️",
+      "relativePath": "data/illustrations/nanming/battle.svg"
+    },
+    "nanming_war": {
+      "id": "nanming_war",
+      "faction": "nanming",
+      "factionName": "南国海邦",
+      "category": "war",
+      "categoryName": "战争",
+      "title": "【战争】巨舰横江 · 铁甲水师",
+      "description": "长江入海口帆樯如云遮断江面，三层千料战舰舷侧火炮齐轰，惊涛激荡烈焰焚天，江海为之倒悬！",
+      "symbol": "🛡️",
+      "relativePath": "data/illustrations/nanming/war.svg"
+    },
+    "nanming_romance": {
+      "id": "nanming_romance",
+      "faction": "nanming",
+      "factionName": "南国海邦",
+      "category": "romance",
+      "categoryName": "爱情",
+      "title": "【风月/羁绊】风涛同舟 · 碧海誓言",
+      "description": "远洋巨舰舱房夜灯如豆，窗外波涛汹涌。两位浪涛里并肩掌舵的水手知己紧密依偎，在狂风骇浪中誓作彼此港湾。",
+      "symbol": "❤️",
+      "relativePath": "data/illustrations/nanming/romance.svg"
+    },
+    "nanming_victory": {
+      "id": "nanming_victory",
+      "faction": "nanming",
+      "factionName": "南国海邦",
+      "category": "victory",
+      "categoryName": "胜利",
+      "title": "【胜利】龙旗耀海 · 帝国初安",
+      "description": "热兰遮城投降降旗，大明龙旗猎猎插上海外海疆要冲！四海航路畅通无阻，万邦来朝，海上日不落霸业已成！",
+      "symbol": "👑",
+      "relativePath": "data/illustrations/nanming/victory.svg"
+    },
+    "nanming_wealth": {
+      "id": "nanming_wealth",
+      "faction": "nanming",
+      "factionName": "南国海邦",
+      "category": "wealth",
+      "categoryName": "财富",
+      "title": "【财富】万国宝船 · 香料银山",
+      "description": "闽海万料宝船底舱层层码满吕宋鹰洋白银、泰西自鸣钟与南洋肉豆蔻香料，海贸富可敌国，金山照海。",
+      "symbol": "💰",
+      "relativePath": "data/illustrations/nanming/wealth.svg"
+    }
+  }
+}
