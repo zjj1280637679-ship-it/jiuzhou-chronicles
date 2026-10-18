@@ -27,14 +27,19 @@ const allCards = [];
 
 for (const [fKey, fObj] of Object.entries(rawData)) {
   for (const [cKey, item] of Object.entries(fObj)) {
-    const svgPath = path.join(__dirname, item.relativePath);
-    let svgContent = "";
-    if (fs.existsSync(svgPath)) {
-      svgContent = fs.readFileSync(svgPath, 'utf8');
+    const filePath = path.join(__dirname, item.relativePath);
+    let visualContent = "";
+    if (fs.existsSync(filePath)) {
+      if (item.relativePath.endsWith('.jpg') || item.relativePath.endsWith('.png')) {
+        const b64 = fs.readFileSync(filePath).toString('base64');
+        visualContent = `<img src="data:image/jpeg;base64,${b64}" class="w-full h-full object-cover" alt="${item.title}" />`;
+      } else {
+        visualContent = fs.readFileSync(filePath, 'utf8');
+      }
     }
     allCards.push({
       ...item,
-      svg: svgContent
+      svg: visualContent
     });
   }
 }
