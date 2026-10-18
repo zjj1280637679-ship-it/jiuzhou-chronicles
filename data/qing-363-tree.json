@@ -192,7 +192,37 @@
           "convergenceTargetId": "qing_act3_iron_slaughter"
         }
       ],
-      "sutureHints": "若此前在外推中接触过关宁将领或截获明军粮道密报，多尔衮与孔有德在攻关调度时将以该内应军情为核心枢纽展开对撞辩驳。"
+      "sutureHints": "若此前在外推中接触过关宁将领或截获明军粮道密报，多尔衮与孔有德在攻关调度时将以该内应军情为核心枢纽展开对撞辩驳。",
+      "beats": [
+        {
+          "speaker": "旁白",
+          "sub": "山海要隘 · 一片石风雪前线",
+          "type": "narrator",
+          "stageChar": "center",
+          "text": "千里冰封，鹅毛暴雪撕扯着黑夜。两黄旗与两白旗精锐白甲重骑顶风冒雪连营数十里，狂风掀动猎猎黑龙旗。城头明军佛郎机子母炮烈焰撕破夜空，城下三千白巴牙喇死士挽两石硬弓，踏冰雪怒号列阵，玄铁重矢破空呼啸，杀气震裂九霄！"
+        },
+        {
+          "speaker": "多尔衮",
+          "sub": "摄政王，拔刀直指南天",
+          "type": "npc",
+          "stageChar": "left",
+          "text": "“祖宗克敌，全仗铁骑硬弓！任他铁锁险关、铜墙铁壁，在八旗白甲重矢面前不过朽木！传本王令旨：勇士登城，破关纵兵三日，先登者赏银万两、世袭牛录额真！”"
+        },
+        {
+          "speaker": "孔有德",
+          "sub": "恭顺王，抚重炮跪请",
+          "type": "npc",
+          "stageChar": "right",
+          "text": "“九王爷息怒！关头滚木雷石极猛，明军借山势死守，徒以八旗白甲血肉填城濠恐折国之锐气！汉军乌真超哈营百门红衣大将军炮已架设完毕，请允臣移炮抵近连环齐射，半日之内定教这巍峨险关灰飞烟灭！”"
+        },
+        {
+          "speaker": "铁血狼顾",
+          "sub": "【内在直觉 · 萨满铁血】",
+          "type": "voice-court",
+          "stageChar": "center",
+          "text": "“寒风掠过苏鲁锭长枪，雪泥中翻滚着满洲子弟的温热鲜血。八旗精甲是立国之本，亦是全族命脉。是逞狂暴之勇决死登城、以重炮烈火粉碎一切顽抗，抑或久顿坚城陷入饥寒绝境？胜败存亡，皆系于这临关一断。”"
+        }
+      ]
     },
     "qing_act2_civil": {
       "id": "qing_act2_civil",
@@ -400,6 +430,19 @@
           "targetNodeId": "qing_act3_steppe_fracture"
         },
         {
+          "text": "【🌿 AI局外外推】雪夜微服疾行，截探归化城召庙暗室中察哈尔遗臣秘藏的北元秘录与假玉玺残卷！",
+          "tag": "玉玺寻踪 · 局外外推",
+          "bias": {
+            "authority": 2,
+            "pragmatism": 6,
+            "progress": 3,
+            "cognition": 6
+          },
+          "diceBase": 10,
+          "isExtrapolation": false,
+          "targetNodeId": null
+        },
+        {
           "text": "【✍️ 输入文字开放式外推】脱离主线规制，由玩家自由输入文字指令，交由 AI 即时接住推演全新支线场景卡！",
           "tag": "自由行动 · AI接戏",
           "bias": {
@@ -415,7 +458,37 @@
           "convergenceTargetId": "qing_act3_steppe_charge"
         }
       ],
-      "sutureHints": "若此前在外推中接触过漠北喀尔喀部使节、或截获山海关吴三桂密书，金顶帐中科尔沁王公的进逼言辞与黄教贡使的授封条件将据此剧烈演化。"
+      "sutureHints": "若此前在外推中接触过漠北喀尔喀部使节、或截获山海关吴三桂密书，金顶帐中科尔沁王公的进逼言辞与黄教贡使的授封条件将据此剧烈演化。",
+      "beats": [
+        {
+          "speaker": "旁白",
+          "sub": "漠南归化城 · 金顶御帐风雪之巅",
+          "type": "narrator",
+          "stageChar": "center",
+          "text": "寒冬朔风如刀，卷着冰雪抽打着漠南归化城九斿白纛与八旗黄龙大旗。金顶巨帐之内，火盆爆烈，牛油与酥油茶的浓烈气息混杂着祭兽热血漫散开来。察哈尔部归降，传国玉玺已奉入案前，漠南四十九旗蒙古王公齐聚盛会。金案之上赫然供奉着两件关乎天命的神物——一柄是满洲大萨满以黑牦牛尾与烈马心血淬炼的长生天神矛，另一柄则是拉萨五世达赖喇嘛亲遣贡使翻越雪山送抵的金刚降魔杵与转轮圣王法王敕书。"
+        },
+        {
+          "speaker": "科尔沁土谢图汗",
+          "sub": "手按狼头金刀，披鹿皮铁铠，目光桀骜",
+          "type": "npc",
+          "stageChar": "left",
+          "text": "“大汗！长生天的苍狼早已嗅出明国气数已尽！科尔沁十万精骑饮马辽河，只待大汗拔起萨满神矛指向喜峰口！只要铁骑踏破长城，中原千万顷锦绣田园、亿万金帛妇女，便皆是我塞外满蒙健儿放牧之野！”"
+        },
+        {
+          "speaker": "甘丹寺贡使诺门罕",
+          "sub": "双手合十，手转菩提念珠，声如深谷梵钟",
+          "type": "npc",
+          "stageChar": "right",
+          "text": "“阿弥陀佛。弯刀与长矛虽可破关斩将，安能降服中原万民与漠北万众之心？达赖喇嘛法旨已明：若大汗以金刚杵灌顶，尊崇黄帽格鲁圣教，受受‘转轮圣王·文殊菩萨化身’金号，则青海、漠北乃至藏卫百万僧俗皆将视大清为主，万世永固，不战而四海宾服！”"
+        },
+        {
+          "speaker": "长生天神启",
+          "sub": "【内在直觉 · 荒原与神权】",
+          "type": "voice-court",
+          "stageChar": "center",
+          "text": "“一柄是草原茹毛饮血、以杀止杀的古老血火征服；一柄是横跨青藏雪原与大漠黄沙的博大宗教冠冕。王公们匍匐的身影下暗藏着异心与贪欲。是挥矛南下席卷幽燕，还是奉印封圣收揽蒙藏，抑或暗施雷霆之腕严防藩部反噬？塞外神权与中原天命，全系于一念抉择。”"
+        }
+      ]
     },
     "qing_act3_iron_slaughter": {
       "id": "qing_act3_iron_slaughter",
@@ -488,41 +561,41 @@
       ],
       "choices": [
         {
-          "text": "【决战分歧 1】飞渡天堑 · 铁骑夜渡长江踏碎南明行在",
-          "tag": "直扑金陵",
+          "text": "【分歧 4A-1 · 铁骑渡江】借扬州破胆之威，催动八旗精骑昼夜兼程强渡长江，以狂暴野战席卷金陵，与明军残存主力决死大会战！",
+          "tag": "铁骑渡江 · 荡平金陵",
           "bias": {
-            "authority": 5,
-            "pragmatism": 4,
-            "progress": 2,
-            "cognition": 3
-          },
-          "diceBase": 11,
-          "isExtrapolation": false,
-          "targetNodeId": "qing_act4_a1_1"
-        },
-        {
-          "text": "【决战分歧 2】血战孤城 · 江阴八十日决死困兽斗",
-          "tag": "焦土震慑",
-          "bias": {
-            "authority": 4,
-            "pragmatism": 5,
-            "progress": 4,
-            "cognition": 5
-          },
-          "diceBase": 10,
-          "isExtrapolation": false,
-          "targetNodeId": "qing_act4_a1_2"
-        },
-        {
-          "text": "【决战分歧 3】裂土三藩 · 降将封王与南国军事自治",
-          "tag": "密布眼线",
-          "bias": {
-            "authority": 6,
+            "authority": 7,
             "pragmatism": 3,
             "progress": -1,
             "cognition": 2
           },
           "diceBase": 12,
+          "isExtrapolation": false,
+          "targetNodeId": "qing_act4_a1_1"
+        },
+        {
+          "text": "【分歧 4A-2 · 巨炮轰城】调集乌真超哈营百门红衣大炮移师镇江江防，以近代毁灭火网封锁江面、轰碎坚垒，摧枯拉朽平定沿江要塞！",
+          "tag": "红衣烈火 · 炮摧江防",
+          "bias": {
+            "authority": 5,
+            "pragmatism": 6,
+            "progress": 4,
+            "cognition": 3
+          },
+          "diceBase": 11,
+          "isExtrapolation": false,
+          "targetNodeId": "qing_act4_a1_2"
+        },
+        {
+          "text": "【分歧 4A-3 · 背水困局】屠戮激起江南义民蜂起切断漕运粮道，后方告急、前路受阻，八旗陷入孤军深入的背水险境！",
+          "tag": "群起反噬 · 背水决死",
+          "bias": {
+            "authority": 3,
+            "pragmatism": -3,
+            "progress": -2,
+            "cognition": 2
+          },
+          "diceBase": 13,
           "isExtrapolation": false,
           "targetNodeId": "qing_act4_a1_3"
         },
@@ -615,12 +688,12 @@
       ],
       "choices": [
         {
-          "text": "【决战分歧 1】重炮摧关 · 乌真超哈轰裂中原九门要塞",
-          "tag": "极致轰鸣",
+          "text": "【分歧 4A-1 · 一片石会战】趁关防轰塌敌心震恐，八旗铁骑狂飙出击，在石河荒原与大顺数十万精锐展开死生大会战！",
+          "tag": "定鼎之战 · 铁骑破阵",
           "bias": {
-            "authority": 5,
+            "authority": 7,
             "pragmatism": 4,
-            "progress": 2,
+            "progress": -1,
             "cognition": 3
           },
           "diceBase": 11,
@@ -628,25 +701,25 @@
           "targetNodeId": "qing_act4_a2_1"
         },
         {
-          "text": "【决战分歧 2】战舰封江 · 铁索锁江截断运河二十万石漕运",
-          "tag": "纳银通关",
+          "text": "【分歧 4A-2 · 巨炮轰塌九门】以火药风暴长驱直入，将百门乌真重炮推至北京城下，昼夜狂轰九门迫降紫禁城！",
+          "tag": "钢铁风暴 · 炮破九门",
           "bias": {
-            "authority": 4,
-            "pragmatism": 5,
-            "progress": 4,
-            "cognition": 5
+            "authority": 6,
+            "pragmatism": 6,
+            "progress": 5,
+            "cognition": 4
           },
           "diceBase": 10,
           "isExtrapolation": false,
           "targetNodeId": "qing_act4_a2_2"
         },
         {
-          "text": "【决战分歧 3】军械惊变 · 汤若望火药大营反扑与洋匠夺铳",
-          "tag": "雷霆斩杀",
+          "text": "【分歧 4A-3 · 孤注背水车营】重炮狂轰致药弹告罄，面对大顺主力反扑与关外后路受劫，就地结车营死守隘口决死阻击！",
+          "tag": "背水死战 · 绝境鏖锋",
           "bias": {
-            "authority": 6,
+            "authority": 5,
             "pragmatism": 3,
-            "progress": -1,
+            "progress": -3,
             "cognition": 2
           },
           "diceBase": 12,
@@ -742,41 +815,41 @@
       ],
       "choices": [
         {
-          "text": "【决战分歧 1】雪夜誓师 · 赫图阿拉白山黑水十三甲再起",
-          "tag": "征召索伦",
+          "text": "【分歧 4A-1 · 伏击关宁】佯装溃逃诱敌深入，在辽西冰原设伏反噬追击的关宁铁骑，决死打出一场定鼎天下的一片石大会战！",
+          "tag": "诱敌伏杀 · 绝地反扑",
           "bias": {
-            "authority": 5,
+            "authority": 7,
             "pragmatism": 4,
-            "progress": 2,
+            "progress": -1,
             "cognition": 3
           },
-          "diceBase": 11,
+          "diceBase": 12,
           "isExtrapolation": false,
           "targetNodeId": "qing_act4_a3_1"
         },
         {
-          "text": "【决战分歧 2】松锦设伏 · 关东平原诱敌深入大合围",
-          "tag": "尽歼主力",
+          "text": "【分歧 4A-2 · 乌真断后】调集残存重炮阵地在辽河要隘抵近怒射，以烈火与重炮封锁追兵咽喉，掩护主力从容撤离！",
+          "tag": "巨炮封隘 · 烈火断后",
           "bias": {
-            "authority": 4,
-            "pragmatism": 5,
+            "authority": 6,
+            "pragmatism": 6,
             "progress": 4,
-            "cognition": 5
+            "cognition": 3
           },
-          "diceBase": 10,
+          "diceBase": 11,
           "isExtrapolation": false,
           "targetNodeId": "qing_act4_a3_2"
         },
         {
-          "text": "【决战分歧 3】破釜沉舟 · 杀马饮血夜袭山海关一片石",
-          "tag": "直夺闸盘",
+          "text": "【分歧 4A-3 · 退守白山】全军放弃入关企图，浴血杀穿合围撤回关外辽沈老营，依托白山黑水与祖陵天险构筑背水死阵！",
+          "tag": "断臂求生 · 背水死阵",
           "bias": {
-            "authority": 6,
-            "pragmatism": 3,
-            "progress": -1,
-            "cognition": 2
+            "authority": 4,
+            "pragmatism": 2,
+            "progress": -4,
+            "cognition": 1
           },
-          "diceBase": 12,
+          "diceBase": 13,
           "isExtrapolation": false,
           "targetNodeId": "qing_act4_a3_3"
         },
@@ -869,25 +942,25 @@
       ],
       "choices": [
         {
-          "text": "【决战分歧 1】金銮受禅 · 皇极殿满汉双轨制帝国诞生",
-          "tag": "彻底汉化",
+          "text": "【分歧 4B-1 · 紫禁登极】趁恩科士子归心之盛势，定于皇极殿举行奉天受禅登基大典，颁行满汉一体律令，以华夏正统天子定鼎天下！",
+          "tag": "紫禁受禅 · 天下定鼎",
           "bias": {
-            "authority": 5,
-            "pragmatism": 4,
-            "progress": 2,
-            "cognition": 3
+            "authority": 6,
+            "pragmatism": 5,
+            "progress": 5,
+            "cognition": 6
           },
           "diceBase": 11,
           "isExtrapolation": false,
           "targetNodeId": "qing_act4_b1_1"
         },
         {
-          "text": "【决战分歧 2】文衡重塑 · 顺天乡试南北卷与江南文心收抚",
-          "tag": "均分南北",
+          "text": "【分歧 4B-2 · 大义讨逆】以文德诏告天下，打起‘为君父复仇、靖难讨贼’之仁义王旗，收编黄河两岸义军降部，挥师南下与大顺残部决死会战！",
+          "tag": "大义讨逆 · 荡平中原",
           "bias": {
-            "authority": 4,
-            "pragmatism": 5,
-            "progress": 4,
+            "authority": 5,
+            "pragmatism": 6,
+            "progress": 3,
             "cognition": 5
           },
           "diceBase": 10,
@@ -895,13 +968,13 @@
           "targetNodeId": "qing_act4_b1_2"
         },
         {
-          "text": "【决战分歧 3】深文周纳 · 庄氏明史案与江表文网大清查",
-          "tag": "从严株连",
+          "text": "【分歧 4B-3 · 宗王逆鳞】重用汉儒与开科祭孔激怒满洲守旧八旗王公，盛京宗室密谋反扑，夺门政变一触即发，被迫拔刀平定汗廷内乱！",
+          "tag": "旗汉交锋 · 汗廷夺门",
           "bias": {
-            "authority": 6,
-            "pragmatism": 3,
-            "progress": -1,
-            "cognition": 2
+            "authority": 4,
+            "pragmatism": 2,
+            "progress": -2,
+            "cognition": 3
           },
           "diceBase": 12,
           "isExtrapolation": false,
@@ -996,39 +1069,39 @@
       ],
       "choices": [
         {
-          "text": "【决战分歧 1】孝陵三跪 · 顺治南巡亲奠朱元璋奠定法统",
-          "tag": "盛世宽政",
+          "text": "【分歧 4B-1 · 紫禁受禅】乘万民归心之盛势进驻京师紫禁城，皇极殿开科受禅登基，颁布《安民恩诏》立定华夏万世之法统！",
+          "tag": "奉天受禅 · 定鼎万年",
           "bias": {
-            "authority": 5,
-            "pragmatism": 4,
-            "progress": 2,
-            "cognition": 3
-          },
-          "diceBase": 11,
-          "isExtrapolation": false,
-          "targetNodeId": "qing_act4_b2_1"
-        },
-        {
-          "text": "【决战分歧 2】潼关总决 · 奉天讨逆旗号歼灭李自成大顺主力",
-          "tag": "铁骑强攻",
-          "bias": {
-            "authority": 4,
+            "authority": 6,
             "pragmatism": 5,
             "progress": 4,
             "cognition": 5
           },
           "diceBase": 10,
           "isExtrapolation": false,
+          "targetNodeId": "qing_act4_b2_1"
+        },
+        {
+          "text": "【分歧 4B-2 · 大义征伐】趁士气如虹大义在握，合编关宁归顺军为先锋，以‘代君讨逆’之名挥师南下，与大顺主力在中原原野展开歼灭大会战！",
+          "tag": "大义讨逆 · 荡平群雄",
+          "bias": {
+            "authority": 5,
+            "pragmatism": 6,
+            "progress": 3,
+            "cognition": 4
+          },
+          "diceBase": 11,
+          "isExtrapolation": false,
           "targetNodeId": "qing_act4_b2_2"
         },
         {
-          "text": "【决战分歧 3】金陵伪储 · 南明弘光正统之辩与秦淮惊变",
-          "tag": "离间攻心",
+          "text": "【分歧 4B-3 · 宗室反扑】为汉帝发丧与尊崇汉法激怒八旗守旧诸王，宗室密谋反噬兵变，盛京崇政殿突发喋血夺门政变！",
+          "tag": "汗廷惊变 · 喋血夺权",
           "bias": {
-            "authority": 6,
-            "pragmatism": 3,
-            "progress": -1,
-            "cognition": 2
+            "authority": 7,
+            "pragmatism": 2,
+            "progress": -2,
+            "cognition": 3
           },
           "diceBase": 12,
           "isExtrapolation": false,
@@ -1123,41 +1196,41 @@
       ],
       "choices": [
         {
-          "text": "【决战分歧 1】雷霆乾纲 · 皇极殿廷杖圈禁八旗守旧宗室",
-          "tag": "尽收兵权",
+          "text": "【分歧 4B-1 · 紫禁受禅】雷霆诛杀兵变首谋、大赦胁从旗兵，强推满汉平准法度，迎请幼主举行紫禁城即位大典，以天下正统文德君临万邦！",
+          "tag": "诛戮首恶 · 紫禁登极",
           "bias": {
-            "authority": 5,
-            "pragmatism": 4,
-            "progress": 2,
-            "cognition": 3
-          },
-          "diceBase": 11,
-          "isExtrapolation": false,
-          "targetNodeId": "qing_act4_b3_1"
-        },
-        {
-          "text": "【决战分歧 2】退田安民 · 废止跑马圈地归还江南畿辅流民",
-          "tag": "永定旗饷",
-          "bias": {
-            "authority": 4,
+            "authority": 6,
             "pragmatism": 5,
             "progress": 4,
             "cognition": 5
           },
-          "diceBase": 10,
+          "diceBase": 12,
+          "isExtrapolation": false,
+          "targetNodeId": "qing_act4_b3_1"
+        },
+        {
+          "text": "【分歧 4B-2 · 大义南征】以戴罪立功为名收编诸王私兵部曲，将八旗嗜血狂躁引向中原战场，以‘大义讨逆’之师挥戈南下，与李闯及南明展开决死大会战！",
+          "tag": "大义讨逆 · 挥戈南下",
+          "bias": {
+            "authority": 5,
+            "pragmatism": 6,
+            "progress": 3,
+            "cognition": 4
+          },
+          "diceBase": 11,
           "isExtrapolation": false,
           "targetNodeId": "qing_act4_b3_2"
         },
         {
-          "text": "【决战分歧 3】绿营定畿 · 引汉军三营驻守京畿弹压宗室内乱",
-          "tag": "整编近卫",
+          "text": "【分歧 4B-3 · 盛京殿斗】八旗守旧宗王与两黄旗反戈北遁盛京叛乱，摄政王亲率亲军轻骑星夜驰援关外，在盛京崇政殿引爆一场血染青石的喋血夺门政变！",
+          "tag": "盛京夺门 · 喋血死斗",
           "bias": {
-            "authority": 6,
-            "pragmatism": 3,
-            "progress": -1,
-            "cognition": 2
+            "authority": 7,
+            "pragmatism": 2,
+            "progress": -2,
+            "cognition": 3
           },
-          "diceBase": 12,
+          "diceBase": 13,
           "isExtrapolation": false,
           "targetNodeId": "qing_act4_b3_3"
         },
@@ -1250,10 +1323,10 @@
       ],
       "choices": [
         {
-          "text": "【决战分歧 1】大漠铁流 · 三十万满蒙铁骑踏冰横渡黄河",
-          "tag": "纵马掠野",
+          "text": "【分歧 4C-1 · 铁骑决野】趁破关锐气正盛，催动满蒙三十万铁骑长驱直入幽燕平原，以摧枯拉朽的冲锋横扫大顺与明军残部，展开死生大会战！",
+          "tag": "三十万骑 · 席卷天下",
           "bias": {
-            "authority": 5,
+            "authority": 6,
             "pragmatism": 4,
             "progress": 2,
             "cognition": 3
@@ -1263,26 +1336,26 @@
           "targetNodeId": "qing_act4_c1_1"
         },
         {
-          "text": "【决战分歧 2】定塞划疆 · 承德长城内外游牧军事封邑确立",
-          "tag": "长城联防",
+          "text": "【分歧 4C-2 · 神权慑京】以萨满神矛与格鲁金刚杵威慑畿辅，迎请五世达赖喇嘛法使于避暑胜地筑坛，以‘转轮圣王’天命逼降幽燕各路关防！",
+          "tag": "神权加冕 · 万佛归宗",
           "bias": {
-            "authority": 4,
+            "authority": 5,
             "pragmatism": 5,
             "progress": 4,
-            "cognition": 5
+            "cognition": 6
           },
           "diceBase": 10,
           "isExtrapolation": false,
           "targetNodeId": "qing_act4_c1_2"
         },
         {
-          "text": "【决战分歧 3】幽燕劫火 · 游牧掠夺激起北方坞堡人民战争",
-          "tag": "严斩乱将",
+          "text": "【分歧 4C-3 · 铁腕勒缰】蒙古部分旗主劫掠失控、违令抗命，摄政王亲临大营拔刀立斩叛将，以铁血军法整肃盟军，在内乱反噬前收紧缰绳！",
+          "tag": "整肃狂飙 · 决死弹压",
           "bias": {
-            "authority": 6,
+            "authority": 7,
             "pragmatism": 3,
-            "progress": -1,
-            "cognition": 2
+            "progress": 1,
+            "cognition": 4
           },
           "diceBase": 12,
           "isExtrapolation": false,
@@ -1377,39 +1450,39 @@
       ],
       "choices": [
         {
-          "text": "【决战分歧 1】外八庙敕 · 避暑山庄迎奉班禅达赖受封圣王",
-          "tag": "征发僧兵",
+          "text": "【分歧 4C-1 · 圣王护法南征】借助‘文殊大皇帝·转轮圣王’无上神权号召蒙藏万部，聚起满蒙三十万护法铁骑如狂潮决堤，以泰山压顶之势挥师入关，与大顺大西在中原展开灭顶大会战！",
+          "tag": "圣王护法 · 铁骑席卷",
           "bias": {
-            "authority": 5,
-            "pragmatism": 4,
+            "authority": 7,
+            "pragmatism": 5,
             "progress": 2,
-            "cognition": 3
+            "cognition": 5
           },
           "diceBase": 11,
           "isExtrapolation": false,
           "targetNodeId": "qing_act4_c2_1"
         },
         {
-          "text": "【决战分歧 2】寺庙网络 · 以庙控塞四十九旗喇嘛驻防体系建立",
-          "tag": "彻底削兵",
+          "text": "【分歧 4C-2 · 塞北万世定盟】趁万佛朝宗之势，在热河召集漠北喀尔喀三部与西蒙古各部，颁布《蒙藏法典》定盟旗制，构筑北疆神权长城，永绝千年北方边患！",
+          "tag": "万佛朝宗 · 塞北定盟",
           "bias": {
-            "authority": 4,
-            "pragmatism": 5,
+            "authority": 5,
+            "pragmatism": 6,
             "progress": 4,
-            "cognition": 5
+            "cognition": 6
           },
           "diceBase": 10,
           "isExtrapolation": false,
           "targetNodeId": "qing_act4_c2_2"
         },
         {
-          "text": "【决战分歧 3】萨满之血 · 盛京清宁宫老萨满与黄教法师喋血",
-          "tag": "血洗萨满",
+          "text": "【分歧 4C-3 · 萨满喋血抗圣】尊崇黄教激怒满洲传统八旗萨满与顽固宗王领主，怒斥汗廷舍弃祖宗铁血骑射，引长生天神矛与密谋死士夜袭金顶坛城，被迫拔刀平定神权之变！",
+          "tag": "宗王逆圣 · 坛城喋血",
           "bias": {
             "authority": 6,
             "pragmatism": 3,
             "progress": -1,
-            "cognition": 2
+            "cognition": 4
           },
           "diceBase": 12,
           "isExtrapolation": false,
@@ -1504,11 +1577,11 @@
       ],
       "choices": [
         {
-          "text": "【决战分歧 1】编旗定界 · 斩杀违令首领确立扎萨克行省铁律",
-          "tag": "高压定界",
+          "text": "【分歧 4C-1 · 阴山横扫】雷霆斩杀叛盟首恶、收编胁从旗丁部众，以血火威逼整合满蒙三十万铁骑，翻越阴山关隘以狂飙之势席卷幽燕中原！",
+          "tag": "雷霆镇叛 · 铁骑入关",
           "bias": {
-            "authority": 5,
-            "pragmatism": 4,
+            "authority": 6,
+            "pragmatism": 5,
             "progress": 2,
             "cognition": 3
           },
@@ -1517,26 +1590,26 @@
           "targetNodeId": "qing_act4_c3_1"
         },
         {
-          "text": "【决战分歧 2】乌兰布通 · 康熙御驾亲征迎战准噶尔驼城火器",
-          "tag": "集中轰击",
+          "text": "【分歧 4C-2 · 承德崇佛】急迎五世达赖喇嘛圣使进驻塞外行辕，借‘转轮圣王文殊化身’神权敕封大赦蒙旗万民，筑金顶坛城化解血海兵灾！",
+          "tag": "神权大赦 · 承德法会",
           "bias": {
-            "authority": 4,
-            "pragmatism": 5,
+            "authority": 5,
+            "pragmatism": 6,
             "progress": 4,
-            "cognition": 5
+            "cognition": 6
           },
           "diceBase": 10,
           "isExtrapolation": false,
           "targetNodeId": "qing_act4_c3_2"
         },
         {
-          "text": "【决战分歧 3】辽西惊雷 · 布尔尼引火器叛乱与关外走廊阻击战",
-          "tag": "全民死战",
+          "text": "【分歧 4C-3 · 乌兰合围】调集乌真超哈神机重炮营星夜北上，在乌兰布统草原大布万驼炮阵，以排山倒海的烈火霰弹决死荡平漠北叛旗联军！",
+          "tag": "驼城炮阵 · 绝死荡平",
           "bias": {
-            "authority": 6,
+            "authority": 7,
             "pragmatism": 3,
-            "progress": -1,
-            "cognition": 2
+            "progress": 1,
+            "cognition": 3
           },
           "diceBase": 12,
           "isExtrapolation": false,
