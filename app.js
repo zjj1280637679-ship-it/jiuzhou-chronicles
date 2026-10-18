@@ -4016,11 +4016,11 @@ ${currentProfile.npcRoster}`;
   buildGatewayMessages(messages) {
     if (!Array.isArray(messages) || messages.length < 3) throw new Error("游戏上下文不完整");
     const keep = messages.slice(0, 2).map((m, i) => ({
-      role: "system", content: String(m.content || "").slice(0, i === 0 ? 9500 : 20000)
+      role: "system", content: String(m.content || "").slice(0, i === 0 ? 8500 : 18000)
     }));
-    return keep.concat(messages.slice(2).slice(-12).map(m => ({
+    return keep.concat(messages.slice(2).slice(-8).map(m => ({
       role: m.role === "assistant" ? "assistant" : "user",
-      content: String(m.content || "").slice(0, 1400)
+      content: String(m.content || "").slice(0, 1200)
     })));
   }
 
