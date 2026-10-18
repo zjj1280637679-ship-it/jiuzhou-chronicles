@@ -888,6 +888,7 @@ class WebVisualNovelEngine {
     // 保存设置
     document.getElementById("btn-save-settings").addEventListener("click", () => {
       this.apiConfig.enabled = this.settingEnableApi ? this.settingEnableApi.checked : false;
+      this.apiConfig.userDisabledShared = !this.apiConfig.enabled;
       this.apiConfig.model = this.settingModel ? this.settingModel.value : "deepseek-flash";
       this.apiConfig.customModel = this.settingCustomModel ? this.settingCustomModel.value.trim() : "";
       this.apiConfig.endpoint = this.settingEndpoint ? this.settingEndpoint.value.trim() : "https://api.deepseek.com/chat/completions";
@@ -1028,8 +1029,8 @@ class WebVisualNovelEngine {
       let sutureResult = null;
 
       // 若启用了 API，调用 DeepSeek Live Suture API 履行修改文字卡职责
-      if ((this.serverSharedConfig && this.serverSharedConfig.hasServerKey) ||
-          (this.apiConfig && this.apiConfig.enabled && this.apiConfig.apiKey)) {
+      if (this.apiConfig && this.apiConfig.enabled &&
+          ((this.serverSharedConfig && this.serverSharedConfig.hasServerKey) || this.apiConfig.apiKey)) {
         try {
           sutureResult = await this.callDeepSeekSutureAPI(node, this.extrapolationHistory);
         } catch (err) {
@@ -1153,7 +1154,7 @@ ${JSON.stringify(targetNode.originalBeats)}
       { role: "user", content: userTail }
     ];
 
-    const useGateway = Boolean(this.serverSharedConfig && this.serverSharedConfig.hasServerKey && !this.apiConfig.apiKey);
+    const useGateway = Boolean(this.apiConfig.enabled && this.serverSharedConfig && this.serverSharedConfig.hasServerKey && !this.apiConfig.apiKey);
     const endpoint = useGateway ? this.getSharedGatewayEndpoint() : (this.apiConfig.endpoint || "https://api.deepseek.com/chat/completions");
 
     const headers = { "Content-Type": "application/json" };
@@ -2370,8 +2371,8 @@ ${JSON.stringify(targetNode.originalBeats)}
       let nextBeats = null;
 
       // 若启用了 DeepSeek API (服务端平台共享网关 或 客户端已配 Key)
-      const hasLiveChannel = !!((this.serverSharedConfig && this.serverSharedConfig.hasServerKey) ||
-                                (this.apiConfig && this.apiConfig.enabled && this.apiConfig.apiKey));
+      const hasLiveChannel = !!(this.apiConfig && this.apiConfig.enabled &&
+                                ((this.serverSharedConfig && this.serverSharedConfig.hasServerKey) || this.apiConfig.apiKey));
 
       if (hasLiveChannel) {
         try {
@@ -3550,7 +3551,7 @@ ${currentProfile.npcRoster}`;
       : (this.apiConfig.model || "deepseek-flash");
 
     // 优先通过服务端平台网关 /api/chat 调用 (全网玩家共享平台 API 与故事树前缀缓存)
-    const useGateway = Boolean(this.serverSharedConfig && this.serverSharedConfig.hasServerKey && !this.apiConfig.apiKey);
+    const useGateway = Boolean(this.apiConfig.enabled && this.serverSharedConfig && this.serverSharedConfig.hasServerKey && !this.apiConfig.apiKey);
     const endpoint = useGateway ? this.getSharedGatewayEndpoint() : (this.apiConfig.endpoint || "https://api.deepseek.com/chat/completions");
 
     const isReasoner = /reasoner|r1/i.test(modelName) && !/v4|flash|pro/i.test(modelName);
@@ -3981,8 +3982,7 @@ ${currentProfile.npcRoster}`;
   // 3. 更新快捷菜单中的缓存状态胶囊
   updateCachePillUI() {
     if (!this.qmCache) return;
-    const hasLive = (this.serverSharedConfig && this.serverSharedConfig.hasServerKey) ||
-                    (this.apiConfig.enabled && this.apiConfig.apiKey);
+    const hasLive = this.apiConfig.enabled && ((this.serverSharedConfig && this.serverSharedConfig.hasServerKey) || this.apiConfig.apiKey);
     if (!hasLive) {
       this.qmCache.innerText = "⚡ 缓存: 本地模式";
       this.qmCache.classList.remove("hit");
@@ -4085,7 +4085,7 @@ ${currentProfile.npcRoster}`;
       if (data.configured === true && data.enabled === true && data.jiuzhouEnabled === true) {
         this.serverSharedConfig = {hasServerKey:true,model:"deepseek-flash",useGateway:true};
         if (!this.apiConfig.apiKey) {
-          this.apiConfig.enabled = true;
+          if (!this.apiConfig.userDisabledShared) this.apiConfig.enabled = true;
           this.apiConfig.useGateway = true;
           this.apiConfig.model = "deepseek-flash";
         }
