@@ -57,6 +57,7 @@ global.window = {
 const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
+global.JiuzhouProviders = require("./harness/providers.js");
 
 const skillsDataCode = fs.readFileSync(path.join(__dirname, "skills-data.js"), "utf8");
 vm.runInThisContext(skillsDataCode);

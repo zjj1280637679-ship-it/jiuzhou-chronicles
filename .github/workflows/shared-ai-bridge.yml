@@ -7,6 +7,9 @@ on:
       - 'ai-gateway-config.js'
       - 'harness/**'
       - 'test-plugin-harness.cjs'
+      - 'test-providers.cjs'
+      - 'test-ai-provider-routing.cjs'
+      - 'test-all-factions-tree.js'
       - 'test/fixtures/harness-*.js'
       - 'test-shared-ai-connection.cjs'
       - 'test-ai-connection-probe.cjs'
@@ -19,6 +22,9 @@ on:
       - 'ai-gateway-config.js'
       - 'harness/**'
       - 'test-plugin-harness.cjs'
+      - 'test-providers.cjs'
+      - 'test-ai-provider-routing.cjs'
+      - 'test-all-factions-tree.js'
       - 'test/fixtures/harness-*.js'
       - 'test-shared-ai-connection.cjs'
       - 'test-ai-connection-probe.cjs'
@@ -35,7 +41,9 @@ jobs:
       - run: node --check app.js
       - run: node --check ai-gateway-config.js
       - name: Test shared AI failures, retry, and suture requests without network calls
-        run: node --unhandled-rejections=strict --test test-shared-ai-connection.cjs test-ai-connection-probe.cjs test-free-exploration-edges.cjs test-plugin-harness.cjs
+        run: node --unhandled-rejections=strict --test test-shared-ai-connection.cjs test-ai-connection-probe.cjs test-free-exploration-edges.cjs test-plugin-harness.cjs test-providers.cjs test-ai-provider-routing.cjs
+      - name: Check four-faction offline regression with the same provider module as the webpage
+        run: npm test
       - name: Check shared gateway wiring
         run: |
           node --input-type=module <<'NODE'
@@ -46,6 +54,9 @@ jobs:
           const cfg=fs.readFileSync('ai-gateway-config.js','utf8');
           assert.ok(html.includes('<script src="ai-gateway-config.js"></script>'));
           assert.ok(app.includes('/api/jiuzhou/turn'));
+          assert.ok(html.includes('harness/providers.js'));
+          assert.ok(html.includes('id="setting-api-source"'));
+          assert.ok(html.includes('id="setting-api-adapter"'));
           assert.ok(app.includes('/health'));
           assert.ok(!app.includes('turnstile'));
           assert.ok(!app.includes('getSharedInviteCode'));

@@ -8,6 +8,7 @@
 
 - `plugins/world.js`：`read_world` 读取玩家可见的本轮快照。
 - `plugins/story.js`：`write_draft` 替换或追加草稿，`read_draft` 读取，`inspect_draft` 检查，`deliver_story` 交付。草稿不会直接改变玩家历史。
+- `providers.js`：独立注册共享/自定义来源，按明确选择构造模型请求；Key不决定路由。通用接口与DeepSeek扩展分别适配，见 [API来源](../docs/API-SOURCES.md)。
 - `protocol.js`：可替换插件与网关共用的工具契约及纯文本规范化规则。工具按名字稳定排序；注册按配置顺序，避免启动快慢改变行为。
 - `worker-entry.js`：独立插件的消息入口。异常变为工具回执；同步卡死的插件在工具超时后被终止，其他插件保持可用。这里的本地工具超时不是模型请求、字数或调用频率上限。
 
@@ -33,6 +34,6 @@
 
 ## 验证
 
-`node --test test-plugin-harness.cjs test-free-exploration-edges.cjs test-shared-ai-connection.cjs test-ai-connection-probe.cjs`
+`node --test test-plugin-harness.cjs test-free-exploration-edges.cjs test-shared-ai-connection.cjs test-ai-connection-probe.cjs test-providers.cjs test-ai-provider-routing.cjs`
 
 Node 测试使用真实 Worker 线程及模拟模型，包含插件抛错、同步死循环、取消、冲突、正文核算、追加补写、原生调用和网页引擎接线；没有模型费用。浏览器模拟运行 `node test-shared-ai-browser.mjs`。CI/模拟不能代替公开 Worker 的真实多步模型、实际缓存和 5000 字交付验收。
