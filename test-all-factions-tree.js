@@ -3,6 +3,7 @@
 const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
+const assert = require("node:assert/strict");
 
 const localStorageStore = {};
 global.localStorage = {
@@ -45,6 +46,7 @@ function getElem(id) {
 
 global.document = {
   getElementById: (id) => getElem(id),
+  querySelectorAll: () => [],
   addEventListener: () => {},
   createElement: (tag) => new MockElement("dyn_" + Math.random(), tag)
 };
@@ -58,38 +60,39 @@ vm.runInThisContext(appCode);
 
 console.log("=== 开始 4 大阵营全量主剧情树与影视文学升级验证 ===");
 
+async function main() {
 const engine = new WebVisualNovelEngine();
 window.__vnEngine = engine;
 
 const factions = [
-  { id: "ming", name: "大明紫禁", act1Key: "紫禁廷议" },
+  { id: "ming", name: "大明紫禁", act1Key: "太仓库竭" },
   { id: "qing", name: "后金八旗", act1Key: "崇政殿密议" },
-  { id: "mongol", name: "大漠蒙古", act1Key: "传国玉玺" },
-  { id: "nanming", name: "南国海邦", act1Key: "水太冷之辩" }
+  { id: "mongol", name: "大漠蒙古", act1Key: "察哈尔西奔" },
+  { id: "nanming", name: "南国海邦", act1Key: "龙旗出洋" }
 ];
 
-factions.forEach(f => {
+for (const f of factions) {
   console.log(`\n[阵营测试: ${f.name} (${f.id})]`);
   engine.startNewGame(f.id);
   
   const tree = WORLD_PRESETS.canonicalTrees[f.id];
-  console.assert(tree, `缺少 ${f.id} 主剧情树`);
+  assert(tree, `缺少 ${f.id} 主剧情树`);
   const initialNode = tree.nodes[tree.initialNodeId];
-  console.assert(initialNode, `缺少初始节点 ${tree.initialNodeId}`);
+  assert(initialNode, `缺少初始节点 ${tree.initialNodeId}`);
   
   // 验证文本关键词
   const hasKeyword = initialNode.title.includes(f.act1Key) || 
                      initialNode.desc.includes(f.act1Key) || 
                      initialNode.originalBeats.some(b => b.text.includes(f.act1Key));
-  console.assert(hasKeyword, `[FAIL] ${f.name} 第一幕文本未包含新增强化意象: ${f.act1Key}`);
+  assert(hasKeyword, `[FAIL] ${f.name} 第一幕文本未包含当前阵营意象: ${f.act1Key}`);
   console.log(`  ✓ 第一幕「${initialNode.title}」深度文本意象校验通过！`);
 
   // 验证 AI 自由推进模式与主线解耦 (0 消耗与单向不可逆)
   const extraChoice = initialNode.choices.find(c => c.isExtrapolation);
-  console.assert(extraChoice, `[FAIL] ${f.id} 第一幕缺少外推选项`);
-  engine.resolveFactionAction(extraChoice);
-  console.assert(engine.isExtrapolating === true, `[FAIL] ${f.id} 无法进入外推模式`);
-  console.assert(engine.currentStoryNodeId === tree.initialNodeId, `[FAIL] ${f.id} 自由推进污染了主线节点进度`);
+  assert(extraChoice, `[FAIL] ${f.id} 第一幕缺少外推选项`);
+  await engine.resolveFactionAction(extraChoice);
+  assert(engine.isExtrapolating === true, `[FAIL] ${f.id} 无法进入外推模式`);
+  assert(engine.currentStoryNodeId === tree.initialNodeId, `[FAIL] ${f.id} 自由推进污染了主线节点进度`);
   console.log(`  ✓ 成功触发【🌿 AI局外自由小说推进】，主线节点进度冻结在 [${tree.initialNodeId}] (0消耗)`);
 
   // 验证不可逆性：在自由推进中后续抉择永远处于 AI 自由推进状态，不回流主线
@@ -97,19 +100,20 @@ factions.forEach(f => {
     text: "【继续探索】踏入茫茫关外风雪，探访辽东流民聚落",
     isExtrapolation: true
   };
-  engine.resolveFactionAction(nextChoice);
-  console.assert(engine.isExtrapolating === true, `[FAIL] ${f.id} 自由推进不可逆失效`);
-  console.assert(engine.currentStoryNodeId === tree.initialNodeId, `[FAIL] ${f.id} 自由推进后续抉择破坏了主线冻结`);
-  console.assert(engine.branchDepth === 2, `[FAIL] ${f.id} 轮数未递增为 2`);
+  await engine.resolveFactionAction(nextChoice);
+  assert(engine.isExtrapolating === true, `[FAIL] ${f.id} 自由推进不可逆失效`);
+  assert(engine.currentStoryNodeId === tree.initialNodeId, `[FAIL] ${f.id} 自由推进后续抉择破坏了主线冻结`);
+  assert(engine.branchDepth === 2, `[FAIL] ${f.id} 轮数未递增为 2`);
   console.log(`  ✓ 验证单向不可逆推进：轮数累进至 ${engine.branchDepth}，主线依然冻结，永不回流主线！`);
 
   // 验证预设主剧情树原生载入正常无损
   const canonicalChoices = initialNode.choices.filter(c => !c.isExtrapolation && c.targetNodeId);
-  console.assert(canonicalChoices.length > 0, `[FAIL] ${f.id} 缺少预设主线选项`);
+  assert(canonicalChoices.length > 0, `[FAIL] ${f.id} 缺少预设主线选项`);
   const targetCanonicalNode = tree.nodes[canonicalChoices[0].targetNodeId];
-  console.assert(targetCanonicalNode, `[FAIL] ${f.id} 预设目标节点 ${canonicalChoices[0].targetNodeId} 不存在`);
+  assert(targetCanonicalNode, `[FAIL] ${f.id} 预设目标节点 ${canonicalChoices[0].targetNodeId} 不存在`);
   console.log(`  ✓ 预设主剧情树路径与节点完好无损！`);
-});
+}
 
 console.log("\n=== 全部 4 大阵营双轨主剧情树无缝验证通过！ ===");
-process.exit(0);
+}
+main().then(() => process.exit(0), error => {console.error(error); process.exit(1);});

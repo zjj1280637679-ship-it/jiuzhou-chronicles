@@ -241,6 +241,11 @@
             接通站长共享 AI 后，游客无需填写 API Key；每次使用需通过 Cloudflare 访问验证，并消耗站长的 DeepSeek 额度。关闭远端模式仍可畅玩离线剧情。私有 Key 仅用于个人调试，不会上传为全服共享配置。
           </div>
 
+          <div style="border:1px solid rgba(229,185,92,.3); border-radius:6px; padding:10px 14px; font-size:.8rem; line-height:1.6;">
+            <div id="ai-connection-status" role="status" aria-live="polite" style="white-space:pre-line;">共享 AI 尚未检查</div>
+            <button type="button" class="qm-btn" id="btn-retry-shared-ai" style="margin-top:8px;">重新检查连接</button>
+          </div>
+
           <div class="form-group">
             <label style="font-size:0.8rem; color:var(--text-dim); margin-bottom:4px; display:block;">模型选择 (Model ID · 遵照 DeepSeek 官方规范)：</label>
             <select id="setting-model" class="form-select">
