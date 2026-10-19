@@ -38,6 +38,8 @@ jobs:
           assert.ok(app.includes('/api/jiuzhou/turn'));
           assert.ok(app.includes('/health'));
           assert.ok(!app.includes('turnstile'));
+          assert.ok(!app.includes('getSharedInviteCode'));
+          assert.ok(!app.includes('body.inviteCode'));
           assert.ok(!cfg.includes('turnstileSiteKey'));
           assert.ok(app.includes('data.jiuzhouReady !== true'));
           assert.ok(!app.includes('fetch("/api/config", {'));
