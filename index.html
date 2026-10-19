@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>暮灯星栈 · 东方奇幻文字冒险 (Visual Novel & AVG)</title>
-  <link rel="stylesheet" href="styles.css?v=20261019-0300">
+  <link rel="stylesheet" href="styles.css?v=20261019-0400">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700;900&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
@@ -97,6 +97,7 @@
       <button class="qm-btn" id="qm-auto" title="开启/关闭自动播放">▶ 自动</button>
       <button class="qm-btn" id="qm-storytree" title="查看法定主剧情树、AI外推分支与动态因果弥合">🌲 剧情树</button>
       <button class="qm-btn qm-cache-pill" id="qm-cache" title="DeepSeek 前缀缓存监控: 点击查看四层对齐架构与命中指标">⚡ 缓存: 本地模式</button>
+      <button type="button" class="qm-btn" id="btn-cancel-ai-request" hidden title="取消等待并使用本地剧情，不自动重发">取消本次生成</button>
       <button class="qm-btn" id="qm-settings" title="配置 API 与模型通道">⚙ 秘钥</button>
       <span class="qm-version-tag" id="qm-version-tag" title="当前引擎构建版本: v2.5.0 (Build 2026.10.19)">v2.5.0</span>
     </nav>
@@ -283,6 +284,12 @@
           </div>
 
           <!-- DeepSeek Prompt Caching 四层前缀缓存对齐遥测面板 -->
+          <div class="ai-connection-test">
+            <strong>最近一次有效剧情</strong>
+            <p class="ai-test-help">实际字数、耗时和结束情况用于检查生成质量。“少于5000字”档请求约3500～4800字，收到回复不等于长篇达标。等待时可在顶部取消本次生成；取消浏览器等待不能保证模型服务停止计费。</p>
+            <div id="ai-generation-metrics" role="status" aria-live="polite">尚无有效剧情指标。</div>
+          </div>
+
           <div class="cache-telemetry-box" id="cache-telemetry-box">
             <div style="font-size:0.85rem; font-weight:700; color:var(--accent-jade); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
               <span>⚡ DeepSeek 四层前缀缓存架构状态</span>
@@ -524,6 +531,6 @@
   <script src="data/illustrations/illustrations-data.js"></script>
   <script src="skills-data.js"></script>
   <script src="ai-gateway-config.js"></script>
-  <script src="app.js?v=20261019-0300"></script>
+  <script src="app.js?v=20261019-0400"></script>
 </body>
 </html>

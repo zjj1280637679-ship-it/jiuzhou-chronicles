@@ -6,7 +6,7 @@
 // =============================================================================
 
 const APP_VERSION = "v2.5.0";
-const BUILD_STAMP = "2026.10.19.0300";
+const BUILD_STAMP = "2026.10.19.0400";
 const VERSION_FULL = `v2.5.0 (Build ${BUILD_STAMP} · 纯双轨解耦 · 主线0消耗冻结 · AI自由小说单向不可逆 · 500~8000字 · 3选项+开放输入)`;
 
 class WebVisualNovelEngine {
@@ -86,6 +86,8 @@ class WebVisualNovelEngine {
     this.pendingApiChoices = null;
     this.sharedGatewayStatus = {state: "idle", message: "共享 AI 尚未检查"};
     this.aiRequestStatus = null;
+    this.aiGenerationMetrics = null;
+    this.activeAIRequestController = null;
 
     // 缓存遥测数据
     this.cacheTelemetry = {
@@ -315,7 +317,7 @@ class WebVisualNovelEngine {
           if (typeof window !== "undefined" && window.FACTION_ILLUSTRATION_VAULT) {
             fVault = window.FACTION_ILLUSTRATION_VAULT[fKey] || {};
           }
-          let targetItem = fVault[tName] || fVault[params.id];
+          let targetItem = fVault[toolName] || fVault[params.id];
           if (!targetItem) {
             const cat = params.category || (params.title && /俘虏/.test(params.title) ? "captive" : (/战斗|肉搏/.test(params.title) ? "battle" : (/战争|攻城|巨舰/.test(params.title) ? "war" : (/爱情|情深|风月|同袍|誓/.test(params.title) ? "romance" : (/胜利|登极|凯旋/.test(params.title) ? "victory" : "wealth")))));
             targetItem = fVault[`${fKey}_${cat}`] || Object.values(fVault)[0];
@@ -565,8 +567,10 @@ class WebVisualNovelEngine {
     this.settingMaxTokens = document.getElementById("setting-max-tokens");
     this.aiConnectionStatus = document.getElementById("ai-connection-status");
     this.btnRetrySharedAi = document.getElementById("btn-retry-shared-ai");
+    this.btnCancelAIRequest = document.getElementById("btn-cancel-ai-request");
     this.btnTestAiConnection = document.getElementById("btn-test-ai-connection");
     this.aiConnectionTestStatus = document.getElementById("ai-connection-test-status");
+    this.aiGenerationMetricsDisplay = document.getElementById("ai-generation-metrics");
     this.cmHitRate = document.getElementById("cm-hit-rate");
     this.cmHitTokens = document.getElementById("cm-hit-tokens");
     this.cmMissTokens = document.getElementById("cm-miss-tokens");
@@ -915,6 +919,10 @@ class WebVisualNovelEngine {
     if (this.btnRetrySharedAi) {
       this.btnRetrySharedAi.addEventListener("click", () => this.checkServerSharedApi());
     }
+    if (this.btnCancelAIRequest) {
+      this.btnCancelAIRequest.hidden = true;
+      this.btnCancelAIRequest.addEventListener("click", () => this.cancelAIRequest());
+    }
     if (this.btnTestAiConnection) {
       this.btnTestAiConnection.addEventListener("click", () => this.testAIConnection());
       for (const field of [this.settingApiKey, this.settingEndpoint, this.settingModel, this.settingCustomModel]) {
@@ -1138,6 +1146,7 @@ class WebVisualNovelEngine {
 
   // 3. 调用 DeepSeek 官方 API 履行“微调已有剧情页以自圆其说”的职责
   async callDeepSeekSutureAPI(targetNode, history) {
+    const startedAt = Date.now();
     const modelName = this.apiConfig.model === "custom" 
       ? this.apiConfig.customModel 
       : (this.apiConfig.model || "deepseek-flash");
@@ -1213,6 +1222,7 @@ ${JSON.stringify(targetNode.originalBeats)}
     }
     const data = await this.requestAICompletion(endpoint, sutureBody, headers, useGateway, "suture");
     const choiceObj = data.choices && data.choices[0];
+    this.assertAICompletionFinished(choiceObj, "suture");
     
     let parsed = null;
     try {
@@ -1254,6 +1264,7 @@ ${JSON.stringify(targetNode.originalBeats)}
       this.updateCacheTelemetryUI();
     }
 
+    this.recordAIGenerationMetrics(data, parsed.reconciledBeats, [], "suture", startedAt);
     this.setAIRequestStatus("success", "suture", null, data.model);
     return {
       reconciledBeats: parsed.reconciledBeats,
@@ -3351,7 +3362,7 @@ ${JSON.stringify(targetNode.originalBeats)}
       5000: {
         label: "史诗宏大详述",
         beatsRange: "5 到 8 拍",
-        wordCount: "合并总字数严格控制在少于5000字（约2500~4800字）",
+        wordCount: "正文合并总字数达到3500~4800字，并严格少于5000字",
         detailDesc: "宏大史诗质感、极深的人物心理博弈、细腻的环境感官与全景战场/朝堂多重视角交织。"
       }
     };
@@ -3551,6 +3562,8 @@ ${currentProfile.npcRoster}`;
 
   // 2. 异步调用 DeepSeek 官方 API 并解析缓存命中遥测 (严格对齐 DeepSeek 官方 API 规范)
   async callDeepSeekLiveAPI(choice, d1, d2, total, success) {
+    const startedAt = Date.now();
+    const requestedExpectedLength = [500, 2000, 5000].includes(this.expectedLength) ? this.expectedLength : 2000;
     const { messages, ephemeralTail } = this.buildDeepSeekCachePayload(choice, d1, d2, total, success);
 
     const modelName = this.apiConfig.model === "custom" 
@@ -3569,8 +3582,8 @@ ${currentProfile.npcRoster}`;
     // 输出上限仅遵照供应商支持范围，不另设共享通道配额。
     const maxTokensLimit = 393216;
     let lengthTokenTarget = 4096;
-    if (this.expectedLength === 500) lengthTokenTarget = 1500;
-    else if (this.expectedLength === 5000) lengthTokenTarget = 12288;
+    if (requestedExpectedLength === 500) lengthTokenTarget = 1500;
+    else if (requestedExpectedLength === 5000) lengthTokenTarget = 12288;
 
     const userMaxTokens = Number(this.apiConfig.maxTokens);
     const requestedMax = userMaxTokens && userMaxTokens > lengthTokenTarget ? userMaxTokens : lengthTokenTarget;
@@ -3606,10 +3619,12 @@ ${currentProfile.npcRoster}`;
 
     if (useGateway) {
       body.mode = "story";
+      body.expectedLength = requestedExpectedLength;
       body.messages = this.buildGatewayMessages(messages);
     }
     const data = await this.requestAICompletion(endpoint, body, headers, useGateway, "story");
     const choiceObj = data.choices && data.choices[0];
+    this.assertAICompletionFinished(choiceObj, "story");
     if (!choiceObj?.message?.content?.trim()) throw new Error("invalid_game_response");
 
     // 解析服务端 Prompt Caching 遥测指标 (官方字段: prompt_cache_hit_tokens, prompt_cache_miss_tokens)
@@ -3776,25 +3791,25 @@ ${currentProfile.npcRoster}`;
         };
       }
       return {
-        speaker: b.speaker || "正史演义",
-        sub: b.sub || "",
-        type: b.type || "narrator",
-        stageChar: b.stageChar || "center",
-        text: sanitizeDialogueText(String(b.text || b.content || b.dialogue || ""))
+        speaker: typeof b.speaker === "string" && b.speaker.trim() ? b.speaker : "正史演义",
+        sub: typeof b.sub === "string" ? b.sub : "",
+        type: typeof b.type === "string" && b.type.trim() ? b.type : "narrator",
+        stageChar: ["left", "center", "right"].includes(b.stageChar) ? b.stageChar : "center",
+        text: sanitizeDialogueText([b.text, b.content, b.dialogue].find(value => typeof value === "string" && value.trim()) || "")
       };
     }).filter(b => b.text && b.text.trim().length > 0);
     if (!beats.length) throw new Error("invalid_game_response");
+    const validStoryBeats = beats.filter(b => b.type !== "illustration");
 
     // 调度视听与舞台效果 (对账：无缝统一 stage_effects 与 legacy tools 格式)
-    const effects = parsed.stage_effects || parsed.tools;
+    const effectSource = Array.isArray(parsed.stage_effects) ? parsed.stage_effects : parsed.tools;
+    const effects = (Array.isArray(effectSource) ? effectSource : []).filter(e => e && typeof e === "object" && !Array.isArray(e)).map(e => ({
+      name: typeof e.name === "string" && e.name.trim() ? e.name : (typeof e.tool === "string" ? e.tool : ""),
+      params: e.params && typeof e.params === "object" && !Array.isArray(e.params) ? e.params : {}
+    })).filter(e => e.name.trim());
     let inlineIllustration = null;
 
-    if (effects && Array.isArray(effects)) {
-      this.executeAITools(effects.map(e => ({
-        tool: e.name || e.tool,
-        params: e.params || {}
-      })));
-
+    if (effects.length) {
       // 提取套图并在剧情流中生成独立段落展示卡片
       const curFaction = this.currentFaction || "qing";
       let fVault = {};
@@ -3846,7 +3861,7 @@ ${currentProfile.npcRoster}`;
     // 1. 若有 DeepSeek 原生思考链 (reasoning_content)，妥善留存于遥测对象供抽屉/监控查阅，不污染前台主角在场剧情流
     if (reasoningContent) {
       this.cacheTelemetry.lastReasoning = reasoningContent;
-    } else if (parsed.deliberation) {
+    } else if (typeof parsed.deliberation === "string" && parsed.deliberation.trim()) {
       // 2. 前置注入模型输出的局势暗盘深思
       beats.unshift({
         speaker: "局势推演",
@@ -3857,42 +3872,9 @@ ${currentProfile.npcRoster}`;
       });
     }
 
-    // 单调递增追加进历史，为下一回合储备 KV Cache 前缀 (严格遵循官方规范回传 reasoning_content 保证多轮思考链不报错)
-    this.apiHistory.push({ role: "user", content: ephemeralTail });
-    const assistantHistMsg = { role: "assistant", content: contentStr };
-    if (reasoningContent) {
-      assistantHistMsg.reasoning_content = reasoningContent;
-    }
-    this.apiHistory.push(assistantHistMsg);
-
-    // 严格遵循 DeepSeek Prompt Caching 前缀对齐准则 (Append-Only Narrative History Stream)：
-    // 严禁使用短滑动窗口 (如 16 轮 / 32 条) 暴力从头部截断历史！头部一旦截断，KV Cache 字典序前缀彻底错位，
-    // 将导致第 17 轮起 100% 缓存击穿，并被迫承担全额高价计算惩罚！
-    // 现代 DeepSeek 拥有 64k~128k 超大上下文，仅在单局历史达到超大安全边界 (如 > 200 条消息) 时才做容错防护。
-    if (this.apiHistory.length > 200) {
-      this.apiHistory = this.apiHistory.slice(this.apiHistory.length - 200);
-    }
-
-    // 降维神迹（奥特曼/神光棒等超常规力量）引擎内部天命收敛支持
-    // 降维神迹（奥特曼/神光棒等超常规力量）引擎内部天命收敛支持
-    const isGodMode = /奥特曼|神光棒|迪迦|核弹|歼\s*20|机甲|降维|秒杀|成仙|仙帝|神明|神迹|直接当皇帝|君临天下|一统天下/i.test(choice.customInput || choice.text || "");
-    if (isGodMode) {
-      const supremeEndingId = this.getSupremeEndingNodeId();
-      this.convergenceTargetId = supremeEndingId;
-      // 铁律：至多提供 1 个回到主线/终局选项，绝不可提供三个全为主线/终局选项！
-      if (parsed.choices && parsed.choices.length > 0) {
-        parsed.choices[0].targetNodeId = supremeEndingId;
-        parsed.choices[0].isConvergence = true;
-        for (let i = 1; i < parsed.choices.length; i++) {
-          parsed.choices[i].isConvergence = false;
-          parsed.choices[i].isExtrapolation = true;
-          parsed.choices[i].targetNodeId = null;
-        }
-      }
-    }
-
     // 规范化 choices，严格保证返回恰好 3 个分支选项 (第4个选项由引擎统一追加开放式输入)
     let rawChoices = (parsed.choices && Array.isArray(parsed.choices)) ? parsed.choices : [];
+    rawChoices = rawChoices.filter(c => typeof c === "string" ? c.trim() : c && typeof c === "object" && !Array.isArray(c));
     rawChoices = rawChoices.map((c, i) => {
       if (typeof c === "string") {
         return {
@@ -3904,17 +3886,31 @@ ${currentProfile.npcRoster}`;
           isConvergence: false
         };
       }
+      const text = [c.text, c.choice, c.title].find(value => typeof value === "string" && value.trim());
+      if (!text) return null;
+      const bias = Object.fromEntries(["authority", "pragmatism", "progress", "cognition"].map(axis => [axis, Number.isFinite(c.bias?.[axis]) ? c.bias[axis] : 0]));
       return {
-        text: String(c.text || c.choice || c.title || `继续推演 ${i + 1}`),
-        tag: c.tag || "抉择",
-        bias: c.bias || { authority: 0, pragmatism: 0, progress: 0, cognition: 0 },
-        diceBase: c.diceBase || 10,
+        text,
+        tag: typeof c.tag === "string" && c.tag.trim() ? c.tag : "抉择",
+        bias,
+        diceBase: Number.isFinite(c.diceBase) ? c.diceBase : 10,
         isExtrapolation: true,
-        isConvergence: !!c.isConvergence,
-        targetNodeId: c.targetNodeId || null
+        isConvergence: c.isConvergence === true,
+        targetNodeId: typeof c.targetNodeId === "string" ? c.targetNodeId : null
       };
     });
-    rawChoices = rawChoices.filter(c => !c.isOpenEndedInput && (!c.text || !c.text.includes("输入文字")));
+    rawChoices = rawChoices.filter(c => c && !c.isOpenEndedInput && !c.text.includes("输入文字")).slice(0, 3);
+    const validStoryChoices = rawChoices.map(c => ({text: c.text, tag: c.tag}));
+
+    // 仅对已验证的选项追加引擎元数据，避免模型返回 null 等可选值时中断正文。
+    const isGodMode = /奥特曼|神光棒|迪迦|核弹|歼\s*20|机甲|降维|秒杀|成仙|仙帝|神明|神迹|直接当皇帝|君临天下|一统天下/i.test(choice.customInput || choice.text || "");
+    if (isGodMode) {
+      this.convergenceTargetId = this.getSupremeEndingNodeId();
+      rawChoices.forEach((c, i) => {
+        c.isConvergence = i === 0;
+        c.targetNodeId = i === 0 ? this.convergenceTargetId : null;
+      });
+    }
 
     // 核心门禁判定：是否满足回到主线的条件？
     // 铁律：必须 2 到 3 次抉择之后，或者用户开放输入明确要求回到主线，才提供回到主线的选项！
@@ -3956,11 +3952,55 @@ ${currentProfile.npcRoster}`;
       });
     }
 
+    // 所有正文和选项已规范化，才提交下一轮上下文。长篇 JSON 保持完整。
+    const assistantHistMsg = {role: "assistant", content: contentStr};
+    if (typeof reasoningContent === "string" && reasoningContent) assistantHistMsg.reasoning_content = reasoningContent;
+    this.apiHistory.push({role: "user", content: ephemeralTail}, assistantHistMsg);
+    if (this.apiHistory.length > 200) this.apiHistory = this.apiHistory.slice(-200);
+    for (const effect of effects) {
+      try { this.executeAITools([{tool: effect.name, params: effect.params}]); }
+      catch (_) { console.warn("[Narrative Engine] 已忽略无效的 AI 舞台效果，正文继续。"); }
+    }
+    this.recordAIGenerationMetrics(data, validStoryBeats, validStoryChoices, "story", startedAt, requestedExpectedLength);
+    this.aiGenerationMetrics.displayChoiceCount = rawChoices.slice(0, 3).length;
     this.setAIRequestStatus("success", "story", null, data.model);
     return {
       beats,
       choices: rawChoices.slice(0, 3),
-      tools: parsed.tools || []
+      tools: effects.map(e => ({tool: e.name, params: e.params}))
+    };
+  }
+
+  assertAICompletionFinished(completion, mode) {
+    const finishReason = completion?.finish_reason;
+    // Older compatible services may omit finish_reason; the metrics then show unknown.
+    if (finishReason === undefined || finishReason === null || finishReason === "" || finishReason === "stop") return;
+    const code = finishReason === "length" ? "output_truncated" : "output_incomplete";
+    const error = Object.assign(new Error(code), {code});
+    this.setAIRequestStatus("fallback", mode, error);
+    throw error;
+  }
+
+  recordAIGenerationMetrics(data, beats, choices, mode, startedAt, expectedLength = null) {
+    const validBeats = (Array.isArray(beats) ? beats : []).filter(b => b && b.type !== "illustration" && typeof b.text === "string" && b.text.trim()).map(b => ({
+      speaker: typeof b.speaker === "string" ? b.speaker : "旁白", text: b.text
+    }));
+    const validChoices = (Array.isArray(choices) ? choices : []).map(c => ({text: c.text, tag: c.tag}));
+    const text = validBeats.map(b => b.text).join("");
+    const tokens = data?.usage?.completion_tokens;
+    this.aiGenerationMetrics = {
+      mode,
+      expectedLength: mode === "story" ? expectedLength : null,
+      textCharacters: Array.from(text.replace(/\s/g, "")).length,
+      hanCharacters: (text.match(/\p{Script=Han}/gu) || []).length,
+      beatCount: validBeats.length,
+      choiceCount: validChoices.length,
+      elapsedMs: Math.max(0, Date.now() - startedAt),
+      completionTokens: Number.isSafeInteger(tokens) && tokens >= 0 ? tokens : null,
+      finishReason: typeof data?.choices?.[0]?.finish_reason === "string" ? data.choices[0].finish_reason : null,
+      model: typeof data?.model === "string" ? data.model : "",
+      beats: validBeats,
+      choices: validChoices
     };
   }
 
@@ -3982,7 +4022,11 @@ ${currentProfile.npcRoster}`;
       invalid_messages: "AI 剧情上下文无效，请联系站长",
       invalid_message_type: "AI 剧情上下文格式无效，请联系站长",
       invalid_structure: "AI 剧情上下文结构无效，请联系站长",
-      context_too_large: "AI 剧情上下文过长，请联系站长",
+      invalid_length: "AI 篇幅档位无效，请重新选择 500、2000 或 5000 字档位",
+      context_too_large: "本次行动文字过长，请缩短后再试；原文没有被截断发送",
+      output_truncated: "AI 输出未完整结束，本轮改用本地剧情，可调整设置后再试",
+      output_incomplete: "AI 生成被中断，尚未获得完整剧情，可稍后重试",
+      request_cancelled: "已取消本次请求，使用本地剧情",
       invalid_max_tokens: "输出 Token 设置超出模型支持范围，请调整设置",
       invalid_private_endpoint: "API 端点无效，请填写完整 HTTPS 地址（本机调试可用 HTTP）",
       invalid_model: "请填写自定义模型名称",
@@ -3999,7 +4043,8 @@ ${currentProfile.npcRoster}`;
   setAIRequestStatus(state, mode, error = null, model = "") {
     const task = mode === "suture" ? "弥合" : "剧情";
     const channel = this.apiConfig.apiKey ? "private" : "shared";
-    const message = state === "success" ? `最近一轮 AI ${task}已生成${model ? `（${model}）` : ""}` :
+    const message = (error?.code || error?.message) === "request_cancelled" ? "已取消本次请求，使用本地剧情" :
+      state === "success" ? `最近一轮 AI ${task}已生成${model ? `（${model}）` : ""}` :
       state === "requesting" ? `正在请求 AI ${task}，尚未收到结果` :
       `本轮已使用本地${task}：${this.describeAIError(error)}`;
     this.aiRequestStatus = {state, mode, channel, model: String(model || ""), message};
@@ -4012,6 +4057,20 @@ ${currentProfile.npcRoster}`;
       this.apiConfig.apiKey ? "当前使用私有 Key，共享通道不会被使用。" : "当前使用站长共享通道。";
     const request = this.aiRequestStatus?.message || "尚未进行真实 AI 生成。";
     if (this.aiConnectionStatus) this.aiConnectionStatus.textContent = `${gateway}\n${mode}\n${request}`;
+    if (this.aiGenerationMetricsDisplay) {
+      const metrics = this.aiGenerationMetrics;
+      if (metrics) {
+        const tokens = metrics.completionTokens === null ? "未知" : String(metrics.completionTokens);
+        const finish = metrics.finishReason || "未知（尚不能确认完整结束）";
+        const bounds = {500: [200, 450], 2000: [800, 1800], 5000: [3500, 4800]}[metrics.expectedLength];
+        const lengthResult = metrics.mode !== "story" || !bounds ? "" :
+          metrics.textCharacters < bounds[0] ? " · 正文偏短" : metrics.textCharacters > bounds[1] ? " · 正文超出偏好" : " · 篇幅符合偏好";
+        const supplied = metrics.displayChoiceCount === undefined ? "" : `（界面共 ${metrics.displayChoiceCount} 项）`;
+        this.aiGenerationMetricsDisplay.textContent = `最近一次有效${metrics.mode === "suture" ? "弥合" : "剧情"}：${metrics.textCharacters} 字符（其中中文 ${metrics.hanCharacters} 字）${lengthResult} · ${metrics.beatCount} 段 / ${metrics.choiceCount} 个模型选项${supplied}\n耗时 ${(metrics.elapsedMs / 1000).toFixed(1)} 秒 · 完成 Token ${tokens} · 结束原因 ${finish}`;
+      } else {
+        this.aiGenerationMetricsDisplay.textContent = "本轮尚无有效 AI 剧情指标。";
+      }
+    }
     if (this.btnRetrySharedAi) this.btnRetrySharedAi.disabled = this.sharedGatewayStatus?.state === "checking";
     if (this.cacheStatusTag) this.cacheStatusTag.innerText = this.aiRequestStatus?.state === "success" ?
       `最近一次生成 · 命中率 ${this.cacheTelemetry.lastHitRate}` : "等待有效 AI 生成 · 暂无本轮缓存指标";
@@ -4039,14 +4098,39 @@ ${currentProfile.npcRoster}`;
   }
 
   async requestAICompletion(endpoint, body, headers, useGateway, mode) {
+    const controller = new AbortController();
+    this.activeAIRequestController = controller;
+    this.aiGenerationMetrics = null;
+    if (this.btnCancelAIRequest) this.btnCancelAIRequest.hidden = false;
+    let timedOut = false;
+    const timer = useGateway ? null : setTimeout(() => {
+      timedOut = true;
+      controller.abort();
+    }, 75000);
     this.setAIRequestStatus("requesting", mode);
     try {
-      const signal = !useGateway && typeof AbortSignal !== "undefined" && AbortSignal.timeout ? AbortSignal.timeout(75000) : undefined;
-      return await this.fetchAICompletion(endpoint, body, headers, signal);
+      const data = await this.fetchAICompletion(endpoint, body, headers, controller.signal);
+      if (controller.signal.aborted) throw new Error("request_aborted");
+      return data;
     } catch (error) {
-      this.setAIRequestStatus("fallback", mode, error);
-      throw error;
+      const failure = controller.cancelledByUser ? Object.assign(new Error("request_cancelled"), {code: "request_cancelled"}) :
+        timedOut ? Object.assign(new Error("upstream_timeout"), {code: "upstream_timeout"}) : error;
+      this.setAIRequestStatus("fallback", mode, failure);
+      throw failure;
+    } finally {
+      if (timer !== null) clearTimeout(timer);
+      if (this.activeAIRequestController === controller) {
+        this.activeAIRequestController = null;
+        if (this.btnCancelAIRequest) this.btnCancelAIRequest.hidden = true;
+      }
     }
+  }
+
+  cancelAIRequest() {
+    const controller = this.activeAIRequestController;
+    if (!controller || controller.signal.aborted) return;
+    controller.cancelledByUser = true;
+    controller.abort();
   }
 
   invalidateAIConnectionTest() {
@@ -4159,16 +4243,34 @@ ${currentProfile.npcRoster}`;
     return this.getSharedGatewayBase() + "/api/jiuzhou/turn";
   }
 
-  // 保留 GM 剧本规则、当前阵营底本与最近的剧情历史，限制游客付费调用的输入规模。
+  // 当前行动完整保留；历史按完整轮次装入预算，绝不截断上一轮长篇 JSON。
   buildGatewayMessages(messages) {
     if (!Array.isArray(messages) || messages.length < 3) throw new Error("游戏上下文不完整");
     const keep = messages.slice(0, 2).map((m, i) => ({
       role: "system", content: String(m.content || "").slice(0, i === 0 ? 8500 : 18000)
     }));
-    return keep.concat(messages.slice(2).slice(-8).map(m => ({
-      role: m.role === "assistant" ? "assistant" : "user",
-      content: String(m.content || "").slice(0, 1200)
-    })));
+    const current = messages.at(-1);
+    if (!current || current.role !== "user" || typeof current.content !== "string") throw new Error("invalid_structure");
+    if (current.content.length > 40000) throw new Error("context_too_large");
+    let budget = 120000 - keep.reduce((n, m) => n + m.content.length, 0) - current.content.length;
+    const history = messages.slice(2, -1);
+    const pairs = [];
+    for (let i = 0; i < history.length - 1; i++) {
+      const user = history[i], assistant = history[i + 1];
+      if (user?.role === "user" && assistant?.role === "assistant" && typeof user.content === "string" && typeof assistant.content === "string") {
+        pairs.push([{role: "user", content: user.content}, {role: "assistant", content: assistant.content}]);
+        i++;
+      }
+    }
+    const recent = [];
+    for (let i = pairs.length - 1; i >= 0 && recent.length < 8; i--) {
+      const pair = pairs[i];
+      const size = pair[0].content.length + pair[1].content.length;
+      if (pair[0].content.length > 40000 || pair[1].content.length > 60000 || size > budget) break;
+      recent.unshift(pair);
+      budget -= size;
+    }
+    return keep.concat(recent.flat(), {role: "user", content: current.content});
   }
 
   // GitHub Pages 不能执行仓库中的 Vercel /api/* 文件，必须访问外部 Worker。

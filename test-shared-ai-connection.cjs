@@ -74,7 +74,7 @@ test("suture sends a bounded recent causal summary and accepts a valid response"
   let request;
   global.fetch = async (url, options) => {
     request = {url, body: JSON.parse(options.body)};
-    assert.equal(options.signal, undefined);
+    assert.ok(options.signal instanceof AbortSignal && !options.signal.aborted);
     return {ok: true, json: async () => ({model: "fixture-model", choices: [{message: {content: JSON.stringify({
       reconciledBeats: [{speaker: "旁白", type: "narrator", text: "军饷已运至九门。"}], sutureNote: "承接筹饷行动"
     })}}]})};
@@ -161,7 +161,7 @@ test("shared story generation directly forwards large requested output with no c
     assert.equal(body.max_tokens, 32768);
     assert.equal(body.mode, "story");
     assert.equal(body.turnstileToken, undefined);
-    assert.equal(options.signal, undefined);
+    assert.ok(options.signal instanceof AbortSignal && !options.signal.aborted);
     return {ok: true, json: async () => ({choices: [{message: {content: JSON.stringify({
       beats: [{text: "军饷已由商帮送入京城。"}], choices: [{text: "前往九门"}, {text: "核对账册"}, {text: "召集商帮"}]
     })}}]})};

@@ -65,6 +65,13 @@ await page.route("**/api/jiuzhou/turn",async route=>{
   assert.ok(Array.isArray(data.messages)&&data.messages.length>=3);
   assert.equal(data.messages[0].role,"system");
   assert.equal(data.messages[1].role,"system");
+  if(responseMode==="pending"){
+    await new Promise(resolve=>setTimeout(resolve,1500));
+    await route.fulfill({status:503,contentType:"application/json",headers:cors,body:JSON.stringify({error:"upstream_unavailable"})}).catch(()=>{});return;
+  }
+  if(responseMode==="truncated"){
+    await route.fulfill({status:502,contentType:"application/json",headers:cors,body:JSON.stringify({error:"output_truncated"})});return;
+  }
   if(responseMode==="failure"){
     await route.fulfill({status:503,contentType:"application/json",headers:cors,body:JSON.stringify({error:"upstream_unavailable"})});return;
   }
@@ -82,7 +89,7 @@ await page.route("**/api/jiuzhou/turn",async route=>{
     body:JSON.stringify({choices:[{message:{role:"assistant",content:JSON.stringify({
       beats:[{speaker:"军需官",sub:"测试回执",type:"npc",stageChar:"center",text:"虚拟验收专用：军饷账册已在京师密库登记。"},{speaker:"旁白",sub:"后续",type:"narrator",stageChar:"left",text:"接下来的行动将改变粮道。"}],
       choices:[{text:"派人护送军饷",tag:"后勤"},{text:"隐秘调兵",tag:"军务"},{text:"召集商帮",tag:"交涉"}]
-    })}}],usage:{prompt_tokens:1200,prompt_cache_hit_tokens:650,prompt_cache_miss_tokens:550,completion_tokens:230}})
+    })},finish_reason:"stop"}],usage:{prompt_tokens:1200,prompt_cache_hit_tokens:650,prompt_cache_miss_tokens:550,completion_tokens:230}})
   });
 });
 try{
@@ -137,6 +144,8 @@ try{
   assert.ok(state.choices?.some(x=>x.includes("派人护送军饷")));
   assert.equal(state.cacheHit,650);
   assert.equal(await page.locator("#qm-cache").evaluate(el=>el.classList.contains("hit")),true);
+  assert.match(await page.locator("#ai-generation-metrics").textContent(),/字符.*中文/);
+  assert.match(await page.locator("#ai-generation-metrics").textContent(),/完成 Token 230.*stop/);
   responseMode="failure";
   const fallback=await page.evaluate(async()=>{
     const e=window.__vnEngine;
@@ -170,6 +179,30 @@ try{
   assert.match(sutureFallback.status.message,/本轮已使用本地弥合：AI 返回的剧情格式无效/);
   assert.ok(sutureFallback.queue.some(x=>x.speaker==="因果弥合"));
   assert.equal(backendCalls,4);
+  responseMode="truncated";
+  const truncated=await page.evaluate(async()=>{
+    const e=window.__vnEngine,before=e.apiHistory.length;
+    await e.resolveFactionAction({text:"核实自由探索结果",customInput:"核实自由探索结果",diceBase:7,isExtrapolation:true});
+    return {before,after:e.apiHistory.length,status:e.aiRequestStatus,locked:e.isAIGenerating};
+  });
+  assert.match(truncated.status.message,/AI 输出未完整结束/);
+  assert.equal(truncated.before,truncated.after);
+  assert.equal(truncated.locked,false);
+  responseMode="pending";
+  const pendingAction=page.evaluate(async()=>{
+    const e=window.__vnEngine,before=e.apiHistory.length;
+    await e.resolveFactionAction({text:"等待中的自由探索",customInput:"等待中的自由探索",diceBase:7,isExtrapolation:true});
+    return {before,after:e.apiHistory.length,status:e.aiRequestStatus,locked:e.isAIGenerating,choices:e.pendingApiChoices.length};
+  });
+  await page.waitForSelector('#btn-cancel-ai-request:not([hidden])');
+  await page.click('#btn-cancel-ai-request');
+  const cancelled=await pendingAction;
+  assert.match(cancelled.status.message,/已取消本次请求/);
+  assert.equal(cancelled.before,cancelled.after);
+  assert.equal(cancelled.locked,false);
+  assert.equal(cancelled.choices,3);
+  assert.equal(await page.locator('#btn-cancel-ai-request').isHidden(),true);
+  assert.equal(backendCalls,6);
   assert.equal(challengeRequests,0);
   assert.equal(errors.length,0,errors.join("\n"));
   console.log(`PASS ${localServer?"checked-out client":"explicit external client"} HTTP 200 and assets loaded`);
@@ -183,5 +216,6 @@ try{
   console.log("PASS failed model request uses real local fallback and removes successful cache badge");
   console.log("PASS arbitrary story JSON is rejected without displaying it or polluting AI history");
   console.log("PASS invalid suture response uses real local suture and shows its failure reason");
+  console.log("PASS real metrics distinguish completed model output; truncation and manual cancellation release exploration without history pollution");
   console.log("PASS no browser JS exceptions, no paid model calls");
 } finally {await browser.close();if(localServer)await new Promise(resolve=>localServer.close(resolve))}
