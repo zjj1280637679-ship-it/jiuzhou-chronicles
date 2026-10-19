@@ -296,3 +296,242 @@
   .title-screen { padding-top: calc(14px + env(safe-area-inset-top, 0px)); }
   .choice-overlay { padding-top: calc(55px + env(safe-area-inset-top, 0px)); }
 }
+
+/* ==========================================================================
+   手机端第二轮精修 · 阅读器式信息层级（2026-10-20）
+   参考移动阅读器的渐进式披露：阅读常显，工程设置按需展开。
+   ========================================================================== */
+.mobile-story-tools-toggle,
+.mobile-font-controls { display: none; }
+
+@media screen and (max-width: 768px),
+       screen and (max-width: 1024px) and (max-height: 600px) and (pointer: coarse) {
+  .quick-menu {
+    top: calc(env(safe-area-inset-top, 0px) + 7px);
+    right: 9px;
+    width: 92px;
+    padding: 3px;
+    gap: 6px;
+    border-radius: 11px;
+    z-index: 33;
+  }
+  .quick-menu.mobile-menu-open { width: min(324px, calc(100vw - 18px)); }
+  .mobile-menu-toggle {
+    min-height: 44px;
+    padding: 6px;
+    font-size: 13px;
+    border-radius: 8px;
+  }
+  .incense-clock-hud {
+    top: calc(env(safe-area-inset-top, 0px) + 7px);
+    left: 9px;
+    width: auto;
+    max-width: calc(100vw - 113px);
+    min-height: 49px;
+    padding: 6px 8px;
+    gap: 7px;
+  }
+  .incense-meta { min-width: 0; }
+  .incense-title {
+    font-size: .71rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* 正文不是舞台角落的对白框，而是独立的整页小说阅读纸。 */
+  .dialogue-box {
+    width: calc(100% - 16px);
+    height: calc(100dvh - 66px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    min-height: 0;
+    max-height: none;
+    margin-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    padding: 11px 12px 7px;
+    gap: 0;
+    overflow: hidden;
+    border-radius: 12px;
+  }
+  .speaker-badge {
+    position: static;
+    order: -1;
+    align-self: flex-start;
+    flex: 0 0 auto;
+    max-width: 100%;
+    min-height: 29px;
+    padding: 4px 9px;
+    margin: 0 0 7px;
+    box-shadow: none;
+    border-radius: 6px;
+  }
+  .speaker-name { font-size: .84rem; white-space: nowrap; }
+  .speaker-sub { font-size: .66rem; }
+  .story-branch-indicator {
+    order: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    min-width: 0;
+    flex: 0 0 auto;
+    margin: 0 0 5px;
+  }
+  .story-branch-indicator .branch-pill {
+    grid-column: 1;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.5;
+    font-size: .70rem;
+    padding: 5px 7px;
+  }
+  .mobile-story-tools-toggle {
+    grid-column: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 36px;
+    padding: 6px 9px;
+    border: 1px solid rgba(229,185,92,.38);
+    border-radius: 7px;
+    color: #f4cc78;
+    background: rgba(229,185,92,.10);
+    font: 600 .73rem var(--font-sans);
+    white-space: nowrap;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  .story-branch-indicator > .branch-explainer-btn,
+  .story-branch-indicator > .ai-length-group,
+  .story-branch-indicator > .suture-badge {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+  .story-branch-indicator:not(.mobile-tools-open) > .branch-explainer-btn,
+  .story-branch-indicator:not(.mobile-tools-open) > .ai-length-group { display: none !important; }
+  .story-branch-indicator .ai-length-group {
+    margin: 0;
+    max-width: 100%;
+    width: auto;
+    justify-content: flex-start;
+  }
+  .story-branch-indicator .btn-length { min-height: 38px; }
+  .story-branch-indicator .branch-explainer-btn { min-height: 36px; }
+
+  .dialogue-content {
+    order: 1;
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: 0;
+    max-height: none;
+    margin: 3px 0 0;
+    padding: 7px 3px 5px 2px;
+    font-size: var(--mobile-reader-font-size, 17px);
+    line-height: 1.82;
+    letter-spacing: 0;
+    text-align: start;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+  .dialogue-nav-bar {
+    order: 2;
+    flex: 0 0 auto;
+    min-height: 45px;
+    margin: 0;
+    border-top: 1px solid rgba(229,185,92,.15);
+    padding-top: 4px;
+  }
+  .btn-dialogue-prev { min-height: 42px; }
+  .dialogue-continue-prompt { min-height: 42px; }
+
+  /* 推演遥测由悬浮遮挡条改为阅读器内消息，取消按钮始终可点。 */
+  .dialogue-box > .ai-harness-progress {
+    position: static;
+    order: 1;
+    transform: none;
+    left: auto;
+    top: auto;
+    bottom: auto;
+    width: 100%;
+    max-width: none;
+    max-height: 66px;
+    min-height: 0;
+    overflow-y: auto;
+    flex: 0 0 auto;
+    padding: 6px 9px;
+    margin: 3px 0 5px;
+    font-size: .70rem;
+    line-height: 1.5;
+    border-radius: 7px;
+  }
+  .dialogue-box > #btn-cancel-ai-request:not([hidden]) {
+    display: inline-flex;
+    order: 1;
+    flex: 0 0 auto;
+    align-self: flex-start;
+    min-height: 40px;
+    padding: 7px 11px;
+    margin: 2px 0 5px;
+    border: 1px solid rgba(251,191,36,.65);
+    border-radius: 8px;
+    background: rgba(251,191,36,.12);
+    color: #fcd34d;
+  }
+
+  /* 字体仅由玩家自行调整；不会受默认卡片/选项字号干扰。 */
+  .quick-menu.mobile-menu-open .mobile-font-controls {
+    display: flex;
+    grid-column: 1 / -1;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 6px 4px;
+    border-top: 1px solid rgba(255,255,255,.10);
+    font-size: .78rem;
+    color: var(--text-dim);
+  }
+  .mobile-font-controls button {
+    min-width: 46px;
+    min-height: 44px;
+    padding: 6px 8px;
+    background: rgba(229,185,92,.13);
+    color: #f5ce78;
+    border: 1px solid var(--border-gold);
+    border-radius: 8px;
+    font-size: 1rem;
+    touch-action: manipulation;
+  }
+
+  /* 选择卡片最重要的是可读和可触控，而非放大卡片阴影。 */
+  .choice-overlay {
+    padding: calc(61px + env(safe-area-inset-top, 0px)) 9px calc(12px + env(safe-area-inset-bottom, 0px));
+  }
+  .choice-container { max-width: 550px; gap: 8px; }
+  .choice-card {
+    padding: 11px 13px;
+    min-height: 54px;
+    border-radius: 9px;
+    gap: 7px;
+  }
+  .choice-card-text {
+    font-size: .94rem;
+    line-height: 1.62;
+  }
+  .choice-badge-check { font-size: .69rem; }
+}
+
+@media screen and (max-width: 360px) {
+  .dialogue-box { padding-left: 9px; padding-right: 9px; }
+  .mobile-story-tools-toggle { font-size: .68rem; padding: 5px 6px; }
+  .story-branch-indicator .branch-pill { font-size: .67rem; }
+}
+
+@media screen and (max-height: 600px) and (pointer: coarse) {
+  .dialogue-box { height: calc(100dvh - 59px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); }
+  .speaker-badge { margin-bottom: 3px; }
+  .story-branch-indicator { margin-bottom: 2px; }
+  .dialogue-content { line-height: 1.68; }
+}
