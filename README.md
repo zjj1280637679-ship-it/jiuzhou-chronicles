@@ -1,10 +1,12 @@
 # 九州沉浮录 · Chronicles of Nine Provinces : Destiny Mirror
 
 > **东方史诗文字冒险与自适应 AI GM 引擎 (Visual Novel & Interactive Fiction)**  
-> 融合近十万字明清易代历史底本、四大阵营剧情树、独立万金油展示套图、谷歌电影级生图与 DeepSeek 官方满血前缀推理。
+> 融合明清易代历史底本、四大阵营剧情树、预置展示插画与 DeepSeek 在线剧情推演。**AI 接线已建立，长篇实际质量及续玩稳定性仍在验收。**
 
 🌐 **在线直接畅玩 (Live Demo)**:  
 👉 **[https://zjj1280637679-ship-it.github.io/jiuzhou-chronicles/](https://zjj1280637679-ship-it.github.io/jiuzhou-chronicles/)**
+
+> **时序说明：以下“当前”仅截至 2026-10-19 09:03:46 UTC 的代码快照**（`jiuzhou-chronicles@02b83d91`，后端 `starport-persona@81f8a19f` 时间 2026-10-19 08:52:17 UTC）。访问门槛的**历史引入与随后撤销**见 [带 UTC 时间线的权威决策记录](docs/CURRENT-STATE-AND-DECISIONS.md)。任何未来计划不是现有功能。
 
 ---
 
@@ -16,7 +18,7 @@
 - **大漠蒙古 (Mongol Steppe)**：察哈尔西奔、黄金家族直系统摄、迎奉九游白纛苏勒德神矛、铁骑横扫戈壁。
 - **南国海邦 (Southern Seas & Nanming)**：闽海龙旗、郑氏远洋舰队、佛郎机西洋火炮、隆武誓师拓土重洋。
 
-### 2. 24 张阵营独立展示套图与谷歌原生电影级生图
+### 2. 24 个阵营插画展示槽位与部分已安装图像素材
 - **四大阵营 × 六大情境万金油套图**：
   - 俘虏 (`captive`)、战斗 (`battle`)、战争 (`war`)、情缘/同袍结义 (`romance`)、胜利 (`victory`)、财富 (`wealth`)
 - **严格阵营隔离**：各阵营独立视觉基因与叙事透镜，互不混淆。
@@ -27,15 +29,15 @@
 - **AI 自由外推单向演化**：
   - 玩家自主行动与掷骰裁决。
   - 3 个全新的具体走向分支 + 1 个自定开放输入框。
-  - 预期长度控制：**少于500字**、**少于2000字**、**少于5000字**自由调节。
+  - 预期长度偏好：500 / 2000 / 5000 档；**请求篇幅不等于稳定达到目标字数**。
   - 动态适时展示阵营套图，大结局画卷绝不触发强制 Game Over，自由开启新篇。
 
 ### 4. 纯双模式引擎 (Dual-Mode Engine)
 - **本地自洽 GM 模式 (默认 0 门槛畅玩)**：
   - 纯前端 JavaScript 状态机与内建故事树，无需注册、无需 API Key、零网络延迟即点即玩。
 - **远端实时 AI 模式 (可选启用)**：
-  - 支持官方 DeepSeek V4-Pro / V4.1-Flash / Reasoner (R1) / Chat 原生协议。
-  - 严格支持四层前缀缓存（Prompt Caching）与命中率遥测。
+  - 共享 AI 使用 Worker 服务端设定的模型，前端下拉框无法切换共享模型；个人 Key 直连是独立调试路径。
+  - 展示部分缓存命中遥测，但**不保证 100% 命中率**或永久无损的上下文记忆。
 
 ### 5. 沉浸式 ADV / AVG 视觉小说交互
 - **返回上一段**：支持对白与套图卡片双向平滑回退与前进。
@@ -46,10 +48,10 @@
 
 ## 🚀 本地运行与开发
 
-本游戏为**零外部依赖纯前端单页架构**，既可静态运行，也可配合 Node.js 网关运行：
+游戏主体是无第三方 npm 生产依赖的静态前端；**在线 AI 另需 Cloudflare Worker 和 DeepSeek**。根目录 Node 网关为本地/自托管替代路径，非 GitHub Pages 正式后端。
 
 ### 方法 1：直接双击打开
-直接用任何现代浏览器（Chrome / Edge / Firefox / Safari）双击打开 `index.html` 即可畅玩！
+直接双击 `index.html` 可尝试离线剧情；`file://` 不等于线上站点，跨域和 AI 联通行为不保证一致。
 
 ### 方法 2：使用 Node.js 网关（推荐）
 ```bash
@@ -61,7 +63,7 @@ cp config.example.json config.json
 npm start
 # 或 node server.js
 ```
-然后在浏览器中打开：[http://localhost:8088](http://localhost:8088)。
+然后在浏览器中打开：[http://localhost:8088](http://localhost:8088)。注意根目录 `server.js` 的配置写入接口目前没有认证，**不要直接暴露公网**。
 
 ---
 
@@ -97,4 +99,6 @@ npm start
 
 ## 🔌 GitHub Pages 共享 AI 接入
 
-GitHub Pages **不会**运行 `api/chat.js` 或 `api/config.js`。网页通过现有 Cloudflare Worker 的 `/api/jiuzhou/turn` 直接调用 DeepSeek；按用户要求取消了站长开关、验证码、项目限流及额外输出配额。连接状态、供应商参数与失败回退见 [共享 AI 网关说明](docs/SHARED-AI-GATEWAY.md)。
+截至上述冻结点，GitHub Pages **不会**运行 `api/chat.js` 或 `api/config.js`；在线 AI 通过 Cloudflare Worker 的 `/api/jiuzhou/turn` 使用服务端 DeepSeek Key。项目方**已主动取消**九州邀请码、Turnstile、站长开关、自设限流及额外输出封顶；DeepSeek/Cloudflare 自身的平台限制仍存在。[共享 AI 网关说明](docs/SHARED-AI-GATEWAY.md) 记录具体测试。
+
+**尚未完成（截至 2026-10-19 09:03:46 UTC）**：真实 5000 档曾生成 3064 正文字符（2691 汉字），没有达到 3500–4800 字目标；连续多轮稳定性未被证明。动态 `innerHTML` 渲染、私有 Key 浏览器持久化、本地 Node 配置接口无鉴权及有限历史窗口也尚未修复。**不得把这些待修项写成已修复，也不得为了修稳定性擅自重加邀请码或验证码。**
