@@ -13,7 +13,7 @@
   if (!menu || !menuToggle || !dialogueBox || !dialogueContent) return;
 
   const mobileQuery = window.matchMedia(
-    "(max-width: 768px), (max-width: 1024px) and (max-height: 600px) and (pointer: coarse)"
+    "(max-width: 768px) and (pointer: coarse), (max-width: 1024px) and (max-height: 600px) and (pointer: coarse)"
   );
 
   function setMenuOpen(open) {
