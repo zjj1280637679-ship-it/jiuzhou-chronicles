@@ -6,6 +6,7 @@ on:
       - 'index.html'
       - 'ai-gateway-config.js'
       - 'test-shared-ai-connection.cjs'
+      - 'test-ai-connection-probe.cjs'
       - '.github/workflows/shared-ai-bridge.yml'
   pull_request:
     paths:
@@ -13,6 +14,7 @@ on:
       - 'index.html'
       - 'ai-gateway-config.js'
       - 'test-shared-ai-connection.cjs'
+      - 'test-ai-connection-probe.cjs'
       - '.github/workflows/shared-ai-bridge.yml'
 jobs:
   syntax-and-wiring:
@@ -25,7 +27,7 @@ jobs:
       - run: node --check app.js
       - run: node --check ai-gateway-config.js
       - name: Test shared AI failures, retry, and suture requests without network calls
-        run: node --test test-shared-ai-connection.cjs
+        run: node --test test-shared-ai-connection.cjs test-ai-connection-probe.cjs
       - name: Check shared gateway wiring
         run: |
           node --input-type=module <<'NODE'

@@ -27,7 +27,7 @@ if(!url){
 }
 const browser=await chromium.launch({headless:true,executablePath:process.env.JIUZHOU_BROWSER_EXECUTABLE});
 const origin=new URL(url).origin;
-let backendCalls=0,challengeRequests=0,healthReady=false,responseMode="success";
+let backendCalls=0,probeCalls=0,probeFailure=true,challengeRequests=0,healthReady=false,responseMode="success";
 const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:2,isMobile:true,hasTouch:true});
 const errors=[];
 page.on("pageerror",e=>errors.push(String(e)));
@@ -47,6 +47,17 @@ await page.route("**/api/jiuzhou/turn",async route=>{
   if(req.method()==="OPTIONS"){await route.fulfill({status:204,headers:cors});return}
   assert.equal(req.method(),"POST");
   const data=JSON.parse(req.postData()||"{}");
+  if(data.mode==="suture"&&data.max_tokens===256){
+    probeCalls++;
+    assert.ok(data.messages.at(-1).content.includes("连接测试成功"));
+    assert.equal(data.turnstileToken,undefined);
+    if(probeFailure){
+      await route.fulfill({status:503,contentType:"application/json",headers:cors,body:JSON.stringify({error:"upstream_unavailable"})});
+    }else{
+      await route.fulfill({status:200,contentType:"application/json",headers:cors,body:JSON.stringify({model:"fixture-probe-model",choices:[{message:{content:JSON.stringify({reconciledBeats:[{text:"连接测试成功。"}]})}}]})});
+    }
+    return;
+  }
   backendCalls++;
   assert.ok(["story","suture"].includes(data.mode));
   assert.equal(data.turnstileToken,undefined);
@@ -81,6 +92,18 @@ try{
   await page.waitForFunction(()=>window.__vnEngine?.sharedGatewayStatus?.state==="unavailable",{timeout:25000});
   await page.click("#title-btn-settings");
   assert.match(await page.locator("#ai-connection-status").textContent(),/共享 AI 无法连接/);
+  const beforeProbe=await page.evaluate(()=>JSON.stringify({config:window.__vnEngine.apiConfig,history:window.__vnEngine.apiHistory,status:window.__vnEngine.aiRequestStatus,cache:window.__vnEngine.cacheTelemetry}));
+  await page.click("#btn-test-ai-connection");
+  await page.waitForFunction(()=>document.getElementById("ai-connection-test-status").textContent.includes("测试失败"));
+  assert.match(await page.locator("#ai-connection-test-status").textContent(),/AI 服务暂时不可用/);
+  probeFailure=false;
+  await page.click("#btn-test-ai-connection");
+  await page.waitForFunction(()=>document.getElementById("ai-connection-test-status").textContent.includes("测试成功"));
+  assert.match(await page.locator("#ai-connection-test-status").textContent(),/共享通道.*fixture-probe-model/);
+  assert.equal(await page.locator("#btn-test-ai-connection").isDisabled(),false);
+  assert.equal(probeCalls,2);
+  assert.equal(await page.evaluate(()=>JSON.stringify({config:window.__vnEngine.apiConfig,history:window.__vnEngine.apiHistory,status:window.__vnEngine.aiRequestStatus,cache:window.__vnEngine.cacheTelemetry})),beforeProbe);
+  assert.equal(await page.locator("#ai-connection-test-status").evaluate(el=>el.scrollWidth<=el.clientWidth),true);
   healthReady=true;
   await page.click("#btn-retry-shared-ai");
   await page.waitForFunction(()=>window.__vnEngine?.serverSharedConfig?.hasServerKey===true,{timeout:25000});
@@ -156,6 +179,7 @@ try{
   console.log("PASS simulated AI beats, choices and cache stats absorbed by game");
   console.log("PASS 32768 output tokens forwarded for story and suture without shared-channel clamps");
   console.log("PASS failed health is visible and settings retry reaches ready without claiming generation");
+  console.log("PASS settings test button sends independent short requests, shows failure/success and leaves game/config/cache unchanged");
   console.log("PASS failed model request uses real local fallback and removes successful cache badge");
   console.log("PASS arbitrary story JSON is rejected without displaying it or polluting AI history");
   console.log("PASS invalid suture response uses real local suture and shows its failure reason");

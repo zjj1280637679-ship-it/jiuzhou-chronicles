@@ -276,6 +276,12 @@
             </div>
           </div>
 
+          <div class="ai-connection-test">
+            <button type="button" class="qm-btn" id="btn-test-ai-connection">测试请求</button>
+            <p class="ai-test-help">测试当前填写的配置：Key 留空走共享通道，填写 Key 走私有通道。只发一条简短请求，会消耗少量额度，不推进剧情；测试通过后仍需保存才能应用配置。</p>
+            <div id="ai-connection-test-status" role="status" aria-live="polite">尚未发送测试请求。</div>
+          </div>
+
           <!-- DeepSeek Prompt Caching 四层前缀缓存对齐遥测面板 -->
           <div class="cache-telemetry-box" id="cache-telemetry-box">
             <div style="font-size:0.85rem; font-weight:700; color:var(--accent-jade); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
