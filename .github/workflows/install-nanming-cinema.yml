@@ -1,0 +1,70 @@
+name: Install Nanming Cinematic Art
+on:
+  push:
+    paths:
+      - 'asset-inbox/nanming-cinematic-six.zip'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check archive and install photos
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile
+          p=Path('asset-inbox/nanming-cinematic-six.zip')
+          if not p.is_file():
+              print('No installation archive, skipping')
+              raise SystemExit(0)
+          cats=['captive','battle','war','romance','victory','wealth']
+          expected={name+'.jpg' for name in cats}
+          with ZipFile(p) as z:
+              if set(z.namelist())!=expected:
+                  raise SystemExit('Archive must contain exactly six category JPGs')
+              dst=Path('data/illustrations/nanming')
+              for name in sorted(expected):
+                  raw=z.read(name)
+                  if not 50000<=len(raw)<=1800000 or not raw.startswith(bytes.fromhex('ffd8ff')) or not raw.endswith(bytes.fromhex('ffd9')):
+                      raise SystemExit('Invalid JPEG '+name)
+                  (dst/name).write_bytes(raw)
+                  print('Ready',name,len(raw))
+          PY
+      - name: Update all six illustration paths in JS and JSON
+        if: ${{ hashFiles('asset-inbox/nanming-cinematic-six.zip') != '' }}
+        run: |
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          for(const f of ['data/illustrations/illustrations-data.json','data/illustrations/illustrations-data.js']){
+            let text=fs.readFileSync(f,'utf8');
+            for(const cat of ['captive','battle','war','romance','victory','wealth']){
+              const a='data/illustrations/nanming/'+cat+'.svg';
+              const b='data/illustrations/nanming/'+cat+'.jpg';
+              if(text.split(a).length!==2)throw new Error('Missing or repeated path '+a);
+              text=text.replace(a,b);
+            }
+            fs.writeFileSync(f,text);
+          }
+          const data=JSON.parse(fs.readFileSync('data/illustrations/illustrations-data.json','utf8'));
+          for(const c of ['captive','battle','war','romance','victory','wealth'])
+            if(data.nanming['nanming_'+c].relativePath!=='data/illustrations/nanming/'+c+'.jpg')
+              throw Error('Wrong tool slot '+c);
+          console.log('All six AI illustration tool IDs preserved and pointed to JPG');
+          JS
+      - name: Commit photos and registry in one change
+        if: ${{ hashFiles('asset-inbox/nanming-cinematic-six.zip') != '' }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/illustrations/nanming/*.jpg data/illustrations/illustrations-data.json data/illustrations/illustrations-data.js
+          git rm asset-inbox/nanming-cinematic-six.zip
+          git diff --cached --stat
+          git commit -m 'assets: install six cinematic Nanming tool illustrations'
+          git push origin HEAD:main
