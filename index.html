@@ -2,9 +2,10 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>暮灯星栈 · 东方奇幻文字冒险 (Visual Novel & AVG)</title>
   <link rel="stylesheet" href="styles.css?v=20261020-0600">
+  <link rel="stylesheet" href="mobile.css?v=20261020-mobile01">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700;900&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
@@ -86,6 +87,7 @@
 
     <!-- 2. 悬浮极简胶囊菜单 (Quick Menu: 15% 透明度，Hover 或触控自显) -->
     <nav class="quick-menu" id="quick-menu">
+      <button type="button" class="mobile-menu-toggle" id="mobile-menu-toggle" aria-expanded="false" aria-label="展开或收起游戏功能菜单">☰ 功能菜单</button>
       <button class="qm-btn qm-accent" id="qm-home" title="返回主界面 (自动存档)">⌂ 主页</button>
       <button class="qm-btn" id="qm-faction" title="切换四大阵营 DLC (大明/清朝/蒙古/南明)">🚩 阵营</button>
       <button class="qm-btn" id="qm-destiny" title="查看当前隐式测评折射出的天命政治人物镜像">🪞 天命</button>
@@ -564,5 +566,6 @@
   <script src="harness/protocol.js?v=20261020-0600"></script>
   <script src="harness/runtime.js?v=20261020-0600"></script>
   <script src="app.js?v=20261020-0601"></script>
+  <script src="mobile-ui.js?v=20261020-mobile01"></script>
 </body>
 </html>
