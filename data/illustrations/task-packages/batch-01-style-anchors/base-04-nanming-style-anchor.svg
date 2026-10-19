@@ -1,0 +1,185 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="100%" height="100%">
+  <defs>
+    <!-- 狂风暴雨怒海墨蓝与电闪雷鸣背景 -->
+    <linearGradient id="bg-nanming" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#040d1a"/>
+      <stop offset="35%" stop-color="#0c243c"/>
+      <stop offset="70%" stop-color="#164e63"/>
+      <stop offset="100%" stop-color="#031326"/>
+    </linearGradient>
+
+    <!-- 特纳式海战炮火炽烈橘红爆炸光芒 -->
+    <radialGradient id="cannon-fire" cx="30%" cy="58%" r="65%">
+      <stop offset="0%" stop-color="#ff7b00" stop-opacity="0.8"/>
+      <stop offset="25%" stop-color="#ea580c" stop-opacity="0.45"/>
+      <stop offset="60%" stop-color="#7c2d12" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- 闪电青白穿透光 (高光轮廓) -->
+    <linearGradient id="lightning-strike" x1="85%" y1="0%" x2="55%" y2="80%">
+      <stop offset="0%" stop-color="#ecfeff" stop-opacity="0.7"/>
+      <stop offset="40%" stop-color="#67e8f9" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#083344" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- 海水浸润发亮的古铜腱肉 (冷海浪反射与暖火光对照) -->
+    <linearGradient id="muscle-marine" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e0f2fe"/>
+      <stop offset="25%" stop-color="#d98c52"/>
+      <stop offset="70%" stop-color="#8a471c"/>
+      <stop offset="100%" stop-color="#2a1005"/>
+    </linearGradient>
+
+    <filter id="shadow-marine">
+      <feDropShadow dx="0" dy="20" stdDeviation="30" flood-color="#000" flood-opacity="0.88"/>
+    </filter>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#bg-nanming)"/>
+  <rect width="1920" height="1080" fill="url(#cannon-fire)"/>
+  <rect width="1920" height="1080" fill="url(#lightning-strike)"/>
+
+  <!-- 郑氏水师巨型战船甲板倾斜透视、翻卷巨浪与桅杆索具剪影 -->
+  <g opacity="0.4">
+    <!-- 滔天白浪拍击船舷 (籍里柯《梅杜萨之筏》动态) -->
+    <path d="M 0 580 Q 280 440 620 540 Q 980 620 1340 480 Q 1680 420 1920 560 L 1920 1080 L 0 1080 Z" fill="#082f49"/>
+    <!-- 倾斜剧烈晃荡的橡木主甲板 -->
+    <path d="M 140 1080 L 520 620 L 1780 720 L 1860 1080 Z" fill="#26170d"/>
+    <line x1="280" y1="940" x2="1820" y2="1000" stroke="#452715" stroke-width="6"/>
+    <line x1="380" y1="820" x2="1800" y2="880" stroke="#452715" stroke-width="5"/>
+    <line x1="470" y1="710" x2="1780" y2="780" stroke="#452715" stroke-width="4"/>
+
+    <!-- 巨型桅杆、横桁与交错粗麻缆绳 (Rigging lines) -->
+    <g stroke="#1a110a" stroke-width="10">
+      <line x1="1420" y1="0" x2="1340" y2="800"/>
+      <line x1="1050" y1="180" x2="1750" y2="280"/>
+      <line x1="1120" y1="360" x2="1680" y2="440"/>
+    </g>
+    <!-- 粗麻缆绳对角绷紧 -->
+    <g stroke="#3f2718" stroke-width="2.5" opacity="0.6">
+      <line x1="1420" y1="80" x2="520" y2="650"/>
+      <line x1="1400" y1="180" x2="680" y2="680"/>
+      <line x1="1380" y1="280" x2="880" y2="720"/>
+      <line x1="1340" y1="400" x2="1780" y2="750"/>
+    </g>
+
+    <!-- 远方炮火对轰中的红毛番夹板大船与龙旗战船残影 -->
+    <path d="M 920 440 L 980 410 L 1040 440 L 1020 480 L 940 480 Z" fill="#0f172a"/>
+    <ellipse cx="980" cy="460" rx="35" ry="12" fill="#ef4444" opacity="0.5"/>
+  </g>
+
+  <!-- 构图辅助网格与对角惊涛动态视线 -->
+  <g opacity="0.18" stroke="#38bdf8" stroke-width="1" stroke-dasharray="6 6">
+    <line x1="680" y1="0" x2="680" y2="1080"/>
+    <line x1="1260" y1="0" x2="1260" y2="1080"/>
+    <line x1="0" y1="420" x2="1920" y2="420"/>
+    <line x1="0" y1="680" x2="1920" y2="680"/>
+    <line x1="180" y1="920" x2="1580" y2="240" stroke="#f97316" stroke-width="1.5"/>
+  </g>
+
+  <!-- 核心群像：年轻水师将领高举佩刀，身侧赤膊炮手合力拉拽千斤大炮 (雄性健硕躯体与怒海相搏) -->
+  <g id="hero-nanming" filter="url(#shadow-marine)">
+    <!-- 前景：重型红夷千斤铜炮身与炮口烈焰 -->
+    <g id="cannon-unit" transform="translate(180, 560)">
+      <!-- 炮车木架与生铁轮轴 -->
+      <rect x="180" y="160" width="220" height="90" rx="8" fill="#1b120c" stroke="#52321c" stroke-width="3"/>
+      <circle cx="210" cy="240" r="48" fill="#2b1a11" stroke="#8a532d" stroke-width="6"/>
+      <circle cx="360" cy="240" r="48" fill="#2b1a11" stroke="#8a532d" stroke-width="6"/>
+      <!-- 青铜大炮炮管 (斜指左上方海面) -->
+      <path d="M 120 180 L 480 110 L 460 30 L 100 90 Z" fill="#3f4a3e" stroke="#849b80" stroke-width="3"/>
+      <!-- 炮口喷薄而出的狂暴火球 (Blast Flame) -->
+      <ellipse cx="60" cy="135" rx="70" ry="45" fill="#ff7b00" opacity="0.9"/>
+      <ellipse cx="40" cy="135" rx="40" ry="25" fill="#fef08a"/>
+    </g>
+
+    <!-- 领头水师指挥英豪（中心偏右站立）：狂风掀翻战袍，袒露大理石般健硕胸膛与腹肌 -->
+    <!-- 湿透紧绷的深蓝水师战裤与铜皮战靴 -->
+    <path d="M 940 760 L 860 940 L 980 960 L 1040 800 Z" fill="#0f172a"/>
+    <path d="M 1080 780 L 1180 950 L 1310 940 L 1190 770 Z" fill="#1e293b"/>
+    <!-- 盘龙战带 -->
+    <rect x="950" y="720" width="220" height="35" rx="4" fill="#854d0e" stroke="#facc15" stroke-width="2"/>
+
+    <!-- 雄健躯干：雕塑级六块腹肌、前锯肌与饱满胸肌 (海水与雨水流淌反光) -->
+    <path d="M 960 480 C 950 550 960 630 980 720 C 1050 730 1140 730 1190 710 C 1210 630 1200 550 1180 480 Z" fill="url(#muscle-marine)"/>
+    <!-- 腹中线与腹直肌 -->
+    <path d="M 1070 490 L 1075 700" stroke="#3d1404" stroke-width="4"/>
+    <line x1="1000" y1="535" x2="1140" y2="535" stroke="#481a07" stroke-width="3"/>
+    <line x1="1005" y1="590" x2="1145" y2="590" stroke="#481a07" stroke-width="3"/>
+    <line x1="1010" y1="645" x2="1140" y2="645" stroke="#481a07" stroke-width="3"/>
+    <!-- 闪电亮白冷光高光 (左侧受光) -->
+    <ellipse cx="1030" cy="520" rx="24" ry="14" fill="#e0f2fe" opacity="0.6"/>
+    <ellipse cx="1035" cy="575" rx="22" ry="14" fill="#e0f2fe" opacity="0.6"/>
+    <ellipse cx="1040" cy="630" rx="20" ry="13" fill="#e0f2fe" opacity="0.55"/>
+    <!-- 炮火暖橙火光 (右侧侧照) -->
+    <ellipse cx="1110" cy="520" rx="20" ry="14" fill="#fed7aa" opacity="0.45"/>
+    <ellipse cx="1115" cy="575" rx="18" ry="14" fill="#fed7aa" opacity="0.45"/>
+
+    <!-- 结实胸大肌与锁骨深槽 -->
+    <path d="M 940 370 C 970 440 1020 485 1075 485 C 1130 485 1180 440 1200 370 C 1120 360 1020 360 940 370 Z" fill="url(#muscle-marine)"/>
+    <ellipse cx="1010" cy="425" rx="40" ry="24" fill="#e0f2fe" opacity="0.65"/>
+    <ellipse cx="1135" cy="425" rx="38" ry="24" fill="#fed7aa" opacity="0.45"/>
+    <path d="M 1075 380 L 1075 485" stroke="#36150a" stroke-width="4"/>
+
+    <!-- 刚毅俊朗的面庞与迎风吹拂的黑发 (海风狂卷) -->
+    <path d="M 1030 370 L 1030 300 L 1120 300 L 1120 370 Z" fill="#ba6b32"/>
+    <path d="M 1010 300 L 1075 335 L 1140 300 L 1120 220 L 1030 220 Z" fill="#cf7f45"/>
+    <path d="M 990 230 Q 1070 170 1150 200 Q 1200 260 1150 310 Q 1080 250 990 230 Z" fill="#0f172a"/>
+
+    <!-- 右臂：高举锋锐佩刀，指挥迎浪炮击 (肩部三角肌如铁球膨胀) -->
+    <circle cx="1220" cy="390" r="50" fill="url(#muscle-marine)"/>
+    <path d="M 1240 390 L 1380 280 L 1420 340 L 1270 430 Z" fill="url(#muscle-marine)"/>
+    <circle cx="1400" cy="300" r="26" fill="#a85a24"/>
+    <!-- 迎风拔斩之指挥直刃 (闪电反光) -->
+    <line x1="1410" y1="310" x2="1680" y2="110" stroke="#f8fafc" stroke-width="8" stroke-linecap="round"/>
+    <line x1="1405" y1="315" x2="1670" y2="120" stroke="#38bdf8" stroke-width="3"/>
+
+    <!-- 左臂：单手死死拽紧大炮粗麻缆绳，青筋暴突 -->
+    <circle cx="920" cy="390" r="50" fill="url(#muscle-marine)"/>
+    <path d="M 900 410 L 760 480 L 780 540 L 920 460 Z" fill="url(#muscle-marine)"/>
+    <circle cx="750" cy="505" r="26" fill="#a85a24"/>
+    <!-- 紧绷的粗麻缆绳贯穿画面 -->
+    <line x1="480" y1="620" x2="760" y2="505" stroke="#78350f" stroke-width="12" stroke-linecap="round"/>
+    <line x1="760" y1="505" x2="1140" y2="350" stroke="#78350f" stroke-width="10"/>
+
+    <!-- 背景辅助炮手（躬身合力推炮）：宽厚背肌与紧绷股四头肌 -->
+    <g transform="translate(-160, 40)" opacity="0.85">
+      <path d="M 740 560 Q 640 640 680 760 Q 780 770 820 670 Z" fill="url(#muscle-marine)"/>
+      <circle cx="670" cy="530" r="38" fill="#ba6b32"/>
+      <ellipse cx="710" cy="620" rx="35" ry="18" fill="#fed7aa" opacity="0.4" transform="rotate(-30 710 620)"/>
+    </g>
+  </g>
+
+  <!-- 翻滚喷溅的暴风雨海浪白沫与飞溅水珠 (Foam & Spray Drops) -->
+  <g fill="#f0f9ff" opacity="0.85">
+    <circle cx="280" cy="680" r="4"/>
+    <circle cx="420" cy="590" r="5"/>
+    <circle cx="680" cy="640" r="3"/>
+    <circle cx="840" cy="560" r="4.5"/>
+    <circle cx="1240" cy="480" r="5"/>
+    <circle cx="1420" cy="580" r="4"/>
+    <circle cx="980" cy="380" r="3"/>
+    <circle cx="1520" cy="360" r="3.5"/>
+    <circle cx="820" cy="880" r="5"/>
+    <circle cx="1320" cy="820" r="4.5"/>
+  </g>
+
+  <!-- 底部标注卡与色板 -->
+  <g transform="translate(60, 930)">
+    <rect width="1800" height="100" rx="12" fill="#040e1b" fill-opacity="0.9" stroke="#0284c7" stroke-width="1.5"/>
+    <rect x="25" y="22" width="130" height="56" rx="6" fill="#0369a1" stroke="#38bdf8" stroke-width="1"/>
+    <text x="90" y="58" fill="#f8fafc" font-size="22" font-family="'Noto Serif SC', 'Songti SC', serif" font-weight="900" text-anchor="middle">南国海邦</text>
+
+    <text x="180" y="48" fill="#38bdf8" font-size="22" font-family="sans-serif" font-weight="bold">【风格锁定底图 04】怒海狂涛 · 赤膊水师与千斤重炮肉身相搏</text>
+    <text x="180" y="78" fill="#cbd5e1" font-size="14" font-family="sans-serif">构图：籍里柯《梅杜萨之筏》惊涛骇浪动势 · 水手湿透古铜腹肌线条 · 暴风雨墨蓝与炮火橘红强烈冷暖碰撞</text>
+
+    <g transform="translate(1420, 28)">
+      <text x="-70" y="30" fill="#cbd5e0" font-size="13" font-family="sans-serif">主基调色板:</text>
+      <rect x="10" y="8" width="45" height="34" rx="4" fill="#040d1a" stroke="#fff" stroke-width="1" title="怒海墨蓝"/>
+      <rect x="65" y="8" width="45" height="34" rx="4" fill="#0369a1" stroke="#fff" stroke-width="1" title="龙旗碧青"/>
+      <rect x="120" y="8" width="45" height="34" rx="4" fill="#ea580c" stroke="#fff" stroke-width="1" title="炮口烈焰"/>
+      <rect x="175" y="8" width="45" height="34" rx="4" fill="#d98c52" stroke="#fff" stroke-width="1" title="湿润古铜"/>
+      <rect x="230" y="8" width="45" height="34" rx="4" fill="#f0f9ff" stroke="#fff" stroke-width="1" title="惊涛浪沫"/>
+    </g>
+  </g>
+</svg>

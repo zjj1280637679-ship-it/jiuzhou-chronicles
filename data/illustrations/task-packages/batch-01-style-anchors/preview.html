@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>《观星纪 · 九州沉浮录》生图任务包第 01 组：四大阵营风格锁定看板</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --bg-dark: #0a0d14;
+      --card-bg: #121824;
+      --accent-gold: #e5b95c;
+      --accent-crimson: #881622;
+      --accent-blue: #38bdf8;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border-color: rgba(229, 185, 92, 0.25);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg-dark);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      padding: 30px 20px 80px;
+      line-height: 1.6;
+    }
+    header {
+      max-width: 1300px;
+      margin: 0 auto 36px;
+      text-align: center;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 24px;
+    }
+    h1 {
+      font-size: 2rem;
+      color: var(--accent-gold);
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+    .notice-box {
+      margin-top: 14px;
+      display: inline-block;
+      background: rgba(229, 185, 92, 0.1);
+      border: 1px dashed var(--accent-gold);
+      padding: 8px 18px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      color: #fef08a;
+    }
+    .container {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
+    .task-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .task-card:hover {
+      border-color: var(--accent-gold);
+    }
+    @media (max-width: 1024px) {
+      .task-card { grid-template-columns: 1fr; }
+    }
+    .preview-col {
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+      border-right: 1px solid var(--border-color);
+    }
+    .svg-container {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #05070a;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.8);
+      position: relative;
+    }
+    .svg-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .preview-caption {
+      margin-top: 10px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+    }
+    .details-col {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .tag {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 4px;
+      letter-spacing: 1px;
+    }
+    .tag-ming { background: #881622; color: #fff; border: 1px solid #e5b95c; }
+    .tag-qing { background: #1e3a8a; color: #fff; border: 1px solid #60a5fa; }
+    .tag-mongol { background: #b45309; color: #fff; border: 1px solid #fbbf24; }
+    .tag-nanming { background: #0369a1; color: #fff; border: 1px solid #38bdf8; }
+    .tag-epic { background: #7c2d12; color: #fff; border: 1px solid #f59e0b; }
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--accent-gold);
+    }
+    .card-desc {
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      line-height: 1.6;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 10px 14px;
+      border-radius: 6px;
+      border-left: 3px solid var(--accent-gold);
+    }
+    .prompt-box {
+      background: #070a10;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 12px;
+      position: relative;
+    }
+    .prompt-label {
+      font-size: 0.75rem;
+      color: var(--accent-blue);
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .prompt-text {
+      font-family: Consolas, Monaco, monospace;
+      font-size: 0.82rem;
+      color: #94a3b8;
+      max-height: 110px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+      user-select: all;
+    }
+    .btn-copy {
+      background: var(--accent-gold);
+      color: #0b0f17;
+      border: none;
+      font-weight: 700;
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-copy:hover {
+      background: #fef08a;
+    }
+    .btn-copy:active {
+      transform: scale(0.96);
+    }
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #22c55e;
+      color: #052e16;
+      font-weight: 700;
+      padding: 10px 20px;
+      border-radius: 6px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.25s, transform 0.25s;
+      pointer-events: none;
+      z-index: 9999;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>《观星纪 · 九州沉浮录》生图任务包第 01 组</h1>
+    <div class="subtitle">四大阵营风格锁定基准篇 · 5张高清构图底图 + Midjourney/Flux/SD 提示词卡片</div>
+    <div class="notice-box">
+      ⚡ 任务包特性：零外部子代理消耗 · 附带 16:9 矢量级光影与骨骼底图 · 点击按钮一键复制提示词
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- 卡片 01: 大明中枢 -->
+    <article class="task-card">
+      <div class="preview-col">
+        <div class="svg-container">
+          <img src="base-01-ming-style-anchor.svg" alt="大明中枢风格锚定底图">
+        </div>
+        <div class="preview-caption">
+          <span>底图：base-01-ming-style-anchor.svg</span>
+          <span>比例：16:9 宽画幅</span>
+        </div>
+      </div>
+      <div class="details-col">
+        <div class="card-header">
+          <span class="card-title">01 · 紫禁夜寒 · 锦衣血战</span>
+          <span class="tag tag-ming">大明中枢</span>
+        </div>
+        <p class="card-desc">
+          <strong>戏剧张力：</strong>深宵紫禁城朱红回廊，飞鱼服撕裂袒露如雕塑般的健硕胸腹与双臂青筋，绣春刀斩破幽暗。卡拉瓦乔极度暗影与金色侧光，朱红玄黑冷暖交锋。
+        </p>
+        <div class="prompt-box">
+          <div class="prompt-label">
+            <span>正向提示词 (Positive Prompt)</span>
+            <button class="btn-copy" onclick="copyText('p1')">复制提示词</button>
+          </div>
+          <div class="prompt-text" id="p1">Masterpiece Baroque oil painting in the dramatic style of Caravaggio and Artemisia Gentileschi, extreme tenebrism and chiaroscuro. A handsome heroic young Ming Dynasty Jinyiwei imperial guard warrior inside the dark colonnade of the Forbidden City. His ornate crimson and gold-threaded Flying Fish robe (Feiyufu) is battle-torn and half-unbuttoned across his chest, revealing chiseled classical marble-sculpted bronze pectoral muscles, defined eight-pack abdominal muscles, powerful clavicles and vascular pumped arms. Beaded sweat and dust glisten on his sun-tanned skin under a single dramatic golden side-shaft spotlight cutting through pitch darkness. He fiercely slashes a gleaming curved Spring Embroidered Saber (Xiuchundao) with an intense steely gaze, icy cyan blade reflection, flying sparks, torn red velvet drapery in background. 16:9 cinematic widescreen, fine oil canvas texture, visible impasto brushstrokes, anatomical perfection, 8k resolution, historical epic atmosphere. --ar 16:9 --style raw --v 6.1</div>
+        </div>
+        <div class="prompt-box">
+          <div class="prompt-label">
+            <span>负向提示词 (Negative Prompt)</span>
+            <button class="btn-copy" onclick="copyText('n1')">复制负向词</button>
+          </div>
+          <div class="prompt-text" id="n1">anime, cartoon, 3d render, plastic skin, smooth airbrushed skin, deformed hands, extra fingers, missing limbs, bad anatomy, modern clothes, glowing neon, oversaturated, blurry, low resolution, childish face, weak skinny physique.</div>
+        </div>
+      </div>
+    </article>
+
+    <!-- 卡片 02: 后金八旗 -->
+    <article class="task-card">
+      <div class="preview-col">
+        <div class="svg-container">
+          <img src="base-02-qing-style-anchor.svg" alt="后金八旗风格锚定底图">
+        </div>
+        <div class="preview-caption">
+          <span>底图：base-02-qing-style-anchor.svg</span>
+          <span>比例：16:9 宽画幅</span>
+        </div>
+      </div>
+      <div class="details-col">
+        <div class="card-header">
+          <span class="card-title">02 · 盛京风雪 · 雪泥不屈困兽</span>
+          <span class="tag tag-qing">后金八旗</span>
+        </div>
+        <p class="card-desc">
+          <strong>戏剧张力：</strong>盛京大殿雪泥泥泞中，敌国猛将半跪就缚，米开朗基罗《垂死的奴隶》式健硕身躯。铁索加身死力抗挣，冰蓝风雪与炽金火把两翼冷暖强烈对冲。
+        </p>
+        <div class="prompt-box">
+          <div class="prompt-label">
+            <span>正向提示词 (Positive Prompt)</span>
+            <button class="btn-copy" onclick="copyText('p2')">复制提示词</button>
+          </div>
+          <div class="prompt-text" id="p2">Monumental Baroque oil painting with dramatic high-contrast lighting, inspired by Michelangelo's Dying Slave and Rembrandt's night scenes. A colossal battle-hardened captured warlord half-kneeling in deep mud and snow in the icy courtyard of Shengjing Palace under a raging blizzard. His heavy iron brigandine armor is shattered and torn open, revealing a granite-hewn muscular torso, deep defined chest, rock-solid abdominal muscles, and powerful shoulders. Heavy blackened iron chains wrap tightly around his chest and arms; his vascular forearms strain fiercely against the iron links with bulging veins. He raises his chin in defiant pride, fierce eyes staring down the blades of Eight Banners guards surrounding him with long spears. Strong clash of warm golden torchlight from the right and freezing ice-blue storm light from the left. Fine craquelure oil painting texture, frost in beard and sweat, hyper-detailed musculature, 16:9 epic composition, 8k resolution. --ar 16:9 --style raw --v 6.1</div>
+        </div>
+        <div class="prompt-box">
+          <div class="prompt-label">
+            <span>负向提示词 (Negative Prompt)</span>
+            <button class="btn-copy" onclick="copyText('n2')">复制负向词</button>
+          </div>
+          <div class="prompt-text" id="n2">3d CGI, cartoon, anime, doll face, flat lighting, wimpy body, deformed hands, bad fingers, soft skin, clean clothes, modern haircut, neon colors, watermark, signature.</div>
+        </div>
+      </div>
+    </article>
+
+    <!-- 卡片 03: 大漠蒙古 -->
+    <article class="task-card">
+      <div class="preview-col">
+        <div class="svg-container">
+          <img src="base-03-mongol-style-anchor.svg" alt="大漠蒙古风格锚定底图">
+        </div>
+        <div class="preview-caption">
+          <span>底图：base-03-mongol-style-anchor.svg</span>
+          <span>比例：16:9 宽画幅</span>
+        </div>
+      </div>
+      <div class="details-col">
+        <div class="card-header">
+          <span class="card-title">03 · 瀚海残阳 · 博克博弈</span>
+          <span class="tag tag-mongol">大漠蒙古</span>
+        </div>
+        <p class="card-desc">
+          <strong>戏剧张力：</strong>大漠如血夕阳与漫天狂沙下，两位身材魁梧的蒙古摔跤手赤裸上身死斗相搏。鲁本斯式狂暴动能，油亮古铜筋肉、粗壮斜方肌与飞溅的汗滴黄沙。
+        </p>
+        <div class="prompt-box">
+          <div class="prompt-label">
+            <span>正向提示词 (Positive Prompt)</span>
+            <button class="btn-copy" onclick="copyText('p3')">复制提示词</button>
+          </div>
+          <div class="prompt-text" id="p3">Dynamic historical Baroque masterpiece in the style of Peter Paul Rubens and Eugène Delacroix. Two gargantuan Mongolian Bökh wrestling champions clashing in brutal, raw grappling on the vast Ordos steppe under a blazing blood-red and golden sunset tempest. Both warriors are shirtless, their massive sun-bronzed muscular bodies gleaming with sweat and sand, showing massive bulging trapezius, thick carved back muscles, rock-hard pecs and explosive abs locked in fierce physical combat. One warrior wraps his arms around the opponent's waist while the other violently counters with a shoulder lock, veins popping, flying sweat beads catching the golden sunset light. In the background, swirling dust devils, traditional felt yurts, and the holy Nine White Banners (Sulde) whipping violently in the gale. Dynamic X-shaped composition, visceral energy, raw masculine power, thick impasto oil paint texture, 16:9 cinematic ratio, 8k. --ar 16:9 --style raw --v 6.1</div>
+        </div>
+        <div class="prompt-box">
+          <div class="prompt-label">
+            <span>负向提示词 (Negative Prompt)</span>
+            <button class="btn-copy" onclick="copyText('n3')">复制负向词</button>
+          </div>
+          <div class="prompt-text" id="n3">smooth skin, plastic, digital painting, anime, skinny, weak arms, extra limbs, bad proportions, bad hands, distorted faces, oversaturated neon, blurred background.</div>
+        </div>
+      </div>
+    </article>
+
+    <!-- 卡片 04: 南国海邦 -->
+    <article class="task-card">
+      <div class="preview-col">
+        <div class="svg-container">
+          <img src="base-04-nanming-style-anchor.svg" alt="南国海邦风格锚定底图">
+        </div>
+        <div class="preview-caption">
+          <span>底图：base-04-nanming-style-anchor.svg</span>
+          <span>比例：16:9 宽画幅</span>
+        </div>
+      </div>
+      <div class="details-col">
+        <div class="card-header">
+          <span class="card-title">04 · 怒海狂涛 · 赤膊水师推炮</span>
+          <span class="tag tag-nanming">南国海邦</span>
+        </div>
+        <p class="card-desc">
+          <strong>戏剧张力：</strong>惊涛骇浪战船剧烈晃荡，籍里柯《梅杜萨之筏》构图。年轻水师将校与赤膊健硕炮手在闪电与炮火中合力推拉千斤大炮，湿透古铜腹肌线条与滔天浪沫。
+        </p>
+        <div class="prompt-box">
+          <div class="prompt-label">
+            <span>正向提示词 (Positive Prompt)</span>
+            <button class="btn-copy" onclick="copyText('p4')">复制提示词</button>
+          </div>
+          <div class="prompt-text" id="p4">Dramatic marine Baroque oil painting in the style of Théodore Géricault (The Raft of the Medusa) and J.M.W. Turner. On the tilting storm-tossed wooden deck of a giant Zheng Clan Ming war junk in the Taiwan Strait, athletic shirtless Chinese naval gunners battle a violent sea tempest. In the foreground, a handsome young naval commander and his muscular sailors manhandle a colossal 3000-pound bronze Hongyi cannon with thick hemp ropes. Saltwater and rain soak their deeply defined sun-bronzed six-pack abdominals, broad shoulders and taut biceps, reflecting pale lightning flashes from dark oceanic clouds. The captain raises his command cutlass, shouting battle orders as the cannon fires an explosive burst of orange flames and smoke into the crashing waves. Raging white sea spray, splintering wood, distant burning European galleons, epic romanticism, rich oil glaze, 16:9 widescreen, 8k. --ar 16:9 --style raw --v 6.1</div>
+        </div>
+        <div class="prompt-box">
+          <div class="prompt-label">
+            <span>负向提示词 (Negative Prompt)</span>
+            <button class="btn-copy" onclick="copyText('n4')">复制负向词</button>
+          </div>
+          <div class="prompt-text" id="n4">cartoon, anime, 3d render, modern warship, plastic look, deformed anatomy, bad fingers, extra hands, flat light, dull composition, blur, low quality.</div>
+        </div>
+      </div>
+    </article>
+
+    <!-- 卡片 05: 九州易代大决战 -->
+    <article class="task-card">
+      <div class="preview-col">
+        <div class="svg-container">
+          <img src="base-05-grand-epic-anchor.svg" alt="九州易代决战底图">
+        </div>
+        <div class="preview-caption">
+          <span>底图：base-05-grand-epic-anchor.svg</span>
+          <span>比例：16:9 宽画幅</span>
+        </div>
+      </div>
+      <div class="details-col">
+        <div class="card-header">
+          <span class="card-title">05 · 山海关决战 · 易代铁血对决</span>
+          <span class="tag tag-epic">九州易代</span>
+        </div>
+        <p class="card-desc">
+          <strong>戏剧张力：</strong>一片石数十万万骑大对决，遮日黄沙狂飚卷起。两位顶尖战将跃马挥刃白刃撞击，火星爆裂照亮战甲下隆起之肌肉，天光破云洒向关城万骑。
+        </p>
+        <div class="prompt-box">
+          <div class="prompt-label">
+            <span>正向提示词 (Positive Prompt)</span>
+            <button class="btn-copy" onclick="copyText('p5')">复制提示词</button>
+          </div>
+          <div class="prompt-text" id="p5">Grand monumental historical battle epic Baroque painting in the style of Jacques-Louis David and Antoine-Jean Gros. The decisive 1644 Battle of Shanhai Pass (Yipianshi) under a cataclysmic dust storm. At the visual epicenter, two supreme rival warlord champions clash on rearing armored warhorses: a battle-hardened Ming frontier general in damaged lamellar armor swinging a heavy broadsword against an Eight Banners royal commander thrusting a battle spear. Their crossed steel blades erupt in blinding sparks, lighting up their strained muscular necks, vascular arms, and battle-scarred bronze chests showing through torn mail. In the background, piercing rays of golden sunlight break through dark storm clouds onto the distant Great Wall fortifications and tens of thousands of charging heavy cavalry amidst swirling yellow sand and shredded battle banners. Cinematic widescreen 16:9, monumental scale, museum masterpiece quality, hyper-realistic classical anatomy, 8k. --ar 16:9 --style raw --v 6.1</div>
+        </div>
+        <div class="prompt-box">
+          <div class="prompt-label">
+            <span>负向提示词 (Negative Prompt)</span>
+            <button class="btn-copy" onclick="copyText('n5')">复制负向词</button>
+          </div>
+          <div class="prompt-text" id="n5">amateur painting, cartoon, anime, 3d video game graphics, modern guns, tank, deformed horse legs, bad anatomy, flat boring lighting, low contrast, oversaturated.</div>
+        </div>
+      </div>
+    </article>
+
+  </main>
+
+  <div class="toast" id="toast">已成功复制提示词至剪贴板！</div>
+
+  <script>
+    function copyText(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const text = el.innerText.trim();
+      navigator.clipboard.writeText(text).then(() => {
+        showToast("已成功复制至剪贴板！");
+      }).catch(err => {
+        // 回退兼容
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+        showToast("已成功复制至剪贴板！");
+      });
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      toast.innerText = msg;
+      toast.classList.add("show");
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 2000);
+    }
+  </script>
+</body>
+</html>

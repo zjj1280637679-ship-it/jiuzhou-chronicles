@@ -1,0 +1,160 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="100%" height="100%">
+  <defs>
+    <!-- 苍茫瀚海如血夕阳与漫天狂沙背景 -->
+    <linearGradient id="bg-mongol" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2a0808"/>
+      <stop offset="35%" stop-color="#591313"/>
+      <stop offset="70%" stop-color="#7c2d12"/>
+      <stop offset="100%" stop-color="#1c0a06"/>
+    </linearGradient>
+
+    <!-- 鲁本斯式狂暴金红逆光 -->
+    <radialGradient id="sunset-blast" cx="50%" cy="35%" r="75%">
+      <stop offset="0%" stop-color="#ffb703" stop-opacity="0.6"/>
+      <stop offset="30%" stop-color="#fb8500" stop-opacity="0.35"/>
+      <stop offset="65%" stop-color="#b91c1c" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- 油亮古铜筋肉 (狂野汗水与夕阳逆光) -->
+    <linearGradient id="muscle-mongol" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#ffdda1"/>
+      <stop offset="25%" stop-color="#d97724"/>
+      <stop offset="65%" stop-color="#8c4113"/>
+      <stop offset="100%" stop-color="#3d1404"/>
+    </linearGradient>
+
+    <filter id="shadow-grapple">
+      <feDropShadow dx="0" dy="20" stdDeviation="35" flood-color="#000" flood-opacity="0.92"/>
+    </filter>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#bg-mongol)"/>
+  <rect width="1920" height="1080" fill="url(#sunset-blast)"/>
+
+  <!-- 大漠地平线、蒙古包营帐与九游白纛狂卷剪影 -->
+  <g opacity="0.38">
+    <!-- 起伏的大漠沙丘地平线 -->
+    <path d="M 0 650 Q 420 580 960 620 Q 1520 660 1920 590 L 1920 1080 L 0 1080 Z" fill="#140804"/>
+    <!-- 远景三座毡包 (Yurt) -->
+    <path d="M 180 620 Q 280 540 380 620 Z" fill="#29120a"/>
+    <path d="M 340 630 Q 420 560 500 630 Z" fill="#200d07"/>
+    <path d="M 1520 600 Q 1640 520 1760 600 Z" fill="#240e08"/>
+
+    <!-- 猎猎狂卷的成吉思汗九游白纛与狼头苏勒德神矛 -->
+    <g stroke="#260f08" stroke-width="8">
+      <line x1="260" y1="220" x2="260" y2="640"/>
+      <line x1="1680" y1="200" x2="1680" y2="620"/>
+    </g>
+    <!-- 白纛马尾鬃毛狂风吹拂 -->
+    <path d="M 260 250 Q 140 280 80 340 Q 180 310 260 270" fill="#f8fafc" opacity="0.5"/>
+    <path d="M 260 280 Q 130 330 60 410 Q 170 360 260 300" fill="#f8fafc" opacity="0.4"/>
+    <path d="M 1680 230 Q 1800 270 1880 330 Q 1760 300 1680 250" fill="#f8fafc" opacity="0.5"/>
+    <!-- 战马狂奔剪影 -->
+    <ellipse cx="1400" cy="620" rx="45" ry="25" fill="#240e08"/>
+    <circle cx="1435" cy="605" r="14" fill="#240e08"/>
+  </g>
+
+  <!-- 构图辅助网格与对撞力量线 (Rubensian X-Dynamic) -->
+  <g opacity="0.2" stroke="#fb8500" stroke-width="1.5" stroke-dasharray="6 6">
+    <line x1="450" y1="220" x2="1470" y2="880"/>
+    <line x1="1470" y1="220" x2="450" y2="880"/>
+    <circle cx="960" cy="540" r="180" fill="none" stroke="#ffb703" stroke-width="1"/>
+  </g>
+
+  <!-- 核心群像：两位古铜摔跤博克勇士狂暴角力 (纯粹雄性力量碰撞，汗水与肌肉撕扯) -->
+  <g id="hero-mongol" filter="url(#shadow-grapple)">
+    <!-- 左侧博克勇士（俯冲抱摔猛扑）：花岗岩斜方肌、粗壮二头肌锁扣 -->
+    <!-- 摔跤护膝战靴 (皮质昭德格战靴) 蹬碎砾石 -->
+    <path d="M 520 840 L 420 960 L 610 970 L 660 860 Z" fill="#1b120c"/>
+    <path d="M 720 780 L 780 920 L 920 920 L 840 760 Z" fill="#241810"/>
+    <!-- 摔跤短战裙 (班吉拉战裙) -->
+    <path d="M 560 690 L 760 670 L 820 790 L 520 810 Z" fill="#15213b" stroke="#d97706" stroke-width="2"/>
+
+    <!-- 左勇士躯干：极度紧绷的背阔肌与胸腹角力折痕 -->
+    <path d="M 640 440 C 600 500 580 580 620 690 C 720 700 810 680 840 640 C 850 560 830 480 770 420 Z" fill="url(#muscle-mongol)"/>
+    <!-- 凹凸背阔肌与腹外斜肌 -->
+    <path d="M 690 440 L 710 680" stroke="#4a1805" stroke-width="4"/>
+    <ellipse cx="660" cy="510" rx="35" ry="20" fill="#ffe2b8" opacity="0.45" transform="rotate(-20 660 510)"/>
+    <ellipse cx="670" cy="580" rx="38" ry="22" fill="#ffe2b8" opacity="0.4" transform="rotate(-15 670 580)"/>
+
+    <!-- 左勇士巨型手臂：双手死死钳扣对方腰胯 (粗大静脉青筋) -->
+    <circle cx="610" cy="420" r="60" fill="url(#muscle-mongol)"/>
+    <path d="M 630 450 L 880 540 L 870 610 L 620 530 Z" fill="url(#muscle-mongol)"/>
+    <circle cx="890" cy="570" r="32" fill="#b85d1d"/>
+
+    <!-- 右侧博克勇士（昂首反绞暴吼）：如铁塔般昂立，双手死死按扣对方肩膀 -->
+    <!-- 强健下肢与紧抓黄沙之战靴 -->
+    <path d="M 1120 760 L 1080 920 L 1220 940 L 1220 780 Z" fill="#20150d"/>
+    <path d="M 1310 820 L 1440 960 L 1560 950 L 1390 800 Z" fill="#18110b"/>
+    <!-- 蓝布摔跤战裙 -->
+    <path d="M 1080 670 L 1280 690 L 1340 820 L 1050 800 Z" fill="#3b151b" stroke="#fbbf24" stroke-width="2"/>
+
+    <!-- 右勇士强壮躯干：如铁铸般饱满的胸肌与八块腹肌 (夕阳余晖下流淌金辉) -->
+    <path d="M 1050 420 C 1010 480 1020 560 1050 670 C 1150 680 1260 670 1310 620 C 1330 540 1310 470 1260 420 Z" fill="url(#muscle-mongol)"/>
+    <!-- 六块腹肌凹凸 -->
+    <path d="M 1160 440 L 1150 660" stroke="#3d1404" stroke-width="4"/>
+    <line x1="1090" y1="490" x2="1230" y2="490" stroke="#481a07" stroke-width="3"/>
+    <line x1="1095" y1="545" x2="1225" y2="545" stroke="#481a07" stroke-width="3"/>
+    <line x1="1100" y1="600" x2="1220" y2="600" stroke="#481a07" stroke-width="3"/>
+    <!-- 夕阳漫射油光高光 -->
+    <ellipse cx="1200" cy="460" rx="42" ry="22" fill="#fff1cc" opacity="0.6"/>
+    <ellipse cx="1120" cy="460" rx="38" ry="22" fill="#ffd599" opacity="0.35"/>
+    <ellipse cx="1195" cy="515" rx="26" ry="14" fill="#fff1cc" opacity="0.55"/>
+    <ellipse cx="1190" cy="570" rx="24" ry="14" fill="#fff1cc" opacity="0.5"/>
+
+    <!-- 右勇士如钢钳般的手臂反扣 -->
+    <circle cx="1290" cy="420" r="60" fill="url(#muscle-mongol)"/>
+    <path d="M 1270 450 L 1020 500 L 1030 570 L 1290 520 Z" fill="url(#muscle-mongol)"/>
+    <circle cx="1010" cy="530" r="34" fill="#c06422"/>
+
+    <!-- 两人头颅抵角对撞：汗水飞溅，狂傲怒吼 -->
+    <!-- 左勇士头颅下潜 -->
+    <circle cx="790" cy="380" r="42" fill="#ab5519"/>
+    <path d="M 750 350 Q 810 320 840 370 Z" fill="#1b120c"/>
+    <!-- 右勇士头颅怒吼 -->
+    <circle cx="1060" cy="360" r="46" fill="#ba6221"/>
+    <path d="M 1030 320 Q 1100 290 1120 350 Z" fill="#1b120c"/>
+
+    <!-- 骨节摩擦与飞溅的汗滴、粗砾黄沙 (Dynamic Sweat & Sand Particles) -->
+    <g fill="#ffea79" opacity="0.85">
+      <circle cx="890" cy="460" r="4"/>
+      <circle cx="940" cy="420" r="3.5"/>
+      <circle cx="920" cy="510" r="5"/>
+      <circle cx="860" cy="530" r="3"/>
+      <circle cx="970" cy="480" r="4"/>
+      <circle cx="1030" cy="430" r="3"/>
+      <circle cx="910" cy="380" r="4.5"/>
+    </g>
+  </g>
+
+  <!-- 漫天扬起飞旋的金色风沙微粒 -->
+  <g fill="#d97706" opacity="0.65">
+    <circle cx="480" cy="220" r="3"/>
+    <circle cx="680" cy="180" r="2.5"/>
+    <circle cx="1280" cy="240" r="3.5"/>
+    <circle cx="1480" cy="190" r="4"/>
+    <circle cx="380" cy="720" r="4"/>
+    <circle cx="1620" cy="740" r="5"/>
+    <circle cx="1120" cy="880" r="3"/>
+  </g>
+
+  <!-- 底部标注卡与色板 -->
+  <g transform="translate(60, 930)">
+    <rect width="1800" height="100" rx="12" fill="#100704" fill-opacity="0.9" stroke="#f59e0b" stroke-width="1.5"/>
+    <rect x="25" y="22" width="130" height="56" rx="6" fill="#b45309" stroke="#fde68a" stroke-width="1"/>
+    <text x="90" y="58" fill="#f8fafc" font-size="22" font-family="'Noto Serif SC', 'Songti SC', serif" font-weight="900" text-anchor="middle">大漠蒙古</text>
+
+    <text x="180" y="48" fill="#fbbf24" font-size="22" font-family="sans-serif" font-weight="bold">【风格锁定底图 03】瀚海残阳 · 博克摔角与古铜油亮健美肉体</text>
+    <text x="180" y="78" fill="#d1d5db" font-size="14" font-family="sans-serif">构图：鲁本斯式狂暴动态力量 (Rubensian dynamic) · 双人角力肌肉暴突与汗水飞溅 · 炽烈血色夕阳与九游白纛狂卷</text>
+
+    <g transform="translate(1420, 28)">
+      <text x="-70" y="30" fill="#cbd5e0" font-size="13" font-family="sans-serif">主基调色板:</text>
+      <rect x="10" y="8" width="45" height="34" rx="4" fill="#2a0808" stroke="#fff" stroke-width="1" title="血色瀚海"/>
+      <rect x="65" y="8" width="45" height="34" rx="4" fill="#b45309" stroke="#fff" stroke-width="1" title="风沙黄赭"/>
+      <rect x="120" y="8" width="45" height="34" rx="4" fill="#ffb703" stroke="#fff" stroke-width="1" title="夕阳金焰"/>
+      <rect x="175" y="8" width="45" height="34" rx="4" fill="#d97724" stroke="#fff" stroke-width="1" title="油亮古铜"/>
+      <rect x="230" y="8" width="45" height="34" rx="4" fill="#f8fafc" stroke="#fff" stroke-width="1" title="白纛九白"/>
+    </g>
+  </g>
+</svg>

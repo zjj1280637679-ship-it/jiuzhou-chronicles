@@ -1,0 +1,173 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="100%" height="100%">
+  <defs>
+    <!-- 一片石黄沙蔽日与彤云翻滚背景 -->
+    <linearGradient id="bg-grand-battle" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1c110a"/>
+      <stop offset="35%" stop-color="#3d2112"/>
+      <stop offset="70%" stop-color="#592b0c"/>
+      <stop offset="100%" stop-color="#140b06"/>
+    </linearGradient>
+
+    <!-- 狂飙黄沙中穿透翻滚乌云的刺目天光 (Dramatic God Rays) -->
+    <linearGradient id="divine-beam" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a" stop-opacity="0.65"/>
+      <stop offset="45%" stop-color="#f59e0b" stop-opacity="0.3"/>
+      <stop offset="85%" stop-color="#78350f" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- 战将铁铠与古铜肌体交织光影 -->
+    <linearGradient id="muscle-epic" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff1d6"/>
+      <stop offset="30%" stop-color="#d98236"/>
+      <stop offset="70%" stop-color="#803e10"/>
+      <stop offset="100%" stop-color="#2c1103"/>
+    </linearGradient>
+
+    <!-- 兵刃火星爆裂光斑 -->
+    <radialGradient id="spark-burst" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="30%" stop-color="#fef08a"/>
+      <stop offset="70%" stop-color="#ea580c"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+
+    <filter id="shadow-epic">
+      <feDropShadow dx="0" dy="22" stdDeviation="35" flood-color="#000" flood-opacity="0.95"/>
+    </filter>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#bg-grand-battle)"/>
+  <rect width="1920" height="1080" fill="url(#divine-beam)"/>
+
+  <!-- 山海关雄伟关城、角山长城与石河两岸决战万骑剪影 -->
+  <g opacity="0.36">
+    <!-- 远景燕山与山海关长城城堞在黄沙中隐现 -->
+    <path d="M 0 380 Q 320 280 720 340 L 1180 290 Q 1520 240 1920 320 L 1920 540 L 0 580 Z" fill="#1f1107"/>
+    <!-- 山海关天下第一关主城楼高耸剪影 (左上方) -->
+    <path d="M 240 340 L 420 340 L 400 240 L 260 240 Z" fill="#2d170a"/>
+    <path d="M 210 240 L 450 240 L 430 180 L 230 180 Z" fill="#2d170a"/>
+    <path d="M 180 180 L 480 180 L 330 110 Z" fill="#241208"/>
+
+    <!-- 石河两岸倾力相搏的万骑大军狂飚 (奔腾骑兵海) -->
+    <g fill="#180c05">
+      <!-- 左翼大顺骑兵冲阵 -->
+      <path d="M 0 680 Q 240 620 520 660 L 460 780 L 0 820 Z"/>
+      <!-- 右翼八旗两白旗重铠万骑迂回突入 -->
+      <path d="M 1920 660 Q 1680 610 1380 640 L 1440 760 L 1920 800 Z"/>
+    </g>
+
+    <!-- 狂风中折断狂舞的残破军旗 (白纛、三叉龙旗、闯字大旗) -->
+    <g stroke="#1e0f06" stroke-width="6">
+      <line x1="280" y1="460" x2="360" y2="700"/>
+      <line x1="420" y1="420" x2="480" y2="720"/>
+      <line x1="1480" y1="440" x2="1420" y2="710"/>
+      <line x1="1640" y1="410" x2="1560" y2="730"/>
+    </g>
+    <!-- 旗面在飓风中撕裂 -->
+    <path d="M 280 470 Q 200 510 140 480 Q 220 540 290 530 Z" fill="#991b1b" opacity="0.6"/>
+    <path d="M 1480 450 Q 1580 490 1660 460 Q 1560 520 1470 510 Z" fill="#f8fafc" opacity="0.5"/>
+  </g>
+
+  <!-- 构图辅助黄金分割与对决冲击力线 -->
+  <g opacity="0.22" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="6 6">
+    <line x1="720" y1="0" x2="720" y2="1080"/>
+    <line x1="1200" y1="0" x2="1200" y2="1080"/>
+    <line x1="0" y1="440" x2="1920" y2="440"/>
+    <line x1="0" y1="720" x2="1920" y2="720"/>
+    <!-- 两军对决交锋点交汇线 -->
+    <line x1="380" y1="260" x2="1540" y2="820"/>
+    <line x1="1540" y1="260" x2="380" y2="820"/>
+  </g>
+
+  <!-- 核心交锋中心：两位绝顶统帅/战将白刃对斩 · 巨力抗衡与战马冲撞 (天昏地暗中的极度动势) -->
+  <g id="hero-grand-clash" filter="url(#shadow-epic)">
+    <!-- 碰撞中心爆裂的金红火星冲击波 (Point of Impact) -->
+    <ellipse cx="960" cy="460" rx="140" ry="80" fill="url(#spark-burst)"/>
+
+    <!-- 左侧战将：身披重创关宁锁子甲，左臂战甲撕裂袒露钢铁般胸大肌与肱二头肌，双手挥动重斩长刀 -->
+    <g id="warlord-left">
+      <!-- 战马狂跃前蹄 (跃空下压) -->
+      <path d="M 440 680 Q 620 520 740 620 L 710 740 Q 560 690 420 840 Z" fill="#1f1109"/>
+      <circle cx="730" cy="580" r="38" fill="#2d170c"/>
+
+      <!-- 战将身躯 (前倾暴斩)：大理石般古铜胸腹轮廓 -->
+      <path d="M 660 380 L 840 440 L 780 620 L 610 560 Z" fill="url(#muscle-epic)"/>
+      <ellipse cx="720" cy="440" rx="36" ry="20" fill="#fff2d9" opacity="0.6" transform="rotate(25 720 440)"/>
+      <ellipse cx="700" cy="500" rx="32" ry="18" fill="#fff2d9" opacity="0.5" transform="rotate(25 700 500)"/>
+
+      <!-- 双臂青筋暴突合握刀柄 -->
+      <circle cx="620" cy="380" r="48" fill="url(#muscle-epic)"/>
+      <path d="M 640 400 L 880 430 L 860 490 L 630 450 Z" fill="url(#muscle-epic)"/>
+      <circle cx="880" cy="450" r="28" fill="#ba6826"/>
+
+      <!-- 长刀重刃：与右方兵刃剧烈撞击，崩开炽红铁屑 -->
+      <line x1="560" y1="580" x2="1080" y2="380" stroke="#f8fafc" stroke-width="12" stroke-linecap="round"/>
+      <line x1="570" y1="585" x2="1070" y2="390" stroke="#38bdf8" stroke-width="4"/>
+    </g>
+
+    <!-- 右侧战将：八旗前锋重甲战王，半解铁盔，胸甲在恶战中被铅弹轰碎，露如磐石般坚硬之胸肌与腹肌，单手反握长矛怒吼格挡 -->
+    <g id="warlord-right">
+      <!-- 战马狂暴仰嘶 -->
+      <path d="M 1480 680 Q 1300 520 1180 620 L 1210 740 Q 1360 690 1500 840 Z" fill="#171311"/>
+      <circle cx="1190" cy="580" r="38" fill="#261d19"/>
+
+      <!-- 战将身躯 (后仰暴发迎击) -->
+      <path d="M 1260 380 L 1080 440 L 1140 620 L 1310 560 Z" fill="url(#muscle-epic)"/>
+      <ellipse cx="1200" cy="440" rx="36" ry="20" fill="#ffebd0" opacity="0.6" transform="rotate(-25 1200 440)"/>
+      <ellipse cx="1220" cy="500" rx="32" ry="18" fill="#ffebd0" opacity="0.5" transform="rotate(-25 1220 500)"/>
+
+      <!-- 粗壮单臂持枪横挑 -->
+      <circle cx="1300" cy="380" r="48" fill="url(#muscle-epic)"/>
+      <path d="M 1280 400 L 1040 430 L 1060 490 L 1290 450 Z" fill="url(#muscle-epic)"/>
+      <circle cx="1040" cy="450" r="28" fill="#b05f20"/>
+
+      <!-- 丈八重矛/战刀反磕格挡 -->
+      <line x1="1360" y1="580" x2="840" y2="380" stroke="#f8fafc" stroke-width="10" stroke-linecap="round"/>
+      <line x1="1350" y1="585" x2="850" y2="390" stroke="#f59e0b" stroke-width="3"/>
+    </g>
+
+    <!-- 激射四射的炽热火星与碎骨铁屑 (Hyperdynamic Sparks) -->
+    <g fill="#fef08a">
+      <circle cx="940" cy="420" r="5"/>
+      <circle cx="980" cy="410" r="4"/>
+      <circle cx="920" cy="490" r="6"/>
+      <circle cx="1010" cy="470" r="5.5"/>
+      <circle cx="960" cy="360" r="3.5"/>
+      <circle cx="880" cy="430" r="4"/>
+      <circle cx="1040" cy="440" r="4"/>
+      <circle cx="970" cy="540" r="5"/>
+    </g>
+  </g>
+
+  <!-- 漫天遮日黄沙风暴与焦土浓烟 (Dust Tempest) -->
+  <g fill="#d97706" opacity="0.55">
+    <circle cx="280" cy="320" r="5"/>
+    <circle cx="580" cy="220" r="4"/>
+    <circle cx="820" cy="180" r="3"/>
+    <circle cx="1140" cy="160" r="4"/>
+    <circle cx="1420" cy="280" r="6"/>
+    <circle cx="1680" cy="210" r="4"/>
+    <circle cx="480" cy="880" r="5"/>
+    <circle cx="1440" cy="860" r="6"/>
+  </g>
+
+  <!-- 底部标注卡与色板 -->
+  <g transform="translate(60, 930)">
+    <rect width="1800" height="100" rx="12" fill="#0d0805" fill-opacity="0.92" stroke="#ea580c" stroke-width="1.5"/>
+    <rect x="25" y="22" width="130" height="56" rx="6" fill="#7c2d12" stroke="#fbbf24" stroke-width="1"/>
+    <text x="90" y="58" fill="#f8fafc" font-size="22" font-family="'Noto Serif SC', 'Songti SC', serif" font-weight="900" text-anchor="middle">九州易代</text>
+
+    <text x="180" y="48" fill="#fbbf24" font-size="22" font-family="sans-serif" font-weight="bold">【风格锁定底图 05】山海关决战 · 易代狂飚与万骑铁血对决</text>
+    <text x="180" y="78" fill="#d1d5db" font-size="14" font-family="sans-serif">构图：史诗电影级对冲十字构图 · 战将撕裂残甲下肌肉博弈 · 黄沙遮日中天光破云 · 铁甲金火交融的易代大变局气象</text>
+
+    <g transform="translate(1420, 28)">
+      <text x="-70" y="30" fill="#cbd5e0" font-size="13" font-family="sans-serif">主基调色板:</text>
+      <rect x="10" y="8" width="45" height="34" rx="4" fill="#1c110a" stroke="#fff" stroke-width="1" title="黄沙焦土"/>
+      <rect x="65" y="8" width="45" height="34" rx="4" fill="#7c2d12" stroke="#fff" stroke-width="1" title="易代血赭"/>
+      <rect x="120" y="8" width="45" height="34" rx="4" fill="#f59e0b" stroke="#fff" stroke-width="1" title="破晓金光"/>
+      <rect x="175" y="8" width="45" height="34" rx="4" fill="#d98236" stroke="#fff" stroke-width="1" title="刚劲古铜"/>
+      <rect x="230" y="8" width="45" height="34" rx="4" fill="#f8fafc" stroke="#fff" stroke-width="1" title="兵刃银芒"/>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,170 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg-qing" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#050a12"/>
+      <stop offset="40%" stop-color="#0e1724"/>
+      <stop offset="75%" stop-color="#142133"/>
+      <stop offset="100%" stop-color="#080e18"/>
+    </linearGradient>
+
+    <!-- 凛冽飞雪寒光与右侧炽金火把冷暖撞色 -->
+    <radialGradient id="torch-fire-gold" cx="85%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#ff9e1b" stop-opacity="0.55"/>
+      <stop offset="30%" stop-color="#d96b14" stop-opacity="0.3"/>
+      <stop offset="70%" stop-color="#3d1e11" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="frost-ice-blue" cx="15%" cy="20%" r="65%">
+      <stop offset="0%" stop-color="#a0c4df" stop-opacity="0.35"/>
+      <stop offset="50%" stop-color="#3b6998" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- 古铜健美肌肉质感 (冷暖夹光) -->
+    <linearGradient id="muscle-qing" x1="0%" y1="0%" x2="100%" y2="80%">
+      <stop offset="0%" stop-color="#a8cde8"/>
+      <stop offset="25%" stop-color="#d49258"/>
+      <stop offset="70%" stop-color="#8c4b22"/>
+      <stop offset="100%" stop-color="#361709"/>
+    </linearGradient>
+
+    <filter id="shadow-heavy">
+      <feDropShadow dx="0" dy="18" stdDeviation="30" flood-color="#000" flood-opacity="0.9"/>
+    </filter>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#bg-qing)"/>
+  <rect width="1920" height="1080" fill="url(#torch-fire-gold)"/>
+  <rect width="1920" height="1080" fill="url(#frost-ice-blue)"/>
+
+  <!-- 盛京崇政殿阶梯与八旗大营森严枪矛剪影 -->
+  <g opacity="0.32">
+    <!-- 远景宫殿轮廓与飞檐积雪 -->
+    <path d="M 0 420 L 460 380 L 820 400 L 720 480 L 0 540 Z" fill="#0b121b"/>
+    <path d="M 1120 370 L 1520 340 L 1920 360 L 1920 520 L 1220 490 Z" fill="#0b121b"/>
+    <!-- 崇政殿汉白玉阶梯 (透视斜线) -->
+    <path d="M 120 1080 L 450 680 L 1480 680 L 1820 1080 Z" fill="#151e2b"/>
+    <line x1="220" y1="960" x2="1720" y2="960" stroke="#486581" stroke-width="2"/>
+    <line x1="310" y1="840" x2="1620" y2="840" stroke="#486581" stroke-width="2"/>
+    <line x1="380" y1="760" x2="1550" y2="760" stroke="#486581" stroke-width="2"/>
+
+    <!-- 侍卫森严环立之长矛与锁子甲铁盔剪影 (两翼包夹压迫感) -->
+    <g stroke="#1a2533" stroke-width="6">
+      <line x1="280" y1="300" x2="380" y2="720"/>
+      <line x1="340" y1="280" x2="420" y2="720"/>
+      <line x1="410" y1="310" x2="460" y2="720"/>
+      <line x1="1510" y1="290" x2="1460" y2="720"/>
+      <line x1="1580" y1="270" x2="1510" y2="720"/>
+      <line x1="1660" y1="300" x2="1570" y2="720"/>
+    </g>
+    <!-- 火把火盆台架 (右侧强暖光源) -->
+    <rect x="1620" y="440" width="30" height="280" fill="#2d170a"/>
+    <ellipse cx="1635" cy="430" rx="45" ry="25" fill="#d96b14"/>
+  </g>
+
+  <!-- 构图辅助网格与透视视线 -->
+  <g opacity="0.18" stroke="#ff9e1b" stroke-width="1" stroke-dasharray="6 6">
+    <line x1="680" y1="0" x2="680" y2="1080"/>
+    <line x1="1240" y1="0" x2="1240" y2="1080"/>
+    <line x1="0" y1="420" x2="1920" y2="420"/>
+    <line x1="0" y1="720" x2="1920" y2="720"/>
+  </g>
+
+  <!-- 核心人物：米开朗基罗《垂死的奴隶》式不屈猛将 (半跪雪泥，铁索加身，肌肉贲张) -->
+  <g id="hero-qing" filter="url(#shadow-heavy)">
+    <!-- 碎裂重铠与散落战裙 (雪泥残甲) -->
+    <path d="M 690 740 L 1220 740 L 1290 920 L 610 920 Z" fill="#1b1c20" stroke="#5f6c7b" stroke-width="2"/>
+    <path d="M 650 780 Q 750 860 880 820 Q 1020 860 1240 780" stroke="#c0a062" stroke-width="4" fill="none"/>
+
+    <!-- 半跪雄伟下肢与强健大腿肌群 -->
+    <path d="M 640 850 L 520 980 L 760 990 L 780 880 Z" fill="#2d2824"/>
+    <path d="M 1150 850 L 1320 990 L 1100 1000 L 1020 880 Z" fill="#28231f"/>
+
+    <!-- 强健躯干：雕塑级六块腹肌与宽阔背阔肌 -->
+    <path d="M 760 520 C 750 590 760 680 790 740 C 870 750 1050 750 1130 740 C 1160 680 1170 590 1160 520 Z" fill="url(#muscle-qing)"/>
+    <path d="M 960 530 L 960 735" stroke="#3d1b0d" stroke-width="4"/>
+    <line x1="860" y1="575" x2="1060" y2="575" stroke="#482010" stroke-width="3"/>
+    <line x1="870" y1="630" x2="1050" y2="630" stroke="#482010" stroke-width="3"/>
+    <line x1="880" y1="685" x2="1040" y2="685" stroke="#482010" stroke-width="3"/>
+
+    <!-- 右侧火光高光 (暖金) / 左侧寒雪冷光 (冰蓝) 撞击腹肌 -->
+    <ellipse cx="1020" cy="555" rx="28" ry="14" fill="#ffd199" opacity="0.45"/>
+    <ellipse cx="1020" cy="610" rx="26" ry="14" fill="#ffd199" opacity="0.45"/>
+    <ellipse cx="1020" cy="665" rx="24" ry="13" fill="#ffd199" opacity="0.4"/>
+    <ellipse cx="900" cy="555" rx="26" ry="14" fill="#d2e8f7" opacity="0.3"/>
+    <ellipse cx="900" cy="610" rx="24" ry="14" fill="#d2e8f7" opacity="0.3"/>
+
+    <!-- 雄健胸大肌与喉头锁骨 -->
+    <path d="M 720 400 C 760 480 830 525 960 525 C 1090 525 1160 480 1200 400 C 1080 390 840 390 720 400 Z" fill="url(#muscle-qing)"/>
+    <ellipse cx="1060" cy="460" rx="55" ry="32" fill="#ffd8a8" opacity="0.5"/>
+    <ellipse cx="860" cy="460" rx="52" ry="32" fill="#bedaf0" opacity="0.35"/>
+    <path d="M 960 410 L 960 525" stroke="#36150a" stroke-width="4"/>
+
+    <!-- 昂首不屈的面容与雄狮般的散发 -->
+    <path d="M 910 400 L 910 320 L 1020 320 L 1020 400 Z" fill="#b06935"/>
+    <path d="M 890 320 L 960 360 L 1040 320 L 1020 230 L 910 230 Z" fill="#c47942"/>
+    <!-- 桀骜散发在暴风雪中扬起 -->
+    <path d="M 870 240 Q 960 170 1060 210 Q 1120 280 1060 330 Q 980 270 870 240 Z" fill="#141416"/>
+
+    <!-- 双臂撕扯沉重铁索 · 肱二头肌与前臂青筋暴突 -->
+    <!-- 左臂向后猛力拉拽 -->
+    <circle cx="700" cy="430" r="55" fill="url(#muscle-qing)"/>
+    <path d="M 680 460 L 530 520 L 550 590 L 710 500 Z" fill="url(#muscle-qing)"/>
+    <circle cx="510" cy="540" r="30" fill="#a45f2a"/>
+
+    <!-- 右臂死死抗拒捆绑，小臂青筋隆起 -->
+    <circle cx="1220" cy="430" r="55" fill="url(#muscle-qing)"/>
+    <path d="M 1240 460 L 1390 520 L 1370 590 L 1210 500 Z" fill="url(#muscle-qing)"/>
+    <circle cx="1410" cy="540" r="30" fill="#b86b32"/>
+
+    <!-- 缠绕身躯的粗粝精铁锁链 (卡拉瓦乔高对比反光) -->
+    <g stroke="#39424e" stroke-width="16" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M 490 540 Q 720 480 960 500 Q 1200 520 1420 540"/>
+      <path d="M 520 580 Q 750 630 960 610 Q 1170 630 1390 580"/>
+      <path d="M 820 420 L 1100 680"/>
+      <path d="M 1100 420 L 820 680"/>
+    </g>
+    <!-- 铁索金属高光 -->
+    <g stroke="#cfd8dc" stroke-width="4" fill="none" stroke-linecap="round">
+      <path d="M 500 538 Q 720 478 960 498 Q 1200 518 1410 538"/>
+      <path d="M 530 578 Q 750 628 960 608 Q 1170 628 1380 578"/>
+    </g>
+  </g>
+
+  <!-- 漫天狂舞的凛冽暴风雪 (Snow Particles) -->
+  <g fill="#e3f2fd" opacity="0.8">
+    <circle cx="320" cy="180" r="3.5"/>
+    <circle cx="510" cy="290" r="4.5"/>
+    <circle cx="780" cy="140" r="2.5"/>
+    <circle cx="940" cy="80" r="4"/>
+    <circle cx="1120" cy="220" r="3"/>
+    <circle cx="1340" cy="150" r="5"/>
+    <circle cx="1520" cy="260" r="3.5"/>
+    <circle cx="420" cy="520" r="4"/>
+    <circle cx="680" cy="450" r="2"/>
+    <circle cx="1280" cy="480" r="4.5"/>
+    <circle cx="1480" cy="620" r="3"/>
+    <circle cx="890" cy="790" r="4"/>
+    <circle cx="1060" cy="840" r="3.5"/>
+  </g>
+
+  <!-- 底部标注卡与色板 -->
+  <g transform="translate(60, 930)">
+    <rect width="1800" height="100" rx="12" fill="#070c14" fill-opacity="0.9" stroke="#3b82f6" stroke-width="1.5"/>
+    <rect x="25" y="22" width="130" height="56" rx="6" fill="#1e3a8a" stroke="#60a5fa" stroke-width="1"/>
+    <text x="90" y="58" fill="#f8fafc" font-size="22" font-family="'Noto Serif SC', 'Songti SC', serif" font-weight="900" text-anchor="middle">后金八旗</text>
+
+    <text x="180" y="48" fill="#60a5fa" font-size="22" font-family="sans-serif" font-weight="bold">【风格锁定底图 02】盛京风雪 · 八旗铁甲与雪泥不屈困兽</text>
+    <text x="180" y="78" fill="#94a3b8" font-size="14" font-family="sans-serif">构图：米开朗基罗《垂死的奴隶》雕塑美学 · 铁索缚身与青筋暴突 · 冰蓝寒雪与炽金火把强烈冷暖对冲</text>
+
+    <g transform="translate(1420, 28)">
+      <text x="-70" y="30" fill="#cbd5e0" font-size="13" font-family="sans-serif">主基调色板:</text>
+      <rect x="10" y="8" width="45" height="34" rx="4" fill="#050a12" stroke="#fff" stroke-width="1" title="深霄冰夜"/>
+      <rect x="65" y="8" width="45" height="34" rx="4" fill="#1e3a8a" stroke="#fff" stroke-width="1" title="正蓝两黄旗"/>
+      <rect x="120" y="8" width="45" height="34" rx="4" fill="#a0c4df" stroke="#fff" stroke-width="1" title="飞雪寒光"/>
+      <rect x="175" y="8" width="45" height="34" rx="4" fill="#ff9e1b" stroke="#fff" stroke-width="1" title="军帐火把"/>
+      <rect x="230" y="8" width="45" height="34" rx="4" fill="#d49258" stroke="#fff" stroke-width="1" title="古铜肉身"/>
+    </g>
+  </g>
+</svg>
