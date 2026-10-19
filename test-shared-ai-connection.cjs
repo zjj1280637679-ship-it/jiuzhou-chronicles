@@ -20,7 +20,8 @@ function engine() {
     cacheTelemetry: {lastHitTokens: 0, lastMissTokens: 0, lastHitRate: "0.0%"},
     currentFaction: "ming", qmCache: element(), aiConnectionStatus: element(),
     btnRetrySharedAi: element(), settingEnableApi: element(), cacheStatusTag: element(),
-    getSharedGatewayToken: async () => "fixture-token"
+    getSharedGatewayToken: async () => "fixture-token",
+    getSharedInviteCode: async () => "test-invite-code-alpha"
   });
 }
 
@@ -73,6 +74,7 @@ test("suture sends a bounded recent causal summary and accepts a valid response"
   assert.equal(request.url, "https://gateway.example.com/api/jiuzhou/turn");
   assert.equal(request.body.mode, "suture");
   assert.equal(request.body.turnstileToken, "fixture-token");
+  assert.equal(request.body.inviteCode, "test-invite-code-alpha");
   assert.equal(request.body.messages.length, 3);
   assert.equal(request.body.messages[2].role, "user");
   assert.match(request.body.messages[2].content, /最后筹饷行动/);

@@ -41,7 +41,7 @@ await page.addInitScript(()=>{
 await page.route("**/health",route=>healthReady?route.fulfill({
   status:200,contentType:"application/json",
   headers:{"access-control-allow-origin":origin},
-  body:JSON.stringify({ok:true,configured:true,enabled:true,jiuzhouEnabled:true})
+  body:JSON.stringify({ok:true,configured:true,enabled:true,jiuzhouEnabled:true,inviteRequired:true,inviteConfigured:true,jiuzhouReady:true})
 }):route.abort("failed"));
 await page.route("**/api/jiuzhou/turn",async route=>{
   const req=route.request();
@@ -52,6 +52,7 @@ await page.route("**/api/jiuzhou/turn",async route=>{
   backendCalls++;
   assert.ok(["story","suture"].includes(data.mode));
   assert.equal(data.turnstileToken,"mock-single-use-token");
+  assert.equal(data.inviteCode,"test-invite-code-alpha","Worker gets current invite only with AI requests");
   assert.ok(Array.isArray(data.messages)&&data.messages.length>=3);
   assert.equal(data.messages[0].role,"system");
   assert.equal(data.messages[1].role,"system");
@@ -88,7 +89,9 @@ try{
   assert.match(await page.locator("#qm-cache").textContent(),/待生成/);
   assert.equal(await page.locator("#qm-cache").evaluate(el=>el.classList.contains("hit")),false);
   await page.click("#btn-close-settings");
-  const state=await page.evaluate(async()=>{
+  // The static webpage stays visible without a code. Enter it only when the first AI call is made.
+  assert.equal(await page.locator('input[aria-label="AI 邀请码"]').count(),0);
+  const pending=page.evaluate(async()=>{
     const e=window.__vnEngine;
     e.startNewGame("ming");
     await e.resolveFactionAction({
@@ -105,6 +108,10 @@ try{
       typing:e.isTyping
     }
   });
+  await page.locator('input[aria-label="AI 邀请码"]').waitFor({timeout:15000});
+  await page.locator('input[aria-label="AI 邀请码"]').fill("test-invite-code-alpha");
+  await page.locator('button:has-text("解锁 AI")').click();
+  const state=await pending;
   assert.equal(state.enabled,true);
   assert.equal(state.shared,true);
   assert.equal(backendCalls,1);
