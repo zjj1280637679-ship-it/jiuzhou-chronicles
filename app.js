@@ -84,6 +84,8 @@ class WebVisualNovelEngine {
     // 四层前缀缓存对齐的历史队列 (Append-Only Narrative History Stream)
     this.apiHistory = [];
     this.pendingApiChoices = null;
+    this.sharedGatewayStatus = {state: "idle", message: "共享 AI 尚未检查"};
+    this.aiRequestStatus = null;
 
     // 缓存遥测数据
     this.cacheTelemetry = {
@@ -561,6 +563,8 @@ class WebVisualNovelEngine {
     this.settingEndpoint = document.getElementById("setting-endpoint");
     this.settingApiKey = document.getElementById("setting-api-key");
     this.settingMaxTokens = document.getElementById("setting-max-tokens");
+    this.aiConnectionStatus = document.getElementById("ai-connection-status");
+    this.btnRetrySharedAi = document.getElementById("btn-retry-shared-ai");
     this.cmHitRate = document.getElementById("cm-hit-rate");
     this.cmHitTokens = document.getElementById("cm-hit-tokens");
     this.cmMissTokens = document.getElementById("cm-miss-tokens");
@@ -906,6 +910,10 @@ class WebVisualNovelEngine {
       this.closeDrawer(this.drawerSettings);
     });
 
+    if (this.btnRetrySharedAi) {
+      this.btnRetrySharedAi.addEventListener("click", () => this.checkServerSharedApi());
+    }
+
     // 视觉小说插图弹窗收起按钮
     if (this.btnCloseIllustration) {
       this.btnCloseIllustration.addEventListener("click", () => this.closeIllustration());
@@ -1034,7 +1042,8 @@ class WebVisualNovelEngine {
         try {
           sutureResult = await this.callDeepSeekSutureAPI(node, this.extrapolationHistory);
         } catch (err) {
-          console.warn("[DeepSeek Suture Engine] 在线弥合异常，降级至本地语义重塑:", err);
+          this.setAIRequestStatus("fallback", "suture", err);
+          console.warn("[DeepSeek Suture Engine] 已使用本地弥合:", this.describeAIError(err));
         }
       }
 
@@ -1148,6 +1157,10 @@ ${JSON.stringify(targetNode.originalBeats)}
 
     // 弥合任务独立自洽：仅基于基准卡、目标节点设定与当前外推因果摘要构建请求，
     // 严禁将与弥合 Prompt 不对齐的既往全量对白历史盲目堆入，否则将引发 100% 缓存击穿与数万 Token 经济浪费！
+    const causalSummary = (Array.isArray(history) ? history : []).slice(-5).map(h =>
+      `第${Number(h.turn) || "?"}轮：${String(h.choiceText || "").slice(0, 130)}；掷骰${Number(h.diceTotal) || 0}，${h.success ? "成功" : "受挫"}`
+    ).join("\n");
+    const userTail = `【此前实际行动与因果摘要】\n${causalSummary || "无额外行动记录"}\n请据此微调目标节点的原剧情卡，仅返回包含 reconciledBeats 与 sutureNote 的 JSON。`;
     const messages = [
       { role: "system", content: systemPrompt },
       { role: "system", content: contextPrompt },
@@ -1190,31 +1203,13 @@ ${JSON.stringify(targetNode.originalBeats)}
       sutureBody.mode = "suture";
       sutureBody.messages = this.buildGatewayMessages(messages);
       sutureBody.max_tokens = Math.min(maxTokens, 2400);
-      sutureBody.turnstileToken = await this.getSharedGatewayToken();
     }
-    const res = await fetch(endpoint, {
-      method: "POST",
-      headers: headers,
-      body: JSON.stringify(sutureBody),
-      signal: typeof AbortSignal !== "undefined" && AbortSignal.timeout ? AbortSignal.timeout(75000) : undefined
-    });
-
-    if (!res.ok) {
-      let errorDetail = "";
-      try {
-        const errJson = await res.json();
-        errorDetail = errJson.error?.message || errJson.message || JSON.stringify(errJson);
-      } catch (_) {
-        errorDetail = await res.text().catch(() => res.statusText);
-      }
-      throw new Error(`DeepSeek Suture API HTTP ${res.status}: ${errorDetail || res.statusText}`);
-    }
-    const data = await res.json();
+    const data = await this.requestAICompletion(endpoint, sutureBody, headers, useGateway, "suture");
     const choiceObj = data.choices && data.choices[0];
     
     let parsed = null;
     try {
-      let cleaned = (choiceObj.message.content || "").trim();
+      let cleaned = (choiceObj?.message?.content || "").trim();
       const codeBlockMatch = cleaned.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
       if (codeBlockMatch) {
         cleaned = codeBlockMatch[1].trim();
@@ -1231,8 +1226,11 @@ ${JSON.stringify(targetNode.originalBeats)}
         }
       }
     } catch (parseErr) {
-      console.warn("Suture JSON parse error:", parseErr, choiceObj.message.content);
-      parsed = { reconciledBeats: targetNode.originalBeats, sutureNote: "保持原版剧情" };
+      throw new Error("invalid_game_response");
+    }
+    if (!Array.isArray(parsed?.reconciledBeats) || !parsed.reconciledBeats.length ||
+        parsed.reconciledBeats.some(b => !b || typeof b.text !== "string" || !b.text.trim())) {
+      throw new Error("invalid_game_response");
     }
 
     // 解析缓存遥测
@@ -1249,8 +1247,9 @@ ${JSON.stringify(targetNode.originalBeats)}
       this.updateCacheTelemetryUI();
     }
 
+    this.setAIRequestStatus("success", "suture", null, data.model);
     return {
-      reconciledBeats: parsed.reconciledBeats || targetNode.originalBeats,
+      reconciledBeats: parsed.reconciledBeats,
       sutureNote: parsed.sutureNote || "AI 已成功根据外推因果动态重写主线剧情文字卡。"
     };
   }
@@ -2378,9 +2377,9 @@ ${JSON.stringify(targetNode.originalBeats)}
         try {
           this.displayDialogue(
             "跑团GM",
-            `【DeepSeek-V4.1-Flash 局势推演中 · 预期篇幅: 少于${this.expectedLength}字】`,
+            `【AI 局势推演中 · 预期篇幅: 少于${this.expectedLength}字】`,
             "voice-court",
-            `⚡ 正在连接 DeepSeek-V4.1-Flash 云端机房……跑团GM正按【少于${this.expectedLength}字】预期篇幅对您的决断进行硬核局势推演，请稍候……`
+            `⚡ 正在请求 AI 生成……跑团GM正按【少于${this.expectedLength}字】预期篇幅对您的决断进行局势推演，请稍候……`
           );
           const liveResult = await this.callDeepSeekLiveAPI(choice, d1, d2, total, success);
           if (liveResult && liveResult.beats && liveResult.beats.length > 0) {
@@ -2388,7 +2387,8 @@ ${JSON.stringify(targetNode.originalBeats)}
             this.pendingApiChoices = liveResult.choices;
           }
         } catch (err) {
-          console.warn("[DeepSeek Prompt Cache Harness] API 调用异常，平滑降级至本地离线外推:", err);
+          this.setAIRequestStatus("fallback", "story", err);
+          console.warn("[DeepSeek Prompt Cache Harness] 已使用本地剧情:", this.describeAIError(err));
         }
       }
 
@@ -3602,29 +3602,10 @@ ${currentProfile.npcRoster}`;
       body.mode = "story";
       body.messages = this.buildGatewayMessages(messages);
       body.max_tokens = Math.min(maxTokens, this.expectedLength >= 5000 ? 8000 : this.expectedLength <= 500 ? 1800 : 4700);
-      body.turnstileToken = await this.getSharedGatewayToken();
     }
-    const res = await fetch(endpoint, {
-      method: "POST",
-      headers: headers,
-      body: JSON.stringify(body),
-      signal: typeof AbortSignal !== "undefined" && AbortSignal.timeout ? AbortSignal.timeout(75000) : undefined
-    });
-
-    if (!res.ok) {
-      let errorDetail = "";
-      try {
-        const errJson = await res.json();
-        errorDetail = errJson.error?.message || errJson.message || JSON.stringify(errJson);
-      } catch (_) {
-        errorDetail = await res.text().catch(() => res.statusText);
-      }
-      throw new Error(`DeepSeek API HTTP ${res.status}: ${errorDetail || res.statusText}`);
-    }
-
-    const data = await res.json();
+    const data = await this.requestAICompletion(endpoint, body, headers, useGateway, "story");
     const choiceObj = data.choices && data.choices[0];
-    if (!choiceObj) throw new Error("No choices returned from DeepSeek API");
+    if (!choiceObj?.message?.content?.trim()) throw new Error("invalid_game_response");
 
     // 解析服务端 Prompt Caching 遥测指标 (官方字段: prompt_cache_hit_tokens, prompt_cache_miss_tokens)
     if (data.usage) {
@@ -3713,11 +3694,16 @@ ${currentProfile.npcRoster}`;
     }
 
     // 4. 正则块兜底提取 (若截断或部分语法受损，提取 beats 与 choices，绝不将原生 JSON 语法串暴露给玩家)
-    if (!parsed || !parsed.beats) {
+    if (!parsed) {
+      // 只尝试修复真正的剧情卡 JSON；任意 JSON/错误文字不能冒充生成成功。
+      const beatsStart = rawStr.search(/"beats"\s*:\s*\[/);
+      if (beatsStart < 0) throw new Error("invalid_game_response");
+      const choicesStart = rawStr.search(/"choices"\s*:/);
+      const beatSource = rawStr.slice(beatsStart, choicesStart > beatsStart ? choicesStart : undefined);
       const extractedBeats = [];
       const blockRegex = /\{[^{}]*"text"\s*:\s*"((?:\\.|[^"\\])*)"[^{}]*\}/g;
       let blockMatch;
-      while ((blockMatch = blockRegex.exec(rawStr)) !== null) {
+      while ((blockMatch = blockRegex.exec(beatSource)) !== null) {
         const block = blockMatch[0];
         const textVal = blockMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"');
         const speakerMatch = block.match(/"speaker"\s*:\s*"([^"]+)"/);
@@ -3736,7 +3722,7 @@ ${currentProfile.npcRoster}`;
       if (extractedBeats.length === 0) {
         const textOnlyRegex = /"text"\s*:\s*"((?:\\.|[^"\\])*)/g;
         let tMatch;
-        while ((tMatch = textOnlyRegex.exec(rawStr)) !== null) {
+        while ((tMatch = textOnlyRegex.exec(beatSource)) !== null) {
           let tVal = tMatch[1].replace(/\\n/g, '\n').replace(/\\"/g, '"').trim();
           if (tVal) {
             extractedBeats.push({
@@ -3750,16 +3736,7 @@ ${currentProfile.npcRoster}`;
         }
       }
 
-      // 如果完全没有匹配到结构，执行终极文本净化，绝不泄漏 JSON 符号
-      if (extractedBeats.length === 0) {
-        extractedBeats.push({
-          speaker: "正史演义",
-          sub: "【时代回响】",
-          type: "narrator",
-          stageChar: "center",
-          text: sanitizeDialogueText(rawStr)
-        });
-      }
+      if (extractedBeats.length === 0) throw new Error("invalid_game_response");
 
       parsed = {
         beats: extractedBeats,
@@ -3771,6 +3748,7 @@ ${currentProfile.npcRoster}`;
       };
     }
 
+    if (typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("invalid_game_response");
     let rawBeats = [];
     if (parsed && Array.isArray(parsed.beats)) {
       rawBeats = parsed.beats;
@@ -3778,9 +3756,9 @@ ${currentProfile.npcRoster}`;
       rawBeats = [parsed.story];
     } else if (parsed && typeof parsed.text === "string") {
       rawBeats = [parsed.text];
-    } else if (typeof parsed === "string") {
-      rawBeats = [parsed];
     }
+    rawBeats = rawBeats.filter(b => typeof b === "string" ? b.trim().length > 0 :
+      b && [b.text, b.content, b.dialogue].some(value => typeof value === "string" && value.trim().length > 0));
 
     let beats = rawBeats.map(b => {
       if (typeof b === "string") {
@@ -3800,6 +3778,7 @@ ${currentProfile.npcRoster}`;
         text: sanitizeDialogueText(String(b.text || b.content || b.dialogue || ""))
       };
     }).filter(b => b.text && b.text.trim().length > 0);
+    if (!beats.length) throw new Error("invalid_game_response");
 
     // 调度视听与舞台效果 (对账：无缝统一 stage_effects 与 legacy tools 格式)
     const effects = parsed.stage_effects || parsed.tools;
@@ -3972,6 +3951,7 @@ ${currentProfile.npcRoster}`;
       });
     }
 
+    this.setAIRequestStatus("success", "story", null, data.model);
     return {
       beats,
       choices: rawChoices.slice(0, 3),
@@ -3979,37 +3959,132 @@ ${currentProfile.npcRoster}`;
     };
   }
 
-  // 3. 更新快捷菜单中的缓存状态胶囊
+  describeAIError(error) {
+    const code = error?.code || error?.message || "";
+    const reasons = {
+      gateway_config_invalid: "共享 AI 地址配置无效，请联系站长",
+      gateway_unconfigured: "站长尚未配置 AI 密钥或访问验证",
+      gateway_disabled: "站长已关闭 AI 服务",
+      jiuzhou_not_enabled: "九州 AI 尚未开放，或 Worker 版本尚未更新",
+      gateway_binding_missing: "九州 AI 的限流服务尚未配置，请联系站长",
+      ai_not_configured: "AI 服务尚未配置完整，请联系站长",
+      origin_rejected: "AI 服务未允许此网页访问，请联系站长",
+      challenge_required: "访问验证未通过，请重试",
+      rate_limited: "请求过于频繁，请稍后重试",
+      too_many_requests: "请求过于频繁，请稍后重试",
+      upstream_auth_failed: "AI 服务认证失败，请联系站长",
+      upstream_quota_exceeded: "AI 服务额度不足，请联系站长",
+      upstream_rate_limited: "AI 服务繁忙，请稍后重试",
+      upstream_request_rejected: "AI 服务拒绝了本轮请求，请联系站长",
+      upstream_unavailable: "AI 服务暂时不可用，请稍后重试",
+      upstream_network_error: "AI 网关无法连接模型服务，请稍后重试",
+      upstream_timeout: "AI 服务响应超时，请稍后重试",
+      invalid_mode: "AI 请求模式无效，请联系站长更新网页",
+      invalid_messages: "AI 剧情上下文无效，请联系站长",
+      invalid_message_type: "AI 剧情上下文格式无效，请联系站长",
+      invalid_structure: "AI 剧情上下文结构无效，请联系站长",
+      context_too_large: "AI 剧情上下文过长，请联系站长",
+      turnstile_400020: "站长的访问验证 Site Key 无效，请联系站长更新",
+      turnstile_110100: "站长的访问验证 Site Key 无效，请联系站长更新",
+      turnstile_110110: "站长的访问验证 Site Key 不存在，请联系站长更新",
+      turnstile_110200: "访问验证尚未允许此网站域名，请联系站长配置",
+      turnstile_200500: "无法连接访问验证服务，请检查网络后重试",
+      invalid_game_response: "AI 返回的剧情格式无效",
+      invalid_json: "AI 请求或响应格式无效",
+      "站长尚未配置公开的访问验证 Site Key": "站长尚未配置访问验证",
+      "验证组件未准备好": "访问验证尚未准备好，请重试",
+      "无法载入访问验证组件": "无法载入访问验证，请检查网络后重试",
+      "访问验证失败": "访问验证失败，请重试",
+      "验证令牌已过期": "访问验证已过期，请重试",
+      "验证超时": "访问验证超时，请重试",
+      "你已取消访问验证": "你已取消本轮访问验证"
+    };
+    if (reasons[code]) return reasons[code];
+    if (error?.name === "TimeoutError" || error?.name === "AbortError") return "AI 服务响应超时，请稍后重试";
+    if (error?.status) return `AI 服务返回 HTTP ${error.status}，请稍后重试或联系站长`;
+    return "网络请求失败，请检查网络后重试";
+  }
+
+  setAIRequestStatus(state, mode, error = null, model = "") {
+    const task = mode === "suture" ? "弥合" : "剧情";
+    const channel = this.apiConfig.apiKey ? "private" : "shared";
+    const message = state === "success" ? `最近一轮 AI ${task}已生成${model ? `（${model}）` : ""}` :
+      state === "requesting" ? `正在请求 AI ${task}，尚未收到结果` :
+      `本轮已使用本地${task}：${this.describeAIError(error)}`;
+    this.aiRequestStatus = {state, mode, channel, model: String(model || ""), message};
+    this.updateCachePillUI();
+  }
+
+  updateAIConnectionStatusUI() {
+    const gateway = this.sharedGatewayStatus?.message || "共享 AI 尚未检查";
+    const mode = !this.apiConfig.enabled ? "远端模式已关闭，当前使用本地剧情。" :
+      this.apiConfig.apiKey ? "当前使用私有 Key，共享通道不会被使用。" : "当前使用站长共享通道。";
+    const request = this.aiRequestStatus?.message || "尚未进行真实 AI 生成。";
+    if (this.aiConnectionStatus) this.aiConnectionStatus.textContent = `${gateway}\n${mode}\n${request}`;
+    if (this.btnRetrySharedAi) this.btnRetrySharedAi.disabled = this.sharedGatewayStatus?.state === "checking";
+    if (this.cacheStatusTag) this.cacheStatusTag.innerText = this.aiRequestStatus?.state === "success" ?
+      `最近一次生成 · 命中率 ${this.cacheTelemetry.lastHitRate}` : "等待有效 AI 生成 · 暂无本轮缓存指标";
+  }
+
+  async requestAICompletion(endpoint, body, headers, useGateway, mode) {
+    this.setAIRequestStatus("requesting", mode);
+    try {
+      if (useGateway) body.turnstileToken = await this.getSharedGatewayToken();
+      const res = await fetch(endpoint, {
+        method: "POST", headers, body: JSON.stringify(body),
+        signal: typeof AbortSignal !== "undefined" && AbortSignal.timeout ? AbortSignal.timeout(75000) : undefined
+      });
+      if (!res.ok) {
+        const detail = await res.json().catch(() => ({}));
+        const error = new Error("ai_http_error");
+        error.code = typeof detail.error === "string" ? detail.error : detail.error?.code;
+        error.status = res.status;
+        throw error;
+      }
+      try { return await res.json(); } catch { throw new Error("invalid_json"); }
+    } catch (error) {
+      this.setAIRequestStatus("fallback", mode, error);
+      throw error;
+    }
+  }
+
+  // 健康检查只证明网关已就绪；有效生成返回后才展示本轮 AI 与缓存结果。
   updateCachePillUI() {
+    this.updateAIConnectionStatusUI();
     if (!this.qmCache) return;
     const hasLive = this.apiConfig.enabled && ((this.serverSharedConfig && this.serverSharedConfig.hasServerKey) || this.apiConfig.apiKey);
+    this.qmCache.classList.remove("hit");
+    this.qmCache.title = this.aiRequestStatus?.message || this.sharedGatewayStatus?.message || "当前使用本地剧情";
     if (!hasLive) {
-      this.qmCache.innerText = "⚡ 缓存: 本地模式";
-      this.qmCache.classList.remove("hit");
-      this.qmCache.title = "当前使用零延迟本地自主生成器，未连接 DeepSeek API。可在设置中配置私有 API Key 或连接服务端平台统一 Key。";
-    } else {
-      const isShared = !!(this.serverSharedConfig && this.serverSharedConfig.hasServerKey && !this.apiConfig.apiKey);
-      let modelShort = "DeepSeek";
-      if (this.apiConfig.model === "deepseek-reasoner") modelShort = "Reasoner";
-      else if (this.apiConfig.model === "deepseek-chat") modelShort = "Chat";
-      else if (this.apiConfig.model === "deepseek-v4-pro") modelShort = "V4-Pro";
-      else if (this.apiConfig.model === "deepseek-flash") modelShort = "V4.1-Flash";
-      else if (this.apiConfig.model === "custom") modelShort = "自定义";
-      
-      const hitRate = this.cacheTelemetry.lastHitRate || "等待首次交互";
-      this.qmCache.innerText = `⚡ ${modelShort}${isShared ? " (共享)" : ""} · 命中 ${hitRate}`;
+      this.qmCache.innerText = this.apiConfig.enabled && this.sharedGatewayStatus?.state === "unavailable" ?
+        "⚠ 共享 AI 无法连接 · 本地模式" : "⚡ 缓存: 本地模式";
+    } else if (this.aiRequestStatus?.state === "fallback") {
+      this.qmCache.innerText = "⚠ 本轮已使用本地剧情 · 设置可查看原因";
+    } else if (this.aiRequestStatus?.state === "requesting") {
+      this.qmCache.innerText = "⚡ AI 请求中 · 尚未生成";
+    } else if (this.aiRequestStatus?.state === "success" &&
+        this.aiRequestStatus.channel === (this.apiConfig.apiKey ? "private" : "shared")) {
+      this.qmCache.innerText = `⚡ AI 已生成 · 命中 ${this.cacheTelemetry.lastHitRate || "0.0%"}`;
       this.qmCache.classList.add("hit");
-      this.qmCache.title = `DeepSeek 四层前缀架构对齐运行中\n模式: ${isShared ? "全服共享统一API网关" : "玩家私有API"}\n模型: ${this.apiConfig.model}\n最近命中: ${this.cacheTelemetry.lastHitTokens} tokens\n新算: ${this.cacheTelemetry.lastMissTokens} tokens`;
+    } else {
+      this.qmCache.innerText = this.apiConfig.apiKey ? "⚡ 私有 AI 已配置 · 待验证" : "⚡ 共享 AI 已就绪 · 待生成";
     }
   }
 
   // 平台密钥永远只存在 Cloudflare Worker Secret 中，静态网页只知道公开地址。
-  getSharedGatewayEndpoint() {
-    const base = String(window.JIUZHOU_AI_GATEWAY?.endpoint || "").replace(/\/+$/, "");
-    if (!/^https:\/\/[a-z0-9.-]+\.workers\.dev$/i.test(base)) {
-      throw new Error("共享 AI 网关公开地址尚未正确配置");
+  getSharedGatewayBase() {
+    const value = String(window.JIUZHOU_AI_GATEWAY?.endpoint || "").trim();
+    let url;
+    try { url = new URL(value); } catch { throw new Error("gateway_config_invalid"); }
+    if (!/^https:\/\//i.test(value) || value.includes("\\") || /[?#]/.test(value) ||
+        url.protocol !== "https:" || url.username || url.password || url.pathname !== "/") {
+      throw new Error("gateway_config_invalid");
     }
-    return base + "/api/jiuzhou/turn";
+    return url.origin;
+  }
+
+  getSharedGatewayEndpoint() {
+    return this.getSharedGatewayBase() + "/api/jiuzhou/turn";
   }
 
   // 保留 GM 剧本规则、当前阵营底本与最近的剧情历史，限制游客付费调用的输入规模。
@@ -4064,7 +4139,12 @@ ${currentProfile.npcRoster}`;
       try {
         widgetId=ts.render(widget,{sitekey,execution:"render",appearance:"interaction-only",
           callback:token=>finish(null,token),
-          "error-callback":()=>finish(Error("访问验证失败")),
+          "error-callback":code=>{
+            const error = new Error("访问验证失败");
+            if (/^\d{6}$/.test(String(code))) error.code = `turnstile_${code}`;
+            finish(error);
+            return true;
+          },
           "expired-callback":()=>finish(Error("验证令牌已过期"))
         });
       } catch(e) { finish(e); }
@@ -4075,25 +4155,27 @@ ${currentProfile.npcRoster}`;
   async checkServerSharedApi() {
     if (typeof window === "undefined" || !window.fetch) return;
     this.serverSharedConfig = null;
+    this.sharedGatewayStatus = {state: "checking", message: "正在检查共享 AI 连接…"};
+    this.updateCachePillUI();
     try {
-      const base = String(window.JIUZHOU_AI_GATEWAY?.endpoint || "").replace(/\/+$/, "");
-      if (!/^https:\/\/[a-z0-9.-]+\.workers\.dev$/i.test(base)) throw Error("gateway_config_missing");
+      const base = this.getSharedGatewayBase();
       const res = await fetch(base + "/health", {cache: "no-store",
         signal: typeof AbortSignal !== "undefined" && AbortSignal.timeout ? AbortSignal.timeout(9000) : undefined});
-      if (!res.ok) throw Error("gateway_not_ready");
+      if (!res.ok) { const error = new Error("gateway_not_ready"); error.status = res.status; throw error; }
       const data = await res.json();
-      if (data.configured === true && data.enabled === true && data.jiuzhouEnabled === true) {
-        this.serverSharedConfig = {hasServerKey:true,model:"deepseek-flash",useGateway:true};
-        if (!this.apiConfig.apiKey) {
-          if (!this.apiConfig.userDisabledShared) this.apiConfig.enabled = true;
-          this.apiConfig.useGateway = true;
-          this.apiConfig.model = "deepseek-flash";
-          if (this.settingEnableApi) this.settingEnableApi.checked = !!this.apiConfig.enabled;
-          if (this.settingModel) this.settingModel.value = this.apiConfig.model;
-        }
+      if (data.configured !== true) throw Error("gateway_unconfigured");
+      if (data.enabled !== true) throw Error("gateway_disabled");
+      if (data.jiuzhouEnabled !== true) throw Error("jiuzhou_not_enabled");
+      if (data.jiuzhouReady === false) throw Error("gateway_binding_missing");
+      this.serverSharedConfig = {hasServerKey:true,model:typeof data.model === "string" ? data.model : "",useGateway:true};
+      this.sharedGatewayStatus = {state: "ready", message: "共享 AI 网关已就绪；真实生成仍需访问验证。"};
+      if (!this.apiConfig.apiKey) {
+        if (!this.apiConfig.userDisabledShared) this.apiConfig.enabled = true;
+        this.apiConfig.useGateway = true;
+        if (this.settingEnableApi) this.settingEnableApi.checked = !!this.apiConfig.enabled;
       }
     } catch(e) {
-      // Worker disabled / network offline: preserve the fully working local story engine.
+      this.sharedGatewayStatus = {state: "unavailable", message: `共享 AI 无法连接：${this.describeAIError(e)}。可重新检查连接；离线剧情仍可继续。`};
     }
     this.updateCachePillUI();
   }

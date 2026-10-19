@@ -1,9 +1,17 @@
-name: Jiuzhou Live Browser AI Bridge E2E
+name: Jiuzhou Simulated Browser AI Bridge
 on:
   push:
     paths:
       - 'test-shared-ai-browser.mjs'
       - 'app.js'
+      - 'index.html'
+      - 'ai-gateway-config.js'
+      - '.github/workflows/jiuzhou-live-ai-browser.yml'
+  pull_request:
+    paths:
+      - 'test-shared-ai-browser.mjs'
+      - 'app.js'
+      - 'index.html'
       - 'ai-gateway-config.js'
       - '.github/workflows/jiuzhou-live-ai-browser.yml'
   workflow_dispatch:
@@ -20,5 +28,5 @@ jobs:
           node-version: '22'
       - run: npm install --no-save playwright@1.56.1
       - run: npx playwright install --with-deps chromium
-      - name: Test real published site with mocked paid dependencies
+      - name: Test this checkout locally with simulated Worker and Turnstile
         run: node test-shared-ai-browser.mjs
