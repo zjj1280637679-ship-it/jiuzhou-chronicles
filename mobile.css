@@ -3,7 +3,7 @@
 
 .mobile-menu-toggle { display: none; }
 
-@media screen and (max-width: 768px),
+@media screen and (max-width: 768px) and (pointer: coarse),
        screen and (max-width: 1024px) and (max-height: 600px) and (pointer: coarse) {
   html, body, .webvn-viewport {
     width: 100%;
@@ -280,7 +280,7 @@
   }
 }
 
-@media screen and (max-width: 360px) {
+@media screen and (max-width: 360px) and (pointer: coarse) {
   .ai-length-group { gap: 2px; padding: 3px; }
   .ai-length-label { font-size: .64rem; }
   .btn-length { font-size: .65rem; padding: 4px; }
@@ -304,7 +304,7 @@
 .mobile-story-tools-toggle,
 .mobile-font-controls { display: none; }
 
-@media screen and (max-width: 768px),
+@media screen and (max-width: 768px) and (pointer: coarse),
        screen and (max-width: 1024px) and (max-height: 600px) and (pointer: coarse) {
   .quick-menu {
     top: calc(env(safe-area-inset-top, 0px) + 7px);
@@ -523,7 +523,7 @@
   .choice-badge-check { font-size: .69rem; }
 }
 
-@media screen and (max-width: 360px) {
+@media screen and (max-width: 360px) and (pointer: coarse) {
   .dialogue-box { padding-left: 9px; padding-right: 9px; }
   .mobile-story-tools-toggle { font-size: .68rem; padding: 5px 6px; }
   .story-branch-indicator .branch-pill { font-size: .67rem; }
@@ -541,7 +541,7 @@
    手机专属 v3：舞台 70% / 对白 30% + 四阵营独立滑动。
    注意：以下规则始终封闭在窄屏媒体查询内，不改 styles.css 桌面主样式。
    ========================================================================== */
-@media screen and (max-width: 768px),
+@media screen and (max-width: 768px) and (pointer: coarse),
        screen and (max-width: 1024px) and (max-height: 600px) and (pointer: coarse) {
   /* 背景和人物立绘保留约 70% 的完整可见舞台。 */
   .stage-background,
