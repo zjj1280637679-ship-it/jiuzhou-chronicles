@@ -5,6 +5,9 @@ on:
       - 'app.js'
       - 'index.html'
       - 'ai-gateway-config.js'
+      - 'harness/**'
+      - 'test-plugin-harness.cjs'
+      - 'test/fixtures/harness-*.js'
       - 'test-shared-ai-connection.cjs'
       - 'test-ai-connection-probe.cjs'
       - 'test-free-exploration-edges.cjs'
@@ -14,6 +17,9 @@ on:
       - 'app.js'
       - 'index.html'
       - 'ai-gateway-config.js'
+      - 'harness/**'
+      - 'test-plugin-harness.cjs'
+      - 'test/fixtures/harness-*.js'
       - 'test-shared-ai-connection.cjs'
       - 'test-ai-connection-probe.cjs'
       - 'test-free-exploration-edges.cjs'
@@ -29,7 +35,7 @@ jobs:
       - run: node --check app.js
       - run: node --check ai-gateway-config.js
       - name: Test shared AI failures, retry, and suture requests without network calls
-        run: node --test test-shared-ai-connection.cjs test-ai-connection-probe.cjs test-free-exploration-edges.cjs
+        run: node --test test-shared-ai-connection.cjs test-ai-connection-probe.cjs test-free-exploration-edges.cjs test-plugin-harness.cjs
       - name: Check shared gateway wiring
         run: |
           node --input-type=module <<'NODE'

@@ -28,6 +28,7 @@ if(!url){
 const browser=await chromium.launch({headless:true,executablePath:process.env.JIUZHOU_BROWSER_EXECUTABLE});
 const origin=new URL(url).origin;
 let backendCalls=0,probeCalls=0,probeFailure=true,challengeRequests=0,healthReady=false,responseMode="success";
+const successfulAgentBodies=[];
 const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:2,isMobile:true,hasTouch:true});
 const errors=[];
 page.on("pageerror",e=>errors.push(String(e)));
@@ -59,7 +60,7 @@ await page.route("**/api/jiuzhou/turn",async route=>{
     return;
   }
   backendCalls++;
-  assert.ok(["story","suture"].includes(data.mode));
+  assert.ok(["agent","story","suture"].includes(data.mode));
   assert.equal(data.turnstileToken,undefined);
   assert.equal(data.max_tokens,32768);
   assert.ok(Array.isArray(data.messages)&&data.messages.length>=3);
@@ -84,11 +85,34 @@ await page.route("**/api/jiuzhou/turn",async route=>{
     await route.fulfill({status:200,contentType:"application/json",headers:cors,
       body:JSON.stringify({choices:[{message:{content:JSON.stringify({unexpected:"invalid game fixture"})}}]})});return;
   }
-  assert.ok(data.messages.at(-1).content.includes("我秘密筹集军饷"));
+  assert.ok(data.messages.some(message=>message.role==="user"&&message.content.includes("我秘密筹集军饷")));
+  if(data.mode==="agent"){
+    successfulAgentBodies.push(data);
+    assert.equal(data.tools,undefined);
+    assert.deepEqual(data.enabledTools,["deliver_story","inspect_draft","read_draft","read_world","write_draft"]);
+    assert.equal(data.thinking.type,"disabled");
+    assert.equal(data.response_format,undefined);
+    if(successfulAgentBodies.length===1){
+      await route.fulfill({status:200,contentType:"application/json",headers:cors,
+        body:JSON.stringify({model:"fixture-agent-model",choices:[{finish_reason:"tool_calls",message:{role:"assistant",content:null,
+          reasoning_content:"这是不交付的测试思考",tool_calls:[{id:"fixture_read_world",type:"function",function:{name:"read_world",arguments:"{}"}}]}}],
+          usage:{prompt_cache_hit_tokens:650,prompt_cache_miss_tokens:550,completion_tokens:17}})});
+      return;
+    }
+    assert.equal(data.messages.at(-1).role,"tool");
+    assert.equal(data.messages.at(-1).tool_call_id,"fixture_read_world");
+    assert.equal(data.messages.at(-2).reasoning_content,"这是不交付的测试思考");
+    assert.deepEqual(data.messages.slice(0,successfulAgentBodies[0].messages.length),successfulAgentBodies[0].messages);
+    assert.deepEqual(data.enabledTools,successfulAgentBodies[0].enabledTools);
+  }
+  const fixtureOpening="虚拟验收专用：军饷账册<img src=x onerror=window.__unsafeMarker=1>已在京师密库登记。";
+  const fixtureEnding="接下来的行动将改变粮道。";
+  const target=data.mode==="agent"?data.expectedLength:5000;
+  const fixtureProse=fixtureOpening+"验".repeat(target-Array.from((fixtureOpening+fixtureEnding).replace(/\s/g,"")).length);
   await route.fulfill({status:200,contentType:"application/json",headers:cors,
     body:JSON.stringify({choices:[{message:{role:"assistant",content:JSON.stringify({
-      beats:[{speaker:"军需官",sub:"测试回执",type:"npc",stageChar:"center",text:"虚拟验收专用：军饷账册已在京师密库登记。"},{speaker:"旁白",sub:"后续",type:"narrator",stageChar:"left",text:"接下来的行动将改变粮道。"}],
-      choices:[{text:"派人护送军饷",tag:"后勤"},{text:"隐秘调兵",tag:"军务"},{text:"召集商帮",tag:"交涉"}]
+      beats:[{speaker:"军需官",sub:"测试回执",type:"npc",stageChar:"center",text:fixtureProse},{speaker:"旁白",sub:"后续",type:"narrator",stageChar:"left",text:fixtureEnding}],
+      choices:[{text:"派人护送军饷<img src=x onerror=window.__unsafeMarker=1>",tag:"后勤<img src=x onerror=window.__unsafeMarker=1>"},{text:"隐秘调兵",tag:"军务"},{text:"召集商帮",tag:"交涉"}]
     })},finish_reason:"stop"}],usage:{prompt_tokens:1200,prompt_cache_hit_tokens:650,prompt_cache_miss_tokens:550,completion_tokens:230}})
   });
 });
@@ -138,14 +162,30 @@ try{
   });
   assert.equal(state.enabled,true);
   assert.equal(state.shared,true);
-  assert.equal(backendCalls,1);
+  assert.equal(backendCalls,2);
+  assert.equal(successfulAgentBodies.length,2);
   assert.equal(state.challengeScripts,0);
   assert.ok(state.queue.some(x=>x.includes("虚拟验收专用：军饷账册")),JSON.stringify(state.queue.slice(0,5)));
   assert.ok(state.choices?.some(x=>x.includes("派人护送军饷")));
-  assert.equal(state.cacheHit,650);
+  assert.equal(state.cacheHit,1300);
   assert.equal(await page.locator("#qm-cache").evaluate(el=>el.classList.contains("hit")),true);
   assert.match(await page.locator("#ai-generation-metrics").textContent(),/字符.*中文/);
-  assert.match(await page.locator("#ai-generation-metrics").textContent(),/完成 Token 230.*stop/);
+  assert.match(await page.locator("#ai-generation-metrics").textContent(),/完成 Token 247.*交付完成（插件验证通过）/);
+  assert.match(await page.locator("#ai-generation-metrics").textContent(),/5000 字符.*正文已达目标/);
+  assert.match(await page.locator("#ai-generation-metrics").textContent(),/插件式工具循环.*模型 2 次.*工具 1 次/);
+  assert.equal(await page.evaluate(()=>JSON.stringify(window.__vnEngine.apiHistory).includes("这是不交付的测试思考")),false);
+  const safeRendering=await page.evaluate(()=>{
+    const e=window.__vnEngine;
+    e.fastForwardTypewriter();
+    const textSafe=e.typewriterText.querySelectorAll("img").length===0&&e.typewriterText.textContent.includes("<img");
+    const pending=e.pendingApiChoices;
+    e.presentFactionChoices();
+    const choicesSafe=e.choiceContainer.querySelectorAll("img").length===0&&e.choiceContainer.textContent.includes("<img");
+    e.pendingApiChoices=pending;
+    e.choiceOverlay.classList.remove("visible");
+    return {textSafe,choicesSafe,executed:window.__unsafeMarker===1};
+  });
+  assert.deepEqual(safeRendering,{textSafe:true,choicesSafe:true,executed:false});
   responseMode="failure";
   const fallback=await page.evaluate(async()=>{
     const e=window.__vnEngine;
@@ -166,7 +206,7 @@ try{
     return {historyBefore,historyAfter:e.apiHistory.length,status:e.aiRequestStatus,queue:e.storyQueue};
   });
   assert.equal(invalidStory.status.state,"fallback");
-  assert.match(invalidStory.status.message,/AI 返回的剧情格式无效/);
+  assert.match(invalidStory.status.message,/格式无效|重复了相同操作且没有进展/);
   assert.equal(invalidStory.historyBefore,invalidStory.historyAfter);
   assert.ok(invalidStory.queue.length>0&&invalidStory.queue.every(x=>!x.text?.includes("invalid game fixture")));
   responseMode="invalid-suture";
@@ -178,7 +218,7 @@ try{
   assert.equal(sutureFallback.status.state,"fallback");
   assert.match(sutureFallback.status.message,/本轮已使用本地弥合：AI 返回的剧情格式无效/);
   assert.ok(sutureFallback.queue.some(x=>x.speaker==="因果弥合"));
-  assert.equal(backendCalls,4);
+  assert.equal(backendCalls,6);
   responseMode="truncated";
   const truncated=await page.evaluate(async()=>{
     const e=window.__vnEngine,before=e.apiHistory.length;
@@ -202,7 +242,7 @@ try{
   assert.equal(cancelled.locked,false);
   assert.equal(cancelled.choices,3);
   assert.equal(await page.locator('#btn-cancel-ai-request').isHidden(),true);
-  assert.equal(backendCalls,6);
+  assert.equal(backendCalls,8);
   assert.equal(challengeRequests,0);
   assert.equal(errors.length,0,errors.join("\n"));
   console.log(`PASS ${localServer?"checked-out client":"explicit external client"} HTTP 200 and assets loaded`);
@@ -210,6 +250,8 @@ try{
   console.log("PASS direct shared requests without CAPTCHA scripts, tokens, or challenge network calls");
   console.log("PASS POST /api/jiuzhou/turn with bounded game context (mock route)");
   console.log("PASS simulated AI beats, choices and cache stats absorbed by game");
+  console.log("PASS real browser Workers run a native tool step, preserve the cache prefix and deliver exactly 5000 fixture prose characters");
+  console.log("PASS model prose, choices and tags containing HTML are displayed as text without script execution");
   console.log("PASS 32768 output tokens forwarded for story and suture without shared-channel clamps");
   console.log("PASS failed health is visible and settings retry reaches ready without claiming generation");
   console.log("PASS settings test button sends independent short requests, shows failure/success and leaves game/config/cache unchanged");

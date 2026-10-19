@@ -89,3 +89,11 @@ GitHub Pages: /index.html + app.js
 - [纯本地独立对照（不代表云端线上）](../pure-local/README.md)
 - [历史方案档案](plans/2026-10-18-first-principles-harness.md)
 - 后端源码：[starport-persona/deepseek-worker/src/index.js](https://github.com/zjj1280637679-ship-it/starport-persona/blob/main/deepseek-worker/src/index.js)
+
+## 2026-10-19 后续新指令：极简循环与独立插件
+
+用户进一步明确：参考 Pi 的极简模型/工具循环，参考 DeepSeek Harness 的插件组合思想及 DeepSeek 缓存请求；不是要求安装完整框架或迁移网站。正文字数必须是最终实际交付，不能将思考、工具调用或 JSON 计入。
+
+本轮在隔离分支实现 `harness/`，以独立 Web Worker 承接世界读取和草稿/交付插件，统一取消整轮。正文档位按至少500/2000/5000个非空白正文字符计算，汉字另列；无新增输出配额。固定规则/工具排序与追加历史用来复用缓存，真实命中仍以供应商 usage 为准。原引擎的全部既有功能尚未全部插件化，也没有云端持久执行恢复的声明。
+
+源码、模拟与真实模型验收分别记录在 [harness/README.md](../harness/README.md)。前述时间冻结表继续作为历史证据，不能用旧3500–4800范围代替本轮5000正文目标。
