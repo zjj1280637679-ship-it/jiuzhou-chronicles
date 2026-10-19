@@ -2688,6 +2688,30 @@ body, html {
   overflow-wrap: anywhere;
 }
 
+.ai-harness-progress {
+  position: fixed;
+  top: 68px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 45;
+  width: min(640px, calc(100vw - 32px));
+  box-sizing: border-box;
+  border: 1px solid rgba(229, 185, 92, .35);
+  border-radius: 8px;
+  padding: 10px 14px;
+  background: rgba(12, 19, 27, .94);
+  color: var(--accent-gold);
+  font-size: .78rem;
+  line-height: 1.6;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  pointer-events: none;
+}
+
+.ai-harness-progress[hidden] {
+  display: none;
+}
+
 #btn-cancel-ai-request[hidden] {
   display: none;
 }

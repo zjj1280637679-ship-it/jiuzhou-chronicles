@@ -102,6 +102,8 @@
       <span class="qm-version-tag" id="qm-version-tag" title="当前引擎构建版本: v2.5.0 (Build 2026.10.19)">v2.5.0</span>
     </nav>
 
+    <div class="ai-harness-progress" id="ai-harness-progress" role="status" aria-live="polite" hidden></div>
+
     <!-- 3. 环境线香与时相指示器 (替代冰冷的时钟数字) -->
     <div class="incense-clock-hud" id="incense-hud" title="夜巡警戒时相：线香燃尽将引爆危机">
       <div class="incense-stick">
@@ -123,12 +125,12 @@
         <button class="branch-explainer-btn" id="btn-branch-explainer" title="点击查看：什么是分支剧情与回归主线法则？">❓ 什么是分支剧情？</button>
         <span class="suture-badge" id="suture-badge" style="display:none;" title="AI 已根据上一轮外推因果动态改写此主线卡片">🪡 因果已弥合</span>
         
-        <!-- AI推演预期篇幅控制器 (少于500字 / 少于2000字 / 少于5000字) -->
+        <!-- AI交付正文目标：至少500 / 2000 / 5000字，无项目输出封顶 -->
         <div class="ai-length-group" id="ai-length-group" title="设置AI推演时的预期篇幅">
           <span class="ai-length-label">篇幅:</span>
-          <button class="btn-length" data-length="500" title="短小精悍 · 少于500字">少于500字</button>
-          <button class="btn-length active" data-length="2000" title="标准推演 · 少于2000字">少于2000字</button>
-          <button class="btn-length" data-length="5000" title="史诗长卷 · 少于5000字">少于5000字</button>
+          <button class="btn-length" data-length="500" title="精炼推演 · 交付正文至少500字">至少500字</button>
+          <button class="btn-length active" data-length="2000" title="标准推演 · 交付正文至少2000字">至少2000字</button>
+          <button class="btn-length" data-length="5000" title="史诗长卷 · 交付正文至少5000字">至少5000字</button>
         </div>
       </div>
       
@@ -286,20 +288,20 @@
           <!-- DeepSeek Prompt Caching 四层前缀缓存对齐遥测面板 -->
           <div class="ai-connection-test">
             <strong>最近一次有效剧情</strong>
-            <p class="ai-test-help">实际字数、耗时和结束情况用于检查生成质量。“少于5000字”档请求约3500～4800字，收到回复不等于长篇达标。等待时可在顶部取消本次生成；取消浏览器等待不能保证模型服务停止计费。</p>
+            <p class="ai-test-help">仅统计最终交付的对白和叙述正文；思考、JSON、工具记录、插画说明与选项不计字数。5000字档须交付至少5000个非空白可见字符。可在顶部取消等待；取消浏览器等待不能保证模型服务停止计费。</p>
             <div id="ai-generation-metrics" role="status" aria-live="polite">尚无有效剧情指标。</div>
           </div>
 
           <div class="cache-telemetry-box" id="cache-telemetry-box">
             <div style="font-size:0.85rem; font-weight:700; color:var(--accent-jade); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
               <span>⚡ DeepSeek 四层前缀缓存架构状态</span>
-              <span class="cache-status-tag" id="cache-status-tag">四层就绪 (98% 命中设计)</span>
+              <span class="cache-status-tag" id="cache-status-tag">等待有效生成与实测缓存指标</span>
             </div>
             
             <div class="cache-layer-indicators">
-              <div class="cache-layer-badge active" title="64-Token 字典序锁定的 GM 裁决法门与 JSON Schema">L1: 静态世界律 (100% 命中)</div>
-              <div class="cache-layer-badge active" title="当前阵营史诗与薄地图空间法则，同地图内常驻">L2: 阵营薄地图 (常驻命中)</div>
-              <div class="cache-layer-badge active" title="历史剧本单调递增追加，严禁原地压缩">L3: 单调递增剧本流 (单调累积)</div>
+              <div class="cache-layer-badge active" title="保持静态规则与工具声明稳定，实际命中由服务商返回">L1: 静态规则前缀</div>
+              <div class="cache-layer-badge active" title="当前阵营背景资料保持稳定">L2: 阵营背景前缀</div>
+              <div class="cache-layer-badge active" title="保留可用的完整近期回合，不截断半轮 JSON">L3: 完整近期历史</div>
               <div class="cache-layer-badge active" title="骰子点数、临时卡牌与危险刻度绝对置于尾部">L4: 易变变量绝对置尾</div>
             </div>
 
@@ -509,7 +511,7 @@
 
           <div style="margin-bottom: 16px;">
             <strong style="color: var(--accent-gold);">2. AI 小说续写与 3 个全新走向：</strong><br>
-            每一回合由真实满血的 AI 历史小说家展开 500 到 8000 字（建议 1500~4000 字）见肉见血的宏大叙事，并为您量身定制 <strong>3 个全新的具体剧情走向（+ 1 个自定输入框）</strong>，不可逆地向前狂飙演进。
+            每一回合由 AI 历史小说家按您选择的篇幅推演，工具循环可查阅背景、检查正文并补全交付。5000字档以最终正文实测至少5000字为准，并提供 <strong>3 个新的具体剧情走向（+ 1 个自定输入框）</strong>。
           </div>
 
           <div style="margin-bottom: 16px;">
@@ -531,6 +533,8 @@
   <script src="data/illustrations/illustrations-data.js"></script>
   <script src="skills-data.js"></script>
   <script src="ai-gateway-config.js"></script>
-  <script src="app.js?v=20261019-0400"></script>
+  <script src="harness/protocol.js?v=20261019-0500"></script>
+  <script src="harness/runtime.js?v=20261019-0500"></script>
+  <script src="app.js?v=20261019-0500"></script>
 </body>
 </html>

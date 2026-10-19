@@ -167,7 +167,8 @@ test("real payload builder transmits the 5000 tier and preserves a long latest a
   global.fetch = async (_url, options) => {body = JSON.parse(options.body); return response(story());};
   await e.callDeepSeekLiveAPI({text: customInput, customInput}, 3, 4, 9, true);
   assert.equal(body.expectedLength, 5000);
-  assert.match(body.messages[0].content, /3500~4800/);
+  assert.doesNotMatch(body.messages[0].content, /3500~4800|至少\s*5000|少于\s*5000/);
+  assert.match(body.messages.at(-1).content, /至少\s*5000/);
   assert.match(body.messages.at(-1).content, /最后决定：先救村民/);
   assert.ok(body.max_tokens >= 12288);
 });
@@ -208,7 +209,7 @@ test("changing the length preference while waiting cannot relabel the in-flight 
   await pending;
   assert.equal(e.expectedLength, 500);
   assert.equal(e.aiGenerationMetrics.expectedLength, 5000);
-  assert.match(e.aiGenerationMetricsDisplay.textContent, /篇幅符合偏好/);
+  assert.match(e.aiGenerationMetricsDisplay.textContent, /未达目标|正文偏短/);
   assert.doesNotMatch(e.aiGenerationMetricsDisplay.textContent, /超出偏好/);
 });
 
