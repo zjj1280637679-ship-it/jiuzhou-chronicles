@@ -28,5 +28,5 @@ jobs:
           node-version: '22'
       - run: npm install --no-save playwright@1.56.1
       - run: npx playwright install --with-deps chromium
-      - name: Test this checkout locally with simulated Worker and Turnstile
+      - name: Test this checkout locally with simulated Worker and no CAPTCHA
         run: node test-shared-ai-browser.mjs

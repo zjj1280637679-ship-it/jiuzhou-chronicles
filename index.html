@@ -235,10 +235,10 @@
 
           <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
             <input type="checkbox" id="setting-enable-api">
-            <span style="font-weight:700; color:var(--accent-gold);">开启远端实时大模型 (Live API Mode)</span>
+            <span style="font-weight:700; color:var(--accent-gold);">本机选择使用远端 AI（关闭后使用离线剧情）</span>
           </label>
           <div style="font-size:0.75rem; color:var(--text-dim); line-height: 1.5;">
-            接通站长共享 AI 后，游客无需填写 API Key；每次使用需通过 Cloudflare 访问验证，并消耗站长的 DeepSeek 额度。关闭远端模式仍可畅玩离线剧情。私有 Key 仅用于个人调试，不会上传为全服共享配置。
+            共享 AI 可直接生成，无需填写 API Key 或完成验证码。公开网页访客的生成会消耗本站的 DeepSeek 额度。此开关只保存你在本机的远端／离线偏好，无需站长批准。私有 Key 仅用于个人调试，不会上传为全服共享配置。
           </div>
 
           <div style="border:1px solid rgba(229,185,92,.3); border-radius:6px; padding:10px 14px; font-size:.8rem; line-height:1.6;">
@@ -505,7 +505,7 @@
           </div>
 
           <div style="font-size: 0.85rem; color: var(--text-dim); border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 12px;">
-            💡 提示：若站长已开放共享 AI，可直接使用，无需游客 API Key。长篇推演由服务端限制最大消耗并进行人机验证；若共享 AI 尚未开放，可使用离线剧情模式。
+            💡 提示：共享 AI 可直接使用，无需游客 API Key 或验证码。长篇推演按你设置的输出 Token 与篇幅偏好请求；遇到网络或模型错误时会说明原因，并保留离线剧情。
           </div>
         </div>
       </div>
