@@ -15,7 +15,7 @@ function element() {
 function engine() {
   global.window = {JIUZHOU_AI_GATEWAY: {endpoint: "https://gateway.example.com"}};
   return Object.assign(Object.create(WebVisualNovelEngine.prototype), {
-    apiConfig: {enabled: true, apiKey: "", model: "deepseek-flash", endpoint: "https://private.example.com/chat/completions", maxTokens: 32768},
+    apiConfig: {enabled: true, source: "shared", apiKey: "", model: "deepseek-flash", endpoint: "https://private.example.com/chat/completions", maxTokens: 32768},
     serverSharedConfig: {hasServerKey: true}, apiHistory: [], expectedLength: 5000, currentFaction: "ming", branchDepth: 1,
     ideologyVector: {authority: 0, pragmatism: 0, progress: 0, cognition: 0},
     cacheTelemetry: {lastHitTokens: 0, lastMissTokens: 0, lastHitRate: "0.0%"},

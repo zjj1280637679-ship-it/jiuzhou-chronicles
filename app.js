@@ -6,8 +6,10 @@
 // =============================================================================
 
 const APP_VERSION = "v2.5.0";
-const BUILD_STAMP = "2026.10.19.0501";
+const BUILD_STAMP = "2026.10.20.0600";
 const VERSION_FULL = `v2.5.0 (Build ${BUILD_STAMP} · 插件式工具循环 · 交付正文实测 · 3选项+开放输入)`;
+const AIProviders = typeof module === "object" && module.exports
+  ? require("./harness/providers.js") : globalThis.JiuzhouProviders;
 const escapeHTML = value => String(value ?? "").replace(/[&<>"']/g, char => ({
   "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
 })[char]);
@@ -57,19 +59,8 @@ class WebVisualNovelEngine {
       savedApiConfig = JSON.parse(localStorage.getItem("vn_api_config"));
     } catch (e) {}
 
-    this.apiConfig = savedApiConfig || {
-      enabled: false,
-      model: "deepseek-flash",
-      customModel: "",
-      endpoint: "https://api.deepseek.com/chat/completions",
-      apiKey: "",
-      maxTokens: 384000
-    };
-
-    // 自动矫正：若本地存留了已过时的 deepseek-reasoner，自动迁移至默认极速 deepseek-flash
-    if (this.apiConfig && this.apiConfig.model === "deepseek-reasoner") {
-      this.apiConfig.model = "deepseek-flash";
-    }
+    this.apiConfig = AIProviders.normalizeConfig(savedApiConfig, {fresh: !savedApiConfig});
+    this.aiConfigRevision = 0;
 
     // AI 生成中互斥锁 (杜绝并发请求与提早弹出伪造选项卡)
     this.isAIGenerating = false;
@@ -94,9 +85,10 @@ class WebVisualNovelEngine {
 
     // 缓存遥测数据
     this.cacheTelemetry = {
-      lastHitTokens: 0,
-      lastMissTokens: 0,
-      lastHitRate: "0.0%",
+      lastHitTokens: null,
+      lastMissTokens: null,
+      lastHitRate: "未提供",
+      cacheUsageKnown: false,
       totalHits: 0
     };
 
@@ -563,6 +555,11 @@ class WebVisualNovelEngine {
 
     // 缓存遥测与通道配置表单控件
     this.settingEnableApi = document.getElementById("setting-enable-api");
+    this.settingApiSource = document.getElementById("setting-api-source");
+    this.settingApiAdapter = document.getElementById("setting-api-adapter");
+    this.settingTokenParameter = document.getElementById("setting-token-parameter");
+    this.apiCustomFields = document.getElementById("api-custom-fields");
+    this.aiProviderDescription = document.getElementById("ai-provider-description");
     this.settingModel = document.getElementById("setting-model");
     this.settingCustomModel = document.getElementById("setting-custom-model");
     this.settingEndpoint = document.getElementById("setting-endpoint");
@@ -603,18 +600,23 @@ class WebVisualNovelEngine {
 
     // 将已存配置同步渲染至表单
     if (this.settingEnableApi) this.settingEnableApi.checked = !!this.apiConfig.enabled;
-    if (this.settingModel) this.settingModel.value = this.apiConfig.model || "deepseek-flash";
+    if (this.settingApiSource) this.settingApiSource.value = this.apiConfig.source;
+    if (this.settingApiAdapter) this.settingApiAdapter.value = this.apiConfig.adapter;
+    if (this.settingTokenParameter) this.settingTokenParameter.value = this.apiConfig.tokenParameter;
+    const modelIsPreset = ["deepseek-flash", "deepseek-v4-pro", "deepseek-chat", "deepseek-reasoner", "custom"].includes(this.apiConfig.model);
+    if (this.settingModel) this.settingModel.value = modelIsPreset ? this.apiConfig.model : "custom";
     if (this.settingCustomModel) {
-      this.settingCustomModel.value = this.apiConfig.customModel || "";
-      this.settingCustomModel.style.display = this.apiConfig.model === "custom" ? "block" : "none";
+      this.settingCustomModel.value = modelIsPreset ? this.apiConfig.customModel || "" : this.apiConfig.model;
+      this.settingCustomModel.style.display = this.settingModel?.value === "custom" ? "block" : "none";
     }
     if (this.settingEndpoint) this.settingEndpoint.value = this.apiConfig.endpoint || "https://api.deepseek.com/chat/completions";
     if (this.settingApiKey) this.settingApiKey.value = this.apiConfig.apiKey || "";
-    if (this.settingMaxTokens) this.settingMaxTokens.value = this.apiConfig.maxTokens || 384000;
+    if (this.settingMaxTokens) this.settingMaxTokens.value = this.apiConfig.maxTokens ?? "";
 
     this.serverSharedConfig = null;
+    this.updateAIProviderSettingsUI();
     this.updateCachePillUI();
-    this.checkServerSharedApi();
+    if (this.apiConfig.source === "shared") this.checkServerSharedApi();
 
     // 初始化交付正文目标按钮状态。
     const lengthButtons = document.querySelectorAll(".btn-length");
@@ -901,23 +903,12 @@ class WebVisualNovelEngine {
 
     // 保存设置
     document.getElementById("btn-save-settings").addEventListener("click", () => {
-      this.apiConfig.enabled = this.settingEnableApi ? this.settingEnableApi.checked : false;
-      this.apiConfig.userDisabledShared = !this.apiConfig.enabled;
-      this.apiConfig.model = this.settingModel ? this.settingModel.value : "deepseek-flash";
-      this.apiConfig.customModel = this.settingCustomModel ? this.settingCustomModel.value.trim() : "";
-      this.apiConfig.endpoint = this.settingEndpoint ? this.settingEndpoint.value.trim() : "https://api.deepseek.com/chat/completions";
-      this.apiConfig.apiKey = this.settingApiKey ? this.settingApiKey.value.trim() : "";
-      this.apiConfig.maxTokens = this.settingMaxTokens ? (parseInt(this.settingMaxTokens.value, 10) || 384000) : 384000;
-
       try {
-        localStorage.setItem("vn_api_config", JSON.stringify(this.apiConfig));
-      } catch (e) {}
-
-      // 游客设置只在本机保存。严禁从静态页面更新共享 Key 或服务器模型配置。
-      this.checkServerSharedApi().catch(() => {});
-
-      this.updateCachePillUI();
-      this.closeDrawer(this.drawerSettings);
+        this.saveAISettings();
+        this.closeDrawer(this.drawerSettings);
+      } catch (error) {
+        if (this.aiConnectionTestStatus) this.aiConnectionTestStatus.textContent = `配置未保存：${this.describeAIError(error)}`;
+      }
     });
 
     if (this.btnRetrySharedAi) {
@@ -929,8 +920,12 @@ class WebVisualNovelEngine {
     }
     if (this.btnTestAiConnection) {
       this.btnTestAiConnection.addEventListener("click", () => this.testAIConnection());
-      for (const field of [this.settingApiKey, this.settingEndpoint, this.settingModel, this.settingCustomModel]) {
-        if (field) field.addEventListener("input", () => this.invalidateAIConnectionTest());
+      for (const field of [this.settingApiSource, this.settingApiAdapter, this.settingTokenParameter,
+        this.settingApiKey, this.settingEndpoint, this.settingModel, this.settingCustomModel, this.settingMaxTokens]) {
+        if (field) field.addEventListener("input", () => {
+          this.invalidateAIConnectionTest();
+          this.updateAIProviderSettingsUI();
+        });
       }
     }
 
@@ -1057,12 +1052,11 @@ class WebVisualNovelEngine {
       let sutureResult = null;
 
       // 若启用了 API，调用 DeepSeek Live Suture API 履行修改文字卡职责
-      if (this.apiConfig && this.apiConfig.enabled &&
-          ((this.serverSharedConfig && this.serverSharedConfig.hasServerKey) || this.apiConfig.apiKey)) {
+      if (this.hasLiveAIRoute()) {
         try {
           sutureResult = await this.callDeepSeekSutureAPI(node, this.extrapolationHistory);
         } catch (err) {
-          this.setAIRequestStatus("fallback", "suture", err);
+          if (err?.code !== "source_changed") this.setAIRequestStatus("fallback", "suture", err);
           console.warn("[DeepSeek Suture Engine] 已使用本地弥合:", this.describeAIError(err));
         }
       }
@@ -1148,15 +1142,122 @@ class WebVisualNovelEngine {
     };
   }
 
-  // 3. 调用 DeepSeek 官方 API 履行“微调已有剧情页以自圆其说”的职责
+  readAISettingsConfig() {
+    const value = this.settingMaxTokens ? String(this.settingMaxTokens.value ?? "").trim() : this.apiConfig?.maxTokens;
+    return AIProviders.normalizeConfig({...this.apiConfig,
+      enabled: this.settingEnableApi ? this.settingEnableApi.checked : this.apiConfig?.enabled,
+      source: this.settingApiSource?.value || this.apiConfig?.source,
+      adapter: this.settingApiAdapter?.value || this.apiConfig?.adapter,
+      tokenParameter: this.settingTokenParameter?.value || this.apiConfig?.tokenParameter,
+      model: this.settingModel?.value ?? this.apiConfig?.model,
+      customModel: this.settingCustomModel?.value ?? this.apiConfig?.customModel,
+      endpoint: this.settingEndpoint?.value ?? this.apiConfig?.endpoint,
+      apiKey: this.settingApiKey?.value ?? this.apiConfig?.apiKey,
+      maxTokens: value === "" || value == null ? null : Number(value)
+    });
+  }
+
+  resolveAIProvider(value = this.apiConfig) {
+    const config = AIProviders.normalizeConfig(value);
+    const context = {sharedModel: this.serverSharedConfig?.model || ""};
+    // 不读取、校验或请求未选中的来源。
+    if (config.source === "shared") context.sharedEndpoint = this.getSharedGatewayEndpoint();
+    return AIProviders.resolve(config, context);
+  }
+
+  hasLiveAIRoute() {
+    if (!this.apiConfig?.enabled) return false;
+    try { this.resolveAIProvider(); return true; } catch (_) { return false; }
+  }
+
+  isAIProviderRouteCurrent(route, revision = this.aiConfigRevision || 0) {
+    if (revision !== (this.aiConfigRevision || 0)) return false;
+    try { return this.resolveAIProvider().identity === route.identity; } catch (_) { return false; }
+  }
+
+  assertAIProviderRouteCurrent(route, revision) {
+    if (!this.isAIProviderRouteCurrent(route, revision)) {
+      throw Object.assign(new Error("source_changed"), {code: "source_changed"});
+    }
+  }
+
+  clearAIProviderResults() {
+    this.aiRequestStatus = null;
+    this.aiGenerationMetrics = null;
+    this.aiHarnessProgress = null;
+    this.cacheTelemetry = {lastHitTokens: null, lastMissTokens: null, lastHitRate: "未提供", cacheUsageKnown: false, totalHits: 0};
+  }
+
+  saveAISettings() {
+    const next = this.readAISettingsConfig();
+    if (next.enabled) {
+      this.resolveAIProvider(next);
+      if (next.maxTokens !== null && (!Number.isSafeInteger(Number(next.maxTokens)) || Number(next.maxTokens) < 1)) throw new Error("invalid_max_tokens");
+    }
+    delete next.userDisabledShared;
+    delete next.useGateway;
+    if (JSON.stringify(next) !== JSON.stringify(this.apiConfig)) {
+      const controller = this.activeAIRequestController;
+      if (controller && !controller.signal.aborted) {
+        controller.sourceChanged = true;
+        controller.abort();
+      }
+      this.aiConfigRevision = (this.aiConfigRevision || 0) + 1;
+      this.clearAIProviderResults();
+    }
+    this.apiConfig = next;
+    try { localStorage.setItem("vn_api_config", JSON.stringify(next)); } catch (_) {}
+    this.invalidateAIConnectionTest();
+    this.updateAIProviderSettingsUI();
+    this.updateCacheTelemetryUI();
+    if (next.source === "shared") this.checkServerSharedApi().catch(() => {});
+  }
+
+  updateAIProviderSettingsUI() {
+    const config = this.readAISettingsConfig();
+    const custom = config.source === "custom";
+    if (this.apiCustomFields) {
+      this.apiCustomFields.hidden = !custom;
+      for (const field of this.apiCustomFields.querySelectorAll?.("input, select") || []) field.disabled = !custom;
+    }
+    if (this.settingCustomModel?.style) this.settingCustomModel.style.display = this.settingModel?.value === "custom" ? "block" : "none";
+    if (this.aiProviderDescription) {
+      try {
+        const route = this.resolveAIProvider(config);
+        this.aiProviderDescription.textContent = custom
+          ? `当前填写的是自定义 API · 模型 ${route.model} · ${route.adapter === "deepseek" ? "DeepSeek" : "OpenAI 兼容"}适配。Key 可留空；保存后应用。`
+          : `当前选择站长共享 API · 模型 ${route.model}。不使用自定义端点或个人 Key。`;
+      } catch (error) {
+        this.aiProviderDescription.textContent = `当前来源配置尚未完成：${this.describeAIError(error)}`;
+      }
+    }
+  }
+
+  recordAIProviderCache(data, route) {
+    const usage = data?.usage || {};
+    const hitValue = usage.prompt_cache_hit_tokens ?? usage.prompt_tokens_details?.cached_tokens;
+    const validCount = value => Number.isSafeInteger(value) && value >= 0;
+    const missValue = validCount(usage.prompt_cache_miss_tokens) ? usage.prompt_cache_miss_tokens :
+      validCount(usage.prompt_tokens) && validCount(hitValue) && usage.prompt_tokens >= hitValue ? usage.prompt_tokens - hitValue : null;
+    const known = data?.harness?.cacheUsageKnown !== false && validCount(hitValue) && validCount(missValue);
+    const hit = known ? hitValue : null;
+    const miss = known ? missValue : null;
+    this.cacheTelemetry = {...this.cacheTelemetry, sourceIdentity: route.identity, cacheUsageKnown: known,
+      lastHitTokens: hit, lastMissTokens: miss,
+      lastHitRate: known ? (hit + miss > 0 ? ((hit / (hit + miss)) * 100).toFixed(1) + "%" : "0.0%") : "未提供",
+      reasoningTokens: Number(usage.completion_tokens_details?.reasoning_tokens) || 0};
+    this.updateCacheTelemetryUI();
+  }
+
+  // 按选定来源调用“微调已有剧情页以自圆其说”的职责。
   async callDeepSeekSutureAPI(targetNode, history) {
     const startedAt = Date.now();
-    const modelName = this.apiConfig.model === "custom" 
-      ? this.apiConfig.customModel 
-      : (this.apiConfig.model || "deepseek-flash");
+    const route = this.resolveAIProvider();
+    const revision = this.aiConfigRevision || 0;
+    const config = AIProviders.normalizeConfig(this.apiConfig);
 
     // Layer 1: 全局静态律与弥合宪章
-    const systemPrompt = `你是由 DeepSeek 模型驱动的文字冒险游戏【预设剧情树动态微调与自圆其说引擎】。
+    const systemPrompt = `你是文字冒险游戏【预设剧情树动态微调与自圆其说引擎】。
 规则守则：
 1. 游戏主体是在开发阶段预设好的【法定主剧情树】（1变3, 3变9）。当前玩家正从脱离主线的【全新分支剧情页】回归预设主线节点：【${targetNode.title}】。
 2. 你的唯一职责是：【微调已有的预设剧情页，与玩家在此前全新分支剧情页中的经历达成因果一致性，在回归预设剧情树后自圆其说】！
@@ -1188,43 +1289,10 @@ ${JSON.stringify(targetNode.originalBeats)}
       { role: "user", content: userTail }
     ];
 
-    const useGateway = Boolean(this.apiConfig.enabled && this.serverSharedConfig && this.serverSharedConfig.hasServerKey && !this.apiConfig.apiKey);
-    const endpoint = useGateway ? this.getSharedGatewayEndpoint() : (this.apiConfig.endpoint || "https://api.deepseek.com/chat/completions");
-
-    const headers = { "Content-Type": "application/json" };
-    if (this.apiConfig.apiKey) {
-      headers["Authorization"] = `Bearer ${this.apiConfig.apiKey}`;
-    }
-
-    const isReasoner = /reasoner|r1/i.test(modelName) && !/v4|flash|pro/i.test(modelName);
-    const isChat = /chat/i.test(modelName) && !/v4|flash|pro/i.test(modelName);
-    const isV4Pro = /v4-pro/i.test(modelName);
-    const isFlash = /flash/i.test(modelName);
-
-    const maxTokensLimit = 393216;
-    const defaultMax = 65536;
-    const requestedMax = Number(this.apiConfig.maxTokens) || defaultMax;
-    const maxTokens = Math.min(Math.max(1, requestedMax), maxTokensLimit);
-
-    const sutureBody = {
-      model: modelName,
-      messages: messages,
-      stream: false,
-      max_tokens: maxTokens
-    };
-    if (!isReasoner) {
-      sutureBody.response_format = { type: "json_object" };
-    }
-    if (isV4Pro || isFlash) {
-      sutureBody.thinking = { type: "enabled" };
-      sutureBody.reasoning_effort = "high";
-    }
-
-    if (useGateway) {
-      sutureBody.mode = "suture";
-      sutureBody.messages = this.buildGatewayMessages(messages);
-    }
-    const data = await this.requestAICompletion(endpoint, sutureBody, headers, useGateway, "suture");
+    const request = AIProviders.createRequest(route, {mode: "suture", maxTokens: config.maxTokens,
+      messages: route.useGateway ? this.buildGatewayMessages(messages) : messages});
+    const data = await this.requestAICompletion(request.endpoint, request.body, request.headers, request.useGateway, "suture", null, route);
+    this.assertAIProviderRouteCurrent(route, revision);
     const choiceObj = data.choices && data.choices[0];
     this.assertAICompletionFinished(choiceObj, "suture");
     
@@ -1254,22 +1322,11 @@ ${JSON.stringify(targetNode.originalBeats)}
       throw new Error("invalid_game_response");
     }
 
-    // 解析缓存遥测
-    if (data.usage) {
-      const hit = data.usage.prompt_cache_hit_tokens || 0;
-      const miss = data.usage.prompt_cache_miss_tokens !== undefined 
-        ? data.usage.prompt_cache_miss_tokens 
-        : Math.max(0, (data.usage.prompt_tokens || 0) - hit);
-      const totalPrompt = hit + miss;
-      const hitRate = totalPrompt > 0 ? ((hit / totalPrompt) * 100).toFixed(1) + "%" : "0.0%";
-      this.cacheTelemetry.lastHitTokens = hit;
-      this.cacheTelemetry.lastMissTokens = miss;
-      this.cacheTelemetry.lastHitRate = hitRate;
-      this.updateCacheTelemetryUI();
-    }
+    this.recordAIProviderCache(data, route);
 
     this.recordAIGenerationMetrics(data, parsed.reconciledBeats, [], "suture", startedAt);
-    this.setAIRequestStatus("success", "suture", null, data.model);
+    this.aiGenerationMetrics.sourceIdentity = route.identity;
+    this.setAIRequestStatus("success", "suture", null, data.model, route, revision);
     return {
       reconciledBeats: parsed.reconciledBeats,
       sutureNote: parsed.sutureNote || "AI 已成功根据外推因果动态重写主线剧情文字卡。"
@@ -2393,8 +2450,7 @@ ${JSON.stringify(targetNode.originalBeats)}
       let nextBeats = null;
 
       // 若启用了 DeepSeek API (服务端平台共享网关 或 客户端已配 Key)
-      const hasLiveChannel = !!(this.apiConfig && this.apiConfig.enabled &&
-                                ((this.serverSharedConfig && this.serverSharedConfig.hasServerKey) || this.apiConfig.apiKey));
+      const hasLiveChannel = this.hasLiveAIRoute();
 
       if (hasLiveChannel) {
         try {
@@ -2410,7 +2466,7 @@ ${JSON.stringify(targetNode.originalBeats)}
             this.pendingApiChoices = liveResult.choices;
           }
         } catch (err) {
-          this.setAIRequestStatus("fallback", "story", err);
+          if (err?.code !== "source_changed") this.setAIRequestStatus("fallback", "story", err);
           console.warn("[DeepSeek Prompt Cache Harness] 已使用本地剧情:", this.describeAIError(err));
         }
       }
@@ -3247,7 +3303,10 @@ ${JSON.stringify(targetNode.originalBeats)}
       // 恢复 DeepSeek API 缓存历史与遥测
       this.apiHistory = saved.apiHistory || [];
       this.pendingApiChoices = saved.pendingApiChoices || null;
-      this.cacheTelemetry = saved.cacheTelemetry || { lastHitTokens: 0, lastMissTokens: 0, lastHitRate: "0.0%" };
+      let currentIdentity = null;
+      try { currentIdentity = this.resolveAIProvider().identity; } catch (_) {}
+      this.cacheTelemetry = saved.cacheTelemetry?.sourceIdentity === currentIdentity && currentIdentity ? saved.cacheTelemetry :
+        {lastHitTokens: null, lastMissTokens: null, lastHitRate: "未提供", cacheUsageKnown: false, totalHits: 0};
       this.updateCacheTelemetryUI();
 
       this.updateIncenseHUD();
@@ -3529,7 +3588,8 @@ ${currentProfile.npcRoster}`;
     ];
 
     if (this.apiHistory && this.apiHistory.length > 0) {
-      this.apiHistory.forEach(msg => messages.push(msg));
+      // 剧情历史跨来源延续；供应商专有思考字段不属于可移植的游戏事实。
+      this.apiHistory.forEach(msg => messages.push({role: msg.role, content: msg.content}));
     }
 
     // Layer 4: 瞬时因果判定注入层
@@ -3612,96 +3672,39 @@ ${currentProfile.npcRoster}`;
   // 异步调用模型；只对完整交付执行规范化、历史写入和舞台效果。
   async callDeepSeekLiveAPI(choice, d1, d2, total, success) {
     const startedAt = Date.now();
+    const route = this.resolveAIProvider();
+    const revision = this.aiConfigRevision || 0;
+    const config = AIProviders.normalizeConfig(this.apiConfig);
     const requestedExpectedLength = [500, 2000, 5000].includes(this.expectedLength) ? this.expectedLength : 2000;
     const { messages, ephemeralTail } = this.buildDeepSeekCachePayload(choice, d1, d2, total, success);
-
-    const modelName = this.apiConfig.model === "custom" 
-      ? this.apiConfig.customModel 
-      : (this.apiConfig.model || "deepseek-flash");
-
-    // 优先通过服务端平台网关 /api/chat 调用 (全网玩家共享平台 API 与故事树前缀缓存)
-    const useGateway = Boolean(this.apiConfig.enabled && this.serverSharedConfig && this.serverSharedConfig.hasServerKey && !this.apiConfig.apiKey);
-    const endpoint = useGateway ? this.getSharedGatewayEndpoint() : (this.apiConfig.endpoint || "https://api.deepseek.com/chat/completions");
-
-    const isReasoner = /reasoner|r1/i.test(modelName) && !/v4|flash|pro/i.test(modelName);
-    const isChat = /chat/i.test(modelName) && !/v4|flash|pro/i.test(modelName);
-    const isV4Pro = /v4-pro/i.test(modelName);
-    const isFlash = /flash/i.test(modelName);
-
-    // 输出上限仅遵照供应商支持范围，不另设共享通道配额。
-    const maxTokensLimit = 393216;
-    let lengthTokenTarget = 4096;
-    if (requestedExpectedLength === 500) lengthTokenTarget = 1500;
-    else if (requestedExpectedLength === 5000) lengthTokenTarget = 12288;
-
-    const userMaxTokens = Number(this.apiConfig.maxTokens);
-    const requestedMax = userMaxTokens && userMaxTokens > lengthTokenTarget ? userMaxTokens : lengthTokenTarget;
-    const maxTokens = Math.min(Math.max(1, requestedMax), maxTokensLimit);
-
-    const body = {
-      model: modelName,
-      messages: messages,
-      stream: false,
-      max_tokens: maxTokens
-    };
-
-    // 官方规范：deepseek-reasoner (R1) 严禁发送 response_format: { type: "json_object" }，否则报 HTTP 400！
-    // 仅非 reasoner 模型 (如 deepseek-chat, v4-pro, flash) 启用 json_object 模式
-    if (!isReasoner) {
-      body.response_format = { type: "json_object" };
-    }
-
-    // 2. 思考模式 (Thinking Mode): OpenAI 兼容格式通过 thinking 字段控制启闭 ({ "type": "enabled" | "disabled" })
-    //    思考深度通过 reasoning_effort ("low" | "high" | "max") 调节。
-    //    【严禁传递】Anthropic 风格的 budget_tokens 字段以免引发 HTTP 400 报错！
-    if (isV4Pro || isFlash) {
-      body.thinking = { type: "enabled" };
-      body.reasoning_effort = "high";
-    }
-
-    const headers = {
-      "Content-Type": "application/json"
-    };
-    if (this.apiConfig.apiKey) {
-      headers["Authorization"] = `Bearer ${this.apiConfig.apiKey}`;
-    }
 
     const harnessRuntime = typeof window !== "undefined" && window.JiuzhouHarness;
     const useHarness = typeof harnessRuntime?.createGameHarness === "function";
     const worldSnapshot = useHarness ? this.buildAIHarnessWorldSnapshot() : null;
-    if (useGateway) {
-      body.mode = "story";
-      body.expectedLength = requestedExpectedLength;
-      // Reserve room before the first request; never rewrite a prefix during an active tool loop.
-      const toolReserve = useHarness ? requestedExpectedLength * 2 + JSON.stringify(worldSnapshot).length + 4000 : 0;
-      body.messages = this.buildGatewayMessages(messages, toolReserve);
-    }
-    const initialMessages = useGateway ? body.messages : messages;
+    // 仅首轮共享上下文预留工具空间，循环内始终追加完整原生 transcript。
+    const toolReserve = useHarness ? requestedExpectedLength * 2 + JSON.stringify(worldSnapshot).length + 4000 : 0;
+    const initialMessages = route.useGateway ? this.buildGatewayMessages(messages, toolReserve) : messages;
+    const initialRequest = AIProviders.createRequest(route, {mode: "story", messages: initialMessages,
+      maxTokens: config.maxTokens, expectedLength: requestedExpectedLength});
     const runner = useHarness ? async signal => {
       const result = await harnessRuntime.createGameHarness({
         messages: initialMessages,
         model: async request => {
-          const stepBody = {...body, messages: request.messages, tools: request.tools};
-          // 原生工具调用需要保留 assistant.tool_calls / tool_call_id，不在后续轮次重新裁剪。
-          delete stepBody.response_format;
-          stepBody.thinking = {type: "disabled"};
-          delete stepBody.reasoning_effort;
-          if (useGateway) {
-            stepBody.mode = "agent";
-            stepBody.enabledTools = request.tools.map(tool => tool.function.name);
-            delete stepBody.tools;
-          }
-          return this.fetchAICompletion(endpoint, stepBody, headers, request.signal || signal);
+          const step = AIProviders.createRequest(route, {mode: "story", harness: true,
+            messages: request.messages, tools: request.tools, maxTokens: config.maxTokens});
+          return this.fetchAICompletion(step.endpoint, step.body, step.headers, request.signal || signal);
         },
         world: worldSnapshot,
         targetCharacters: requestedExpectedLength,
         signal,
-        onEvent: event => this.updateAIHarnessProgress(event)
+        onEvent: event => { if (this.isAIProviderRouteCurrent(route, revision)) this.updateAIHarnessProgress(event); }
       });
       if (!result?.data) throw new Error("invalid_game_response");
       return {...result.data, harness: result.harness || result.data.harness};
     } : null;
-    const data = await this.requestAICompletion(endpoint, body, headers, useGateway, "story", runner);
+    const data = await this.requestAICompletion(initialRequest.endpoint, initialRequest.body, initialRequest.headers,
+      initialRequest.useGateway, "story", runner, route);
+    this.assertAIProviderRouteCurrent(route, revision);
     const choiceObj = data.choices && data.choices[0];
     this.assertAICompletionFinished(choiceObj, "story");
     if (!choiceObj?.message?.content?.trim()) throw new Error("invalid_game_response");
@@ -4011,8 +4014,8 @@ ${currentProfile.npcRoster}`;
     }
 
     // 所有正文和选项已规范化，才提交下一轮上下文。长篇 JSON 保持完整。
+    this.assertAIProviderRouteCurrent(route, revision);
     const assistantHistMsg = {role: "assistant", content: contentStr};
-    if (typeof reasoningContent === "string" && reasoningContent) assistantHistMsg.reasoning_content = reasoningContent;
     this.apiHistory.push({role: "user", content: ephemeralTail}, assistantHistMsg);
     if (this.apiHistory.length > 200) this.apiHistory = this.apiHistory.slice(-200);
     for (const effect of effects) {
@@ -4020,18 +4023,11 @@ ${currentProfile.npcRoster}`;
       catch (_) { console.warn("[Narrative Engine] 已忽略无效的 AI 舞台效果，正文继续。"); }
     }
     // 只记录已验证交付的累计缓存；中间工具轮和无效正文不冒充成功生成。
-    if (data.usage) {
-      const hit = Number(data.usage.prompt_cache_hit_tokens ?? data.usage.prompt_tokens_details?.cached_tokens) || 0;
-      const miss = Number(data.usage.prompt_cache_miss_tokens ?? Math.max(0, (Number(data.usage.prompt_tokens) || 0) - hit)) || 0;
-      this.cacheTelemetry.lastHitTokens = Math.max(0, hit);
-      this.cacheTelemetry.lastMissTokens = Math.max(0, miss);
-      this.cacheTelemetry.lastHitRate = hit + miss > 0 ? ((hit / (hit + miss)) * 100).toFixed(1) + "%" : "0.0%";
-      this.cacheTelemetry.reasoningTokens = Number(data.usage.completion_tokens_details?.reasoning_tokens) || 0;
-      this.updateCacheTelemetryUI();
-    }
+    this.recordAIProviderCache(data, route);
     this.recordAIGenerationMetrics(data, validStoryBeats, validStoryChoices, "story", startedAt, requestedExpectedLength);
     this.aiGenerationMetrics.displayChoiceCount = rawChoices.slice(0, 3).length;
-    this.setAIRequestStatus("success", "story", null, data.model);
+    this.aiGenerationMetrics.sourceIdentity = route.identity;
+    this.setAIRequestStatus("success", "story", null, data.model, route, revision);
     return {
       beats,
       choices: rawChoices.slice(0, 3),
@@ -4081,10 +4077,10 @@ ${currentProfile.npcRoster}`;
       gateway_unconfigured: "共享 AI 密钥尚未配置，或 Worker 尚未更新",
       ai_not_configured: "AI 服务尚未配置完整，请联系站长",
       origin_rejected: "AI 服务未允许此网页访问，请联系站长",
-      upstream_auth_failed: "AI 服务认证失败，请联系站长",
-      upstream_quota_exceeded: "AI 服务额度不足，请联系站长",
+      upstream_auth_failed: "AI 服务认证失败，请检查所选来源的凭据或配置",
+      upstream_quota_exceeded: "所选 AI 服务额度不足，请检查相应账户",
       upstream_rate_limited: "AI 服务繁忙，请稍后重试",
-      upstream_request_rejected: "AI 服务拒绝了本轮请求，请联系站长",
+      upstream_request_rejected: "所选 AI 服务拒绝本轮请求，请检查模型及参数配置",
       upstream_unavailable: "AI 服务暂时不可用，请稍后重试",
       upstream_network_error: "AI 网关无法连接模型服务，请稍后重试",
       upstream_timeout: "AI 服务响应超时，请稍后重试",
@@ -4097,9 +4093,12 @@ ${currentProfile.npcRoster}`;
       output_truncated: "AI 输出未完整结束，本轮改用本地剧情，可调整设置后再试",
       output_incomplete: "AI 生成被中断，尚未获得完整剧情，可稍后重试",
       request_cancelled: "已取消本次请求，使用本地剧情",
-      invalid_max_tokens: "输出 Token 设置超出模型支持范围，请调整设置",
+      invalid_max_tokens: "输出 Token 设置无效或超出所选服务支持范围，可留空使用默认值",
       invalid_private_endpoint: "API 端点无效，请填写完整 HTTPS 地址（本机调试可用 HTTP）",
       invalid_model: "请填写自定义模型名称",
+      invalid_provider: "请选择有效的 API 来源及适配器",
+      provider_changed: "来源适配器已变化，本轮停止并未提交剧情",
+      source_changed: "API 配置已修改，本轮已停止且未提交旧来源剧情",
       invalid_test_response: "模型未返回有效测试正文，可能是输出不完整或响应格式不兼容",
       invalid_game_response: "AI 返回的剧情格式无效",
       delivery_too_short: "交付正文未达到所选目标，本轮未提交不完整剧情",
@@ -4121,25 +4120,34 @@ ${currentProfile.npcRoster}`;
     return "网络请求失败，请检查网络后重试";
   }
 
-  setAIRequestStatus(state, mode, error = null, model = "") {
+  setAIRequestStatus(state, mode, error = null, model = "", route = null, revision = this.aiConfigRevision || 0) {
+    if (route && !this.isAIProviderRouteCurrent(route, revision)) return;
+    if (!route) { try { route = this.resolveAIProvider(); } catch (_) {} }
     const task = mode === "suture" ? "弥合" : "剧情";
-    const channel = this.apiConfig.apiKey ? "private" : "shared";
+    const channel = route?.source || AIProviders.normalizeConfig(this.apiConfig).source;
     const message = (error?.code || error?.message) === "request_cancelled" ? "已取消本次请求，使用本地剧情" :
       state === "success" ? `最近一轮 AI ${task}已生成${model ? `（${model}）` : ""}` :
       state === "requesting" ? `正在请求 AI ${task}，尚未收到结果` :
       `本轮已使用本地${task}：${this.describeAIError(error)}`;
-    this.aiRequestStatus = {state, mode, channel, model: String(model || ""), message};
+    this.aiRequestStatus = {state, mode, channel, sourceIdentity: route?.identity || null,
+      revision, model: String(model || ""), message};
     this.updateCachePillUI();
   }
 
   updateAIConnectionStatusUI() {
-    const gateway = this.sharedGatewayStatus?.message || "共享 AI 尚未检查";
+    let route = null, routeError = null;
+    try { route = this.resolveAIProvider(); } catch (error) { routeError = error; }
+    const selectedShared = AIProviders.normalizeConfig(this.apiConfig).source === "shared";
+    const gateway = selectedShared ? this.sharedGatewayStatus?.message || "共享 AI 尚未检查" : "";
     const mode = !this.apiConfig.enabled ? "你已选择本地剧情，可在本机设置切换远端 AI。" :
-      this.apiConfig.apiKey ? "当前使用私有 Key，共享通道不会被使用。" : "当前使用站长共享通道。";
-    const request = this.aiRequestStatus?.message || "尚未进行真实 AI 生成。";
-    if (this.aiConnectionStatus) this.aiConnectionStatus.textContent = `${gateway}\n${mode}\n${request}`;
+      routeError ? `当前来源配置无效：${this.describeAIError(routeError)}` : `当前使用${route.label} · 模型 ${route.model}。`;
+    const currentStatus = this.aiRequestStatus && (!this.aiRequestStatus.sourceIdentity || this.aiRequestStatus.sourceIdentity === route?.identity)
+      ? this.aiRequestStatus : null;
+    const request = currentStatus?.message || "当前来源尚未进行真实 AI 生成。";
+    if (this.aiConnectionStatus) this.aiConnectionStatus.textContent = [gateway, mode, request].filter(Boolean).join("\n");
     if (this.aiGenerationMetricsDisplay) {
-      const metrics = this.aiGenerationMetrics;
+      const metrics = this.aiGenerationMetrics && (!this.aiGenerationMetrics.sourceIdentity || this.aiGenerationMetrics.sourceIdentity === route?.identity)
+        ? this.aiGenerationMetrics : null;
       if (metrics) {
         const tokens = metrics.completionTokens === null ? "未知" : String(metrics.completionTokens);
         const finish = metrics.harness?.mode === "agent" ? "交付完成（插件验证通过）" : (metrics.finishReason || "未知（尚不能确认完整结束）");
@@ -4149,15 +4157,17 @@ ${currentProfile.npcRoster}`;
         const supplied = metrics.displayChoiceCount === undefined ? "" : `（界面共 ${metrics.displayChoiceCount} 项）`;
         const harness = metrics.harness || {mode: "compatibility", modelCalls: 1, toolCalls: 0};
         const runMode = harness.mode === "agent" ? "插件式工具循环" : "单次请求兼容模式";
+        const cacheKnown = harness.cacheUsageKnown !== false && this.cacheTelemetry?.cacheUsageKnown !== false;
         const hit = Number(harness.cacheHitTokens ?? this.cacheTelemetry?.lastHitTokens) || 0;
         const miss = Number(harness.cacheMissTokens ?? this.cacheTelemetry?.lastMissTokens) || 0;
-        this.aiGenerationMetricsDisplay.textContent = `最近一次有效${metrics.mode === "suture" ? "弥合" : "剧情"}：${metrics.textCharacters} 字符（其中中文 ${metrics.hanCharacters} 字）${lengthResult} · ${metrics.beatCount} 段 / ${metrics.choiceCount} 个模型选项${supplied}\n${runMode} · 模型 ${harness.modelCalls || 0} 次 · 工具 ${harness.toolCalls || 0} 次 · 总耗时 ${(metrics.elapsedMs / 1000).toFixed(1)} 秒\n累计缓存命中 ${hit} Token / 新算 ${miss} Token · 完成 Token ${tokens} · 结束原因 ${finish}`;
+        const cache = cacheKnown ? `累计缓存命中 ${hit} Token / 新算 ${miss} Token` : "供应商未提供缓存统计";
+        this.aiGenerationMetricsDisplay.textContent = `最近一次有效${metrics.mode === "suture" ? "弥合" : "剧情"}：${metrics.textCharacters} 字符（其中中文 ${metrics.hanCharacters} 字）${lengthResult} · ${metrics.beatCount} 段 / ${metrics.choiceCount} 个模型选项${supplied}\n${runMode} · 模型 ${harness.modelCalls || 0} 次 · 工具 ${harness.toolCalls || 0} 次 · 总耗时 ${(metrics.elapsedMs / 1000).toFixed(1)} 秒\n${cache} · 完成 Token ${tokens} · 结束原因 ${finish}`;
       } else {
         this.aiGenerationMetricsDisplay.textContent = "本轮尚无有效 AI 剧情指标。";
       }
     }
     if (this.btnRetrySharedAi) this.btnRetrySharedAi.disabled = this.sharedGatewayStatus?.state === "checking";
-    if (this.cacheStatusTag) this.cacheStatusTag.innerText = this.aiRequestStatus?.state === "success" ?
+    if (this.cacheStatusTag) this.cacheStatusTag.innerText = currentStatus?.state === "success" ?
       `最近一次生成 · 命中率 ${this.cacheTelemetry.lastHitRate}` : "等待有效 AI 生成 · 暂无本轮缓存指标";
   }
 
@@ -4182,7 +4192,10 @@ ${currentProfile.npcRoster}`;
     }
   }
 
-  async requestAICompletion(endpoint, body, headers, useGateway, mode, runner = null) {
+  async requestAICompletion(endpoint, body, headers, useGateway, mode, runner = null, route = null) {
+    if (!route) { try { route = this.resolveAIProvider(); } catch (_) {} }
+    const revision = this.aiConfigRevision || 0;
+    const current = () => route ? this.isAIProviderRouteCurrent(route, revision) : revision === (this.aiConfigRevision || 0);
     const controller = new AbortController();
     this.activeAIRequestController = controller;
     this.aiGenerationMetrics = null;
@@ -4197,15 +4210,17 @@ ${currentProfile.npcRoster}`;
       timedOut = true;
       controller.abort();
     }, 75000);
-    this.setAIRequestStatus("requesting", mode);
+    this.setAIRequestStatus("requesting", mode, null, "", route, revision);
     try {
       const data = runner ? await runner(controller.signal) : await this.fetchAICompletion(endpoint, body, headers, controller.signal);
+      if (!current()) throw Object.assign(new Error("source_changed"), {code: "source_changed"});
       if (controller.signal.aborted) throw new Error("request_aborted");
       return data;
     } catch (error) {
-      const failure = controller.cancelledByUser ? Object.assign(new Error("request_cancelled"), {code: "request_cancelled"}) :
+      const failure = controller.sourceChanged || !current() ? Object.assign(new Error("source_changed"), {code: "source_changed"}) :
+        controller.cancelledByUser ? Object.assign(new Error("request_cancelled"), {code: "request_cancelled"}) :
         timedOut ? Object.assign(new Error("upstream_timeout"), {code: "upstream_timeout"}) : error;
-      this.setAIRequestStatus("fallback", mode, failure);
+      if (failure.code !== "source_changed") this.setAIRequestStatus("fallback", mode, failure, "", route, revision);
       throw failure;
     } finally {
       if (timer !== null) clearTimeout(timer);
@@ -4238,8 +4253,9 @@ ${currentProfile.npcRoster}`;
       return;
     }
     // 对未保存的表单快照发起独立短请求，不写配置、存档、剧情历史或缓存遥测。
-    const apiKey = (this.settingApiKey?.value || "").trim();
-    const channel = apiKey ? "私有通道" : "共享通道";
+    const testedConfig = this.readAISettingsConfig();
+    let route = null;
+    const channel = testedConfig.source === "shared" ? "共享通道" : "自定义通道";
     const version = this.aiConnectionTestFormVersion || 0;
     const started = Date.now();
     const controller = new AbortController();
@@ -4249,38 +4265,19 @@ ${currentProfile.npcRoster}`;
     this.btnTestAiConnection.textContent = "测试中…";
     this.aiConnectionTestStatus.textContent = `正在测试${channel}，等待模型回复…`;
     try {
-      const selectedModel = this.settingModel?.value || "deepseek-flash";
-      const model = selectedModel === "custom" ? (this.settingCustomModel?.value || "").trim() : selectedModel;
-      let endpoint;
-      const body = {
-        messages: [
+      route = this.resolveAIProvider(testedConfig);
+      const messages = [
           {role: "system", content: "你是九州沉浮录连接测试助手。只返回 JSON 对象，包含 reconciledBeats 数组，每项含 speaker、text。"},
           {role: "system", content: "独立连接测试，不推进游戏。原对白：旁白说：连接测试成功。"},
           {role: "user", content: "保持原对白不变，只返回这个 JSON：{\"reconciledBeats\":[{\"speaker\":\"旁白\",\"text\":\"连接测试成功。\"}],\"sutureNote\":\"测试\"}"}
-        ], stream: false, max_tokens: 256
-      };
-      const headers = {"Content-Type": "application/json"};
-      if (apiKey) {
-        if (!model) throw new Error("invalid_model");
-        let parsed;
-        try { parsed = new URL((this.settingEndpoint?.value || "").trim()); } catch { throw new Error("invalid_private_endpoint"); }
-        const localHttp = parsed.protocol === "http:" && ["localhost", "127.0.0.1", "[::1]"].includes(parsed.hostname);
-        if ((!localHttp && parsed.protocol !== "https:") || parsed.username || parsed.password || parsed.hash) throw new Error("invalid_private_endpoint");
-        endpoint = parsed.href;
-        headers.Authorization = `Bearer ${apiKey}`;
-        body.model = model;
-        if (!/reasoner|r1/i.test(model) || /v4|flash|pro/i.test(model)) body.response_format = {type: "json_object"};
-        if (/v4|flash/i.test(model)) body.thinking = {type: "disabled"};
-      } else {
-        endpoint = this.getSharedGatewayEndpoint();
-        body.mode = "suture";
-      }
-      const data = await this.fetchAICompletion(endpoint, body, headers, controller.signal);
+      ];
+      const request = AIProviders.createRequest(route, {mode: "probe", messages, maxTokens: 256});
+      const data = await this.fetchAICompletion(request.endpoint, request.body, request.headers, controller.signal);
       let result;
       try { result = JSON.parse(data?.choices?.[0]?.message?.content); } catch { throw new Error("invalid_test_response"); }
       if (!Array.isArray(result?.reconciledBeats) || !result.reconciledBeats.some(beat => typeof beat?.text === "string" && beat.text.trim())) throw new Error("invalid_test_response");
-      let actualModel = typeof data.model === "string" ? data.model.replace(/[\r\n\t]/g, " ").slice(0, 100) : (apiKey ? model : "服务端模型");
-      if (apiKey) actualModel = actualModel.split(apiKey).join("[已隐藏]");
+      let actualModel = typeof data.model === "string" ? data.model.replace(/[\r\n\t]/g, " ").slice(0, 100) : route.model;
+      if (testedConfig.apiKey) actualModel = actualModel.split(testedConfig.apiKey).join("[已隐藏]");
       this.aiConnectionTestStatus.textContent = `测试成功 · ${channel} · ${actualModel} · ${((Date.now() - started) / 1000).toFixed(1)} 秒\n已收到有效模型回复。`;
     } catch (error) {
       this.aiConnectionTestStatus.textContent = `测试失败 · ${channel} · ${this.describeAIError(error)}\n耗时 ${((Date.now() - started) / 1000).toFixed(1)} 秒，可修改配置后重试。`;
@@ -4289,8 +4286,10 @@ ${currentProfile.npcRoster}`;
       this.aiConnectionTestRunning = false;
       this.btnTestAiConnection.disabled = false;
       this.btnTestAiConnection.textContent = "测试请求";
-      if (version !== (this.aiConnectionTestFormVersion || 0)) {
-        this.aiConnectionTestStatus.textContent += "\n本次结果基于点击时的配置；当前配置已修改，请重新测试。";
+      let sameRoute = false;
+      try { sameRoute = route?.identity === this.resolveAIProvider(this.readAISettingsConfig()).identity; } catch (_) {}
+      if (version !== (this.aiConnectionTestFormVersion || 0) || (route && !sameRoute)) {
+        this.aiConnectionTestStatus.textContent = "当前配置已修改，本次测试结果仅适用于点击时的配置；请重新测试。";
       }
     }
   }
@@ -4299,22 +4298,25 @@ ${currentProfile.npcRoster}`;
   updateCachePillUI() {
     this.updateAIConnectionStatusUI();
     if (!this.qmCache) return;
-    const hasLive = this.apiConfig.enabled && ((this.serverSharedConfig && this.serverSharedConfig.hasServerKey) || this.apiConfig.apiKey);
+    const hasLive = this.hasLiveAIRoute();
+    let route = null;
+    try { route = this.resolveAIProvider(); } catch (_) {}
+    const status = this.aiRequestStatus && (!this.aiRequestStatus.sourceIdentity || this.aiRequestStatus.sourceIdentity === route?.identity)
+      ? this.aiRequestStatus : null;
     this.qmCache.classList.remove("hit");
-    this.qmCache.title = this.aiRequestStatus?.message || this.sharedGatewayStatus?.message || "当前使用本地剧情";
+    this.qmCache.title = status?.message || (route?.useGateway ? this.sharedGatewayStatus?.message : "当前来源尚未生成") || "当前使用本地剧情";
     if (!hasLive) {
-      this.qmCache.innerText = this.apiConfig.enabled && this.sharedGatewayStatus?.state === "unavailable" ?
-        "⚠ 共享 AI 无法连接 · 本地模式" : "⚡ 缓存: 本地模式";
-    } else if (this.aiRequestStatus?.state === "fallback") {
+      this.qmCache.innerText = this.apiConfig.enabled ? "⚠ 当前来源未配置完整 · 本地模式" : "⚡ 缓存: 本地模式";
+    } else if (status?.state === "fallback") {
       this.qmCache.innerText = "⚠ 本轮已使用本地剧情 · 设置可查看原因";
-    } else if (this.aiRequestStatus?.state === "requesting") {
+    } else if (status?.state === "requesting") {
       this.qmCache.innerText = "⚡ AI 请求中 · 尚未生成";
-    } else if (this.aiRequestStatus?.state === "success" &&
-        this.aiRequestStatus.channel === (this.apiConfig.apiKey ? "private" : "shared")) {
-      this.qmCache.innerText = `⚡ AI 已生成 · 命中 ${this.cacheTelemetry.lastHitRate || "0.0%"}`;
+    } else if (status?.state === "success") {
+      this.qmCache.innerText = this.cacheTelemetry.cacheUsageKnown === false
+        ? "⚡ AI 已生成 · 未提供缓存统计" : `⚡ AI 已生成 · 命中 ${this.cacheTelemetry.lastHitRate || "0.0%"}`;
       this.qmCache.classList.add("hit");
     } else {
-      this.qmCache.innerText = this.apiConfig.apiKey ? "⚡ 私有 AI 已配置 · 待验证" : "⚡ 共享 AI 已就绪 · 待生成";
+      this.qmCache.innerText = route?.useGateway ? "⚡ 共享 AI 已选择 · 待生成" : "⚡ 自定义 AI 已配置 · 待生成";
     }
   }
 
@@ -4368,7 +4370,8 @@ ${currentProfile.npcRoster}`;
   // GitHub Pages 不能执行仓库中的 Vercel /api/* 文件，必须访问外部 Worker。
   async checkServerSharedApi() {
     if (typeof window === "undefined" || !window.fetch) return;
-    this.serverSharedConfig = null;
+    const sequence = (this.sharedHealthSequence || 0) + 1;
+    this.sharedHealthSequence = sequence;
     this.sharedGatewayStatus = {state: "checking", message: "正在检查共享 AI 连接…"};
     this.updateCachePillUI();
     try {
@@ -4377,25 +4380,29 @@ ${currentProfile.npcRoster}`;
         signal: typeof AbortSignal !== "undefined" && AbortSignal.timeout ? AbortSignal.timeout(9000) : undefined});
       if (!res.ok) { const error = new Error("gateway_not_ready"); error.status = res.status; throw error; }
       const data = await res.json();
+      if (sequence !== this.sharedHealthSequence) return;
       if (data.jiuzhouReady !== true) throw Error("gateway_unconfigured");
       this.serverSharedConfig = {hasServerKey:true,model:typeof data.model === "string" ? data.model : "",useGateway:true};
       this.sharedGatewayStatus = {state: "ready", message: "共享 AI 网关已就绪，可直接生成剧情。"};
-      if (!this.apiConfig.apiKey) {
-        if (!this.apiConfig.userDisabledShared) this.apiConfig.enabled = true;
-        this.apiConfig.useGateway = true;
-        if (this.settingEnableApi) this.settingEnableApi.checked = !!this.apiConfig.enabled;
-      }
     } catch(e) {
+      if (sequence !== this.sharedHealthSequence) return;
+      this.serverSharedConfig = null;
       this.sharedGatewayStatus = {state: "unavailable", message: `共享 AI 无法连接：${this.describeAIError(e)}。可重新检查连接；离线剧情仍可继续。`};
     }
+    if (sequence !== this.sharedHealthSequence) return;
+    this.updateAIProviderSettingsUI();
     this.updateCachePillUI();
   }
 
   // 5. 更新设置抽屉中的遥测指标
   updateCacheTelemetryUI() {
-    if (this.cmHitRate) this.cmHitRate.innerText = this.cacheTelemetry.lastHitRate;
-    if (this.cmHitTokens) this.cmHitTokens.innerText = `${this.cacheTelemetry.lastHitTokens.toLocaleString()} tks`;
-    if (this.cmMissTokens) this.cmMissTokens.innerText = `${this.cacheTelemetry.lastMissTokens.toLocaleString()} tks`;
+    let route = null;
+    try { route = this.resolveAIProvider(); } catch (_) {}
+    const known = this.cacheTelemetry.cacheUsageKnown !== false && (!this.cacheTelemetry.sourceIdentity || this.cacheTelemetry.sourceIdentity === route?.identity)
+      && Number.isFinite(this.cacheTelemetry.lastHitTokens) && Number.isFinite(this.cacheTelemetry.lastMissTokens);
+    if (this.cmHitRate) this.cmHitRate.innerText = known ? this.cacheTelemetry.lastHitRate : "未提供";
+    if (this.cmHitTokens) this.cmHitTokens.innerText = known ? `${this.cacheTelemetry.lastHitTokens.toLocaleString()} tks` : "未提供";
+    if (this.cmMissTokens) this.cmMissTokens.innerText = known ? `${this.cacheTelemetry.lastMissTokens.toLocaleString()} tks` : "未提供";
     if (this.cacheStatusTag) {
       this.cacheStatusTag.innerText = `四层对齐 · 命中率 ${this.cacheTelemetry.lastHitRate}`;
     }

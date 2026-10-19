@@ -90,7 +90,7 @@ await page.route("**/api/jiuzhou/turn",async route=>{
     successfulAgentBodies.push(data);
     assert.equal(data.tools,undefined);
     assert.deepEqual(data.enabledTools,["deliver_story","inspect_draft","read_draft","read_world","write_draft"]);
-    assert.equal(data.thinking.type,"disabled");
+    assert.equal(data.thinking,undefined);
     assert.equal(data.response_format,undefined);
     if(successfulAgentBodies.length===1){
       await route.fulfill({status:200,contentType:"application/json",headers:cors,
@@ -107,7 +107,7 @@ await page.route("**/api/jiuzhou/turn",async route=>{
   }
   const fixtureOpening="虚拟验收专用：军饷账册<img src=x onerror=window.__unsafeMarker=1>已在京师密库登记。";
   const fixtureEnding="接下来的行动将改变粮道。";
-  const target=data.mode==="agent"?data.expectedLength:5000;
+  const target=5000;
   const fixtureProse=fixtureOpening+"验".repeat(target-Array.from((fixtureOpening+fixtureEnding).replace(/\s/g,"")).length);
   await route.fulfill({status:200,contentType:"application/json",headers:cors,
     body:JSON.stringify({choices:[{message:{role:"assistant",content:JSON.stringify({
@@ -243,10 +243,68 @@ try{
   assert.equal(cancelled.choices,3);
   assert.equal(await page.locator('#btn-cancel-ai-request').isHidden(),true);
   assert.equal(backendCalls,8);
+  let customCalls=0,customProbeCalls=0;
+  await page.route("https://custom.fixture/v1/chat/completions",async route=>{
+    const request=route.request();
+    const cors={"access-control-allow-origin":origin,"access-control-allow-methods":"POST, OPTIONS","access-control-allow-headers":"content-type"};
+    if(request.method()==="OPTIONS"){await route.fulfill({status:204,headers:cors});return}
+    assert.equal(request.headers().authorization,undefined);
+    const body=JSON.parse(request.postData()||"{}");
+    assert.equal(body.model,"generic-fixture-model");
+    for(const field of ["mode","expectedLength","enabledTools","thinking","reasoning_effort","max_tokens"])
+      assert.equal(body[field],undefined,field);
+    if(!body.tools){
+      customProbeCalls++;
+      assert.equal(body.max_completion_tokens,256);
+      await route.fulfill({status:200,contentType:"application/json",headers:cors,body:JSON.stringify({model:"generic-fixture-model",choices:[{finish_reason:"stop",message:{content:JSON.stringify({reconciledBeats:[{text:"连接测试成功。"}]})}}]})});
+      return;
+    }
+    customCalls++;
+    assert.equal(body.max_completion_tokens,32768);
+    assert.deepEqual(body.tools.map(tool=>tool.function.name),["deliver_story","inspect_draft","read_draft","read_world","write_draft"]);
+    if(customCalls===1){
+      await route.fulfill({status:200,contentType:"application/json",headers:cors,body:JSON.stringify({model:"generic-fixture-model",choices:[{finish_reason:"tool_calls",message:{role:"assistant",content:null,tool_calls:[{id:"custom_world",type:"function",function:{name:"read_world",arguments:"{}"}}]}}],usage:{prompt_tokens:100,completion_tokens:5}})});
+      return;
+    }
+    assert.equal(body.messages.at(-1).role,"tool"); assert.equal(body.messages.at(-1).tool_call_id,"custom_world");
+    await route.fulfill({status:200,contentType:"application/json",headers:cors,body:JSON.stringify({model:"generic-fixture-model",choices:[{finish_reason:"stop",message:{content:JSON.stringify({beats:[{speaker:"旁白",text:"自定义无密钥来源验收"+"文".repeat(490)}],choices:[{text:"救人"},{text:"查账"},{text:"守城"}]})}}],usage:{prompt_tokens:200,completion_tokens:100}})});
+  });
+  await page.click("#qm-cache");
+  await page.selectOption("#setting-api-source","custom");
+  await page.fill("#setting-api-key","");
+  await page.fill("#setting-endpoint","https://custom.fixture/v1/chat/completions");
+  await page.selectOption("#setting-model","custom");
+  await page.fill("#setting-custom-model","generic-fixture-model");
+  await page.selectOption("#setting-api-adapter","openai");
+  await page.selectOption("#setting-token-parameter","max_completion_tokens");
+  await page.fill("#setting-max-tokens","32768");
+  await page.click("#btn-test-ai-connection");
+  await page.waitForFunction(()=>document.getElementById("ai-connection-test-status").textContent.includes("测试成功"));
+  assert.match(await page.locator("#ai-connection-test-status").textContent(),/自定义.*generic-fixture-model/);
+  await page.click("#btn-save-settings");
+  await page.click("#qm-cache");
+  await page.click("#btn-retry-shared-ai");
+  await page.waitForFunction(()=>window.__vnEngine.sharedGatewayStatus.state==="ready");
+  assert.equal(await page.locator("#setting-api-source").inputValue(),"custom");
+  await page.click("#btn-close-settings");
+  const customState=await page.evaluate(async()=>{
+    const e=window.__vnEngine;
+    e.expectedLength=500;
+    const before=e.apiHistory.length;
+    await e.resolveFactionAction({text:"自定义来源先救人",customInput:"自定义来源先救人",diceBase:7,isExtrapolation:true});
+    return {source:e.apiConfig.source,key:e.apiConfig.apiKey,before,after:e.apiHistory.length,status:e.aiRequestStatus.state,
+      prose:e.storyQueue.map(beat=>beat.text).join(""),metrics:e.aiGenerationMetrics};
+  });
+  assert.equal(customProbeCalls,1); assert.equal(customCalls,2); assert.equal(backendCalls,8);
+  assert.equal(customState.source,"custom"); assert.equal(customState.key,""); assert.equal(customState.status,"success");
+  assert.equal(customState.after,customState.before+2); assert.match(customState.prose,/自定义无密钥来源验收/);
+  assert.equal(customState.metrics.harness.modelCalls,2); assert.equal(customState.metrics.harness.toolCalls,1);
+  assert.equal(customState.metrics.textCharacters,500);
+  assert.match(await page.locator("#ai-generation-metrics").textContent(),/未提供|未知/);
   assert.equal(challengeRequests,0);
   assert.equal(errors.length,0,errors.join("\n"));
   console.log(`PASS ${localServer?"checked-out client":"explicit external client"} HTTP 200 and assets loaded`);
-  console.log("PASS simulated shared AI health handshake and auto-enable");
+  console.log("PASS simulated shared AI health handshake preserves the configured source and remote preference");
   console.log("PASS direct shared requests without CAPTCHA scripts, tokens, or challenge network calls");
   console.log("PASS POST /api/jiuzhou/turn with bounded game context (mock route)");
   console.log("PASS simulated AI beats, choices and cache stats absorbed by game");
@@ -259,5 +317,6 @@ try{
   console.log("PASS arbitrary story JSON is rejected without displaying it or polluting AI history");
   console.log("PASS invalid suture response uses real local suture and shows its failure reason");
   console.log("PASS real metrics distinguish completed model output; truncation and manual cancellation release exploration without history pollution");
+  console.log("PASS selected Keyless custom provider probes and runs native tools with generic parameters; shared health cannot take over and absent cache telemetry stays unknown");
   console.log("PASS no browser JS exceptions, no paid model calls");
 } finally {await browser.close();if(localServer)await new Promise(resolve=>localServer.close(resolve))}

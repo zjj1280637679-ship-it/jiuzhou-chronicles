@@ -175,6 +175,24 @@ test("leaked JSON inside a text field is cleaned before length checks, so syntax
   assert.equal(JSON.parse(result.data.choices[0].message.content).beats[0].text, "文".repeat(5000));
 });
 
+test("cache hits without a usable denominator remain unknown rather than pretending a 100 percent hit rate", async () => {
+  const result = await createGameHarness(options({model: async () => completion(narrative("你决定先安置村民。"), {
+    usage: {completion_tokens: 10, prompt_tokens_details: {cached_tokens: 20}}
+  })}));
+  assert.equal(result.harness.cacheUsageKnown, false);
+  assert.equal(result.data.usage.prompt_cache_hit_tokens, undefined);
+  assert.equal(result.data.usage.prompt_cache_miss_tokens, undefined);
+});
+
+test("a valid prompt total supplies cache misses when a provider's raw miss value is invalid", async () => {
+  const result = await createGameHarness(options({model: async () => completion(narrative("你决定先安置村民。"), {
+    usage: {completion_tokens: 10, prompt_tokens: 100, prompt_cache_hit_tokens: 20, prompt_cache_miss_tokens: -1}
+  })}));
+  assert.equal(result.harness.cacheUsageKnown, true);
+  assert.equal(result.data.usage.prompt_cache_hit_tokens, 20);
+  assert.equal(result.data.usage.prompt_cache_miss_tokens, 80);
+});
+
 test("draft tools measure the current manuscript once, replace revisions and append only new delivered text", async () => {
   const host = await createPluginHost(options({context: {world: {}, targetCharacters: 5000}}));
   try {
@@ -307,7 +325,7 @@ function appEngine(t) {
   global.window = {JIUZHOU_AI_GATEWAY: {endpoint: "https://fixture.gateway"}, JiuzhouHarnessProtocol: protocol,
     JiuzhouHarness: {createGameHarness: opts => createGameHarness({...opts, baseURL, workerFactory: createNodeWorkerFactory()})}};
   return Object.assign(Object.create(WebVisualNovelEngine.prototype), {
-    apiConfig: {enabled: true, apiKey: "", model: "deepseek-flash", endpoint: "https://private.fixture/chat/completions", maxTokens: 32768},
+    apiConfig: {enabled: true, source: "shared", apiKey: "", model: "deepseek-flash", endpoint: "https://private.fixture/chat/completions", maxTokens: 32768},
     serverSharedConfig: {hasServerKey: true}, apiHistory: [], expectedLength: 500, currentFaction: "ming", branchDepth: 1,
     ideologyVector: {authority: 0, pragmatism: 0, progress: 0, cognition: 0},
     cacheTelemetry: {lastHitTokens: 0, lastMissTokens: 0, lastHitRate: "0.0%"},
@@ -323,7 +341,7 @@ test("app runs native agent requests with one signal and commits only the verifi
   global.fetch = async (_url, init) => {
     const body = JSON.parse(init.body); requests.push(body); signals.push(init.signal);
     assert.equal(body.mode, "agent"); assert.equal(body.response_format, undefined);
-    assert.equal(body.thinking.type, "disabled");
+    assert.equal(body.thinking, undefined);
     assert.equal(body.tools, undefined);
     assert.deepEqual(body.enabledTools, protocol.tools.map(tool => tool.function.name));
     assert.equal(engine.apiHistory.length, 0);

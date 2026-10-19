@@ -15,7 +15,7 @@ function element() {
 function engine() {
   global.window = {fetch() {}, JIUZHOU_AI_GATEWAY: {endpoint: "https://gateway.example.com"}};
   return Object.assign(Object.create(WebVisualNovelEngine.prototype), {
-    apiConfig: {enabled: false, apiKey: "", model: "deepseek-flash", endpoint: "https://private.example.com/chat/completions"},
+    apiConfig: {enabled: false, source: "shared", apiKey: "", model: "deepseek-flash", endpoint: "https://private.example.com/chat/completions"},
     serverSharedConfig: null, sharedGatewayStatus: {state: "idle", message: "尚未检查"}, aiRequestStatus: null,
     cacheTelemetry: {lastHitTokens: 0, lastMissTokens: 0, lastHitRate: "0.0%"},
     currentFaction: "ming", qmCache: element(), aiConnectionStatus: element(),
@@ -25,6 +25,8 @@ function engine() {
 
 test("health failure is visible; a retry can become ready without claiming a model generation", async () => {
   const e = engine();
+  e.apiConfig.enabled = true;
+  e.settingEnableApi.checked = true;
   global.fetch = async () => {throw new TypeError("Failed to fetch");};
   await e.checkServerSharedApi();
   assert.equal(e.sharedGatewayStatus.state, "unavailable");
@@ -129,6 +131,7 @@ test("arbitrary story JSON and empty beats cannot report success or enter AI his
 test("an existing private Key continues to use the private endpoint", async () => {
   const e = engine();
   e.apiConfig.enabled = true;
+  e.apiConfig.source = "custom";
   e.apiConfig.apiKey = "fixture-private-placeholder";
   e.serverSharedConfig = {hasServerKey: true};
   global.fetch = async (url, options) => {
@@ -138,8 +141,8 @@ test("an existing private Key continues to use the private endpoint", async () =
     return {ok: true, json: async () => ({choices: [{message: {content: JSON.stringify({reconciledBeats: [{text: "私人测试剧情"}]})}}]})};
   };
   await e.callDeepSeekSutureAPI({title: "守城", desc: "", originalBeats: [{text: "原剧情"}]}, []);
-  assert.equal(e.aiRequestStatus.channel, "private");
-  assert.match(e.aiConnectionStatus.textContent, /当前使用私有 Key/);
+  assert.equal(e.aiRequestStatus.channel, "custom");
+  assert.match(e.aiConnectionStatus.textContent, /当前使用自定义 API/);
 });
 
 test("shared story generation directly forwards large requested output with no challenge or generation timer", async () => {

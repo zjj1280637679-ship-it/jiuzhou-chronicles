@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>暮灯星栈 · 东方奇幻文字冒险 (Visual Novel & AVG)</title>
-  <link rel="stylesheet" href="styles.css?v=20261019-0400">
+  <link rel="stylesheet" href="styles.css?v=20261020-0600">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700;900&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
@@ -224,7 +224,7 @@
     <aside class="drawer drawer-modal" id="drawer-settings">
       <div class="ribbon-modal-box" style="max-width: 620px;">
         <div class="drawer-header">
-          <div class="drawer-title">⚙ 引擎通道 · DeepSeek 缓存架构配置</div>
+          <div class="drawer-title">⚙ AI 来源与连接设置</div>
           <button class="drawer-close" id="btn-close-settings">收起 ✕</button>
         </div>
         <div class="drawer-body" style="display:flex; flex-direction:column; gap:16px; padding:20px; overflow-y:auto; max-height:calc(82vh - 60px);">
@@ -241,47 +241,74 @@
             <span style="font-weight:700; color:var(--accent-gold);">本机选择使用远端 AI（关闭后使用离线剧情）</span>
           </label>
           <div style="font-size:0.75rem; color:var(--text-dim); line-height: 1.5;">
-            共享 AI 可直接生成，无需填写 API Key 或完成验证码。公开网页访客的生成会消耗本站的 DeepSeek 额度。此开关只保存你在本机的远端／离线偏好，无需站长批准。私有 Key 仅用于个人调试，不会上传为全服共享配置。
+            开启后使用下方选择的 API 来源；关闭后使用离线剧情。自定义配置只应用于本机，不会修改站长的共享服务。
+          </div>
+
+          <div class="form-group">
+            <label for="setting-api-source">API 来源</label>
+            <select id="setting-api-source" class="form-select">
+              <option value="shared">站长共享 API</option>
+              <option value="custom">自定义 API（官方、第三方或本地代理）</option>
+            </select>
+            <p class="ai-test-help" id="ai-provider-description">使用所选来源；切换来源后保存应用。</p>
           </div>
 
           <div style="border:1px solid rgba(229,185,92,.3); border-radius:6px; padding:10px 14px; font-size:.8rem; line-height:1.6;">
             <div id="ai-connection-status" role="status" aria-live="polite" style="white-space:pre-line;">共享 AI 尚未检查</div>
-            <button type="button" class="qm-btn" id="btn-retry-shared-ai" style="margin-top:8px;">重新检查连接</button>
+            <button type="button" class="qm-btn" id="btn-retry-shared-ai" style="margin-top:8px;">检查共享服务状态</button>
           </div>
 
+          <div id="api-custom-fields" class="api-custom-fields" hidden>
           <div class="form-group">
-            <label style="font-size:0.8rem; color:var(--text-dim); margin-bottom:4px; display:block;">模型选择 (Model ID · 遵照 DeepSeek 官方规范)：</label>
+            <label for="setting-api-adapter">API 类型</label>
+            <select id="setting-api-adapter" class="form-select">
+              <option value="auto">自动（DeepSeek 官方端点使用专属适配，其余使用通用格式）</option>
+              <option value="openai">通用 Chat Completions 兼容接口</option>
+              <option value="deepseek">DeepSeek Chat Completions（含兼容代理）</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="setting-model">模型 ID（以当前 API 支持的名称为准）</label>
             <select id="setting-model" class="form-select">
-              <option value="deepseek-flash" selected>deepseek-flash (DeepSeek-V4.1-Flash · 500GB · 1M上下文 · 极速思考模型)</option>
-              <option value="deepseek-v4-pro">deepseek-v4-pro (DeepSeek-V4-Pro · 3TB · 满血超大旗舰模型)</option>
-              <option value="deepseek-chat">deepseek-chat (DeepSeek-V3 / 官方通用模型 · 极速响应)</option>
-              <option value="deepseek-reasoner">deepseek-reasoner (DeepSeek-R1 / 深度推理思考模型)</option>
+              <option value="deepseek-flash" selected>deepseek-flash</option>
+              <option value="deepseek-v4-pro">deepseek-v4-pro</option>
+              <option value="deepseek-chat">deepseek-chat</option>
+              <option value="deepseek-reasoner">deepseek-reasoner</option>
               <option value="custom">自定义模型标识...</option>
             </select>
             <input type="text" id="setting-custom-model" class="form-input" placeholder="输入自定义模型ID..." style="display:none; margin-top:8px;">
           </div>
 
           <div class="form-group">
-            <label style="font-size:0.8rem; color:var(--text-dim); margin-bottom:4px; display:block;">API 端点 (Base URL)：</label>
+            <label for="setting-endpoint">完整请求地址（Chat Completions URL）</label>
             <input type="text" id="setting-endpoint" class="form-input" value="https://api.deepseek.com/chat/completions">
+            <p class="ai-test-help">例如 https://api.example.com/v1/chat/completions；本机代理可填写 http://localhost:端口/请求路径。</p>
           </div>
 
           <div class="form-group">
-            <label style="font-size:0.8rem; color:var(--text-dim); margin-bottom:4px; display:block;">DeepSeek API Key：</label>
-            <input type="password" id="setting-api-key" class="form-input" placeholder="sk-...">
+            <label for="setting-api-key">API Key（所选端点不需要时可留空）</label>
+            <input type="password" id="setting-api-key" class="form-input" placeholder="可留空，不会因此切换到共享 API" autocomplete="off">
+          </div>
+          <div class="form-group">
+            <label for="setting-token-parameter">输出 Token 参数</label>
+            <select id="setting-token-parameter" class="form-select">
+              <option value="max_tokens">max_tokens（DeepSeek 及多数兼容接口）</option>
+              <option value="max_completion_tokens">max_completion_tokens（部分 OpenAI 模型）</option>
+            </select>
+          </div>
           </div>
 
           <div class="form-group">
-            <label style="font-size:0.8rem; color:var(--text-dim); margin-bottom:4px; display:block;">最大输出 Token 上限 (Max Output Tokens · DeepSeek 官方上限最高 384k / 393,216)：</label>
-            <input type="number" id="setting-max-tokens" class="form-input" value="384000" min="1" max="393216" placeholder="默认 384000 (最高 384k)">
+            <label for="setting-max-tokens">单次请求输出 Token（可留空）</label>
+            <input type="number" id="setting-max-tokens" class="form-input" min="1" placeholder="留空使用当前服务默认值">
             <div style="font-size:0.75rem; color:var(--text-dim); margin-top:3px; line-height: 1.4;">
-              DeepSeek 官方 API 支持单次生成最高达 384,000 tokens (393,216) 输出与完整思考链，拒绝人为封顶截断。
+              按所选服务支持的范围设置。正文目标由工具循环单独检查，不将 Token 用量当成正文字数。
             </div>
           </div>
 
           <div class="ai-connection-test">
             <button type="button" class="qm-btn" id="btn-test-ai-connection">测试请求</button>
-            <p class="ai-test-help">测试当前填写的配置：Key 留空走共享通道，填写 Key 走私有通道。只发一条简短请求，会消耗少量额度，不推进剧情；测试通过后仍需保存才能应用配置。</p>
+            <p class="ai-test-help">测试当前选择的来源和填写的配置，无需先保存。只发一条简短请求，不推进剧情；共享请求使用站长额度，自定义请求使用所填端点。测试通过后保存应用。</p>
             <div id="ai-connection-test-status" role="status" aria-live="polite">尚未发送测试请求。</div>
           </div>
 
@@ -294,7 +321,7 @@
 
           <div class="cache-telemetry-box" id="cache-telemetry-box">
             <div style="font-size:0.85rem; font-weight:700; color:var(--accent-jade); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-              <span>⚡ DeepSeek 四层前缀缓存架构状态</span>
+              <span>⚡ 所选 API 的请求缓存指标</span>
               <span class="cache-status-tag" id="cache-status-tag">等待有效生成与实测缓存指标</span>
             </div>
             
@@ -533,8 +560,9 @@
   <script src="data/illustrations/illustrations-data.js"></script>
   <script src="skills-data.js"></script>
   <script src="ai-gateway-config.js"></script>
-  <script src="harness/protocol.js?v=20261019-0501"></script>
-  <script src="harness/runtime.js?v=20261019-0501"></script>
-  <script src="app.js?v=20261019-0501"></script>
+  <script src="harness/providers.js?v=20261020-0600"></script>
+  <script src="harness/protocol.js?v=20261020-0600"></script>
+  <script src="harness/runtime.js?v=20261020-0600"></script>
+  <script src="app.js?v=20261020-0600"></script>
 </body>
 </html>

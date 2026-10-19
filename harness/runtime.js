@@ -34,7 +34,7 @@
       {id: "story", url: new URL("plugins/story.js", baseURL).href}
     ];
     const makeWorker = options.workerFactory || (url => new Worker(url));
-    const assetVersion = "20261019-0501";
+    const assetVersion = "20261020-0600";
     const timeoutMs = options.pluginTimeoutMs ?? 10000;
     const entries = [], registry = new Map();
     let sequence = 0, disposed = false;
@@ -127,7 +127,7 @@
     checkSignal(signal);
     const targetCharacters = Number.isSafeInteger(options.targetCharacters) && options.targetCharacters > 0 ? options.targetCharacters : 2000;
     const messages = clone(options.messages);
-    const stats = {mode: "agent", modelCalls: 0, toolCalls: 0, cacheHitTokens: 0, cacheMissTokens: 0,
+    const stats = {mode: "agent", modelCalls: 0, toolCalls: 0, cacheHitTokens: 0, cacheMissTokens: 0, cacheUsageKnown: true, promptTokens: 0,
       completionTokens: 0, reasoningTokens: 0, deliveryCharacters: 0, hanCharacters: 0, providerFinishReason: null, events: []};
     const emit = (type, detail = {}) => {
       const event = {type, modelCalls: stats.modelCalls, toolCalls: stats.toolCalls, ...detail};
@@ -144,8 +144,8 @@
       stats.hanCharacters = measured.hanCharacters;
       emit("delivered", {textCharacters: measured.textCharacters, targetCharacters});
       return {data: {model: lastModel, choices: [{message: {role: "assistant", content: JSON.stringify(story)}, finish_reason: "stop"}],
-        usage: {prompt_cache_hit_tokens: stats.cacheHitTokens, prompt_cache_miss_tokens: stats.cacheMissTokens,
-          prompt_tokens: stats.cacheHitTokens + stats.cacheMissTokens, completion_tokens: stats.completionTokens,
+        usage: {...(stats.cacheUsageKnown ? {prompt_cache_hit_tokens: stats.cacheHitTokens, prompt_cache_miss_tokens: stats.cacheMissTokens} : {}),
+          prompt_tokens: stats.promptTokens, completion_tokens: stats.completionTokens,
           completion_tokens_details: {reasoning_tokens: stats.reasoningTokens}}, harness: clone(stats)}, harness: clone(stats)};
     }
     function trackProgress(fingerprint, output) {
@@ -164,10 +164,18 @@
         checkSignal(signal);
         lastModel = typeof data?.model === "string" ? data.model : lastModel;
         const usage = data?.usage || {};
-        const num = value => Number.isSafeInteger(value) && value >= 0 ? value : 0;
-        const hit = num(usage.prompt_cache_hit_tokens ?? usage.prompt_tokens_details?.cached_tokens);
+        const validCount = value => Number.isSafeInteger(value) && value >= 0;
+        const num = value => validCount(value) ? value : 0;
+        const hitValue = usage.prompt_cache_hit_tokens ?? usage.prompt_tokens_details?.cached_tokens;
+        const totalValue = usage.prompt_tokens;
+        const missValue = validCount(usage.prompt_cache_miss_tokens) ? usage.prompt_cache_miss_tokens :
+          validCount(totalValue) && validCount(hitValue) && totalValue >= hitValue ? totalValue - hitValue : null;
+        const stepCacheKnown = validCount(hitValue) && validCount(missValue);
+        stats.cacheUsageKnown = stats.cacheUsageKnown && stepCacheKnown;
+        const hit = num(hitValue);
+        stats.promptTokens += validCount(totalValue) ? totalValue : stepCacheKnown ? hit + missValue : 0;
         stats.cacheHitTokens += hit;
-        stats.cacheMissTokens += num(usage.prompt_cache_miss_tokens ?? Math.max(0, num(usage.prompt_tokens) - hit));
+        stats.cacheMissTokens += num(missValue);
         stats.completionTokens += num(usage.completion_tokens);
         stats.reasoningTokens += num(usage.completion_tokens_details?.reasoning_tokens);
         emit("model_end");

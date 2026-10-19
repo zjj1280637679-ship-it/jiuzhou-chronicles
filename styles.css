@@ -2678,6 +2678,24 @@ body, html {
   margin: 8px 0;
 }
 
+.api-custom-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.api-custom-fields[hidden] {
+  display: none;
+}
+#ai-provider-description {
+  overflow-wrap: anywhere;
+}
+#drawer-settings .form-group > label {
+  display: block;
+  color: var(--text-dim);
+  font-size: .8rem;
+  margin-bottom: 4px;
+}
+
 #ai-connection-test-status {
   white-space: pre-line;
   overflow-wrap: anywhere;

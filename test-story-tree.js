@@ -3,6 +3,7 @@
 const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
+global.JiuzhouProviders = require("./harness/providers.js");
 
 // 1. 模拟浏览器环境
 const localStorageStore = {};

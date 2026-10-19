@@ -4,6 +4,7 @@
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
+global.JiuzhouProviders = require('./harness/providers.js');
 
 console.log("===============================================================================");
 console.log("🛡️ 开始全量自动化测试：四大阵营底本、独立套图库、阵营隔离与独立段落展示");
