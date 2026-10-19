@@ -6,7 +6,7 @@
 // =============================================================================
 
 const APP_VERSION = "v2.5.0";
-const BUILD_STAMP = "2026.10.19.0200";
+const BUILD_STAMP = "2026.10.19.0300";
 const VERSION_FULL = `v2.5.0 (Build ${BUILD_STAMP} · 纯双轨解耦 · 主线0消耗冻结 · AI自由小说单向不可逆 · 500~8000字 · 3选项+开放输入)`;
 
 class WebVisualNovelEngine {
@@ -565,6 +565,8 @@ class WebVisualNovelEngine {
     this.settingMaxTokens = document.getElementById("setting-max-tokens");
     this.aiConnectionStatus = document.getElementById("ai-connection-status");
     this.btnRetrySharedAi = document.getElementById("btn-retry-shared-ai");
+    this.btnTestAiConnection = document.getElementById("btn-test-ai-connection");
+    this.aiConnectionTestStatus = document.getElementById("ai-connection-test-status");
     this.cmHitRate = document.getElementById("cm-hit-rate");
     this.cmHitTokens = document.getElementById("cm-hit-tokens");
     this.cmMissTokens = document.getElementById("cm-miss-tokens");
@@ -912,6 +914,12 @@ class WebVisualNovelEngine {
 
     if (this.btnRetrySharedAi) {
       this.btnRetrySharedAi.addEventListener("click", () => this.checkServerSharedApi());
+    }
+    if (this.btnTestAiConnection) {
+      this.btnTestAiConnection.addEventListener("click", () => this.testAIConnection());
+      for (const field of [this.settingApiKey, this.settingEndpoint, this.settingModel, this.settingCustomModel]) {
+        if (field) field.addEventListener("input", () => this.invalidateAIConnectionTest());
+      }
     }
 
     // 视觉小说插图弹窗收起按钮
@@ -3976,6 +3984,9 @@ ${currentProfile.npcRoster}`;
       invalid_structure: "AI 剧情上下文结构无效，请联系站长",
       context_too_large: "AI 剧情上下文过长，请联系站长",
       invalid_max_tokens: "输出 Token 设置超出模型支持范围，请调整设置",
+      invalid_private_endpoint: "API 端点无效，请填写完整 HTTPS 地址（本机调试可用 HTTP）",
+      invalid_model: "请填写自定义模型名称",
+      invalid_test_response: "模型未返回有效测试正文，可能是输出不完整或响应格式不兼容",
       invalid_game_response: "AI 返回的剧情格式无效",
       invalid_json: "AI 请求或响应格式无效"
     };
@@ -4006,24 +4017,106 @@ ${currentProfile.npcRoster}`;
       `最近一次生成 · 命中率 ${this.cacheTelemetry.lastHitRate}` : "等待有效 AI 生成 · 暂无本轮缓存指标";
   }
 
+  // 网络解析与剧情状态分开：设置中的测试请求不能伪造一次剧情生成。
+  async fetchAICompletion(endpoint, body, headers, signal) {
+    const res = await fetch(endpoint, {
+      method: "POST", headers, body: JSON.stringify(body), signal
+    });
+    if (!res.ok) {
+      const detail = await res.json().catch(() => ({}));
+      const error = new Error("ai_http_error");
+      error.code = typeof detail?.error === "string" ? detail.error : detail?.error?.code;
+      if ([401, 403, 402, 429].includes(res.status) && error.code !== "origin_rejected") {
+        error.code = ({401: "upstream_auth_failed", 403: "upstream_auth_failed", 402: "upstream_quota_exceeded", 429: "upstream_rate_limited"})[res.status];
+      }
+      error.status = res.status;
+      throw error;
+    }
+    try { return await res.json(); } catch (error) {
+      if (error?.name === "AbortError" || error?.name === "TimeoutError") throw error;
+      throw new Error("invalid_json");
+    }
+  }
+
   async requestAICompletion(endpoint, body, headers, useGateway, mode) {
     this.setAIRequestStatus("requesting", mode);
     try {
-      const res = await fetch(endpoint, {
-        method: "POST", headers, body: JSON.stringify(body),
-        signal: !useGateway && typeof AbortSignal !== "undefined" && AbortSignal.timeout ? AbortSignal.timeout(75000) : undefined
-      });
-      if (!res.ok) {
-        const detail = await res.json().catch(() => ({}));
-        const error = new Error("ai_http_error");
-        error.code = typeof detail.error === "string" ? detail.error : detail.error?.code;
-        error.status = res.status;
-        throw error;
-      }
-      try { return await res.json(); } catch { throw new Error("invalid_json"); }
+      const signal = !useGateway && typeof AbortSignal !== "undefined" && AbortSignal.timeout ? AbortSignal.timeout(75000) : undefined;
+      return await this.fetchAICompletion(endpoint, body, headers, signal);
     } catch (error) {
       this.setAIRequestStatus("fallback", mode, error);
       throw error;
+    }
+  }
+
+  invalidateAIConnectionTest() {
+    this.aiConnectionTestFormVersion = (this.aiConnectionTestFormVersion || 0) + 1;
+    if (this.aiConnectionTestStatus && !this.aiConnectionTestRunning) {
+      this.aiConnectionTestStatus.textContent = "配置已修改，请重新测试。";
+    }
+  }
+
+  async testAIConnection() {
+    if (this.aiConnectionTestRunning || !this.aiConnectionTestStatus) return;
+    if (this.isAIGenerating) {
+      this.aiConnectionTestStatus.textContent = "剧情正在生成，请等待本轮结束后再测试。";
+      return;
+    }
+    // 对未保存的表单快照发起独立短请求，不写配置、存档、剧情历史或缓存遥测。
+    const apiKey = (this.settingApiKey?.value || "").trim();
+    const channel = apiKey ? "私有通道" : "共享通道";
+    const version = this.aiConnectionTestFormVersion || 0;
+    const started = Date.now();
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 45000);
+    this.aiConnectionTestRunning = true;
+    this.btnTestAiConnection.disabled = true;
+    this.btnTestAiConnection.textContent = "测试中…";
+    this.aiConnectionTestStatus.textContent = `正在测试${channel}，等待模型回复…`;
+    try {
+      const selectedModel = this.settingModel?.value || "deepseek-flash";
+      const model = selectedModel === "custom" ? (this.settingCustomModel?.value || "").trim() : selectedModel;
+      let endpoint;
+      const body = {
+        messages: [
+          {role: "system", content: "你是九州沉浮录连接测试助手。只返回 JSON 对象，包含 reconciledBeats 数组，每项含 speaker、text。"},
+          {role: "system", content: "独立连接测试，不推进游戏。原对白：旁白说：连接测试成功。"},
+          {role: "user", content: "保持原对白不变，只返回这个 JSON：{\"reconciledBeats\":[{\"speaker\":\"旁白\",\"text\":\"连接测试成功。\"}],\"sutureNote\":\"测试\"}"}
+        ], stream: false, max_tokens: 256
+      };
+      const headers = {"Content-Type": "application/json"};
+      if (apiKey) {
+        if (!model) throw new Error("invalid_model");
+        let parsed;
+        try { parsed = new URL((this.settingEndpoint?.value || "").trim()); } catch { throw new Error("invalid_private_endpoint"); }
+        const localHttp = parsed.protocol === "http:" && ["localhost", "127.0.0.1", "[::1]"].includes(parsed.hostname);
+        if ((!localHttp && parsed.protocol !== "https:") || parsed.username || parsed.password || parsed.hash) throw new Error("invalid_private_endpoint");
+        endpoint = parsed.href;
+        headers.Authorization = `Bearer ${apiKey}`;
+        body.model = model;
+        if (!/reasoner|r1/i.test(model) || /v4|flash|pro/i.test(model)) body.response_format = {type: "json_object"};
+        if (/v4|flash/i.test(model)) body.thinking = {type: "disabled"};
+      } else {
+        endpoint = this.getSharedGatewayEndpoint();
+        body.mode = "suture";
+      }
+      const data = await this.fetchAICompletion(endpoint, body, headers, controller.signal);
+      let result;
+      try { result = JSON.parse(data?.choices?.[0]?.message?.content); } catch { throw new Error("invalid_test_response"); }
+      if (!Array.isArray(result?.reconciledBeats) || !result.reconciledBeats.some(beat => typeof beat?.text === "string" && beat.text.trim())) throw new Error("invalid_test_response");
+      let actualModel = typeof data.model === "string" ? data.model.replace(/[\r\n\t]/g, " ").slice(0, 100) : (apiKey ? model : "服务端模型");
+      if (apiKey) actualModel = actualModel.split(apiKey).join("[已隐藏]");
+      this.aiConnectionTestStatus.textContent = `测试成功 · ${channel} · ${actualModel} · ${((Date.now() - started) / 1000).toFixed(1)} 秒\n已收到有效模型回复。`;
+    } catch (error) {
+      this.aiConnectionTestStatus.textContent = `测试失败 · ${channel} · ${this.describeAIError(error)}\n耗时 ${((Date.now() - started) / 1000).toFixed(1)} 秒，可修改配置后重试。`;
+    } finally {
+      clearTimeout(timer);
+      this.aiConnectionTestRunning = false;
+      this.btnTestAiConnection.disabled = false;
+      this.btnTestAiConnection.textContent = "测试请求";
+      if (version !== (this.aiConnectionTestFormVersion || 0)) {
+        this.aiConnectionTestStatus.textContent += "\n本次结果基于点击时的配置；当前配置已修改，请重新测试。";
+      }
     }
   }
 
