@@ -275,6 +275,25 @@ test("repeated identical rejected deliveries stop with an explicit stalled error
   assert.ok(calls >= 2 && calls < 5);
 });
 
+test("cancellation while a model promise is being created consumes its rejection and releases workers", async () => {
+  const controller = new AbortController(); let terminated = 0;
+  await assert.rejects(createGameHarness(options({signal: controller.signal,
+    workerFactory: createNodeWorkerFactory({onTerminate() {terminated++;}}),
+    model: async () => {controller.abort(); throw new Error("late_fixture");}
+  })), error => error.code === "request_cancelled");
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(terminated, 2);
+});
+
+test("cancelling from a step notification never starts an already-cancelled model request", async () => {
+  const controller = new AbortController(); let modelStarted = false;
+  await assert.rejects(createGameHarness(options({signal: controller.signal,
+    onEvent(event) {if (event.type === "model_start") controller.abort();},
+    model: async () => {modelStarted = true; throw new Error("must_not_run");}
+  })), error => error.code === "request_cancelled");
+  assert.equal(modelStarted, false);
+});
+
 function element() {
   const classes = new Set();
   return {textContent: "", innerText: "", hidden: true, style: {}, classList: {

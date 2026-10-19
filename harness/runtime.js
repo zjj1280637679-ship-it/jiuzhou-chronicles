@@ -12,7 +12,12 @@
   function checkSignal(signal) { if (signal?.aborted) throw cancelled(); }
   function awaitWithSignal(promise, signal) {
     if (!signal) return promise;
-    checkSignal(signal);
+    // The operation may have synchronously aborted while creating an already-rejected Promise.
+    // Consume that rejection even when cancellation wins before the listener can be installed.
+    if (signal.aborted) {
+      Promise.resolve(promise).catch(() => {});
+      return Promise.reject(cancelled());
+    }
     return new Promise((resolve, reject) => {
       const abort = () => reject(cancelled());
       signal.addEventListener("abort", abort, {once: true});
@@ -29,7 +34,7 @@
       {id: "story", url: new URL("plugins/story.js", baseURL).href}
     ];
     const makeWorker = options.workerFactory || (url => new Worker(url));
-    const assetVersion = "20261019-0500";
+    const assetVersion = "20261019-0501";
     const timeoutMs = options.pluginTimeoutMs ?? 10000;
     const entries = [], registry = new Map();
     let sequence = 0, disposed = false;
@@ -154,6 +159,7 @@
         checkSignal(signal);
         stats.modelCalls++;
         emit("model_start");
+        checkSignal(signal);
         const data = await awaitWithSignal(options.model({messages: clone(messages), tools: clone(host.tools), signal}), signal);
         checkSignal(signal);
         lastModel = typeof data?.model === "string" ? data.model : lastModel;
