@@ -4134,7 +4134,7 @@ ${currentProfile.npcRoster}`;
       let settled=false, widgetId;
       const cleanup=()=>{clearTimeout(timer);try{if(widgetId!==undefined)ts.remove(widgetId)}catch{}cover.remove()};
       const finish=(err,token)=>{if(settled)return;settled=true;cleanup();err?reject(err):resolve(token)};
-      const timer=setTimeout(()=>finish(Error("验证超时")),30000);
+      const timer=setTimeout(()=>finish(Error("验证超时")),120000);
       cancel.onclick=()=>finish(Error("你已取消访问验证"));
       try {
         widgetId=ts.render(widget,{sitekey,execution:"render",appearance:"interaction-only",
