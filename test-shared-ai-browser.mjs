@@ -1,5 +1,5 @@
 // Simulated browser integration against this checkout by default.
-// Worker and Turnstile are mocked: this does not verify a real AI deployment.
+// Worker responses are mocked: this does not verify a real AI deployment.
 // Set JIUZHOU_TEST_URL explicitly to test a published client with the same mocks.
 import assert from "node:assert/strict";
 import {createServer} from "node:http";
@@ -27,21 +27,19 @@ if(!url){
 }
 const browser=await chromium.launch({headless:true,executablePath:process.env.JIUZHOU_BROWSER_EXECUTABLE});
 const origin=new URL(url).origin;
-let backendCalls=0,healthReady=false,responseMode="success";
+let backendCalls=0,challengeRequests=0,healthReady=false,responseMode="success";
 const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:2,isMobile:true,hasTouch:true});
 const errors=[];
 page.on("pageerror",e=>errors.push(String(e)));
 page.on("console",msg=>{if(msg.type()==="error"&&!/fonts.googleapis.com|fonts.gstatic.com/.test(msg.text()))console.log("browser console:",msg.text().slice(0,200))});
-await page.addInitScript(()=>{
-  window.turnstile={
-    render:(_widget,options)=>{window.__challengeRenders=(window.__challengeRenders||0)+1;queueMicrotask(()=>options.callback("mock-single-use-token"));return 42},
-    remove:()=>{}
-  };
+await page.route("https://challenges.cloudflare.com/**",route=>{
+  challengeRequests++;
+  return route.abort("failed");
 });
 await page.route("**/health",route=>healthReady?route.fulfill({
   status:200,contentType:"application/json",
   headers:{"access-control-allow-origin":origin},
-  body:JSON.stringify({ok:true,configured:true,enabled:true,jiuzhouEnabled:true})
+  body:JSON.stringify({ok:true,configured:false,enabled:false,jiuzhouEnabled:false,jiuzhouReady:true})
 }):route.abort("failed"));
 await page.route("**/api/jiuzhou/turn",async route=>{
   const req=route.request();
@@ -51,12 +49,13 @@ await page.route("**/api/jiuzhou/turn",async route=>{
   const data=JSON.parse(req.postData()||"{}");
   backendCalls++;
   assert.ok(["story","suture"].includes(data.mode));
-  assert.equal(data.turnstileToken,"mock-single-use-token");
+  assert.equal(data.turnstileToken,undefined);
+  assert.equal(data.max_tokens,32768);
   assert.ok(Array.isArray(data.messages)&&data.messages.length>=3);
   assert.equal(data.messages[0].role,"system");
   assert.equal(data.messages[1].role,"system");
   if(responseMode==="failure"){
-    await route.fulfill({status:403,contentType:"application/json",headers:cors,body:JSON.stringify({error:"challenge_required"})});return;
+    await route.fulfill({status:503,contentType:"application/json",headers:cors,body:JSON.stringify({error:"upstream_unavailable"})});return;
   }
   if(data.mode==="suture"){
     assert.ok(data.messages.at(-1).content.includes("我秘密筹集军饷"));
@@ -90,6 +89,8 @@ try{
   await page.click("#btn-close-settings");
   const state=await page.evaluate(async()=>{
     const e=window.__vnEngine;
+    e.apiConfig.maxTokens=32768;
+    e.expectedLength=5000;
     e.startNewGame("ming");
     await e.resolveFactionAction({
       text:"我秘密筹集军饷",customInput:"我秘密筹集军饷",tag:"开源筹饷",
@@ -101,14 +102,14 @@ try{
       queue:e.storyQueue?.map(x=>x.text||""),
       choices:e.pendingApiChoices?.map(x=>x.text||""),
       cacheHit:e.cacheTelemetry?.lastHitTokens,
-      draws:window.__challengeRenders,
+      challengeScripts:document.querySelectorAll('script[src*="challenges.cloudflare.com"]').length,
       typing:e.isTyping
     }
   });
   assert.equal(state.enabled,true);
   assert.equal(state.shared,true);
   assert.equal(backendCalls,1);
-  assert.equal(state.draws,1);
+  assert.equal(state.challengeScripts,0);
   assert.ok(state.queue.some(x=>x.includes("虚拟验收专用：军饷账册")),JSON.stringify(state.queue.slice(0,5)));
   assert.ok(state.choices?.some(x=>x.includes("派人护送军饷")));
   assert.equal(state.cacheHit,650);
@@ -120,7 +121,7 @@ try{
     return {queue:e.storyQueue.map(x=>x.text||""),choices:e.pendingApiChoices.length,status:e.aiRequestStatus};
   });
   assert.equal(fallback.status.state,"fallback");
-  assert.match(fallback.status.message,/本轮已使用本地剧情：访问验证未通过/);
+  assert.match(fallback.status.message,/本轮已使用本地剧情：AI 服务暂时不可用/);
   assert.ok(fallback.queue.length>0&&fallback.queue.every(x=>!x.includes("虚拟验收专用")));
   assert.equal(fallback.choices,3);
   assert.equal(await page.locator("#qm-cache").evaluate(el=>el.classList.contains("hit")),false);
@@ -146,12 +147,14 @@ try{
   assert.match(sutureFallback.status.message,/本轮已使用本地弥合：AI 返回的剧情格式无效/);
   assert.ok(sutureFallback.queue.some(x=>x.speaker==="因果弥合"));
   assert.equal(backendCalls,4);
+  assert.equal(challengeRequests,0);
   assert.equal(errors.length,0,errors.join("\n"));
   console.log(`PASS ${localServer?"checked-out client":"explicit external client"} HTTP 200 and assets loaded`);
   console.log("PASS simulated shared AI health handshake and auto-enable");
-  console.log("PASS Turnstile client callback (mock token only)");
+  console.log("PASS direct shared requests without CAPTCHA scripts, tokens, or challenge network calls");
   console.log("PASS POST /api/jiuzhou/turn with bounded game context (mock route)");
   console.log("PASS simulated AI beats, choices and cache stats absorbed by game");
+  console.log("PASS 32768 output tokens forwarded for story and suture without shared-channel clamps");
   console.log("PASS failed health is visible and settings retry reaches ready without claiming generation");
   console.log("PASS failed model request uses real local fallback and removes successful cache badge");
   console.log("PASS arbitrary story JSON is rejected without displaying it or polluting AI history");

@@ -37,8 +37,10 @@ jobs:
           assert.ok(html.includes('<script src="ai-gateway-config.js"></script>'));
           assert.ok(app.includes('/api/jiuzhou/turn'));
           assert.ok(app.includes('/health'));
-          assert.ok(app.includes('getSharedGatewayToken'));
+          assert.ok(!app.includes('turnstile'));
+          assert.ok(!cfg.includes('turnstileSiteKey'));
+          assert.ok(app.includes('data.jiuzhouReady !== true'));
           assert.ok(!app.includes('fetch("/api/config", {'));
           assert.ok(!cfg.includes('sk-'));
-          console.log('Safe public gateway bridge present');
+          console.log('Direct shared gateway bridge present without visitor CAPTCHA');
           NODE
