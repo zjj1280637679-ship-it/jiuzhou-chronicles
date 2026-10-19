@@ -3984,6 +3984,8 @@ ${currentProfile.npcRoster}`;
       invalid_message_type: "AI 剧情上下文格式无效，请联系站长",
       invalid_structure: "AI 剧情上下文结构无效，请联系站长",
       context_too_large: "AI 剧情上下文过长，请联系站长",
+      invite_invalid: "邀请码无效或已更换，下次调用 AI 时请重新输入",
+      invite_not_configured: "站长尚未配置 AI 邀请码，请稍后使用",
       turnstile_400020: "站长的访问验证 Site Key 无效，请联系站长更新",
       turnstile_110100: "站长的访问验证 Site Key 无效，请联系站长更新",
       turnstile_110110: "站长的访问验证 Site Key 不存在，请联系站长更新",
@@ -4029,7 +4031,10 @@ ${currentProfile.npcRoster}`;
   async requestAICompletion(endpoint, body, headers, useGateway, mode) {
     this.setAIRequestStatus("requesting", mode);
     try {
-      if (useGateway) body.turnstileToken = await this.getSharedGatewayToken();
+      if (useGateway) {
+        body.inviteCode = await this.getSharedInviteCode();
+        body.turnstileToken = await this.getSharedGatewayToken();
+      }
       const res = await fetch(endpoint, {
         method: "POST", headers, body: JSON.stringify(body),
         signal: typeof AbortSignal !== "undefined" && AbortSignal.timeout ? AbortSignal.timeout(75000) : undefined
@@ -4039,6 +4044,10 @@ ${currentProfile.npcRoster}`;
         const error = new Error("ai_http_error");
         error.code = typeof detail.error === "string" ? detail.error : detail.error?.code;
         error.status = res.status;
+        if (useGateway && (error.code === "invite_invalid" || res.status === 401)) {
+          // The old code may have been rotated by the site owner; ask again next turn.
+          this.sharedInviteCode = "";
+        }
         throw error;
       }
       try { return await res.json(); } catch { throw new Error("invalid_json"); }
@@ -4097,6 +4106,84 @@ ${currentProfile.npcRoster}`;
       role: m.role === "assistant" ? "assistant" : "user",
       content: String(m.content || "").slice(0, 1200)
     })));
+  }
+
+  // A lightweight *AI-only* lock: the rest of the static game stays fully public.
+  // Never save an invitation to localStorage, logs, URL, or public source.
+  // Every shared AI call sends it securely over HTTPS for the Worker to verify.
+  async getSharedInviteCode() {
+    if (this.sharedInviteCode) return this.sharedInviteCode;
+    return new Promise((resolve,reject)=>{
+      const veil=document.createElement("div");
+      veil.setAttribute("role","presentation");
+      Object.assign(veil.style,{
+        position:"fixed",inset:"0",zIndex:"2147483647",background:"rgba(4,8,16,.88)",
+        display:"flex",alignItems:"center",justifyContent:"center",padding:"22px"
+      });
+      const panel=document.createElement("form");
+      panel.setAttribute("role","dialog");
+      panel.setAttribute("aria-modal","true");
+      panel.setAttribute("aria-label","解锁 AI 剧情");
+      Object.assign(panel.style,{
+        width:"min(420px,100%)",background:"#161e29",border:"1px solid #ac9161",
+        borderRadius:"16px",padding:"24px",color:"#f6eddd",boxShadow:"0 18px 70px #0009",
+        fontFamily:"inherit"
+      });
+      const title=document.createElement("h2");
+      title.textContent="解锁 AI 剧情";
+      Object.assign(title.style,{fontSize:"1.25rem",margin:"0 0 12px"});
+      const intro=document.createElement("p");
+      intro.textContent="网页和离线故事免费开放。输入当前邀请码，即可使用 DeepSeek 生成剧情。";
+      Object.assign(intro.style,{fontSize:"0.9rem",lineHeight:"1.6",opacity:".85",margin:"0 0 16px"});
+      const input=document.createElement("input");
+      input.type="password";
+      input.autocomplete="off";
+      input.placeholder="输入邀请码";
+      input.required=true;
+      input.minLength=8;input.maxLength=128;
+      input.setAttribute("aria-label","AI 邀请码");
+      Object.assign(input.style,{
+        width:"100%",boxSizing:"border-box",padding:"13px 14px",
+        background:"#0b111a",border:"1px solid #786846",borderRadius:"8px",
+        color:"#fff",fontSize:"16px",marginBottom:"12px"
+      });
+      const status=document.createElement("p");
+      status.setAttribute("role","alert");
+      Object.assign(status.style,{color:"#e7bb8a",minHeight:"20px",fontSize:"0.82rem",margin:"0 0 10px"});
+      const actions=document.createElement("div");
+      Object.assign(actions.style,{display:"flex",gap:"10px",justifyContent:"flex-end"});
+      const cancel=document.createElement("button");
+      cancel.type="button";cancel.textContent="返回普通游戏";
+      const unlock=document.createElement("button");
+      unlock.type="submit";unlock.textContent="解锁 AI";
+      for(const button of [cancel,unlock]){
+        Object.assign(button.style,{
+          padding:"11px 15px",border:"1px solid #ac9161",borderRadius:"8px",
+          color:"#f6eddd",background:button===unlock?"#66512d":"#202b38",
+          fontSize:"0.95rem",cursor:"pointer"
+        });
+      }
+      actions.append(cancel,unlock);
+      panel.append(title,intro,input,status,actions);
+      veil.append(panel);
+      document.body.appendChild(veil);
+      const previouslyFocused=document.activeElement;
+      setTimeout(()=>input.focus(),0);
+      const cleanup=()=>{veil.remove();if(previouslyFocused?.focus)previouslyFocused.focus()};
+      cancel.onclick=()=>{cleanup();reject(new Error("未输入 AI 邀请码，继续普通游戏"))};
+      panel.onsubmit=(event)=>{
+        event.preventDefault();
+        const value=input.value.trim();
+        if(value.length<8||value.length>128){status.textContent="邀请码长度应为 8–128 个字符";return}
+        this.sharedInviteCode=value;
+        input.value="";
+        cleanup();
+        resolve(value);
+      };
+      panel.onkeydown=(event)=>{
+        if(event.key==="Escape"){event.preventDefault();cancel.click()}
+      };
+    });
   }
 
   async getSharedGatewayToken() {
@@ -4164,11 +4251,12 @@ ${currentProfile.npcRoster}`;
       if (!res.ok) { const error = new Error("gateway_not_ready"); error.status = res.status; throw error; }
       const data = await res.json();
       if (data.configured !== true) throw Error("gateway_unconfigured");
+      if (data.inviteConfigured === false) throw Error("invite_not_configured");
       if (data.enabled !== true) throw Error("gateway_disabled");
       if (data.jiuzhouEnabled !== true) throw Error("jiuzhou_not_enabled");
       if (data.jiuzhouReady === false) throw Error("gateway_binding_missing");
       this.serverSharedConfig = {hasServerKey:true,model:typeof data.model === "string" ? data.model : "",useGateway:true};
-      this.sharedGatewayStatus = {state: "ready", message: "共享 AI 网关已就绪；真实生成仍需访问验证。"};
+      this.sharedGatewayStatus = {state: "ready", message: "共享 AI 网关已就绪；使用 AI 时需输入邀请码。"};
       if (!this.apiConfig.apiKey) {
         if (!this.apiConfig.userDisabledShared) this.apiConfig.enabled = true;
         this.apiConfig.useGateway = true;
