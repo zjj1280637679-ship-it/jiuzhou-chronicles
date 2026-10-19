@@ -1,62 +1,37 @@
-# 《观星纪 · 九州沉浮录》纯本地基准版本 (Pure Local Reference Baseline)
+# 《观星纪 · 九州沉浮录》纯本地基准版本（独立对照，不是当前线上后端）
 
-本目录为项目的**纯本地基准参照物**，完整归档并固化了在接入 Cloudflare Worker / Turnstile 远程共享网关之前的纯净双轨架构实现。
+> **档案创建：2026-10-19 08:37:57 UTC**，提交 `jiuzhou-chronicles@02dda2e9`。  
+> **当前云端对照的代码冻结点：前端 2026-10-19 09:03:46 UTC (`02b83d91`)，Worker 2026-10-19 08:52:17 UTC (`starport-persona@81f8a19f`)。**后续变更不自动纳入本说明。  
+> **现行决策参见**：[UTC 时序与权威决策](../docs/CURRENT-STATE-AND-DECISIONS.md)。本地对照不能覆盖当前生产方案。
 
----
+## 起源与历史位置
 
-## 为什么设立此参照物？
+此目录在云端接入过程之后创建，用于独立比较本地 Node 网关与 GitHub Pages + Cloudflare Worker 的行为。旧文档所述“云端仍有 Turnstile 验证、长文人为截断”指向**2026-10-19 08:08 UTC 之前的历史版本**，不是当前主干的事实。
 
-在开发网页端与云端静态托管（如 GitHub Pages）的过程中，引入了 Cloudflare Worker 远程网关与 Turnstile 访问验证机制以防盗刷。但这不可避免地增加了远程网络跳数、人机验证弹窗、跨域（CORS）以及对请求上下文长度的保护性限制。
+截至上述冻结点，九州主干**已主动取消邀请码、Turnstile、站长开关、项目限流与自行设置的输出封顶**；不可为排查 AI 不稳定而擅自恢复。供应商平台限制、网络超时及实际长篇效果仍需验证。
 
-设立本 `pure-local/` 目录作为**基准参照物**，目的是：
-1. **对比基准**：随时对照纯本地直连运行时的行为、API 吞吐效率与前缀缓存（KV Cache）表现。
-2. **纯粹单机体验**：供本地开发者、私有部署用户或希望彻底绕过任何第三方云网关与验证码的玩家使用。
-3. **架构参考**：作为后续重构或多端适配时的“干净金标准”。
+## 当前架构对照（严格区分部署）
 
----
+| 维度 | 本地对照 `pure-local/` | 正式 GitHub Pages + Worker |
+| --- | --- | --- |
+| 入口 | `node pure-local/server.js`，本地 `/api/chat`、`/api/config` | 静态 `index.html`，远程 `/api/jiuzhou/turn` |
+| AI Key | 本机环境变量/配置文件，必要时历史实现还会扫描本机凭据 | Cloudflare Worker Secret，网页不持有共享 Key |
+| 邀请码/验证码 | 无 | **已取消**，不是待恢复功能 |
+| 模型 | 本地可配置 | 由 Worker 的 `DEEPSEEK_MODEL` 决定 |
+| 历史 | 本地实现的行为应独立测试 | 最新最多 8 个完整回合与 120000 字符上下文预算，**非无限历史** |
+| 真实长篇效果 | 未完成同条件对照实测 | 2026-10-19 有 5000 档单次 3064 正文字符的样本，**未达 3500–4800 字目标** |
+| 安全 | `POST /api/config` 当前未认证，**不要直接公网暴露** | 独立 Worker 来源检查；不能当作身份认证 |
 
-## 核心架构对比
+## 使用方式（本地开发）
 
-| 对比维度 | 纯本地基准版本 (`pure-local/`) | 主干云端/混合版本 (`/`) |
-| :--- | :--- | :--- |
-| **API 网关路由** | 直连本地 `server.js` (`/api/chat`, `/api/config`) | 优先/回退探测 Cloudflare Worker 远程网关 |
-| **人机验证 (CAPTCHA)** | **无**（即开即用，直接发送） | Cloudflare Turnstile 人机验证弹窗 |
-| **网络跨域 (CORS)** | 同源无跨域阻碍 | 依赖远程 Worker 放行与外网网络状态 |
-| **消息上下文** | 100% 完整保留四层前缀架构与全量剧本历史 | 针对公网游客进行了篇幅截断以节约站长 Token |
-| **思考模型适配** | 原生兼容 `deepseek-flash`, `v4-pro`, `reasoner` | 限制在 Worker 预设模型 |
-| **主要定位** | 本地跑团、沉浸长篇体验、本地对照验证 | GitHub Pages 静态公开试玩演示 |
-
----
-
-## 文件结构
-
-```text
-pure-local/
-├── app.js        # 纯本地视觉小说引擎（握手 /api/config，直连 /api/chat，无 Turnstile）
-├── server.js     # 纯本地 Node.js 网关服务（自适应 max_tokens 与 thinking 模式）
-├── index.html    # 纯净前端视图（移除了 ai-gateway-config.js 外部依赖）
-└── README.md     # 本参照物说明文档
-```
-
-> **注意**：本目录下的静态资源（如 `data/faction-novels.js`、`styles.css` 等）直接复用仓库根目录公共资产，避免产生重复大文件冗余。
-
----
-
-## 启动与运行
-
-确保已配置好 `config.json` 或环境变量 `DEEPSEEK_API_KEY`（亦支持自动扫描 `~/.dsh/.credentials.yaml`）：
+根目录共享的 `data/`、`styles.css` 等资源供此独立目录复用。可通过环境变量 `DEEPSEEK_API_KEY` 或本地配置文件提供测试用 Key（不要提交真实凭据）：
 
 ```bash
-# 方式 1: 直接启动纯本地服务 (默认监听 8088 端口)
 node pure-local/server.js
-
-# 方式 2: 指定独立端口启动 (避免与根目录已有后台冲突)
-$env:PORT=8099; node pure-local/server.js  # PowerShell
-# 或
-PORT=8099 node pure-local/server.js        # Bash
+# 或 Linux/macOS：
+PORT=8099 node pure-local/server.js
 ```
 
-启动后在浏览器打开：
-`http://localhost:8088` (或指定的端口)
+PowerShell 可使用 `$env:PORT=8099; node pure-local/server.js`。默认开发地址 `http://localhost:8088`。
 
-右上角将立刻识别为 `⚡ V4.1-Flash (共享)`，所有剧情演进与开放输入将直接发给本地后台，秒级响应，零弹窗打扰。
+> **测试状态：待验收。** 此目录的代码与主干前端不同；不能把本地短请求的速度、无跨域体验或某一次成功自动推断为云端已修复、永久秒级响应或 100% Prompt Cache 命中。
