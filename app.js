@@ -6,7 +6,7 @@
 // =============================================================================
 
 const APP_VERSION = "v2.5.0";
-const BUILD_STAMP = "2026.10.20.0600";
+const BUILD_STAMP = "2026.10.20.0601";
 const VERSION_FULL = `v2.5.0 (Build ${BUILD_STAMP} · 插件式工具循环 · 交付正文实测 · 3选项+开放输入)`;
 const AIProviders = typeof module === "object" && module.exports
   ? require("./harness/providers.js") : globalThis.JiuzhouProviders;
@@ -594,7 +594,7 @@ class WebVisualNovelEngine {
     this.drawerBranchExplainer = document.getElementById("drawer-branch-explainer");
     this.btnCloseBranchExplainer = document.getElementById("btn-close-branch-explainer");
 
-    if (this.titleVersionBadge) this.titleVersionBadge.innerText = `Build ${APP_VERSION} (2026.10.19 插件式推演 · 正文字数实测)`;
+    if (this.titleVersionBadge) this.titleVersionBadge.innerText = `Build ${APP_VERSION} (${BUILD_STAMP} · 插件式推演 · 正文字数实测)`;
     if (this.qmVersionTag) this.qmVersionTag.innerText = APP_VERSION;
     if (this.settingsVersionDisplay) this.settingsVersionDisplay.innerText = `${APP_VERSION} (Build ${BUILD_STAMP})`;
 

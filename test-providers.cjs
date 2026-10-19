@@ -50,6 +50,42 @@ test("custom HTTPS and loopback HTTP endpoints work without a Key or shared heal
   }
 });
 
+test("custom v1 base URLs resolve to Chat Completions while preserving prefixes and query parameters", () => {
+  for (const [endpoint, expected] of [
+    ["https://compatible.fixture/v1", "https://compatible.fixture/v1/chat/completions"],
+    ["https://compatible.fixture/v1/", "https://compatible.fixture/v1/chat/completions"],
+    ["https://compatible.fixture/api/v1", "https://compatible.fixture/api/v1/chat/completions"],
+    ["https://compatible.fixture/openai/v1/?region=cn&version=1", "https://compatible.fixture/openai/v1/chat/completions?region=cn&version=1"],
+    ["http://localhost:1234/v1", "http://localhost:1234/v1/chat/completions"]
+  ]) {
+    const route = resolve(custom({endpoint}));
+    assert.equal(route.endpoint, expected);
+    assert.equal(createRequest(route, {messages: transcript, mode: "probe"}).endpoint, expected);
+  }
+});
+
+test("complete Chat Completions URLs and arbitrary custom paths are not rewritten or doubled", () => {
+  for (const endpoint of ["https://compatible.fixture/v1/chat/completions", "https://compatible.fixture/api/v1/chat/completions?region=cn",
+    "https://compatible.fixture/v1/chat/completions/", "https://compatible.fixture/custom/api/chat", "https://compatible.fixture/api/chat",
+    "https://compatible.fixture/v10"]) {
+    assert.equal(resolve(custom({endpoint})).endpoint, endpoint);
+  }
+});
+
+test("base URL resolution preserves the saved raw endpoint and shares identity with its equivalent full URL", () => {
+  for (const [endpoint, fullEndpoint] of [
+    ["https://compatible.fixture/v1", "https://compatible.fixture/v1/chat/completions"],
+    ["https://compatible.fixture/api/v1/", "https://compatible.fixture/api/v1/chat/completions"],
+    ["https://compatible.fixture/openai/v1?region=cn", "https://compatible.fixture/openai/v1/chat/completions?region=cn"]
+  ]) {
+    const config = custom({endpoint}); const before = structuredClone(config);
+    const base = resolve(config);
+    const full = resolve(custom({endpoint: fullEndpoint}));
+    assert.equal(config.endpoint, endpoint); assert.deepEqual(config, before);
+    assert.equal(base.identity, full.identity);
+  }
+});
+
 test("custom endpoint validation rejects remote plaintext HTTP and embedded URL credentials", () => {
   for (const endpoint of ["http://compatible.fixture/chat/completions", "https://user:password@compatible.fixture/chat/completions", "ftp://compatible.fixture/chat/completions", "not an endpoint"]) {
     assert.throws(() => resolve(custom({endpoint})), /invalid.*endpoint|endpoint.*invalid/);

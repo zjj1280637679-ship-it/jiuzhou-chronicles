@@ -71,6 +71,9 @@
     id: "custom", label: "自定义 API",
     resolve(config) {
       const url = endpointURL(config.endpoint);
+      // Accept the conventional /v1 base used by the previous Base URL settings field.
+      // Complete this known base only; leave explicit endpoints and custom paths untouched.
+      if (/\/v1\/?$/.test(url.pathname)) url.pathname = url.pathname.replace(/\/$/, "") + "/chat/completions";
       const model = config.model === "custom" ? config.customModel : config.model;
       if (typeof model !== "string" || !model.trim()) throw fail("invalid_model");
       const adapter = config.adapter === "auto" ? url.hostname === "api.deepseek.com" ? "deepseek" : "openai" : config.adapter;

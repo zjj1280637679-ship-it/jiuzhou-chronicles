@@ -280,9 +280,9 @@
           </div>
 
           <div class="form-group">
-            <label for="setting-endpoint">完整请求地址（Chat Completions URL）</label>
+            <label for="setting-endpoint">API 地址（支持 /v1 基础地址或完整请求地址）</label>
             <input type="text" id="setting-endpoint" class="form-input" value="https://api.deepseek.com/chat/completions">
-            <p class="ai-test-help">例如 https://api.example.com/v1/chat/completions；本机代理可填写 http://localhost:端口/请求路径。</p>
+            <p class="ai-test-help">填写 https://api.example.com/v1 时自动补全 /chat/completions；完整请求地址及自定义路径保持不变。本机代理可用 http://localhost:端口/请求路径。</p>
           </div>
 
           <div class="form-group">
@@ -560,9 +560,9 @@
   <script src="data/illustrations/illustrations-data.js"></script>
   <script src="skills-data.js"></script>
   <script src="ai-gateway-config.js"></script>
-  <script src="harness/providers.js?v=20261020-0600"></script>
+  <script src="harness/providers.js?v=20261020-0601"></script>
   <script src="harness/protocol.js?v=20261020-0600"></script>
   <script src="harness/runtime.js?v=20261020-0600"></script>
-  <script src="app.js?v=20261020-0600"></script>
+  <script src="app.js?v=20261020-0601"></script>
 </body>
 </html>
