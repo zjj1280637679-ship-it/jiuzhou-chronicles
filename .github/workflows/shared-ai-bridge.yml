@@ -35,7 +35,7 @@ jobs:
       - run: node --check app.js
       - run: node --check ai-gateway-config.js
       - name: Test shared AI failures, retry, and suture requests without network calls
-        run: node --test test-shared-ai-connection.cjs test-ai-connection-probe.cjs test-free-exploration-edges.cjs test-plugin-harness.cjs
+        run: node --unhandled-rejections=strict --test test-shared-ai-connection.cjs test-ai-connection-probe.cjs test-free-exploration-edges.cjs test-plugin-harness.cjs
       - name: Check shared gateway wiring
         run: |
           node --input-type=module <<'NODE'
