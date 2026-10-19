@@ -2683,6 +2683,19 @@ body, html {
   overflow-wrap: anywhere;
 }
 
+#ai-generation-metrics {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+#btn-cancel-ai-request[hidden] {
+  display: none;
+}
+
+#btn-cancel-ai-request {
+  color: #fbbf24;
+}
+
 #btn-test-ai-connection:disabled {
   opacity: .65;
   cursor: wait;
