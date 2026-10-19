@@ -7,6 +7,7 @@
 `GitHub Pages → POST /api/jiuzhou/turn → DeepSeek`
 
 - 不加载 Turnstile，不请求验证码或令牌，不需要站长批准开关。
+- 合并期间远端新增的邀请码也经用户再次明确要求取消；没有邀请码输入框，也不发送邀请码。
 - 九州路由不读取 `AI_ENABLED` / `JIUZHOU_ENABLED`，不使用 `AI_LIMITER` / `GM_LIMITER`。
 - 不再裁剪为 1800、2400、4700 或 8000 Token；不再以 44000 字符拒绝回复，也不设置共享生成的 54 / 75 秒截止时间。
 - 按访客设置发送 `max_tokens`，仅遵照 [DeepSeek 官方参数范围](https://api-docs.deepseek.com/api/create-chat-completion/) `1..393216`；未指定时采用供应商默认值。篇幅按钮是访客请求偏好，不是服务器配额。
