@@ -6,7 +6,7 @@
 // =============================================================================
 
 const APP_VERSION = "v2.5.0";
-const BUILD_STAMP = "2026.10.20.0601";
+const BUILD_STAMP = "2026.10.20.0700";
 const VERSION_FULL = `v2.5.0 (Build ${BUILD_STAMP} · 插件式工具循环 · 交付正文实测 · 3选项+开放输入)`;
 const AIProviders = typeof module === "object" && module.exports
   ? require("./harness/providers.js") : globalThis.JiuzhouProviders;
@@ -2031,6 +2031,12 @@ ${JSON.stringify(targetNode.originalBeats)}
 
   // 更新对白导航栏状态 (返回上一段按钮禁用/启用)
   updateDialogueNavUI() {
+    const navigation = document.getElementById("dialogue-nav-bar");
+    if (navigation?.dataset) {
+      navigation.dataset.step = String(this.currentStep || 0);
+      navigation.dataset.total = String(this.storyQueue?.length || 0);
+      navigation.dataset.generating = String(Boolean(this.isAIGenerating));
+    }
     if (!this.btnDialoguePrev) return;
     const isOverlayVisible = !!(this.choiceOverlay && this.choiceOverlay.classList.contains("visible"));
     const canGoBack = !this.isAIGenerating && (this.currentStep > 1 || (isOverlayVisible && this.storyQueue && this.storyQueue.length > 0));
@@ -2395,6 +2401,7 @@ ${JSON.stringify(targetNode.originalBeats)}
       return;
     }
     this.isAIGenerating = true;
+    this.updateDialogueNavUI();
     try {
       this.currentTurn++;
 
@@ -2776,6 +2783,7 @@ ${JSON.stringify(targetNode.originalBeats)}
     this.saveGameState();
     } finally {
       this.isAIGenerating = false;
+      this.updateDialogueNavUI();
     }
   }
 
@@ -3326,6 +3334,7 @@ ${JSON.stringify(targetNode.originalBeats)}
         const beat = this.storyQueue[this.currentStep];
         this.currentStep++;
         this.displayDialogue(beat.speaker, beat.sub, beat.type, beat.text, beat.stageChar);
+        this.updateDialogueNavUI();
       } else {
         this.loadCanonicalNode(this.currentStoryNodeId, false);
       }

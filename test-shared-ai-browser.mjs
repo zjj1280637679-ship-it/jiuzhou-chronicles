@@ -9,7 +9,7 @@ import {fileURLToPath} from "node:url";
 import {createRequire} from "node:module";
 const {chromium}=createRequire(import.meta.url)("playwright");
 const root=fileURLToPath(new URL(".",import.meta.url));
-const contentTypes={".html":"text/html",".js":"text/javascript",".css":"text/css",".json":"application/json",".jpg":"image/jpeg",".png":"image/png"};
+const contentTypes={".html":"text/html",".js":"text/javascript",".css":"text/css",".json":"application/json",".jpg":"image/jpeg",".png":"image/png",".svg":"image/svg+xml",".webp":"image/webp"};
 let localServer;
 let url=process.env.JIUZHOU_TEST_URL;
 if(!url){
@@ -30,6 +30,18 @@ const origin=new URL(url).origin;
 let backendCalls=0,probeCalls=0,probeFailure=true,challengeRequests=0,healthReady=false,responseMode="success";
 const successfulAgentBodies=[];
 const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:2,isMobile:true,hasTouch:true});
+async function settingsReady(){
+  await page.waitForFunction(()=>{
+    const drawer=document.querySelector("#drawer-settings");
+    return drawer.classList.contains("open")&&drawer.getAttribute("aria-modal")==="true"&&!drawer.closest("[inert]");
+  });
+}
+async function openCacheSettings(){
+  await page.click("#mobile-menu-toggle");
+  await page.waitForFunction(()=>document.querySelector("#quick-menu").getAttribute("aria-modal")==="true");
+  await page.click("#qm-cache");
+  await settingsReady();
+}
 const errors=[];
 page.on("pageerror",e=>errors.push(String(e)));
 page.on("console",msg=>{if(msg.type()==="error"&&!/fonts.googleapis.com|fonts.gstatic.com/.test(msg.text()))console.log("browser console:",msg.text().slice(0,200))});
@@ -122,6 +134,7 @@ try{
   await page.waitForFunction(()=>Boolean(window.__vnEngine?.apiConfig),{timeout:25000});
   await page.waitForFunction(()=>window.__vnEngine?.sharedGatewayStatus?.state==="unavailable",{timeout:25000});
   await page.click("#title-btn-settings");
+  await settingsReady();
   assert.match(await page.locator("#ai-connection-status").textContent(),/共享 AI 无法连接/);
   const beforeProbe=await page.evaluate(()=>JSON.stringify({config:window.__vnEngine.apiConfig,history:window.__vnEngine.apiHistory,status:window.__vnEngine.aiRequestStatus,cache:window.__vnEngine.cacheTelemetry}));
   await page.click("#btn-test-ai-connection");
@@ -269,7 +282,7 @@ try{
     assert.equal(body.messages.at(-1).role,"tool"); assert.equal(body.messages.at(-1).tool_call_id,"custom_world");
     await route.fulfill({status:200,contentType:"application/json",headers:cors,body:JSON.stringify({model:"generic-fixture-model",choices:[{finish_reason:"stop",message:{content:JSON.stringify({beats:[{speaker:"旁白",text:"自定义无密钥来源验收"+"文".repeat(490)}],choices:[{text:"救人"},{text:"查账"},{text:"守城"}]})}}],usage:{prompt_tokens:200,completion_tokens:100}})});
   });
-  await page.click("#qm-cache");
+  await openCacheSettings();
   await page.selectOption("#setting-api-source","custom");
   await page.fill("#setting-api-key","");
   await page.fill("#setting-endpoint","https://custom.fixture/v1/chat/completions");
@@ -282,7 +295,7 @@ try{
   await page.waitForFunction(()=>document.getElementById("ai-connection-test-status").textContent.includes("测试成功"));
   assert.match(await page.locator("#ai-connection-test-status").textContent(),/自定义.*generic-fixture-model/);
   await page.click("#btn-save-settings");
-  await page.click("#qm-cache");
+  await openCacheSettings();
   await page.click("#btn-retry-shared-ai");
   await page.waitForFunction(()=>window.__vnEngine.sharedGatewayStatus.state==="ready");
   assert.equal(await page.locator("#setting-api-source").inputValue(),"custom");

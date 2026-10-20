@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>暮灯星栈 · 东方奇幻文字冒险 (Visual Novel & AVG)</title>
   <link rel="stylesheet" href="styles.css?v=20261020-0600">
-  <link rel="stylesheet" href="mobile.css?v=20261020-mobile04">
+  <link rel="stylesheet" href="mobile.css?v=20261020-theater02">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700;900&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
@@ -14,6 +14,20 @@
 
   <!-- 全屏游戏主舞台视口 -->
   <div class="webvn-viewport" id="game-viewport">
+
+    <!-- 手机剧场：同一份剧情与表单，抉择仍由剧情临时触发。 -->
+    <div class="mobile-theater mobile-only" aria-hidden="true">
+      <img id="mobile-scene-art" src="data/mobile/palace-night.webp" alt="" fetchpriority="high">
+    </div>
+    <header class="mobile-topbar mobile-only" id="mobile-topbar">
+      <button type="button" class="mobile-icon-button" id="mobile-home" aria-label="返回首页并自动存档">
+        <img src="data/mobile/icons/house.svg" alt="">
+      </button>
+      <span id="mobile-scene-title">九州沉浮录</span>
+      <button type="button" class="mobile-icon-button" id="mobile-menu-toggle" aria-controls="quick-menu" aria-expanded="false" aria-label="打开游戏菜单">
+        <img src="data/mobile/icons/list.svg" alt="">
+      </button>
+    </header>
 
     <!-- 主界面 / 标题画面 (Title Screen: 完整生命周期顶层) -->
     <div class="title-screen active" id="title-screen">
@@ -87,7 +101,7 @@
 
     <!-- 2. 悬浮极简胶囊菜单 (Quick Menu: 15% 透明度，Hover 或触控自显) -->
     <nav class="quick-menu" id="quick-menu">
-      <button type="button" class="mobile-menu-toggle" id="mobile-menu-toggle" aria-expanded="false" aria-label="展开或收起游戏功能菜单">☰ 功能菜单</button>
+      <div class="mobile-menu-heading mobile-only"><span>行止之间</span><button type="button" class="mobile-icon-button" id="mobile-menu-close" aria-label="关闭游戏菜单"><img src="data/mobile/icons/x.svg" alt=""></button></div>
       <button class="qm-btn qm-accent" id="qm-home" title="返回主界面 (自动存档)">⌂ 主页</button>
       <button class="qm-btn" id="qm-faction" title="切换四大阵营 DLC (大明/清朝/蒙古/南明)">🚩 阵营</button>
       <button class="qm-btn" id="qm-destiny" title="查看当前隐式测评折射出的天命政治人物镜像">🪞 天命</button>
@@ -102,6 +116,10 @@
       <button type="button" class="qm-btn" id="btn-cancel-ai-request" hidden title="取消等待并使用本地剧情，不自动重发">取消本次生成</button>
       <button class="qm-btn" id="qm-settings" title="配置 API 与模型通道">⚙ 秘钥</button>
       <span class="qm-version-tag" id="qm-version-tag" title="当前引擎构建版本: v2.5.0 (Build 2026.10.19)">v2.5.0</span>
+      <section class="mobile-reading-tools mobile-only" id="mobile-reading-tools" aria-label="阅读设置">
+        <p class="mobile-section-label">阅读设置</p>
+        <div class="mobile-font-tools"><span>正文字号</span><button type="button" id="mobile-font-decrease" aria-label="缩小正文字号"><img src="data/mobile/icons/minus.svg" alt=""></button><button type="button" id="mobile-font-increase" aria-label="放大正文字号"><img src="data/mobile/icons/plus.svg" alt=""></button></div>
+      </section>
     </nav>
 
     <div class="ai-harness-progress" id="ai-harness-progress" role="status" aria-live="polite" hidden></div>
@@ -141,6 +159,7 @@
         <span class="speaker-icon" id="speaker-icon">◆</span>
         <span class="speaker-name" id="speaker-name">旁白</span>
         <span class="speaker-sub" id="speaker-sub">崇文门外 · 鬼市夜市</span>
+        <button type="button" class="mobile-backlog mobile-only" id="mobile-backlog"><img src="data/mobile/icons/scroll.svg" alt="">卷宗</button>
       </div>
 
       <!-- 打字机正文内容渲染区 -->
@@ -152,16 +171,19 @@
       <!-- 剧情对白控制栏 (返回上一段 / 点击继续) -->
       <div class="dialogue-nav-bar" id="dialogue-nav-bar">
         <button class="btn-dialogue-prev" id="btn-dialogue-prev" title="返回上一段对白 (快捷键: ← / Q)" disabled>
-          <span class="nav-arrow">▲</span> 返回上一段
+          <span class="nav-arrow">▲</span><span class="desktop-prev-label">返回上一段</span><span class="mobile-only">上一段</span>
         </button>
+        <span class="mobile-page-position mobile-only" id="mobile-page-position" aria-label="当前段落"></span>
         <div class="dialogue-continue-prompt" id="continue-prompt" title="点击推进下一段 (快捷键: 空格 / 点击屏幕)">
           <span class="continue-text">点击继续</span> <span class="cursor-arrow">▼</span>
         </div>
+        <button type="button" class="mobile-next mobile-only" id="mobile-next"><span>继续阅读</span><img src="data/mobile/icons/caret-right.svg" alt=""></button>
       </div>
     </section>
 
     <!-- 5. 交互抉择层 (升起于对白框上方，带检定概率与文学修饰) -->
     <div class="choice-overlay" id="choice-overlay">
+      <button type="button" class="mobile-choice-return mobile-only" id="mobile-choice-return"><img src="data/mobile/icons/caret-left.svg" alt="">返回阅读</button>
       <div class="choice-container" id="choice-container">
         <!-- 动态生成 3-4 个叙事抉择卡片 -->
       </div>
@@ -371,13 +393,13 @@
 - 亲率三千白巴牙喇假扮明军夜袭镇江大营，切断南都信道...
 - 密会江南三十六商帮总把头，许以两淮盐税特许质押筹集千万银两...
 - 拔刀立誓自封大汗，斩杀阻道亲王强行改道直逼金陵..."></textarea>
-          <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:8px;">
+        </div>
+          <div class="open-input-actions" style="display:flex; justify-content:flex-end; gap:12px; margin-top:8px; padding:0 20px 20px;">
             <button class="title-action-btn" id="btn-cancel-open-input" style="padding:8px 16px; font-size:0.85rem;">取消</button>
             <button class="title-action-btn btn-hero" id="btn-submit-open-input" style="padding:8px 20px; font-size:0.9rem; background:linear-gradient(135deg, #16a34a 0%, #22c55e 100%);">
               <span>✨ 呼叫 AI 接住推演支线卡</span>
             </button>
           </div>
-        </div>
       </div>
     </aside>
 
@@ -565,7 +587,7 @@
   <script src="harness/providers.js?v=20261020-0601"></script>
   <script src="harness/protocol.js?v=20261020-0600"></script>
   <script src="harness/runtime.js?v=20261020-0600"></script>
-  <script src="app.js?v=20261020-0601"></script>
-  <script src="mobile-ui.js?v=20261020-mobile03"></script>
+  <script src="app.js?v=20261020-0700-release"></script>
+  <script src="mobile-ui.js?v=20261020-theater02"></script>
 </body>
 </html>
