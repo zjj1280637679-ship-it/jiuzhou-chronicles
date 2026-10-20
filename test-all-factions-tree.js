@@ -4,6 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
 global.JiuzhouProviders = require("./harness/providers.js");
+global.JiuzhouGameRecovery = require("./game-recovery.js");
 const assert = require("node:assert/strict");
 
 const localStorageStore = {};
@@ -63,6 +64,7 @@ console.log("=== 开始 4 大阵营全量主剧情树与影视文学升级验证
 
 async function main() {
 const engine = new WebVisualNovelEngine();
+engine.apiConfig.enabled = false; // This fixture exercises explicit offline play, without remote requests.
 window.__vnEngine = engine;
 
 const factions = [

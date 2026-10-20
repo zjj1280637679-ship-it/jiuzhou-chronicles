@@ -105,8 +105,8 @@ test("a failed model request shows fallback rather than stale successful cache s
   global.fetch = async () => ({ok: false, status: 503, json: async () => ({error: "upstream_unavailable"})});
   await assert.rejects(() => e.requestAICompletion(e.getSharedGatewayEndpoint(), {}, {}, true, "story"));
   assert.equal(e.aiRequestStatus.state, "fallback");
-  assert.match(e.aiConnectionStatus.textContent, /本轮已使用本地剧情：AI 服务暂时不可用/);
-  assert.match(e.qmCache.innerText, /本轮已使用本地剧情/);
+  assert.match(e.aiConnectionStatus.textContent, /本轮剧情尚未交付：AI 服务暂时不可用/);
+  assert.match(e.qmCache.innerText, /本轮尚未交付/);
   assert.equal(e.qmCache.classList.contains("hit"), false);
   assert.doesNotMatch(e.cacheStatusTag.innerText, /命中率/);
 });

@@ -3,6 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
 global.JiuzhouProviders = require("./harness/providers.js");
+global.JiuzhouGameRecovery = require("./game-recovery.js");
 
 console.log("===============================================================================");
 console.log("🎮 启动《通用互动小说 Harness · 第一性原理 (3+1 铁律)》全量集成回归测试套件");

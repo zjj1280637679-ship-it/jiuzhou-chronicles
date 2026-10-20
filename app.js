@@ -6,10 +6,12 @@
 // =============================================================================
 
 const APP_VERSION = "v2.5.0";
-const BUILD_STAMP = "2026.10.20.0700";
+const BUILD_STAMP = "2026.10.21.0800";
 const VERSION_FULL = `v2.5.0 (Build ${BUILD_STAMP} · 插件式工具循环 · 交付正文实测 · 3选项+开放输入)`;
 const AIProviders = typeof module === "object" && module.exports
   ? require("./harness/providers.js") : globalThis.JiuzhouProviders;
+const GameRecovery = typeof module === "object" && module.exports
+  ? require("./game-recovery.js") : globalThis.JiuzhouGameRecovery;
 const escapeHTML = value => String(value ?? "").replace(/[&<>"']/g, char => ({
   "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
 })[char]);
@@ -105,6 +107,7 @@ class WebVisualNovelEngine {
 
     // 游戏全局生命周期状态机: TITLE (主界面) | PLAYING (剧情进行) | GAMEOVER (危机沦亡) | EPILOGUE (终局照相)
     this.gameState = "TITLE";
+    this.hasActiveProgress = false;
 
     this.initDOM();
     this.initEvents();
@@ -328,13 +331,15 @@ class WebVisualNovelEngine {
           if (params.name) {
             const newItem = {
               id: "item_" + Math.random().toString(16).substring(2, 8),
-              name: params.name,
-              desc: params.desc || "AI GM 剧本推演赐予的关键证物与密档",
+              name: String(params.name),
+              desc: String(params.desc || "AI GM 剧本推演赐予的关键证物与密档"),
+              power: Number.isFinite(params.power) ? params.power : 0,
+              aspects: Array.isArray(params.aspects) ? params.aspects.filter(value => typeof value === "string") : [],
               type: params.type || "clue",
               icon: params.icon || "📜"
             };
             this.inventory.push(newItem);
-            this.renderPocketItems();
+            this.renderPocket();
             const pocketCount = document.getElementById("pocket-count");
             if (pocketCount) pocketCount.innerText = this.inventory.length;
           }
@@ -1000,6 +1005,8 @@ class WebVisualNovelEngine {
   switchFaction(factionId) {
     const f = WORLD_PRESETS.factions[factionId];
     if (!f) return;
+
+    this.abandonTurnForNavigation();
 
     this.currentFaction = factionId;
     this.currentCoords = f.defaultCoords;
@@ -1687,8 +1694,8 @@ ${JSON.stringify(targetNode.originalBeats)}
           </div>
           ${this.extrapolationHistory.map((h, i) => `
             <div class="extrapolated-item">
-              <strong>外推 #${i+1}：</strong>${h.choiceText} 
-              <span style="color:${h.success ? "#4ade80" : "#f87171"}; margin-left:6px;">(${h.success ? "检定成功" : "检定受挫"}, 倾向: ${h.tag})</span>
+              <strong>外推 #${i+1}：</strong>${escapeHTML(h.choiceText)}
+              <span style="color:${h.success ? "#4ade80" : "#f87171"}; margin-left:6px;">(${h.success ? "检定成功" : "检定受挫"}, 倾向: ${escapeHTML(h.tag)})</span>
             </div>
           `).join("")}
         </div>
@@ -1776,9 +1783,9 @@ ${JSON.stringify(targetNode.originalBeats)}
             ? this.extrapolationHistory.map((h, i) => `
               <div class="inspector-choice-item">
                 <span class="tag-type tag-spur">步骤 ${i+1}</span>
-                <span style="flex:1;">${h.choiceText}</span>
+                <span style="flex:1;">${escapeHTML(h.choiceText)}</span>
                 <span style="color:${h.success ? '#4ade80' : '#f87171'}; font-weight:700;">
-                  ${h.success ? '成功' : '受挫'} (骰点 ${h.diceTotal})
+                  ${h.success ? '成功' : '受挫'} (骰点 ${escapeHTML(h.diceTotal)})
                 </span>
               </div>
             `).join("")
@@ -1859,6 +1866,8 @@ ${JSON.stringify(targetNode.originalBeats)}
   rewindToNode(nodeId) {
     const tree = WORLD_PRESETS.canonicalTrees[this.currentFaction];
     if (!tree || !tree.nodes[nodeId]) return;
+
+    this.abandonTurnForNavigation();
 
     const node = tree.nodes[nodeId];
     this.isExtrapolating = false;
@@ -1967,6 +1976,17 @@ ${JSON.stringify(targetNode.originalBeats)}
       const type = (typeof b === "object" && b.type) ? b.type : "narrator";
       const stageChar = (typeof b === "object" && b.stageChar) ? b.stageChar : "center";
 
+      // A delivered illustration is one visual beat, with its own safe asset
+      // reference. Text pagination must not discard its image or repeat it.
+      const image = b?.illustrationData;
+      if (image && typeof image.relativePath === "string" &&
+          /^data\/illustrations\/[\w/.-]+\.(?:svg|webp|png|jpe?g)$/i.test(image.relativePath) && !image.relativePath.includes("..")) {
+        const illustrationData = Object.fromEntries(["id", "relativePath", "title", "description", "symbol", "categoryName", "factionName"]
+          .map(key => [key, typeof image[key] === "string" ? image[key] : ""]));
+        chunked.push({speaker, sub, type: "illustration", stageChar, text: text.trim(), illustrationData});
+        return;
+      }
+
       chunks.forEach((chunkText, idx) => {
         chunked.push({
           speaker,
@@ -2027,6 +2047,17 @@ ${JSON.stringify(targetNode.originalBeats)}
 
     this.displayDialogue(beat.speaker, beat.sub, beat.type, beat.text, beat.stageChar, beat.illustrationData);
     this.updateDialogueNavUI();
+  }
+
+  getCurrentReadingScene() {
+    // Expose a small player-facing projection, never config/history/draft data.
+    if (this.gameState !== "PLAYING" || this.isAIGenerating || typeof window === "undefined" || !window.JiuzhouSceneFavorites) return null;
+    const beat = this.storyQueue?.[this.currentStep - 1];
+    if (!beat || typeof beat.text !== "string" || !beat.text.trim()) return null;
+    const value = {faction: this.currentFaction || "", chapter: this.currentStoryNodeId || "",
+      turn: this.currentTurn || 0, step: this.currentStep, speaker: beat.speaker || "旁白",
+      sub: beat.sub || "", text: beat.text, image: beat.illustrationData?.relativePath || ""};
+    return window.JiuzhouSceneFavorites.scene({...value, id: window.JiuzhouSceneFavorites.fingerprint(value)});
   }
 
   // 更新对白导航栏状态 (返回上一段按钮禁用/启用)
@@ -2142,6 +2173,10 @@ ${JSON.stringify(targetNode.originalBeats)}
 
   // 呈现抉择 (区分法定主干分支 vs AI 局外自由外推)
   presentFactionChoices() {
+    if (this.pendingTurnAttempt) {
+      this.notifyRecoveryUI();
+      return;
+    }
     if (this.isAIGenerating) {
       console.warn("[Narrative Engine] AI 正在推演中，严禁提前弹出抉择卡！");
       return;
@@ -2395,12 +2430,30 @@ ${JSON.stringify(targetNode.originalBeats)}
   }
 
   // 结算行动 (支持主干跃迁、外推分支与因果弥合闭环)
-  async resolveFactionAction(choice) {
+  async resolveFactionAction(choice, recoveryOptions = {}) {
     if (this.isAIGenerating) {
       console.warn("[Narrative Engine] AI 当前正在推演中，严禁重复提交或触发并发行动！");
       return;
     }
+    if (this.pendingTurnAttempt && recoveryOptions.attempt !== this.pendingTurnAttempt) {
+      this.notifyRecoveryUI();
+      return;
+    }
+    const isFreeAction = this.isExtrapolating || choice.isExtrapolation;
+    const attempt = recoveryOptions.attempt || (isFreeAction ? GameRecovery.makeAttempt(this, choice,
+      [Math.floor(Math.random() * 6) + 1, Math.floor(Math.random() * 6) + 1]) : null);
+    if (attempt) {
+      GameRecovery.restore(this, attempt.before);
+      choice = structuredClone(attempt.choice);
+      attempt.status = "running";
+      this.pendingTurnAttempt = attempt;
+      this.saveGameState();
+    }
     this.isAIGenerating = true;
+    if (this.choiceOverlay) this.choiceOverlay.classList.remove("visible");
+    if (this.autoTimer) clearTimeout(this.autoTimer);
+    this.autoPlay = false;
+    this.notifyRecoveryUI();
     this.updateDialogueNavUI();
     try {
       this.currentTurn++;
@@ -2411,8 +2464,8 @@ ${JSON.stringify(targetNode.originalBeats)}
     }
 
     // 掷骰检定
-    const d1 = Math.floor(Math.random() * 6) + 1;
-    const d2 = Math.floor(Math.random() * 6) + 1;
+    const d1 = attempt ? attempt.dice[0] : Math.floor(Math.random() * 6) + 1;
+    const d2 = attempt ? attempt.dice[1] : Math.floor(Math.random() * 6) + 1;
     let mod = 2;
     const total = d1 + d2 + mod;
     let success = total >= choice.diceBase;
@@ -2457,25 +2510,28 @@ ${JSON.stringify(targetNode.originalBeats)}
       let nextBeats = null;
 
       // 若启用了 DeepSeek API (服务端平台共享网关 或 客户端已配 Key)
-      const hasLiveChannel = this.hasLiveAIRoute();
+      const hasLiveChannel = !recoveryOptions.local && this.hasLiveAIRoute();
 
       if (hasLiveChannel) {
         try {
-          this.displayDialogue(
-            "跑团GM",
-            `【AI 局势推演中 · 至少${this.expectedLength}字正文】`,
-            "voice-court",
-            "⚡ 正在推演您的行动，准备交付剧情；可在顶部取消等待。"
-          );
           const liveResult = await this.callDeepSeekLiveAPI(choice, d1, d2, total, success);
           if (liveResult && liveResult.beats && liveResult.beats.length > 0) {
             nextBeats = liveResult.beats;
             this.pendingApiChoices = liveResult.choices;
-          }
+          } else throw new Error("invalid_game_response");
         } catch (err) {
           if (err?.code !== "source_changed") this.setAIRequestStatus("fallback", "story", err);
-          console.warn("[DeepSeek Prompt Cache Harness] 已使用本地剧情:", this.describeAIError(err));
+          this.failTurnAttempt(attempt, err);
+          return;
         }
+      }
+
+      // An enabled but incomplete provider must be fixed or explicitly bypassed by the player.
+      if (!hasLiveChannel && this.apiConfig?.enabled && !recoveryOptions.local) {
+        let error;
+        try { this.resolveAIProvider(); } catch (cause) { error = cause; }
+        this.failTurnAttempt(attempt, error || new Error("ai_source_unavailable"));
+        return;
       }
 
       if (!nextBeats) {
@@ -2750,13 +2806,18 @@ ${JSON.stringify(targetNode.originalBeats)}
         }
       }
 
-      this.recordFateKnot(`外推 #${this.currentTurn}`, (choice.customInput || choice.text).substring(0, 20) + "...");
+      if (!hasLiveChannel) this.setAIRequestStatus("local", "story");
       this.storyQueue = this.normalizeAndChunkBeats(nextBeats, 90);
+      try {this.recordFateKnot(`外推 #${this.currentTurn}`, (choice.customInput || choice.text).substring(0, 20) + "...");}
+      catch (_) { /* An optional rewind marker cannot discard already delivered prose. */ }
       this.currentStep = 0;
+      this.pendingTurnAttempt = null;
       this.isAIGenerating = false;
       if (this.choiceOverlay) this.choiceOverlay.classList.remove("visible");
-      this.playNextInQueue();
-      this.saveGameState();
+      this.turnPresentationError = null;
+      try {this.playNextInQueue();}
+      catch (_) {this.turnPresentationError = "正文已交付，但显示遇到问题。请先确认保存成功，再刷新并重续前缘；无需重新请求 AI。";}
+      finally {this.saveGameState();}
       return;
     }
 
@@ -2781,10 +2842,85 @@ ${JSON.stringify(targetNode.originalBeats)}
     this.isAIGenerating = false;
     this.playNextInQueue();
     this.saveGameState();
+    } catch (error) {
+      if (attempt) {
+        if (this.pendingTurnAttempt === attempt) this.failTurnAttempt(attempt, error);
+      } else throw error;
     } finally {
-      this.isAIGenerating = false;
+      if (!this.pendingTurnAttempt || this.pendingTurnAttempt === attempt || this.pendingTurnAttempt.status !== "running") this.isAIGenerating = false;
       this.updateDialogueNavUI();
+      this.notifyRecoveryUI();
     }
+  }
+
+  notifyRecoveryUI() {
+    if (typeof window !== "undefined" && typeof window.dispatchEvent === "function" && typeof CustomEvent === "function") {
+      window.dispatchEvent(new CustomEvent("jiuzhou-recovery-change"));
+    }
+  }
+
+  restoreCommittedTurnView() {
+    if (this.typeTimer) clearInterval(this.typeTimer);
+    if (this.autoTimer) clearTimeout(this.autoTimer);
+    this.autoPlay = false;
+    if (this.backlogStream) {
+      this.backlogStream.innerHTML = "";
+      for (const beat of this.backlog || []) this.appendBacklogEntry(beat.speaker, beat.text);
+    }
+    const beat = this.storyQueue?.[Math.max(0, (this.currentStep || 1) - 1)];
+    if (beat && this.typewriterText) {
+      // displayDialogue normally records a read; restoring an existing page must not add another entry.
+      const backlogLength = this.backlog.length;
+      this.displayDialogue(beat.speaker, beat.sub, beat.type, beat.text, beat.stageChar, beat.illustrationData);
+      this.backlog.length = backlogLength;
+      this.backlogStream?.lastElementChild?.remove();
+      if (!beat.illustrationData) this.fastForwardTypewriter();
+    }
+    this.updateIncenseHUD();
+    this.updateBranchIndicatorUI();
+    this.updateDialogueNavUI();
+  }
+
+  failTurnAttempt(attempt, error) {
+    if (!attempt || this.pendingTurnAttempt !== attempt) return;
+    GameRecovery.restore(this, attempt.before);
+    attempt.status = "failed";
+    attempt.errorCode = error?.code || error?.message || "request_interrupted";
+    attempt.errorMessage = this.describeAIError(error);
+    this.pendingTurnAttempt = attempt;
+    this.isAIGenerating = false;
+    this.restoreCommittedTurnView();
+    this.saveGameState();
+    this.notifyRecoveryUI();
+  }
+
+  retryPendingTurn(local = false) {
+    const attempt = this.pendingTurnAttempt;
+    if (!attempt || attempt.status === "running" || this.isAIGenerating) return;
+    return this.resolveFactionAction(attempt.choice, {attempt, local});
+  }
+
+  discardPendingTurn() {
+    const attempt = this.pendingTurnAttempt;
+    if (!attempt || this.isAIGenerating) return;
+    // Failure already restored the committed world. Preserve any reading navigation since then.
+    this.pendingTurnAttempt = null;
+    this.saveGameState();
+    this.notifyRecoveryUI();
+    this.presentFactionChoices();
+    this.updateDialogueNavUI();
+  }
+
+  abandonTurnForNavigation() {
+    if (this.activeAIRequestController) {
+      this.cancelAIRequest();
+      this.aiConfigRevision = (this.aiConfigRevision || 0) + 1;
+    }
+    if (this.pendingTurnAttempt?.status === "running") GameRecovery.restore(this, this.pendingTurnAttempt.before);
+    this.pendingTurnAttempt = null;
+    this.turnPresentationError = null;
+    this.isAIGenerating = false;
+    this.notifyRecoveryUI();
   }
 
   // 触发有限时长的危机心跳暗角脉冲 (严格防粘连：指定时长后必须彻底终止并淡出)
@@ -3027,6 +3163,8 @@ ${JSON.stringify(targetNode.originalBeats)}
     const knot = this.fateKnots[idx];
     if (!knot) return;
 
+    this.abandonTurnForNavigation();
+
     this.gameState = "PLAYING";
     this.currentTurn = knot.turn;
     this.dangerTicks = knot.dangerTicks;
@@ -3085,10 +3223,10 @@ ${JSON.stringify(targetNode.originalBeats)}
     document.getElementById("pocket-count").innerText = this.inventory.length;
     this.pocketGrid.innerHTML = this.inventory.map(c => `
       <div class="pocket-card">
-        <div class="pocket-card-title">${c.name} <span style="color:var(--accent-gold); font-size:0.75rem;">(+${c.power} 权能)</span></div>
-        <div class="pocket-card-desc">${c.desc}</div>
+        <div class="pocket-card-title">${escapeHTML(c.name)} <span style="color:var(--accent-gold); font-size:0.75rem;">(+${escapeHTML(c.power ?? 0)} 权能)</span></div>
+        <div class="pocket-card-desc">${escapeHTML(c.desc)}</div>
         <div class="pocket-aspects">
-          ${c.aspects.map(a => `<span class="pocket-tag">${a}</span>`).join("")}
+          ${(Array.isArray(c.aspects) ? c.aspects : []).map(a => `<span class="pocket-tag">${escapeHTML(a)}</span>`).join("")}
         </div>
       </div>
     `).join("");
@@ -3099,8 +3237,8 @@ ${JSON.stringify(targetNode.originalBeats)}
     this.ribbonKnotsList.innerHTML = this.fateKnots.map((k, idx) => `
       <div class="ribbon-knot-item">
         <div>
-          <div style="font-weight:700; color:var(--accent-gold); font-size:0.9rem;">${k.title}</div>
-          <div style="font-size:0.75rem; color:var(--text-dim);">${k.desc}</div>
+          <div style="font-weight:700; color:var(--accent-gold); font-size:0.9rem;">${escapeHTML(k.title)}</div>
+          <div style="font-size:0.75rem; color:var(--text-dim);">${escapeHTML(k.desc)}</div>
         </div>
         <button class="btn-rewind-knot" onclick="window.__vnEngine.rewindToKnot(${idx})">⎌ 回溯至此</button>
       </div>
@@ -3121,6 +3259,8 @@ ${JSON.stringify(targetNode.originalBeats)}
   }
 
   switchMap(key) {
+    if (!WORLD_PRESETS.thinMaps[key]) return;
+    this.abandonTurnForNavigation();
     this.currentCoords = key;
     this.closeDrawer(this.drawerMap);
     const mapData = WORLD_PRESETS.thinMaps[key];
@@ -3179,7 +3319,8 @@ ${JSON.stringify(targetNode.originalBeats)}
     if (autoBtn) autoBtn.style.color = "var(--text-dim)";
 
     // 检查是否有本地存档
-    const saveStr = localStorage.getItem("vn_save_state");
+    const savedProgress = this.readGameSave();
+    const saveStr = savedProgress ? JSON.stringify(savedProgress) : null;
     if (saveStr) {
       try {
         const saved = JSON.parse(saveStr);
@@ -3210,7 +3351,9 @@ ${JSON.stringify(targetNode.originalBeats)}
 
   // 2. 开启新篇 (New Game)
   startNewGame(factionId) {
+    this.abandonTurnForNavigation();
     this.gameState = "PLAYING";
+    this.hasActiveProgress = true;
     if (this.titleScreen) this.titleScreen.classList.remove("active");
     if (this.gameViewport) this.gameViewport.classList.remove("state-title");
 
@@ -3264,14 +3407,15 @@ ${JSON.stringify(targetNode.originalBeats)}
 
   // 3. 重续前缘 (Continue Game)
   continueGame() {
-    const saveStr = localStorage.getItem("vn_save_state");
-    if (!saveStr) {
-      this.startNewGame();
+    const savedProgress = this.readGameSave();
+    if (!savedProgress) {
       return;
     }
 
+    this.abandonTurnForNavigation();
+
     try {
-      const saved = JSON.parse(saveStr);
+      const saved = savedProgress;
       this.gameState = "PLAYING";
       if (this.titleScreen) this.titleScreen.classList.remove("active");
       if (this.gameViewport) this.gameViewport.classList.remove("state-title");
@@ -3327,25 +3471,27 @@ ${JSON.stringify(targetNode.originalBeats)}
 
       this.choiceOverlay.classList.remove("visible");
 
+      this.pendingTurnAttempt = GameRecovery.resumeAttempt(saved.pendingTurnAttempt, saved);
+
       // 恢复剧情流
-      if (saved.storyQueue && saved.storyQueue.length > 0 && saved.currentStep < saved.storyQueue.length) {
+      if (saved.storyQueue && saved.storyQueue.length > 0) {
         this.storyQueue = saved.storyQueue;
-        this.currentStep = saved.currentStep;
-        const beat = this.storyQueue[this.currentStep];
-        this.currentStep++;
-        this.displayDialogue(beat.speaker, beat.sub, beat.type, beat.text, beat.stageChar);
-        this.updateDialogueNavUI();
+        this.currentStep = Math.max(1, Math.min(saved.currentStep || 1, saved.storyQueue.length));
+        this.restoreCommittedTurnView();
       } else {
         this.loadCanonicalNode(this.currentStoryNodeId, false);
       }
+      this.hasActiveProgress = true;
+      this.notifyRecoveryUI();
     } catch (e) {
-      console.error("Failed to restore save:", e);
-      this.startNewGame();
+      this.saveStatus = {state: "error", message: "存档未能恢复，原存档仍保留。请导出备份后再尝试。"};
+      this.notifyRecoveryUI();
     }
   }
 
   // 4. 返回主界面 (Return to Title)
   returnToTitle() {
+    this.cancelAIRequest();
     this.saveGameState();
 
     // 关闭全部抽屉
@@ -3375,36 +3521,79 @@ ${JSON.stringify(targetNode.originalBeats)}
 
   // 5. 存储当前游戏状态到 LocalStorage
   saveGameState() {
-    try {
-      const state = {
-        currentFaction: this.currentFaction,
-        currentTurn: this.currentTurn,
-        currentCoords: this.currentCoords,
-        dangerTicks: this.dangerTicks,
-        ideologyVector: this.ideologyVector,
-        inventory: this.inventory,
-        backlog: this.backlog,
-        fateKnots: this.fateKnots,
-        storyQueue: this.storyQueue,
-        currentStep: this.currentStep,
-        apiHistory: this.apiHistory,
-        pendingApiChoices: this.pendingApiChoices,
-        cacheTelemetry: this.cacheTelemetry,
-        currentStoryNodeId: this.currentStoryNodeId,
-        isExtrapolating: this.isExtrapolating,
-        isEpilogueSequel: this.isEpilogueSequel,
-        branchDepth: this.branchDepth || (this.isExtrapolating ? 1 : 0),
-        extrapolationHistory: this.extrapolationHistory,
-        reconciledCardsCache: this.reconciledCardsCache,
-        lastSutureNote: this.lastSutureNote,
-        convergenceTargetId: this.convergenceTargetId,
-        visitedNodeIds: this.visitedNodeIds,
-        timestamp: Date.now()
-      };
-      localStorage.setItem("vn_save_state", JSON.stringify(state));
-    } catch (e) {
-      console.warn("Auto save failed:", e);
+    if (this.gameState === "TITLE" && !this.hasActiveProgress) {
+      if (this.saveStatus?.state !== "error") this.saveStatus = {state: "idle", message: "请先重续前缘或开启新篇，再保存当前进度。"};
+      this.notifyRecoveryUI();
+      return false;
     }
+    try {
+      const result = GameRecovery.writeSave(localStorage, GameRecovery.savedState(this));
+      this.saveStatus = {state: "saved", timestamp: result.timestamp, message: "进度已保存到此浏览器"};
+      this.notifyRecoveryUI();
+      return true;
+    } catch (e) {
+      this.saveStatus = {state: "error", message: e?.name === "QuotaExceededError" ?
+        "浏览器存储空间不足，本次进度尚未保存；上次成功存档仍保留。请先导出进度备份。" :
+        "浏览器未能保存本次进度；上次成功存档仍保留。请导出进度备份，稍后重试。"};
+      this.notifyRecoveryUI();
+      return false;
+    }
+  }
+
+  readGameSave() {
+    try {
+      const raw = localStorage.getItem("vn_save_state");
+      return raw ? GameRecovery.parseSave(raw) : null;
+    } catch (error) {
+      this.saveStatus = {state: "error", message: error?.message === "invalid_save" || error instanceof SyntaxError ?
+        "存档格式无法读取，原数据仍保留；请勿覆盖或清除站点数据。" : "浏览器拒绝读取存档，请检查站点存储权限。"};
+      this.notifyRecoveryUI();
+      return null;
+    }
+  }
+
+  exportGameProgress() {
+    const progress = this.gameState === "TITLE" && !this.hasActiveProgress ? this.readGameSave() : this;
+    if (!progress) {
+      this.saveStatus = {state: "error", message: "当前没有可导出的有效进度，原有站点数据仍保留。"};
+      this.notifyRecoveryUI();
+      return null;
+    }
+    const content = GameRecovery.backup(progress);
+    const url = URL.createObjectURL(new Blob([content], {type: "application/json"}));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `九州进度-${new Date().toISOString().replace(/[:.]/g, "-")}.json`;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    return content;
+  }
+
+  previewGameBackup(raw) {
+    const state = GameRecovery.parseBackup(raw);
+    const nodes = WORLD_PRESETS.canonicalTrees[state.currentFaction]?.nodes || {};
+    if (!Object.hasOwn(WORLD_PRESETS.thinMaps, state.currentCoords) || !Object.hasOwn(nodes, state.currentStoryNodeId) ||
+      state.fateKnots.some(knot => !Object.hasOwn(WORLD_PRESETS.thinMaps, knot.coords) ||
+        (knot.storyNodeId != null && !Object.hasOwn(WORLD_PRESETS.canonicalTrees[knot.faction || state.currentFaction]?.nodes || {}, knot.storyNodeId)))) throw new Error("invalid_backup");
+    return {state, faction: WORLD_PRESETS.factions[state.currentFaction]?.name || state.currentFaction,
+      turn: state.currentTurn, timestamp: state.timestamp || null};
+  }
+
+  restoreGameBackup(state) {
+    if (this.isAIGenerating) throw new Error("backup_generation_running");
+    // Revalidate the preview and persist first: a failed write cannot replace the live world.
+    const checked = this.previewGameBackup(JSON.stringify({format: "jiuzhou-progress", version: 1, state})).state;
+    try {
+      GameRecovery.writeSave(localStorage, {...checked, timestamp: Date.now()});
+    } catch (error) {
+      this.saveStatus = {state: "error", message: "备份尚未恢复：浏览器无法写入，当前进度和原存档均保留。"};
+      this.notifyRecoveryUI();
+      return false;
+    }
+    this.continueGame();
+    this.saveStatus = {state: "saved", timestamp: Date.now(), message: "进度备份已恢复；API 设置保持当前配置"};
+    this.notifyRecoveryUI();
+    return true;
   }
 
   // 6. 危机系统彻底废除 (杜绝任何剧情杀与游戏强行终止)
@@ -3530,6 +3719,8 @@ ${JSON.stringify(targetNode.originalBeats)}
 ${toolLines || `     * show_illustration: { "id": "${factionKey}_war", "title": "战局画卷", "caption": "战鼓惊天" }`}
 4. 行动抉择（choices）：
    - 在结尾给出 3 个具象、充满战术张力与利益博弈的下一步跑团行动建议供玩家抉择（第4项由玩家开放自填）。
+   - 正文 beats[].text 及场景说明只呈现已经发生的行动、此刻感官、人物对白和悬念；下一步可选行动只放在 choices。
+   - 不要在正文罗列、复述或提前预告选项，不写“你有三个选择”“你可以选择A、B、C”等菜单话术，也不要替玩家选定尚未作出的行动。抉择在阅读结束后由独立弹窗呈现。
 
 【输出格式铁律】：
 若接口提供原生工具，可先读取世界、暂存与检查草稿，再交付；工具调用和工具结果不属于正文。最终交付必须为严格合法的 JSON 对象，严禁前后闲聊，格式如下：
@@ -4099,9 +4290,9 @@ ${currentProfile.npcRoster}`;
       invalid_structure: "AI 剧情上下文结构无效，请联系站长",
       invalid_length: "AI 篇幅档位无效，请重新选择 500、2000 或 5000 字档位",
       context_too_large: "本轮上下文超过服务可承载范围，请缩短输入或开始新段剧情；原文没有被截断发送",
-      output_truncated: "AI 输出未完整结束，本轮改用本地剧情，可调整设置后再试",
+      output_truncated: "AI 输出未完整结束，本轮尚未交付，可调整设置后重试",
       output_incomplete: "AI 生成被中断，尚未获得完整剧情，可稍后重试",
-      request_cancelled: "已取消本次请求，使用本地剧情",
+      request_cancelled: "已取消本次请求，保留原行动供重试",
       invalid_max_tokens: "输出 Token 设置无效或超出所选服务支持范围，可留空使用默认值",
       invalid_private_endpoint: "API 端点无效，请填写完整 HTTPS 地址（本机调试可用 HTTP）",
       invalid_model: "请填写自定义模型名称",
@@ -4111,16 +4302,16 @@ ${currentProfile.npcRoster}`;
       invalid_test_response: "模型未返回有效测试正文，可能是输出不完整或响应格式不兼容",
       invalid_game_response: "AI 返回的剧情格式无效",
       delivery_too_short: "交付正文未达到所选目标，本轮未提交不完整剧情",
-      plugin_error: "剧情插件执行失败，本轮使用本地剧情",
-      invalid_tool_call: "模型调用的剧情工具无效，本轮使用本地剧情",
+      plugin_error: "剧情插件执行失败，本轮尚未交付",
+      invalid_tool_call: "模型调用的剧情工具无效，本轮尚未交付",
       invalid_tool_response: "模型的工具调用格式无效，本轮未提交不完整剧情",
       invalid_tools: "剧情工具配置与网关不匹配，请刷新后重试",
       invalid_tool_name: "请求了未注册的剧情工具，本轮未提交剧情",
       invalid_tool_history: "剧情工具历史不完整，本轮未提交剧情",
       agent_stalled: "模型重复了相同操作且没有进展，已结束本轮推演",
       harness_unconfigured: "工具循环模块未就绪，请刷新后重试",
-      plugin_unavailable: "剧情插件未就绪，本轮使用本地剧情",
-      delivery_unavailable: "剧情交付插件未就绪，本轮使用本地剧情",
+      plugin_unavailable: "剧情插件未就绪，本轮尚未交付",
+      delivery_unavailable: "剧情交付插件未就绪，本轮尚未交付",
       invalid_json: "AI 请求或响应格式无效"
     };
     if (reasons[code]) return reasons[code];
@@ -4134,10 +4325,11 @@ ${currentProfile.npcRoster}`;
     if (!route) { try { route = this.resolveAIProvider(); } catch (_) {} }
     const task = mode === "suture" ? "弥合" : "剧情";
     const channel = route?.source || AIProviders.normalizeConfig(this.apiConfig).source;
-    const message = (error?.code || error?.message) === "request_cancelled" ? "已取消本次请求，使用本地剧情" :
+    const message = (error?.code || error?.message) === "request_cancelled" ? "已取消本次请求，保留原行动供重试" :
       state === "success" ? `最近一轮 AI ${task}已生成${model ? `（${model}）` : ""}` :
+      state === "local" ? "本轮由本地剧情继续，未调用远端 AI" :
       state === "requesting" ? `正在请求 AI ${task}，尚未收到结果` :
-      `本轮已使用本地${task}：${this.describeAIError(error)}`;
+      mode === "suture" ? `本轮已使用本地弥合：${this.describeAIError(error)}` : `本轮剧情尚未交付：${this.describeAIError(error)}`;
     this.aiRequestStatus = {state, mode, channel, sourceIdentity: route?.identity || null,
       revision, model: String(model || ""), message};
     this.updateCachePillUI();
@@ -4315,11 +4507,13 @@ ${currentProfile.npcRoster}`;
     this.qmCache.classList.remove("hit");
     this.qmCache.title = status?.message || (route?.useGateway ? this.sharedGatewayStatus?.message : "当前来源尚未生成") || "当前使用本地剧情";
     if (!hasLive) {
-      this.qmCache.innerText = this.apiConfig.enabled ? "⚠ 当前来源未配置完整 · 本地模式" : "⚡ 缓存: 本地模式";
+      this.qmCache.innerText = this.apiConfig.enabled ? "⚠ 当前来源未配置完整 · 待处理" : "⚡ 缓存: 本地模式";
     } else if (status?.state === "fallback") {
-      this.qmCache.innerText = "⚠ 本轮已使用本地剧情 · 设置可查看原因";
+      this.qmCache.innerText = status.mode === "suture" ? "⚠ 本轮使用本地弥合 · 设置可查看原因" : "⚠ 本轮尚未交付 · 可重试或改用本地";
     } else if (status?.state === "requesting") {
       this.qmCache.innerText = "⚡ AI 请求中 · 尚未生成";
+    } else if (status?.state === "local") {
+      this.qmCache.innerText = "本轮为本地剧情 · 未调用 AI";
     } else if (status?.state === "success") {
       this.qmCache.innerText = this.cacheTelemetry.cacheUsageKnown === false
         ? "⚡ AI 已生成 · 未提供缓存统计" : `⚡ AI 已生成 · 命中 ${this.cacheTelemetry.lastHitRate || "0.0%"}`;

@@ -3,6 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
 global.JiuzhouProviders = require("./harness/providers.js");
+global.JiuzhouGameRecovery = require("./game-recovery.js");
 
 const localStorageStore = {};
 global.localStorage = {
@@ -64,6 +65,7 @@ const appCode = fs.readFileSync(path.join(__dirname, "app.js"), "utf8");
 vm.runInThisContext(appCode);
 
 const engine = new WebVisualNovelEngine();
+engine.apiConfig.enabled = false; // This fixture exercises explicit offline play, without remote requests.
 window.__vnEngine = engine;
 
 console.log("=== 启动【神光棒变身奥特曼直跳大结局 + 3选项与开放窗口 + 结局后无限续集】全流程测试 ===");

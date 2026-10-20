@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 global.JiuzhouProviders = require('./harness/providers.js');
+global.JiuzhouGameRecovery = require("./game-recovery.js");
 
 const localStorageStore = {};
 global.localStorage = {
@@ -66,6 +67,7 @@ vm.runInThisContext(appCode);
 console.log("=== 开始 1变3, 3变9 纯树状分支叙事架构 (非纺锤无自回归) 自动化严密验证 ===");
 
 const engine = new WebVisualNovelEngine();
+engine.apiConfig.enabled = false; // This fixture exercises explicit offline play, without remote requests.
 window.__vnEngine = engine;
 
 const factions = ["ming", "qing", "mongol", "nanming"];

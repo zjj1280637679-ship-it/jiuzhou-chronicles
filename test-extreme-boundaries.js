@@ -5,6 +5,7 @@ const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
 global.JiuzhouProviders = require("./harness/providers.js");
+global.JiuzhouGameRecovery = require("./game-recovery.js");
 
 let lastAlertMessage = null;
 global.alert = (msg) => {
@@ -79,6 +80,7 @@ console.log("===================================================================
 
 (async () => {
   const engine = new WebVisualNovelEngine();
+engine.apiConfig.enabled = false; // This fixture exercises explicit offline play, without remote requests.
   window.__vnEngine = engine;
 
   // -------------------------------------------------------------

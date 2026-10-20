@@ -37,6 +37,10 @@ async function settingsReady(){
   });
 }
 async function openCacheSettings(){
+  if(await page.locator("#choice-overlay").evaluate(el=>el.classList.contains("visible"))) {
+    await page.click("#mobile-choice-return");
+    await page.waitForFunction(()=>!document.querySelector("#choice-overlay").classList.contains("visible"));
+  }
   await page.click("#mobile-menu-toggle");
   await page.waitForFunction(()=>document.querySelector("#quick-menu").getAttribute("aria-modal")==="true");
   await page.click("#qm-cache");
@@ -149,6 +153,7 @@ try{
   assert.equal(await page.evaluate(()=>JSON.stringify({config:window.__vnEngine.apiConfig,history:window.__vnEngine.apiHistory,status:window.__vnEngine.aiRequestStatus,cache:window.__vnEngine.cacheTelemetry})),beforeProbe);
   assert.equal(await page.locator("#ai-connection-test-status").evaluate(el=>el.scrollWidth<=el.clientWidth),true);
   healthReady=true;
+  await page.locator("#settings-diagnostics > summary").click();
   await page.click("#btn-retry-shared-ai");
   await page.waitForFunction(()=>window.__vnEngine?.serverSharedConfig?.hasServerKey===true,{timeout:25000});
   assert.match(await page.locator("#qm-cache").textContent(),/待生成/);
@@ -206,14 +211,16 @@ try{
     return {queue:e.storyQueue.map(x=>x.text||""),choices:e.pendingApiChoices.length,status:e.aiRequestStatus};
   });
   assert.equal(fallback.status.state,"fallback");
-  assert.match(fallback.status.message,/本轮已使用本地剧情：AI 服务暂时不可用/);
-  assert.ok(fallback.queue.length>0&&fallback.queue.every(x=>!x.includes("虚拟验收专用")));
+  assert.match(fallback.status.message,/本轮剧情尚未交付：AI 服务暂时不可用/);
+  assert.ok(fallback.queue.some(x=>x.includes("虚拟验收专用")), "failed action must preserve the previous delivered scene");
   assert.equal(fallback.choices,3);
   assert.equal(await page.locator("#qm-cache").evaluate(el=>el.classList.contains("hit")),false);
-  assert.match(await page.locator("#ai-connection-status").textContent(),/本轮已使用本地剧情/);
+  assert.match(await page.locator("#ai-connection-status").textContent(),/本轮剧情尚未交付/);
+  assert.equal(await page.evaluate(()=>window.__vnEngine.pendingTurnAttempt?.status),"failed");
   responseMode="invalid-story";
   const invalidStory=await page.evaluate(async()=>{
     const e=window.__vnEngine;
+    e.discardPendingTurn();
     const historyBefore=e.apiHistory.length;
     await e.resolveFactionAction({text:"核对军饷",customInput:"核对军饷",diceBase:7,isExtrapolation:true});
     return {historyBefore,historyAfter:e.apiHistory.length,status:e.aiRequestStatus,queue:e.storyQueue};
@@ -225,6 +232,7 @@ try{
   responseMode="invalid-suture";
   const sutureFallback=await page.evaluate(async()=>{
     const e=window.__vnEngine;
+    e.discardPendingTurn();
     await e.loadCanonicalNode(e.currentStoryNodeId,true);
     return {status:e.aiRequestStatus,queue:e.storyQueue};
   });
@@ -244,8 +252,10 @@ try{
   responseMode="pending";
   const pendingAction=page.evaluate(async()=>{
     const e=window.__vnEngine,before=e.apiHistory.length;
+    e.discardPendingTurn();
+    const choicesBefore=JSON.stringify(e.pendingApiChoices);
     await e.resolveFactionAction({text:"等待中的自由探索",customInput:"等待中的自由探索",diceBase:7,isExtrapolation:true});
-    return {before,after:e.apiHistory.length,status:e.aiRequestStatus,locked:e.isAIGenerating,choices:e.pendingApiChoices.length};
+    return {before,after:e.apiHistory.length,status:e.aiRequestStatus,locked:e.isAIGenerating,choicesBefore,choicesAfter:JSON.stringify(e.pendingApiChoices)};
   });
   await page.waitForSelector('#btn-cancel-ai-request:not([hidden])');
   await page.click('#btn-cancel-ai-request');
@@ -253,9 +263,10 @@ try{
   assert.match(cancelled.status.message,/已取消本次请求/);
   assert.equal(cancelled.before,cancelled.after);
   assert.equal(cancelled.locked,false);
-  assert.equal(cancelled.choices,3);
+  assert.equal(cancelled.choicesAfter,cancelled.choicesBefore);
   assert.equal(await page.locator('#btn-cancel-ai-request').isHidden(),true);
   assert.equal(backendCalls,8);
+  await page.evaluate(()=>window.__vnEngine.discardPendingTurn());
   let customCalls=0,customProbeCalls=0;
   await page.route("https://custom.fixture/v1/chat/completions",async route=>{
     const request=route.request();
@@ -288,8 +299,10 @@ try{
   await page.fill("#setting-endpoint","https://custom.fixture/v1/chat/completions");
   await page.selectOption("#setting-model","custom");
   await page.fill("#setting-custom-model","generic-fixture-model");
+  await page.locator("#settings-compatibility > summary").click();
   await page.selectOption("#setting-api-adapter","openai");
   await page.selectOption("#setting-token-parameter","max_completion_tokens");
+  await page.locator("#settings-generation-advanced > summary").click();
   await page.fill("#setting-max-tokens","32768");
   await page.click("#btn-test-ai-connection");
   await page.waitForFunction(()=>document.getElementById("ai-connection-test-status").textContent.includes("测试成功"));
@@ -326,7 +339,7 @@ try{
   console.log("PASS 32768 output tokens forwarded for story and suture without shared-channel clamps");
   console.log("PASS failed health is visible and settings retry reaches ready without claiming generation");
   console.log("PASS settings test button sends independent short requests, shows failure/success and leaves game/config/cache unchanged");
-  console.log("PASS failed model request uses real local fallback and removes successful cache badge");
+  console.log("PASS failed model request preserves the committed scene and original action for explicit recovery, removing the stale cache badge");
   console.log("PASS arbitrary story JSON is rejected without displaying it or polluting AI history");
   console.log("PASS invalid suture response uses real local suture and shows its failure reason");
   console.log("PASS real metrics distinguish completed model output; truncation and manual cancellation release exploration without history pollution");

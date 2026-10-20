@@ -1,0 +1,26 @@
+/* Applied only by the visual-viewport adapter to an actively edited mobile dialog. */
+.drawer.open.input-viewport-fit {
+  position: fixed;
+  inset: auto 0 auto;
+  top: var(--input-viewport-top);
+  height: var(--input-viewport-height);
+  max-height: var(--input-viewport-height);
+  padding-top: 8px;
+}
+.drawer.open.input-viewport-fit > .ribbon-modal-box {
+  max-height: calc(var(--input-viewport-height) - 8px) !important;
+}
+#drawer-open-input.open.input-viewport-fit > .ribbon-modal-box {
+  height: calc(var(--input-viewport-height) - 8px);
+}
+.drawer.open.input-viewport-fit .drawer-body {
+  min-height: 0;
+  scroll-padding: 10px;
+}
+.drawer.open.input-viewport-fit .open-input-actions {
+  padding-bottom: 8px !important;
+}
+.drawer.open.input-viewport-fit #open-input-text {
+  min-height: 78px;
+  max-height: min(110px, calc(var(--input-viewport-height) * .3));
+}

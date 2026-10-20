@@ -1,0 +1,38 @@
+.turn-recovery-panel {
+  position: fixed;
+  z-index: 34;
+  left: 50%;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  width: min(560px, calc(100% - 24px));
+  max-height: min(65dvh, 400px);
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 16px;
+  background: #152126;
+  color: #eee7d7;
+  border: 1px solid #8a784e;
+  border-radius: 12px;
+  box-shadow: 0 12px 48px #0009;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.turn-recovery-panel[hidden], .save-failure-warning[hidden] {display: none;}
+.turn-recovery-panel p, .progress-save-status p {margin: 8px 0 12px;}
+.turn-recovery-panel > button {float: right; min-height: 36px; padding: 4px 8px; margin-left: 8px; border: 1px solid #83734f; border-radius: 6px; background: #253035; color: #f2e9d5; font: inherit; cursor: pointer;}
+.turn-recovery-action {max-height: 4.8em; overflow-y: auto; white-space: pre-wrap; overflow-wrap: anywhere; color: #d2c4a4;}
+.recovery-actions {display: flex; flex-wrap: wrap; gap: 8px;}
+.recovery-actions button, .save-failure-warning {
+  min-height: 44px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #83734f;
+  background: #253035;
+  color: #f2e9d5;
+  font: inherit;
+  cursor: pointer;
+}
+.recovery-actions button:focus-visible, .save-failure-warning:focus-visible {outline: 2px solid #ead5a2; outline-offset: 3px;}
+.progress-save-status[data-state="error"] p {color: #ffd6b0;}
+.save-failure-warning {position: fixed; z-index: 34; right: 12px; bottom: max(12px, env(safe-area-inset-bottom)); box-shadow: 0 4px 20px #0008; background: #613c25;}
+@media (max-height: 420px) {.turn-recovery-panel {max-height: 90dvh; padding: 10px 12px;} .turn-recovery-panel p {margin: 4px 0;}}

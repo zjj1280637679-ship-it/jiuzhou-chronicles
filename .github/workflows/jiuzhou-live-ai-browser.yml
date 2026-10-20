@@ -9,6 +9,15 @@ on:
       - 'styles.css'
       - 'mobile.css'
       - 'mobile-ui.js'
+      - '*-ui.js'
+      - '*-ui.css'
+      - 'settings.css'
+      - 'favorites.css'
+      - 'scene-favorites.js'
+      - 'game-recovery.js'
+      - 'input-viewport.*'
+      - 'test-input-viewport-browser.mjs'
+      - 'test-exploration-ui.mjs'
       - 'assets/**'
       - 'data/illustrations/**'
       - 'data/mobile/**'
@@ -24,6 +33,15 @@ on:
       - 'styles.css'
       - 'mobile.css'
       - 'mobile-ui.js'
+      - '*-ui.js'
+      - '*-ui.css'
+      - 'settings.css'
+      - 'favorites.css'
+      - 'scene-favorites.js'
+      - 'game-recovery.js'
+      - 'input-viewport.*'
+      - 'test-input-viewport-browser.mjs'
+      - 'test-exploration-ui.mjs'
       - 'assets/**'
       - 'data/illustrations/**'
       - 'data/mobile/**'
@@ -48,3 +66,7 @@ jobs:
         run: node test-shared-ai-browser.mjs
       - name: Test mobile and desktop layout through real UI without model calls
         run: node test-mobile-layout.mjs
+      - name: Test visual keyboard viewport fitting without device or model traffic
+        run: node test-input-viewport-browser.mjs
+      - name: Test settings, favorites and failed action recovery through the UI
+        run: node test-exploration-ui.mjs

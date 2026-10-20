@@ -6,6 +6,10 @@
   <title>暮灯星栈 · 东方奇幻文字冒险 (Visual Novel & AVG)</title>
   <link rel="stylesheet" href="styles.css?v=20261020-0600">
   <link rel="stylesheet" href="mobile.css?v=20261020-theater02">
+  <link rel="stylesheet" href="settings.css?v=20261021-0800">
+  <link rel="stylesheet" href="favorites.css?v=20261021-0800">
+  <link rel="stylesheet" href="recovery-ui.css?v=20261021-0800">
+  <link rel="stylesheet" href="input-viewport.css?v=20261021-0800">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700;900&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
@@ -63,7 +67,7 @@
           </button>
           <button class="title-action-btn" id="title-btn-settings">
             <span class="btn-icon">⚙</span>
-            <span class="btn-text">秘钥通道 (Settings)</span>
+            <span class="btn-text">游戏设置 (Settings)</span>
           </button>
         </div>
 
@@ -113,8 +117,9 @@
       <button class="qm-btn" id="qm-auto" title="开启/关闭自动播放">▶ 自动</button>
       <button class="qm-btn" id="qm-storytree" title="查看法定主剧情树、AI外推分支与动态因果弥合">🌲 剧情树</button>
       <button class="qm-btn qm-cache-pill" id="qm-cache" title="DeepSeek 前缀缓存监控: 点击查看四层对齐架构与命中指标">⚡ 缓存: 本地模式</button>
-      <button type="button" class="qm-btn" id="btn-cancel-ai-request" hidden title="取消等待并使用本地剧情，不自动重发">取消本次生成</button>
-      <button class="qm-btn" id="qm-settings" title="配置 API 与模型通道">⚙ 秘钥</button>
+      <button type="button" class="qm-btn" id="btn-cancel-ai-request" hidden title="取消本次等待，保留原行动供重试">取消本次生成</button>
+      <button type="button" class="qm-btn" id="qm-recovery" hidden>处理未完成行动</button>
+      <button class="qm-btn" id="qm-settings" title="连接、生成偏好与进度备份">⚙ 设置</button>
       <span class="qm-version-tag" id="qm-version-tag" title="当前引擎构建版本: v2.5.0 (Build 2026.10.19)">v2.5.0</span>
       <section class="mobile-reading-tools mobile-only" id="mobile-reading-tools" aria-label="阅读设置">
         <p class="mobile-section-label">阅读设置</p>
@@ -244,135 +249,142 @@
       </div>
     </aside>
 
-    <!-- 抽屉 E: 模型与秘钥配置 · DeepSeek 缓存对齐架构 -->
+    <!-- 同一套连接表单；折叠只改变展示，不改变来源和配置。 -->
     <aside class="drawer drawer-modal" id="drawer-settings">
-      <div class="ribbon-modal-box" style="max-width: 620px;">
+      <div class="ribbon-modal-box settings-dialog">
         <div class="drawer-header">
-          <div class="drawer-title">⚙ AI 来源与连接设置</div>
+          <div class="drawer-title">⚙ 设置</div>
           <button class="drawer-close" id="btn-close-settings">收起 ✕</button>
         </div>
-        <div class="drawer-body" style="display:flex; flex-direction:column; gap:16px; padding:20px; overflow-y:auto; max-height:calc(82vh - 60px);">
-          <div style="background: rgba(229, 185, 92, 0.08); border: 1px solid rgba(229, 185, 92, 0.3); border-radius: 6px; padding: 10px 14px; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center;">
-            <div>
-              <strong style="color: var(--accent-gold);">当前构建版本：</strong>
-              <span id="settings-version-display" style="font-family: var(--font-mono); color: #f8fafc; font-weight: 700;">v2.5.0 (Build 2026.10.19)</span>
+        <div class="drawer-body settings-body">
+          <section class="settings-section" aria-labelledby="settings-connection-title">
+            <h2 id="settings-connection-title">连接来源</h2>
+            <label class="settings-switch">
+              <input type="checkbox" id="setting-enable-api">
+              <span>使用远端 AI<small>关闭后使用离线剧情</small></span>
+            </label>
+            <div class="form-group">
+              <label for="setting-api-source">API 来源</label>
+              <select id="setting-api-source" class="form-select">
+                <option value="shared">站长共享 API</option>
+                <option value="custom">自定义 API（官方、第三方或本地代理）</option>
+              </select>
+              <p class="ai-test-help" id="ai-provider-description">使用所选来源；切换来源后保存应用。</p>
             </div>
-            <span style="font-size: 0.72rem; color: var(--accent-jade); background: rgba(56, 178, 172, 0.15); padding: 2px 6px; border-radius: 4px;">纯双轨解耦·自由小说版</span>
-          </div>
-
-          <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
-            <input type="checkbox" id="setting-enable-api">
-            <span style="font-weight:700; color:var(--accent-gold);">本机选择使用远端 AI（关闭后使用离线剧情）</span>
-          </label>
-          <div style="font-size:0.75rem; color:var(--text-dim); line-height: 1.5;">
-            开启后使用下方选择的 API 来源；关闭后使用离线剧情。自定义配置只应用于本机，不会修改站长的共享服务。
-          </div>
-
-          <div class="form-group">
-            <label for="setting-api-source">API 来源</label>
-            <select id="setting-api-source" class="form-select">
-              <option value="shared">站长共享 API</option>
-              <option value="custom">自定义 API（官方、第三方或本地代理）</option>
-            </select>
-            <p class="ai-test-help" id="ai-provider-description">使用所选来源；切换来源后保存应用。</p>
-          </div>
-
-          <div style="border:1px solid rgba(229,185,92,.3); border-radius:6px; padding:10px 14px; font-size:.8rem; line-height:1.6;">
-            <div id="ai-connection-status" role="status" aria-live="polite" style="white-space:pre-line;">共享 AI 尚未检查</div>
-            <button type="button" class="qm-btn" id="btn-retry-shared-ai" style="margin-top:8px;">检查共享服务状态</button>
-          </div>
-
-          <div id="api-custom-fields" class="api-custom-fields" hidden>
-          <div class="form-group">
-            <label for="setting-api-adapter">API 类型</label>
-            <select id="setting-api-adapter" class="form-select">
-              <option value="auto">自动（DeepSeek 官方端点使用专属适配，其余使用通用格式）</option>
-              <option value="openai">通用 Chat Completions 兼容接口</option>
-              <option value="deepseek">DeepSeek Chat Completions（含兼容代理）</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="setting-model">模型 ID（以当前 API 支持的名称为准）</label>
-            <select id="setting-model" class="form-select">
-              <option value="deepseek-flash" selected>deepseek-flash</option>
-              <option value="deepseek-v4-pro">deepseek-v4-pro</option>
-              <option value="deepseek-chat">deepseek-chat</option>
-              <option value="deepseek-reasoner">deepseek-reasoner</option>
-              <option value="custom">自定义模型标识...</option>
-            </select>
-            <input type="text" id="setting-custom-model" class="form-input" placeholder="输入自定义模型ID..." style="display:none; margin-top:8px;">
-          </div>
-
-          <div class="form-group">
-            <label for="setting-endpoint">API 地址（支持 /v1 基础地址或完整请求地址）</label>
-            <input type="text" id="setting-endpoint" class="form-input" value="https://api.deepseek.com/chat/completions">
-            <p class="ai-test-help">填写 https://api.example.com/v1 时自动补全 /chat/completions；完整请求地址及自定义路径保持不变。本机代理可用 http://localhost:端口/请求路径。</p>
-          </div>
-
-          <div class="form-group">
-            <label for="setting-api-key">API Key（所选端点不需要时可留空）</label>
-            <input type="password" id="setting-api-key" class="form-input" placeholder="可留空，不会因此切换到共享 API" autocomplete="off">
-          </div>
-          <div class="form-group">
-            <label for="setting-token-parameter">输出 Token 参数</label>
-            <select id="setting-token-parameter" class="form-select">
-              <option value="max_tokens">max_tokens（DeepSeek 及多数兼容接口）</option>
-              <option value="max_completion_tokens">max_completion_tokens（部分 OpenAI 模型）</option>
-            </select>
-          </div>
-          </div>
-
-          <div class="form-group">
-            <label for="setting-max-tokens">单次请求输出 Token（可留空）</label>
-            <input type="number" id="setting-max-tokens" class="form-input" min="1" placeholder="留空使用当前服务默认值">
-            <div style="font-size:0.75rem; color:var(--text-dim); margin-top:3px; line-height: 1.4;">
-              按所选服务支持的范围设置。正文目标由工具循环单独检查，不将 Token 用量当成正文字数。
+            <div id="api-custom-fields" class="api-custom-fields" hidden>
+              <div class="form-group">
+                <label for="setting-endpoint">API 地址</label>
+                <input type="text" id="setting-endpoint" class="form-input" value="https://api.deepseek.com/chat/completions" inputmode="url" spellcheck="false" autocapitalize="off" aria-describedby="settings-endpoint-help">
+                <p class="ai-test-help" id="settings-endpoint-help">支持 /v1 基础地址或完整请求地址，也支持本机代理。基础地址自动补全 /chat/completions，自定义路径保持不变。</p>
+              </div>
+              <div class="form-group">
+                <label for="setting-api-key">API Key（端点不需要时可留空）</label>
+                <input type="password" id="setting-api-key" class="form-input" placeholder="可留空，不会切换到共享 API" autocomplete="off" spellcheck="false" autocapitalize="off">
+              </div>
+              <div class="form-group">
+                <label for="setting-model">模型 ID</label>
+                <select id="setting-model" class="form-select">
+                  <option value="deepseek-flash" selected>deepseek-flash</option>
+                  <option value="deepseek-v4-pro">deepseek-v4-pro</option>
+                  <option value="deepseek-chat">deepseek-chat</option>
+                  <option value="deepseek-reasoner">deepseek-reasoner</option>
+                  <option value="custom">自定义模型标识...</option>
+                </select>
+                <input type="text" id="setting-custom-model" class="form-input" placeholder="输入服务商提供的模型 ID" aria-label="自定义模型 ID" spellcheck="false" autocapitalize="off" style="display:none; margin-top:8px;">
+              </div>
+              <details class="settings-fold" id="settings-compatibility">
+                <summary>接口兼容选项<span>通常保持默认即可</span></summary>
+                <div class="settings-fold-body">
+                  <div class="form-group">
+                    <label for="setting-api-adapter">API 类型</label>
+                    <select id="setting-api-adapter" class="form-select">
+                      <option value="auto">自动（DeepSeek 官方专属适配，其余通用格式）</option>
+                      <option value="openai">通用 Chat Completions 兼容接口</option>
+                      <option value="deepseek">DeepSeek Chat Completions（含兼容代理）</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="setting-token-parameter">输出 Token 参数</label>
+                    <select id="setting-token-parameter" class="form-select">
+                      <option value="max_tokens">max_tokens（DeepSeek 及多数兼容接口）</option>
+                      <option value="max_completion_tokens">max_completion_tokens（部分 OpenAI 模型）</option>
+                    </select>
+                  </div>
+                </div>
+              </details>
             </div>
-          </div>
+            <p class="ai-test-help">配置保存在本机；自定义来源不会修改站长共享服务。</p>
+          </section>
 
-          <div class="ai-connection-test">
-            <button type="button" class="qm-btn" id="btn-test-ai-connection">测试请求</button>
-            <p class="ai-test-help">测试当前选择的来源和填写的配置，无需先保存。只发一条简短请求，不推进剧情；共享请求使用站长额度，自定义请求使用所填端点。测试通过后保存应用。</p>
+          <section class="settings-section" aria-labelledby="settings-generation-title">
+            <h2 id="settings-generation-title">生成偏好</h2>
+            <p class="ai-test-help">正文篇幅可在阅读界面的篇幅按钮中选择。5000 字档以最终交付的正文实测为准。</p>
+            <details class="settings-fold" id="settings-generation-advanced">
+              <summary>请求输出设置<span>按服务支持的范围填写</span></summary>
+              <div class="settings-fold-body">
+                <div class="form-group">
+                  <label for="setting-max-tokens">单次请求输出 Token（可留空）</label>
+                  <input type="number" id="setting-max-tokens" class="form-input" min="1" placeholder="留空使用当前服务默认值" aria-describedby="settings-token-help">
+                  <p class="ai-test-help" id="settings-token-help">这不是正文字数。正文目标由工具循环单独检查；思考、工具记录、JSON 和选项均不计入交付字数。</p>
+                </div>
+              </div>
+            </details>
+          </section>
+
+          <section class="settings-section settings-test-result" aria-labelledby="settings-test-title">
+            <h2 id="settings-test-title">连接测试</h2>
+            <p class="ai-test-help">使用当前填写的配置，无需先保存。只发送一条简短请求，不推进剧情；共享来源使用站长额度，自定义来源使用所填端点。</p>
             <div id="ai-connection-test-status" role="status" aria-live="polite">尚未发送测试请求。</div>
-          </div>
+          </section>
 
-          <!-- DeepSeek Prompt Caching 四层前缀缓存对齐遥测面板 -->
-          <div class="ai-connection-test">
-            <strong>最近一次有效剧情</strong>
-            <p class="ai-test-help">仅统计最终交付的对白和叙述正文；思考、JSON、工具记录、插画说明与选项不计字数。5000字档须交付至少5000个非空白可见字符。可在顶部取消等待；取消浏览器等待不能保证模型服务停止计费。</p>
-            <div id="ai-generation-metrics" role="status" aria-live="polite">尚无有效剧情指标。</div>
-          </div>
+          <section class="settings-section" aria-labelledby="settings-progress-title">
+            <h2 id="settings-progress-title">进度与备份</h2>
+            <div id="settings-progress-status"></div>
+          </section>
 
-          <div class="cache-telemetry-box" id="cache-telemetry-box">
-            <div style="font-size:0.85rem; font-weight:700; color:var(--accent-jade); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-              <span>⚡ 所选 API 的请求缓存指标</span>
-              <span class="cache-status-tag" id="cache-status-tag">等待有效生成与实测缓存指标</span>
-            </div>
-            
-            <div class="cache-layer-indicators">
-              <div class="cache-layer-badge active" title="保持静态规则与工具声明稳定，实际命中由服务商返回">L1: 静态规则前缀</div>
-              <div class="cache-layer-badge active" title="当前阵营背景资料保持稳定">L2: 阵营背景前缀</div>
-              <div class="cache-layer-badge active" title="保留可用的完整近期回合，不截断半轮 JSON">L3: 完整近期历史</div>
-              <div class="cache-layer-badge active" title="骰子点数、临时卡牌与危险刻度绝对置于尾部">L4: 易变变量绝对置尾</div>
-            </div>
-
-            <div class="cache-metrics-row">
-              <div class="cache-metric-card">
-                <span class="cm-label">最近缓存命中率</span>
-                <span class="cm-value" id="cm-hit-rate">--</span>
+          <details class="settings-fold settings-diagnostics" id="settings-diagnostics">
+            <summary>指标与诊断<span>连接状态、正文字数与缓存</span></summary>
+            <div class="settings-fold-body">
+              <div class="ai-connection-test">
+                <h3>服务状态</h3>
+                <div id="ai-connection-status" role="status" aria-live="polite">共享 AI 尚未检查</div>
+                <button type="button" class="qm-btn" id="btn-retry-shared-ai">检查共享服务状态</button>
               </div>
-              <div class="cache-metric-card">
-                <span class="cm-label">命中 Token (Cache Hit)</span>
-                <span class="cm-value" id="cm-hit-tokens">--</span>
+              <div class="ai-connection-test">
+                <h3>最近一次有效剧情</h3>
+                <p class="ai-test-help">只统计最终交付的对白与叙述正文。5000 字档须交付至少 5000 个非空白可见字符。取消浏览器等待不能保证模型服务停止计费。</p>
+                <div id="ai-generation-metrics" role="status" aria-live="polite">尚无有效剧情指标。</div>
               </div>
-              <div class="cache-metric-card">
-                <span class="cm-label">新算 Token (Cache Miss)</span>
-                <span class="cm-value" id="cm-miss-tokens">--</span>
+              <div class="cache-telemetry-box" id="cache-telemetry-box">
+                <div class="settings-cache-heading">
+                  <h3>所选 API 的请求缓存</h3>
+                  <span class="cache-status-tag" id="cache-status-tag">等待有效生成与实测缓存指标</span>
+                </div>
+                <div class="cache-metrics-row">
+                  <div class="cache-metric-card"><span class="cm-label">最近缓存命中率</span><span class="cm-value" id="cm-hit-rate">--</span></div>
+                  <div class="cache-metric-card"><span class="cm-label">命中 Token</span><span class="cm-value" id="cm-hit-tokens">--</span></div>
+                  <div class="cache-metric-card"><span class="cm-label">新算 Token</span><span class="cm-value" id="cm-miss-tokens">--</span></div>
+                </div>
+                <details class="settings-fold settings-cache-explainer">
+                  <summary>缓存前缀如何安排</summary>
+                  <div class="settings-fold-body">
+                    <p class="ai-test-help">规则、阵营资料与完整近期历史置前，骰子和临时变量置后。实际命中以服务商返回为准。</p>
+                    <div class="cache-layer-indicators">
+                      <div class="cache-layer-badge" title="保持静态规则与工具声明稳定">L1：静态规则前缀</div>
+                      <div class="cache-layer-badge" title="当前阵营背景资料保持稳定">L2：阵营背景前缀</div>
+                      <div class="cache-layer-badge" title="保留完整近期回合">L3：完整近期历史</div>
+                      <div class="cache-layer-badge" title="骰子、临时卡牌与危险刻度置后">L4：易变变量置尾</div>
+                    </div>
+                  </div>
+                </details>
               </div>
+              <p class="settings-version">当前版本 <span id="settings-version-display">v2.5.0 (Build 2026.10.19)</span></p>
             </div>
-          </div>
-
-          <button class="btn-primary" id="btn-save-settings" style="margin-top:4px;">保存通道并应用</button>
+          </details>
+        </div>
+        <div class="settings-actions">
+          <button type="button" class="qm-btn" id="btn-test-ai-connection">测试请求</button>
+          <button type="button" class="btn-primary" id="btn-save-settings">保存 AI 设置</button>
         </div>
       </div>
     </aside>
@@ -585,9 +597,15 @@
   <script src="skills-data.js"></script>
   <script src="ai-gateway-config.js"></script>
   <script src="harness/providers.js?v=20261020-0601"></script>
-  <script src="harness/protocol.js?v=20261020-0600"></script>
+  <script src="game-recovery.js?v=20261021-0800"></script>
+  <script src="scene-favorites.js?v=20261021-0800"></script>
+  <script src="harness/protocol.js?v=20261021-0800"></script>
   <script src="harness/runtime.js?v=20261020-0600"></script>
-  <script src="app.js?v=20261020-0700-release"></script>
+  <script src="app.js?v=20261021-0800"></script>
+  <script src="recovery-ui.js?v=20261021-0800"></script>
+  <script src="favorites-ui.js?v=20261021-0800"></script>
   <script src="mobile-ui.js?v=20261020-theater02"></script>
+  <script src="settings-ui.js?v=20261021-0800"></script>
+  <script src="input-viewport.js?v=20261021-0800"></script>
 </body>
 </html>
