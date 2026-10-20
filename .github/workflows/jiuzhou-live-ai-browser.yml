@@ -3,16 +3,30 @@ on:
   push:
     paths:
       - 'test-shared-ai-browser.mjs'
+      - 'test-mobile-layout.mjs'
       - 'app.js'
       - 'index.html'
+      - 'styles.css'
+      - 'mobile.css'
+      - 'mobile-ui.js'
+      - 'assets/**'
+      - 'data/illustrations/**'
+      - 'data/mobile/**'
       - 'ai-gateway-config.js'
       - 'harness/**'
       - '.github/workflows/jiuzhou-live-ai-browser.yml'
   pull_request:
     paths:
       - 'test-shared-ai-browser.mjs'
+      - 'test-mobile-layout.mjs'
       - 'app.js'
       - 'index.html'
+      - 'styles.css'
+      - 'mobile.css'
+      - 'mobile-ui.js'
+      - 'assets/**'
+      - 'data/illustrations/**'
+      - 'data/mobile/**'
       - 'ai-gateway-config.js'
       - 'harness/**'
       - '.github/workflows/jiuzhou-live-ai-browser.yml'
@@ -32,3 +46,5 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: Test this checkout locally with simulated Worker and no CAPTCHA
         run: node test-shared-ai-browser.mjs
+      - name: Test mobile and desktop layout through real UI without model calls
+        run: node test-mobile-layout.mjs
