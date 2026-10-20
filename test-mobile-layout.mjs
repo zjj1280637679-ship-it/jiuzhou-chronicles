@@ -40,7 +40,12 @@ async function reachable(page,selector){
     const r=node.getBoundingClientRect();
     const x=r.left+r.width/2,y=r.top+r.height/2;
     const hit=document.elementFromPoint(x,y);
-    return {rect:{x:r.x,y:r.y,width:r.width,height:r.height},viewport:{width:innerWidth,height:innerHeight},hit:hit===node||node.contains(hit)};
+    const ancestors=[];
+    for(let parent=node.parentElement;parent&&ancestors.length<5;parent=parent.parentElement){
+      const box=parent.getBoundingClientRect(),css=getComputedStyle(parent);
+      ancestors.push({id:parent.id,className:parent.className,y:box.y,height:box.height,scrollTop:parent.scrollTop,scrollHeight:parent.scrollHeight,clientHeight:parent.clientHeight,overflow:css.overflowY,display:css.display,flex:css.flex,padding:css.padding});
+    }
+    return {rect:{x:r.x,y:r.y,width:r.width,height:r.height},viewport:{width:innerWidth,height:innerHeight,visualHeight:visualViewport?.height},hit:hit===node||node.contains(hit),ancestors};
   });
   assert.ok(result.rect.width>0&&result.rect.height>0,`${selector}: empty target`);
   assert.ok(result.rect.x>=-1&&result.rect.y>=-1&&result.rect.x+result.rect.width<=result.viewport.width+1&&result.rect.y+result.rect.height<=result.viewport.height+1,`${selector}: clipped ${JSON.stringify(result)}`);
