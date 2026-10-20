@@ -11,13 +11,14 @@ final result: passed
 
 ## Findings and resolved iterations
 
-No actionable P0/P1/P2 remains.
+No actionable P0/P1/P2 remains. Final Windows local and Linux CI regressions pass with the same strict reachability assertions.
 
 1. Initial reading capture placed the chapter name in a long truncated status string and preserved source-HTML whitespace before the body. Shortened the scene title, separated literal story whitespace from template whitespace, and aligned the scene/reader boundary near47% of screen. Post-fix combined evidence shows the concise title and readable flat reading area.
 2. Removing card animation inherited the original opacity0. Added explicit opacity1 to the temporary choice cards and an actual computed-opacity assertion; the final choices screenshots and5-size regression pass.
 3. The illustration panel selector did not match `.illustration-box`; horizontal short screens could crop the close control. Corrected selector, fixed header, flexible canvas and scrollable caption. Independent actual-card tests pass at844×390,390×844 and320×568; regression covers every phone viewport.
 4. Modal isolation blocked the previous reading action. Added a temporary return-to-reading control and restored Escape/left/Q through the existing previous handler. Returning and reopening choices does not advance a turn or node.
 5. Restoring a saved middle paragraph skipped navigation refresh. Added the existing navigation refresh after rendering that saved beat. Actual in-app resume at2/4 now enables previous and publishes the correct public navigation metadata.
+6. Linux fallback-font wrapping exposed a submit-button bottom edge outside the360px keyboard-height viewport. Moving submit/cancel into a fixed dialog footer leaves the form body independently scrollable. In-app360px-height verification shows the button ending at348px, and both Linux browser runs39348294184/39348298801 pass without loosening the1px clipping tolerance.
 
 ## Required fidelity surfaces
 
