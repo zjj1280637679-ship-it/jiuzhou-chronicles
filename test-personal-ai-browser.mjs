@@ -24,6 +24,12 @@ const fixtureKey = "fixture-personal-only-key";
 const config = {source:"shared", enabled:true, endpoint:"https://personal.fixture/v1", apiKey:fixtureKey,
   model:"custom", customModel:"personal-fixture", adapter:"openai", tokenParameter:"max_tokens", maxTokens:32768};
 const story = {beats:[{speaker:"旁白", text:"文".repeat(5000)}], choices:[{text:"查账"},{text:"运粮"},{text:"巡城"}]};
+async function readyModal(page, id) {
+  await page.waitForFunction(id => {
+    const node = document.getElementById(id);
+    return node?.getAttribute("aria-modal") === "true" && !node.closest("[inert]");
+  }, id);
+}
 try {
   for (const size of [{name:"phone", width:390, height:844, mobile:true},{name:"desktop", width:1440, height:900, mobile:false}]) {
     const context = await browser.newContext({viewport:{width:size.width,height:size.height}, isMobile:size.mobile, hasTouch:size.mobile, serviceWorkers:"block", reducedMotion:"reduce"});
@@ -67,6 +73,7 @@ try {
     assert.deepEqual(await page.evaluate(() => ({step:window.__vnEngine.currentStep,turn:window.__vnEngine.currentTurn,queue:window.__vnEngine.storyQueue.map(b=>b.text)})), before);
     if (size.mobile) await page.click("#mobile-menu-toggle");
     await page.click("#qm-settings");
+    await readyModal(page,"drawer-settings");
     assert.equal(await page.locator('#setting-api-source option[value="shared"]').count(), 0);
     assert.equal(await page.locator("#btn-retry-shared-ai").count(), 0);
     assert.equal(await page.locator("#setting-endpoint").inputValue(), config.endpoint);
@@ -88,7 +95,11 @@ try {
       if (await page.locator("#choice-overlay").evaluate(el=>el.classList.contains("visible"))) break;
       await page.click(size.mobile ? "#mobile-next" : "#dialogue-box");
     }
-    await page.click("#choice-container .choice-card:last-child"); await page.fill("#open-input-text","核对粮册，再听取军民的意见。");
+    await readyModal(page,"choice-overlay");
+    await page.click("#choice-container .choice-card:last-child");
+    await readyModal(page,"drawer-open-input");
+    await page.fill("#open-input-text","核对粮册，再听取军民的意见。");
+    assert.equal(await page.locator("#open-input-text").inputValue(),"核对粮册，再听取军民的意见。");
     await page.click("#btn-submit-open-input");
     try {
       await page.waitForFunction(() => !window.__vnEngine.isAIGenerating && (window.__vnEngine.aiGenerationMetrics || window.__vnEngine.pendingTurnAttempt), undefined, {timeout:30000});
