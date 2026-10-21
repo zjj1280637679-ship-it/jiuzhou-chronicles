@@ -119,9 +119,8 @@ async function resumeMiddleBeat(page){
   await page.waitForFunction(()=>window.__vnEngine.gameState==="PLAYING");
   await counterMatches(page);
   const after=await engineState(page);
-  // Preserve the existing save format: currentStep indexes the next unread beat,
-  // and continueGame consumes it. This regression targets navigation metadata.
-  assert.equal(after.step,before.step+1,"continuing must use the existing saved-queue cursor semantics");
+  // currentStep indexes the next unread beat; the visible saved page is step-1.
+  assert.equal(after.step,before.step,"continuing must restore the same visible page without skipping it");
   assert.equal(after.total,before.total);
   assert.equal(after.node,before.node);assert.equal(after.turn,before.turn);
   assert.equal(await page.locator("#btn-dialogue-prev").isDisabled(),false,"saved middle beat must immediately enable previous-page navigation");
@@ -345,7 +344,9 @@ try{
       await page.waitForFunction(()=>window.__vnEngine.isAIGenerating===false);
       assert.equal(modelCalls,1);
       assert.match(await page.locator("#ai-connection-status").textContent(),/已取消本次请求/);
-      assert.ok(await page.locator("#dialogue-content").evaluate(el=>el.clientHeight>=40),"cancel fallback must preserve usable prose area");
+      assert.ok(await page.locator("#dialogue-content").evaluate(el=>el.clientHeight>=40),"cancelling must preserve usable prose area");
+      await page.waitForSelector("#turn-recovery-panel:not([hidden])");
+      assert.equal(await page.locator("#turn-recovery-panel .recovery-actions button").count(),3);
       if(size.mobile)await counterMatches(page);
 
       await openMenuAction(page,size,"#qm-home");
@@ -357,6 +358,8 @@ try{
       const restored=await engineState(page);
       assert.equal(restored.node,saved.node);assert.equal(restored.turn,saved.turn);
       await noOverflow(page,`${size.name} resume`,["#dialogue-box","#dialogue-content"]);
+      await page.click("#btn-collapse-turn-recovery");
+      await page.waitForSelector("#turn-recovery-panel[hidden]",{state:"attached"});
       if(size.mobile)await illustrationFlow(page,size);
       assert.deepEqual(errors,[],`${size.name}: browser JS errors`);
       console.log(`PASS ${size.name} ${size.width}x${size.height}: title/settings/factions/read/choices/action/cancel/resume${size.mobile?"/illustration-caption-scroll":""}; no external AI calls`);

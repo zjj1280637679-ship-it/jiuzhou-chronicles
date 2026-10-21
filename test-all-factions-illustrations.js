@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 global.JiuzhouProviders = require('./harness/providers.js');
+global.JiuzhouGameRecovery = require("./game-recovery.js");
 
 console.log("===============================================================================");
 console.log("🛡️ 开始全量自动化测试：四大阵营底本、独立套图库、阵营隔离与独立段落展示");
@@ -131,6 +132,7 @@ const appCode = fs.readFileSync(path.join(__dirname, "app.js"), "utf8");
 vm.runInThisContext(appCode);
 
 const engine = new WebVisualNovelEngine();
+engine.apiConfig.enabled = false; // This fixture exercises explicit offline play, without remote requests.
 
 // 对四大阵营分别测试其 buildDeepSeekCachePayload
 expectedFactions.forEach(fKey => {

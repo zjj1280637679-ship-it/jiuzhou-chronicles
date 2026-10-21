@@ -3,6 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
 global.JiuzhouProviders = require("./harness/providers.js");
+global.JiuzhouGameRecovery = require("./game-recovery.js");
 
 const localStorageStore = {};
 global.localStorage = {
@@ -96,6 +97,7 @@ requiredChapters.forEach(chap => {
 // 检验 2: AI 上下文组装检验（无刻板主线树偏见）
 console.log("\n【检验 2：AI Prompt Caching 四层载荷纯净化审计】");
 const engine = new WebVisualNovelEngine();
+engine.apiConfig.enabled = false; // This fixture exercises explicit offline play, without remote requests.
 window.__vnEngine = engine;
 engine.startNewGame("qing");
 

@@ -58,6 +58,7 @@ const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
 global.JiuzhouProviders = require("./harness/providers.js");
+global.JiuzhouGameRecovery = require("./game-recovery.js");
 
 const skillsDataCode = fs.readFileSync(path.join(__dirname, "skills-data.js"), "utf8");
 vm.runInThisContext(skillsDataCode);
@@ -69,6 +70,7 @@ console.log("=== 开始自动化全生命周期测试 ===");
 
 // 3. 实例化引擎 (初始状态应为 TITLE)
 const engine = new WebVisualNovelEngine();
+engine.apiConfig.enabled = false; // This fixture exercises explicit offline play, without remote requests.
 window.__vnEngine = engine;
 
 console.assert(engine.gameState === "TITLE", `[FAIL] 初始状态应为 TITLE，实际为 ${engine.gameState}`);

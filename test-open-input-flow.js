@@ -4,6 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
 global.JiuzhouProviders = require("./harness/providers.js");
+global.JiuzhouGameRecovery = require("./game-recovery.js");
 
 const localStorageStore = {};
 global.localStorage = {
@@ -67,6 +68,7 @@ vm.runInThisContext(appCode);
 console.log("=== 启动【输入文字开放式外推】交互测试 ===");
 
 const engine = new WebVisualNovelEngine();
+engine.apiConfig.enabled = false; // This fixture exercises explicit offline play, without remote requests.
 window.__vnEngine = engine;
 
 // 1. 启动大清阵营

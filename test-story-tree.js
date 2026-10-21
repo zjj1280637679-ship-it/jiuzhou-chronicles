@@ -4,6 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
 global.JiuzhouProviders = require("./harness/providers.js");
+global.JiuzhouGameRecovery = require("./game-recovery.js");
 
 // 1. 模拟浏览器环境
 const localStorageStore = {};
@@ -68,6 +69,7 @@ vm.runInThisContext(appCode);
 console.log("=== 开始双轨主剧情树与 AI 动态弥合系统自动化测试 ===");
 
 const engine = new WebVisualNovelEngine();
+engine.apiConfig.enabled = false; // This fixture exercises explicit offline play, without remote requests.
 window.__vnEngine = engine;
 
 // 测试 1: 验证四大阵营均拥有完整的法定主剧情树结构
@@ -136,6 +138,7 @@ console.assert(savedRaw.includes("isExtrapolating\":true") || savedRaw.includes(
 
 // 模拟重新实例化引擎并继续游戏
 const engine2 = new WebVisualNovelEngine();
+engine2.apiConfig.enabled = false; // This fixture exercises explicit offline play, without remote requests.
 engine2.continueGame();
 console.assert(engine2.isExtrapolating === true, "[FAIL] 读档后应保持自由小说模式");
 console.assert(engine2.branchDepth === 2, `[FAIL] 读档后轮数应为 2，实际为 ${engine2.branchDepth}`);

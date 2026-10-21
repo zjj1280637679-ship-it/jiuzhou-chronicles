@@ -1,0 +1,10 @@
+.favorites-box { max-width: 660px; }
+#drawer-favorites .drawer-body { overflow-y: auto; max-height: 68dvh; }
+#drawer-favorites .favorites-help, .favorites-empty, .favorite-meta { color: var(--text-dim); font-size: .85rem; line-height: 1.7; }
+#favorites-status { min-height: 1.6em; font-size: .85rem; line-height: 1.6; color: var(--accent-gold); }
+.favorite-scene { border-top: 1px solid rgba(229,185,92,.24); padding: 12px 0; overflow-wrap: anywhere; }
+.favorite-scene summary { cursor: pointer; line-height: 1.7; padding: 8px 0; color: var(--text-main); }
+.favorite-scene img { display: block; width: 100%; height: auto; max-height: 40dvh; object-fit: contain; }
+.favorite-text { white-space: pre-wrap; user-select: text; line-height: 1.9; }
+.favorite-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.favorite-actions button { min-height: 44px; }

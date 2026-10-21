@@ -224,7 +224,7 @@ test("manual cancellation exposes its cause, cleans up and permits a fresh reque
   e.cancelAIRequest();
   await assert.rejects(pending, {code: "request_cancelled"});
   assert.equal(requests, 1); assert.equal(e.activeAIRequestController, null); assert.equal(e.btnCancelAIRequest.hidden, true);
-  assert.equal(e.aiRequestStatus.message, "已取消本次请求，使用本地剧情");
+  assert.equal(e.aiRequestStatus.message, "已取消本次请求，保留原行动供重试");
   global.fetch = async (_url, options) => {requests++; assert.notEqual(options.signal, firstSignal); assert.equal(options.signal.aborted, false); return response(story());};
   await turn(e); assert.equal(requests, 2); assert.equal(e.aiRequestStatus.state, "success");
 });
