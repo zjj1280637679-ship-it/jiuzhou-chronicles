@@ -54,6 +54,83 @@ function toolCall() {
     tool_calls: [{id: "generic_world_call", type: "function", function: {name: "read_world", arguments: "{}"}}]}}], usage: {prompt_tokens: 100, completion_tokens: 5}};
 }
 
+function progressClock(t) {
+  const original = {setInterval: global.setInterval, clearInterval: global.clearInterval, now: Date.now};
+  let now = 10000, next = 0;
+  const running = new Map(), callbacks = new Map(), cleared = [];
+  global.setInterval = (callback, ms) => {
+    assert.equal(ms, 1000, "Waiting progress must refresh without an automatic request deadline");
+    const id = ++next; running.set(id, callback); callbacks.set(id, callback); return id;
+  };
+  global.clearInterval = id => {running.delete(id); cleared.push(id);};
+  Date.now = () => now;
+  t.after(() => {global.setInterval = original.setInterval; global.clearInterval = original.clearInterval; Date.now = original.now;});
+  return {running, callbacks, cleared, advance(ms) {now += ms; for (const callback of running.values()) callback();}};
+}
+
+function waitingRequest(e, route = e.resolveAIProvider()) {
+  return e.requestAICompletion(route.endpoint, {}, route.headers, route.useGateway, "story", async signal => {
+    e.updateAIHarnessProgress({type: "model_start", modelCalls: 1, toolCalls: 0});
+    return e.fetchAICompletion(route.endpoint, {}, route.headers, signal);
+  }, route);
+}
+
+test("a delayed model response keeps its waiting clock live without issuing a second request", async t => {
+  const e = engine(t), clock = progressClock(t); let release, requests = 0;
+  global.fetch = () => {requests++; return new Promise(resolve => {release = resolve;});};
+  const pending = waitingRequest(e);
+  assert.equal(clock.running.size, 1); assert.equal(requests, 1);
+  assert.equal(e.aiHarnessProgress.phase, "model_start");
+  clock.advance(1000);
+  const first = e.aiHarnessProgressDisplay.textContent;
+  assert.match(first, /1\.0\s*秒/);
+  clock.advance(2000);
+  assert.match(e.aiHarnessProgressDisplay.textContent, /3\.0\s*秒/);
+  assert.notEqual(e.aiHarnessProgressDisplay.textContent, first);
+  assert.equal(e.aiHarnessProgress.modelCalls, 1); assert.equal(e.aiHarnessProgress.toolCalls, 0);
+  assert.equal(requests, 1, "A progress heartbeat must never retry or probe the model");
+  release(response(final())); await pending;
+  assert.equal(clock.running.size, 0); assert.equal(clock.cleared.length, 1);
+  assert.equal(e.aiHarnessProgressDisplay.hidden, true); assert.equal(e.btnCancelAIRequest.hidden, true);
+  assert.equal(e.activeAIRequestController, null);
+});
+
+test("an authentication failure clears waiting state and preserves the selected provider without retrying", async t => {
+  const e = engine(t), clock = progressClock(t), config = structuredClone(e.apiConfig); let requests = 0;
+  global.fetch = async () => {requests++; return {ok: false, status: 401, json: async () => ({error: "invalid_api_key"})};};
+  await assert.rejects(waitingRequest(e), {code: "upstream_auth_failed"});
+  assert.equal(requests, 1); assert.deepEqual(e.apiConfig, config);
+  assert.equal(e.aiRequestStatus.state, "fallback"); assert.equal(e.aiRequestStatus.channel, "custom");
+  assert.match(e.aiRequestStatus.message, /认证|密钥|Key|鉴权/);
+  assert.equal(e.activeAIRequestController, null); assert.equal(clock.running.size, 0);
+  assert.equal(e.aiHarnessProgressDisplay.hidden, true); assert.equal(e.btnCancelAIRequest.hidden, true);
+});
+
+for (const interruption of ["cancel", "source change"]) {
+  test(`${interruption} clears its clock and a queued old heartbeat cannot overwrite a later request`, async t => {
+    const e = engine(t), clock = progressClock(t); let requests = 0;
+    global.fetch = (_url, init) => {
+      requests++;
+      return new Promise((_resolve, reject) => init.signal.addEventListener("abort", () => reject(new DOMException("Aborted", "AbortError")), {once: true}));
+    };
+    const first = waitingRequest(e), oldHeartbeat = [...clock.callbacks.values()][0];
+    assert.equal(typeof oldHeartbeat, "function");
+    if (interruption === "cancel") e.cancelAIRequest();
+    else {e.settingEndpoint.value = "https://custom-b.fixture/v1/chat/completions"; e.saveAISettings();}
+    await assert.rejects(first, {code: interruption === "cancel" ? "request_cancelled" : "source_changed"});
+    assert.equal(clock.running.size, 0); assert.equal(e.activeAIRequestController, null);
+    const second = waitingRequest(e);
+    e.aiHarnessProgressDisplay.textContent = "Later request owns this display";
+    oldHeartbeat();
+    assert.equal(e.aiHarnessProgressDisplay.textContent, "Later request owns this display");
+    clock.advance(1000);
+    assert.match(e.aiHarnessProgressDisplay.textContent, /1\.0\s*秒/);
+    assert.equal(requests, 2, "Only the two explicit requests may reach the provider");
+    e.cancelAIRequest(); await assert.rejects(second, {code: "request_cancelled"});
+    assert.equal(clock.running.size, 0); assert.equal(e.aiHarnessProgressDisplay.hidden, true);
+  });
+}
+
 test("a Keyless custom provider has a live route and does not access an unselected shared configuration", async t => {
   const e = engine(t);
   Object.defineProperty(window, "JIUZHOU_AI_GATEWAY", {get() {throw new Error("Unselected shared provider must not be read");}});

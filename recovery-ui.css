@@ -17,7 +17,7 @@
   font-size: 14px;
   line-height: 1.6;
 }
-.turn-recovery-panel[hidden], .save-failure-warning[hidden] {display: none;}
+.turn-recovery-panel[hidden], .save-failure-warning[hidden], #qm-recovery[hidden] {display: none;}
 .turn-recovery-panel p, .progress-save-status p {margin: 8px 0 12px;}
 .turn-recovery-panel > button {float: right; min-height: 36px; padding: 4px 8px; margin-left: 8px; border: 1px solid #83734f; border-radius: 6px; background: #253035; color: #f2e9d5; font: inherit; cursor: pointer;}
 .turn-recovery-action {max-height: 4.8em; overflow-y: auto; white-space: pre-wrap; overflow-wrap: anywhere; color: #d2c4a4;}

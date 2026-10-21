@@ -346,7 +346,8 @@ try{
       assert.match(await page.locator("#ai-connection-status").textContent(),/已取消本次请求/);
       assert.ok(await page.locator("#dialogue-content").evaluate(el=>el.clientHeight>=40),"cancelling must preserve usable prose area");
       await page.waitForSelector("#turn-recovery-panel:not([hidden])");
-      assert.equal(await page.locator("#turn-recovery-panel .recovery-actions button").count(),3);
+      assert.deepEqual(await page.locator("#turn-recovery-panel .recovery-actions button").allTextContents(),
+        ["检查 API 设置","按原行动重试","改用本地剧情","放弃本次尝试"]);
       if(size.mobile)await counterMatches(page);
 
       await openMenuAction(page,size,"#qm-home");
