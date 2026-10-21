@@ -1,6 +1,6 @@
 # 九州插件式工具循环
 
-本实现参考 Pi 的极简循环与 DeepSeek Harness 的插件组合思想，不依赖其完整 CLI/SDK。当前公开游戏仍使用 GitHub Pages + Cloudflare Worker；模型密钥只由共享 Worker 持有。
+本实现参考 Pi 的极简循环与 DeepSeek Harness 的插件组合思想，不依赖其完整 CLI/SDK。当前游戏使用 GitHub Pages + 个人 API 直连；玩家自行填写端点、模型和所需 Key，未启用时使用本地剧情。站长共享 API 已于 2026-10-22 移除。
 
 ## 执行边界
 
@@ -8,11 +8,11 @@
 
 - `plugins/world.js`：`read_world` 读取玩家可见的本轮快照。
 - `plugins/story.js`：`write_draft` 替换或追加草稿，`read_draft` 读取，`inspect_draft` 检查，`deliver_story` 交付。草稿不会直接改变玩家历史。
-- `providers.js`：独立注册共享/自定义来源，按明确选择构造模型请求；Key不决定路由。通用接口与DeepSeek扩展分别适配，见 [API来源](../docs/API-SOURCES.md)。
+- `providers.js`：当前内置个人来源，按填写的端点构造请求；Key 可按端点要求留空，不会切换到站长通道。通用接口与DeepSeek扩展分别适配，见 [API来源](../docs/API-SOURCES.md)。
 - `protocol.js`：可替换插件与网关共用的工具契约及纯文本规范化规则。工具按名字稳定排序；注册按配置顺序，避免启动快慢改变行为。
 - `worker-entry.js`：独立插件的消息入口。异常变为工具回执；同步卡死的插件在工具超时后被终止，其他插件保持可用。这里的本地工具超时不是模型请求、字数或调用频率上限。
 
-添加可信插件时，提供 `{id,url}`、声明工具并实现 `execute(name,args,context)`。启停只影响该实例的注册和状态；同名冲突插件被拒绝，不覆盖先注册工具。共享后端的工具契约也要独立注册，不能让浏览器把共享模型变成任意功能代理。
+添加可信插件时，提供 `{id,url}`、声明工具并实现 `execute(name,args,context)`。启停只影响该实例的注册和状态；同名冲突插件被拒绝，不覆盖先注册工具。每个工具只接收该插件需要的结构化上下文。
 
 这个隔离边界不承诺网络永不失败，也不把 Worker 当作运行任意不可信脚本的权限沙箱。现有旧剧情树、存档及插画展示仍由原引擎承接，没有宣称整个旧应用已经全部插件化。关键交付插件不可用时，本轮明确失败并保留可恢复的本地玩法；不会用其他插件的结果冒充剧情。
 
@@ -26,7 +26,7 @@
 
 ## DeepSeek 与缓存
 
-共享后端新增 `mode:"agent"` 的独立模型适配器，保留旧 `story/suture` 与连接测试。工具 schema 固定排序；固定系统规则与时代背景放前面；行动、目标字数、工具结果及新回复追加到后面；续步保留原始调用 ID 和 arguments 字串，不重写前缀。新循环关闭 thinking；偶发 provider reasoning 只在本轮内存续传，最终剧情及历史均不包含它。
+个人 API 使用标准 Chat Completions 原生工具请求；共享后端与其 mode 协议已移除。工具 schema 固定排序；固定系统规则与时代背景放前面；行动、目标字数、工具结果及新回复追加到后面；续步保留原始调用 ID 和 arguments 字串，不重写前缀。新循环关闭 thinking；偶发 provider reasoning 只在本轮内存续传，最终剧情及历史均不包含它。
 
 读取官方 `usage.prompt_cache_hit_tokens` 和 `prompt_cache_miss_tokens` 累计显示真实命中量。缓存默认由供应商建立，命中属于 best effort，不因为代码采用稳定前缀就宣称必然高命中。切换故事/插件组合或未来历史裁选可能启动新前缀。
 

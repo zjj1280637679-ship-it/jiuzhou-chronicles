@@ -325,7 +325,7 @@ function appEngine(t) {
   global.window = {JIUZHOU_AI_GATEWAY: {endpoint: "https://fixture.gateway"}, JiuzhouHarnessProtocol: protocol,
     JiuzhouHarness: {createGameHarness: opts => createGameHarness({...opts, baseURL, workerFactory: createNodeWorkerFactory()})}};
   return Object.assign(Object.create(WebVisualNovelEngine.prototype), {
-    apiConfig: {enabled: true, source: "shared", apiKey: "", model: "deepseek-flash", endpoint: "https://private.fixture/chat/completions", maxTokens: 32768},
+    apiConfig: {enabled: true, source: "custom", adapter: "deepseek", apiKey: "", model: "deepseek-flash", endpoint: "https://private.fixture/chat/completions", maxTokens: 32768},
     serverSharedConfig: {hasServerKey: true}, apiHistory: [], expectedLength: 500, currentFaction: "ming", branchDepth: 1,
     ideologyVector: {authority: 0, pragmatism: 0, progress: 0, cognition: 0},
     cacheTelemetry: {lastHitTokens: 0, lastMissTokens: 0, lastHitRate: "0.0%"},
@@ -340,10 +340,10 @@ test("app runs native agent requests with one signal and commits only the verifi
   const engine = appEngine(t), requests = [], signals = [];
   global.fetch = async (_url, init) => {
     const body = JSON.parse(init.body); requests.push(body); signals.push(init.signal);
-    assert.equal(body.mode, "agent"); assert.equal(body.response_format, undefined);
-    assert.equal(body.thinking, undefined);
-    assert.equal(body.tools, undefined);
-    assert.deepEqual(body.enabledTools, protocol.tools.map(tool => tool.function.name));
+    assert.equal(body.mode, undefined); assert.equal(body.response_format, undefined);
+    assert.deepEqual(body.thinking, {type: "disabled"});
+    assert.deepEqual(body.tools, protocol.tools);
+    assert.equal(body.enabledTools, undefined);
     assert.equal(engine.apiHistory.length, 0);
     assert.equal(engine.btnCancelAIRequest.hidden, false);
     if (requests.length === 1) return response(calls(["read_world"], "不得计入正文或存档的本轮思考"));
@@ -419,39 +419,15 @@ test("world lookup carries an index rather than duplicating three long player ac
   assert.deepEqual(engine.extrapolationHistory, before);
 });
 
-test("gateway context reserves tool space while retaining the complete latest action and whole historical turns", t => {
-  const engine = appEngine(t);
-  const prefix = [{role: "system", content: "规".repeat(8500)}, {role: "system", content: "史".repeat(18000)}];
-  const history = Array.from({length: 3}, (_, i) => [
-    {role: "user", content: `行动${i}` + "长".repeat(25000)},
-    {role: "assistant", content: JSON.stringify(narrative(`结果${i}` + "文".repeat(5000)))}
-  ]).flat();
-  const current = {role: "user", content: "本轮" + "探".repeat(25000) + "结尾必须保留：先救人"};
-  const input = [...prefix, ...history, current], before = structuredClone(input), reserve = 14500;
-  const baseline = engine.buildGatewayMessages(input);
-  const bounded = engine.buildGatewayMessages(input, reserve);
-  assert.ok(bounded.reduce((sum, message) => sum + message.content.length, 0) + reserve <= 120000);
-  assert.deepEqual(bounded.at(-1), current);
-  assert.deepEqual(bounded.slice(2, -1), history.slice(-2));
-  assert.ok(baseline.length > bounded.length, "the reserved tool budget should displace older whole turns");
-  assert.deepEqual(input, before);
-});
-
-test("app reserves world and draft tool space once, then preserves that selected prefix across model steps", async t => {
+test("personal API preserves full action and selected history prefix across model steps", async t => {
   const engine = appEngine(t);
   engine.expectedLength = 5000;
   const actions = Array.from({length: 3}, (_, i) => `历史行动${i}` + "长".repeat(25000));
   engine.extrapolationHistory = actions.map((choiceText, i) => ({choiceText, turn: i + 1, success: true}));
   engine.apiHistory = actions.flatMap((content, i) => [{role: "user", content}, {role: "assistant", content: JSON.stringify(narrative(`此前结果${i}` + "文".repeat(5000)))}]);
   const priorHistory = structuredClone(engine.apiHistory);
-  const originalBuilder = engine.buildGatewayMessages;
-  const builderCalls = [], requests = [];
-  engine.buildGatewayMessages = function (messages, reserveCharacters = 0) {
-    builderCalls.push(reserveCharacters);
-    return originalBuilder.call(this, messages, reserveCharacters);
-  };
+  const requests = [];
   const current = "当前行动" + "探".repeat(25000) + "最终意图：安置受伤村民";
-  const expectedReserve = 2 * engine.expectedLength + JSON.stringify(engine.buildAIHarnessWorldSnapshot()).length + 4000;
   global.fetch = async (_url, init) => {
     const body = JSON.parse(init.body); requests.push(body);
     if (requests.length === 1) return response(calls(["read_world"]));
@@ -460,14 +436,13 @@ test("app reserves world and draft tool space once, then preserves that selected
     return response(completion(narrative("文".repeat(5000))));
   };
   await engine.callDeepSeekLiveAPI({text: current, customInput: current, diceBase: 9}, 3, 4, 9, true);
-  assert.deepEqual(builderCalls, [expectedReserve]);
   const first = requests[0].messages;
-  assert.ok(first.reduce((sum, message) => sum + message.content.length, 0) + expectedReserve <= 120000);
+  assert.ok(first.length >= 3);
   assert.match(first.at(-1).content, /最终意图：安置受伤村民/);
   assert.ok(first.at(-1).content.includes(current));
   const selectedHistory = first.slice(2, -1);
   assert.equal(selectedHistory.length % 2, 0);
   assert.deepEqual(selectedHistory, priorHistory.slice(-selectedHistory.length));
-  assert.ok(selectedHistory.length < priorHistory.length);
+  assert.ok(selectedHistory.length <= priorHistory.length);
   assert.equal(requests.length, 2);
 });

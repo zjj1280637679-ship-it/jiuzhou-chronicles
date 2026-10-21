@@ -14,10 +14,11 @@
     const config = saved || {};
     const endpoint = typeof config.endpoint === "string" ? config.endpoint.trim() : DEFAULT_ENDPOINT;
     const apiKey = typeof config.apiKey === "string" ? config.apiKey.trim() : "";
-    // Source is a choice, never an inference from credential presence after migration.
-    const source = typeof config.source === "string" && config.source ? config.source :
-      apiKey || endpoint.replace(/\/$/, "") !== DEFAULT_ENDPOINT ? "custom" : "shared";
-    return {...config, enabled: saved ? config.enabled === true : true, source,
+    // Retired shared settings must never silently activate stored personal credentials.
+    const retiredShared = config.source === "shared" || (!config.source && !apiKey && endpoint.replace(/\/$/, "") === DEFAULT_ENDPOINT);
+    const source = retiredShared ? "custom" : typeof config.source === "string" && config.source ? config.source : "custom";
+    return {...config, enabled: Boolean(saved && !retiredShared && config.enabled === true), source,
+      sharedApiRemoved: config.sharedApiRemoved === true || Boolean(saved && retiredShared),
       adapter: ["auto", "openai", "deepseek"].includes(config.adapter) ? config.adapter : "auto",
       tokenParameter: config.tokenParameter === "max_completion_tokens" ? "max_completion_tokens" : "max_tokens",
       model: typeof config.model === "string" ? config.model.trim() : "deepseek-flash",
@@ -49,24 +50,6 @@
     plugins.set(plugin.id, plugin);
     return () => {if (plugins.get(plugin.id) === plugin) plugins.delete(plugin.id);};
   }
-  register({
-    id: "shared", label: "站长共享 API",
-    resolve(config, context) {
-      if (typeof context.sharedEndpoint !== "string" || !context.sharedEndpoint) throw fail("gateway_config_invalid");
-      let url;
-      try {url = endpointURL(context.sharedEndpoint);} catch (_) {throw fail("gateway_config_invalid");}
-      if (url.protocol !== "https:") throw fail("gateway_config_invalid");
-      return {source: "shared", id: "shared", label: "站长共享 API", useGateway: true,
-        endpoint: url.href, model: context.sharedModel || "由共享服务配置", adapter: "shared",
-        headers: {"Content-Type": "application/json"}, identity: identity(["shared", url.href])};
-    },
-    request(route, options) {
-      const agent = options.harness === true;
-      return {mode: agent ? "agent" : options.mode === "story" ? "story" : "suture", messages: structuredClone(options.messages),
-        ...(agent ? {enabledTools: (options.tools || []).map(t => t.function.name)} : {}),
-        ...(!agent && options.mode === "story" && options.expectedLength !== undefined ? {expectedLength: options.expectedLength} : {})};
-    }
-  });
   register({
     id: "custom", label: "自定义 API",
     resolve(config) {

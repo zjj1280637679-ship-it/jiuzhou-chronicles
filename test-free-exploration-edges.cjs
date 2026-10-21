@@ -15,7 +15,7 @@ function element() {
 function engine() {
   global.window = {JIUZHOU_AI_GATEWAY: {endpoint: "https://gateway.example.com"}};
   return Object.assign(Object.create(WebVisualNovelEngine.prototype), {
-    apiConfig: {enabled: true, source: "shared", apiKey: "", model: "deepseek-flash", endpoint: "https://private.example.com/chat/completions", maxTokens: 32768},
+    apiConfig: {enabled: true, source: "custom", apiKey: "", model: "deepseek-flash", endpoint: "https://private.example.com/chat/completions", maxTokens: 32768},
     serverSharedConfig: {hasServerKey: true}, apiHistory: [], expectedLength: 5000, currentFaction: "ming", branchDepth: 1,
     ideologyVector: {authority: 0, pragmatism: 0, progress: 0, cognition: 0},
     cacheTelemetry: {lastHitTokens: 0, lastMissTokens: 0, lastHitRate: "0.0%"},
@@ -36,60 +36,6 @@ function story(text = "你核对粮册，决定先救百姓。") {
 }
 const action = {text: "先救百姓，再核对军粮账册"};
 const turn = e => e.callDeepSeekLiveAPI(action, 3, 4, 9, true);
-
-test("the current long action and a previous 5000-character JSON survive forwarding intact", () => {
-  const e = engine();
-  const previous = JSON.stringify(story("前情".repeat(2500) + "重要结尾：已经救出村民"));
-  const current = "准备工作".repeat(500) + "最后决定：暂不追击，先送伤员就医";
-  const input = [{role: "system", content: "规则"}, {role: "system", content: "背景"},
-    {role: "user", content: "此前决定"}, {role: "assistant", content: previous}, {role: "user", content: current}];
-  const result = e.buildGatewayMessages(input);
-  assert.equal(result.at(-1).content, current);
-  assert.equal(result[3].content, previous);
-  assert.equal(JSON.parse(result[3].content).beats[0].text.endsWith("已经救出村民"), true);
-  assert.deepEqual(input.at(-1), {role: "user", content: current});
-});
-
-test("history drops older whole turns within its character and message budgets", () => {
-  const e = engine();
-  const prefix = [{role: "system", content: "规".repeat(10000)}, {role: "system", content: "史".repeat(21000)}];
-  const pairs = Array.from({length: 12}, (_, i) => [
-    {role: "user", content: `行动${i}` + "文".repeat(1000)},
-    {role: "assistant", content: JSON.stringify(story(`结果${i}` + "文".repeat(10000)))}
-  ]).flat();
-  const current = {role: "user", content: "当前行动".repeat(2000)};
-  const result = e.buildGatewayMessages([...prefix, ...pairs, current]);
-  assert.equal(result[0].content.length, 8500);
-  assert.equal(result[1].content.length, 18000);
-  assert.ok(result.reduce((n, m) => n + m.content.length, 0) <= 120000);
-  assert.ok(result.length <= 19);
-  assert.equal(result.length % 2, 1);
-  for (let i = 2; i < result.length - 1; i += 2) {
-    assert.equal(result[i].role, "user"); assert.equal(result[i + 1].role, "assistant");
-    assert.equal(typeof JSON.parse(result[i + 1].content).beats[0].text, "string");
-  }
-  assert.equal(result.at(-2).content, pairs.at(-1).content);
-  assert.deepEqual(result.at(-1), current);
-});
-
-test("at most eight complete historical pairs are sent, with no orphan assistant", () => {
-  const e = engine();
-  const messages = [{role: "system", content: "规则"}, {role: "system", content: "背景"},
-    {role: "assistant", content: "孤立旧回复"}, ...Array.from({length: 10}, (_, i) => [
-      {role: "user", content: `u${i}`}, {role: "assistant", content: `a${i}`}
-    ]).flat(), {role: "user", content: "当前行动"}];
-  const result = e.buildGatewayMessages(messages);
-  assert.equal(result.length, 19); assert.equal(result[2].content, "u2");
-  assert.equal(result.at(-2).content, "a9");
-});
-
-test("overlong current input is explicitly rejected instead of silently sliced", () => {
-  const e = engine(), input = "文".repeat(40001);
-  assert.throws(() => e.buildGatewayMessages([{role: "system", content: "规则"}, {role: "system", content: "背景"}, {role: "user", content: input}]), /context_too_large/);
-  assert.match(e.describeAIError(new Error("context_too_large")), /没有被截断发送/);
-  const allowed = e.buildGatewayMessages([{role: "system", content: "规则"}, {role: "system", content: "背景"}, {role: "user", content: input.slice(1)}]);
-  assert.equal(allowed.at(-1).content.length, 40000);
-});
 
 test("bad optional choices and effects do not discard valid long-form prose", async () => {
   const e = engine(), effects = [];
@@ -166,7 +112,7 @@ test("real payload builder transmits the 5000 tier and preserves a long latest a
   let body;
   global.fetch = async (_url, options) => {body = JSON.parse(options.body); return response(story());};
   await e.callDeepSeekLiveAPI({text: customInput, customInput}, 3, 4, 9, true);
-  assert.equal(body.expectedLength, 5000);
+  assert.equal(body.expectedLength, undefined);
   assert.doesNotMatch(body.messages[0].content, /3500~4800|至少\s*5000|少于\s*5000/);
   assert.match(body.messages.at(-1).content, /至少\s*5000/);
   assert.match(body.messages.at(-1).content, /最后决定：先救村民/);
@@ -203,7 +149,7 @@ test("changing the length preference while waiting cannot relabel the in-flight 
     return new Promise(resolve => {resolveResponse = resolve;});
   };
   const pending = turn(e);
-  assert.equal(sentBody.expectedLength, 5000);
+  assert.equal(sentBody.expectedLength, undefined);
   e.expectedLength = 500;
   resolveResponse(response(story("史".repeat(3600))));
   await pending;

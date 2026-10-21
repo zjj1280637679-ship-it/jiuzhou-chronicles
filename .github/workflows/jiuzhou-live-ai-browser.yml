@@ -1,8 +1,8 @@
-name: Jiuzhou Simulated Browser AI Bridge
+name: Jiuzhou Personal API Browser Checks
 on:
   push:
     paths:
-      - 'test-shared-ai-browser.mjs'
+      - 'test-personal-ai-browser.mjs'
       - 'test-mobile-layout.mjs'
       - 'app.js'
       - 'index.html'
@@ -21,12 +21,11 @@ on:
       - 'assets/**'
       - 'data/illustrations/**'
       - 'data/mobile/**'
-      - 'ai-gateway-config.js'
       - 'harness/**'
       - '.github/workflows/jiuzhou-live-ai-browser.yml'
   pull_request:
     paths:
-      - 'test-shared-ai-browser.mjs'
+      - 'test-personal-ai-browser.mjs'
       - 'test-mobile-layout.mjs'
       - 'app.js'
       - 'index.html'
@@ -45,7 +44,6 @@ on:
       - 'assets/**'
       - 'data/illustrations/**'
       - 'data/mobile/**'
-      - 'ai-gateway-config.js'
       - 'harness/**'
       - '.github/workflows/jiuzhou-live-ai-browser.yml'
   workflow_dispatch:
@@ -62,8 +60,8 @@ jobs:
           node-version: '22'
       - run: npm install --no-save playwright@1.56.1
       - run: npx playwright install --with-deps chromium
-      - name: Test this checkout locally with simulated Worker and no CAPTCHA
-        run: node test-shared-ai-browser.mjs
+      - name: Test personal API migration and native tools with simulated model responses
+        run: node test-personal-ai-browser.mjs
       - name: Test mobile and desktop layout through real UI without model calls
         run: node test-mobile-layout.mjs
       - name: Test visual keyboard viewport fitting without device or model traffic

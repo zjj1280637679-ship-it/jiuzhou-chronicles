@@ -6,7 +6,7 @@
 // =============================================================================
 
 const APP_VERSION = "v2.5.0";
-const BUILD_STAMP = "2026.10.21.0802";
+const BUILD_STAMP = "2026.10.22.0900";
 const VERSION_FULL = `v2.5.0 (Build ${BUILD_STAMP} · 插件式工具循环 · 交付正文实测 · 3选项+开放输入)`;
 const AIProviders = typeof module === "object" && module.exports
   ? require("./harness/providers.js") : globalThis.JiuzhouProviders;
@@ -80,7 +80,6 @@ class WebVisualNovelEngine {
     // 四层前缀缓存对齐的历史队列 (Append-Only Narrative History Stream)
     this.apiHistory = [];
     this.pendingApiChoices = null;
-    this.sharedGatewayStatus = {state: "idle", message: "共享 AI 尚未检查"};
     this.aiRequestStatus = null;
     this.aiGenerationMetrics = null;
     this.activeAIRequestController = null;
@@ -571,7 +570,6 @@ class WebVisualNovelEngine {
     this.settingApiKey = document.getElementById("setting-api-key");
     this.settingMaxTokens = document.getElementById("setting-max-tokens");
     this.aiConnectionStatus = document.getElementById("ai-connection-status");
-    this.btnRetrySharedAi = document.getElementById("btn-retry-shared-ai");
     this.btnCancelAIRequest = document.getElementById("btn-cancel-ai-request");
     this.btnTestAiConnection = document.getElementById("btn-test-ai-connection");
     this.aiConnectionTestStatus = document.getElementById("ai-connection-test-status");
@@ -618,10 +616,8 @@ class WebVisualNovelEngine {
     if (this.settingApiKey) this.settingApiKey.value = this.apiConfig.apiKey || "";
     if (this.settingMaxTokens) this.settingMaxTokens.value = this.apiConfig.maxTokens ?? "";
 
-    this.serverSharedConfig = null;
     this.updateAIProviderSettingsUI();
     this.updateCachePillUI();
-    if (this.apiConfig.source === "shared") this.checkServerSharedApi();
 
     // 初始化交付正文目标按钮状态。
     const lengthButtons = document.querySelectorAll(".btn-length");
@@ -916,9 +912,7 @@ class WebVisualNovelEngine {
       }
     });
 
-    if (this.btnRetrySharedAi) {
-      this.btnRetrySharedAi.addEventListener("click", () => this.checkServerSharedApi());
-    }
+
     if (this.btnCancelAIRequest) {
       this.btnCancelAIRequest.hidden = true;
       this.btnCancelAIRequest.addEventListener("click", () => this.cancelAIRequest());
@@ -1167,10 +1161,7 @@ class WebVisualNovelEngine {
 
   resolveAIProvider(value = this.apiConfig) {
     const config = AIProviders.normalizeConfig(value);
-    const context = {sharedModel: this.serverSharedConfig?.model || ""};
-    // 不读取、校验或请求未选中的来源。
-    if (config.source === "shared") context.sharedEndpoint = this.getSharedGatewayEndpoint();
-    return AIProviders.resolve(config, context);
+    return AIProviders.resolve(config);
   }
 
   hasLiveAIRoute() {
@@ -1204,6 +1195,7 @@ class WebVisualNovelEngine {
     }
     delete next.userDisabledShared;
     delete next.useGateway;
+    delete next.sharedApiRemoved;
     if (JSON.stringify(next) !== JSON.stringify(this.apiConfig)) {
       const controller = this.activeAIRequestController;
       if (controller && !controller.signal.aborted) {
@@ -1218,7 +1210,7 @@ class WebVisualNovelEngine {
     this.invalidateAIConnectionTest();
     this.updateAIProviderSettingsUI();
     this.updateCacheTelemetryUI();
-    if (next.source === "shared") this.checkServerSharedApi().catch(() => {});
+
   }
 
   updateAIProviderSettingsUI() {
@@ -1232,9 +1224,8 @@ class WebVisualNovelEngine {
     if (this.aiProviderDescription) {
       try {
         const route = this.resolveAIProvider(config);
-        this.aiProviderDescription.textContent = custom
-          ? `当前填写的是自定义 API · 模型 ${route.model} · ${route.adapter === "deepseek" ? "DeepSeek" : "OpenAI 兼容"}适配。Key 可留空；保存后应用。`
-          : `当前选择站长共享 API · 模型 ${route.model}。不使用自定义端点或个人 Key。`;
+        const migration = this.apiConfig.sharedApiRemoved ? "原共享通道已移除，个人配置已保留；确认配置后可启用远端 AI。\n" : "";
+        this.aiProviderDescription.textContent = migration + `直连个人 API · 模型 ${route.model} · ${route.adapter === "deepseek" ? "DeepSeek" : "OpenAI 兼容"}适配。Key 按端点要求填写，保存后应用。`;
       } catch (error) {
         this.aiProviderDescription.textContent = `当前来源配置尚未完成：${this.describeAIError(error)}`;
       }
@@ -1298,7 +1289,7 @@ ${JSON.stringify(targetNode.originalBeats)}
     ];
 
     const request = AIProviders.createRequest(route, {mode: "suture", maxTokens: config.maxTokens,
-      messages: route.useGateway ? this.buildGatewayMessages(messages) : messages});
+      messages});
     const data = await this.requestAICompletion(request.endpoint, request.body, request.headers, request.useGateway, "suture", null, route);
     this.assertAIProviderRouteCurrent(route, revision);
     const choiceObj = data.choices && data.choices[0];
@@ -2509,7 +2500,7 @@ ${JSON.stringify(targetNode.originalBeats)}
 
       let nextBeats = null;
 
-      // 若启用了 DeepSeek API (服务端平台共享网关 或 客户端已配 Key)
+      // 若启用了 DeepSeek API (玩家已启用个人 API)
       const hasLiveChannel = !recoveryOptions.local && this.hasLiveAIRoute();
 
       if (hasLiveChannel) {
@@ -3911,9 +3902,7 @@ ${currentProfile.npcRoster}`;
     const harnessRuntime = typeof window !== "undefined" && window.JiuzhouHarness;
     const useHarness = typeof harnessRuntime?.createGameHarness === "function";
     const worldSnapshot = useHarness ? this.buildAIHarnessWorldSnapshot() : null;
-    // 仅首轮共享上下文预留工具空间，循环内始终追加完整原生 transcript。
-    const toolReserve = useHarness ? requestedExpectedLength * 2 + JSON.stringify(worldSnapshot).length + 4000 : 0;
-    const initialMessages = route.useGateway ? this.buildGatewayMessages(messages, toolReserve) : messages;
+    const initialMessages = messages;
     const initialRequest = AIProviders.createRequest(route, {mode: "story", messages: initialMessages,
       maxTokens: config.maxTokens, expectedLength: requestedExpectedLength});
     const runner = useHarness ? async signal => {
@@ -4303,10 +4292,8 @@ ${currentProfile.npcRoster}`;
   describeAIError(error) {
     const code = error?.code || error?.message || "";
     const reasons = {
-      gateway_config_invalid: "共享 AI 地址配置无效，请联系站长",
-      gateway_unconfigured: "共享 AI 密钥尚未配置，或 Worker 尚未更新",
-      ai_not_configured: "AI 服务尚未配置完整，请联系站长",
-      origin_rejected: "AI 服务未允许此网页访问，请联系站长",
+      ai_not_configured: "AI 服务尚未配置完整，请检查 API 配置",
+      origin_rejected: "AI 服务未允许此网页访问，请检查 API 配置",
       upstream_auth_failed: "所选 API 未通过认证，请检查此来源的 API Key 与访问权限，或在设置中选择其他来源",
       upstream_quota_exceeded: "所选 AI 服务额度不足，请检查相应账户",
       upstream_rate_limited: "AI 服务繁忙，请稍后重试",
@@ -4314,10 +4301,10 @@ ${currentProfile.npcRoster}`;
       upstream_unavailable: "AI 服务暂时不可用，请稍后重试",
       upstream_network_error: "AI 网关无法连接模型服务，请稍后重试",
       upstream_timeout: "AI 服务响应超时，请稍后重试",
-      invalid_mode: "AI 请求模式无效，请联系站长更新网页",
-      invalid_messages: "AI 剧情上下文无效，请联系站长",
-      invalid_message_type: "AI 剧情上下文格式无效，请联系站长",
-      invalid_structure: "AI 剧情上下文结构无效，请联系站长",
+      invalid_mode: "AI 请求模式无效，请刷新网页后重试",
+      invalid_messages: "AI 剧情上下文无效，请检查 API 配置",
+      invalid_message_type: "AI 剧情上下文格式无效，请检查 API 配置",
+      invalid_structure: "AI 剧情上下文结构无效，请检查 API 配置",
       invalid_length: "AI 篇幅档位无效，请重新选择 500、2000 或 5000 字档位",
       context_too_large: "本轮上下文超过服务可承载范围，请缩短输入或开始新段剧情；原文没有被截断发送",
       output_truncated: "AI 输出未完整结束，本轮尚未交付，可调整设置后重试",
@@ -4346,7 +4333,7 @@ ${currentProfile.npcRoster}`;
     };
     if (reasons[code]) return reasons[code];
     if (error?.name === "TimeoutError" || error?.name === "AbortError") return "AI 服务响应超时，请稍后重试";
-    if (error?.status) return `AI 服务返回 HTTP ${error.status}，请稍后重试或联系站长`;
+    if (error?.status) return `AI 服务返回 HTTP ${error.status}，请稍后重试或检查 API 服务`;
     return "网络请求失败，请检查网络后重试";
   }
 
@@ -4368,14 +4355,12 @@ ${currentProfile.npcRoster}`;
   updateAIConnectionStatusUI() {
     let route = null, routeError = null;
     try { route = this.resolveAIProvider(); } catch (error) { routeError = error; }
-    const selectedShared = AIProviders.normalizeConfig(this.apiConfig).source === "shared";
-    const gateway = selectedShared ? this.sharedGatewayStatus?.message || "共享 AI 尚未检查" : "";
     const mode = !this.apiConfig.enabled ? "你已选择本地剧情，可在本机设置切换远端 AI。" :
       routeError ? `当前来源配置无效：${this.describeAIError(routeError)}` : `当前使用${route.label} · 模型 ${route.model}。`;
     const currentStatus = this.aiRequestStatus && (!this.aiRequestStatus.sourceIdentity || this.aiRequestStatus.sourceIdentity === route?.identity)
       ? this.aiRequestStatus : null;
     const request = currentStatus?.message || "当前来源尚未进行真实 AI 生成。";
-    if (this.aiConnectionStatus) this.aiConnectionStatus.textContent = [gateway, mode, request].filter(Boolean).join("\n");
+    if (this.aiConnectionStatus) this.aiConnectionStatus.textContent = [mode, request].filter(Boolean).join("\n");
     if (this.aiGenerationMetricsDisplay) {
       const metrics = this.aiGenerationMetrics && (!this.aiGenerationMetrics.sourceIdentity || this.aiGenerationMetrics.sourceIdentity === route?.identity)
         ? this.aiGenerationMetrics : null;
@@ -4397,7 +4382,6 @@ ${currentProfile.npcRoster}`;
         this.aiGenerationMetricsDisplay.textContent = "本轮尚无有效 AI 剧情指标。";
       }
     }
-    if (this.btnRetrySharedAi) this.btnRetrySharedAi.disabled = this.sharedGatewayStatus?.state === "checking";
     if (this.cacheStatusTag) this.cacheStatusTag.innerText = currentStatus?.state === "success" ?
       `最近一次生成 · 命中率 ${this.cacheTelemetry.lastHitRate}` : "等待有效 AI 生成 · 暂无本轮缓存指标";
   }
@@ -4491,7 +4475,7 @@ ${currentProfile.npcRoster}`;
     // 对未保存的表单快照发起独立短请求，不写配置、存档、剧情历史或缓存遥测。
     const testedConfig = this.readAISettingsConfig();
     let route = null;
-    const channel = testedConfig.source === "shared" ? "共享通道" : "自定义通道";
+    const channel = "自定义通道";
     const version = this.aiConnectionTestFormVersion || 0;
     const started = Date.now();
     const controller = new AbortController();
@@ -4540,7 +4524,7 @@ ${currentProfile.npcRoster}`;
     const status = this.aiRequestStatus && (!this.aiRequestStatus.sourceIdentity || this.aiRequestStatus.sourceIdentity === route?.identity)
       ? this.aiRequestStatus : null;
     this.qmCache.classList.remove("hit");
-    this.qmCache.title = status?.message || (route?.useGateway ? this.sharedGatewayStatus?.message : "当前来源尚未生成") || "当前使用本地剧情";
+    this.qmCache.title = status?.message || "当前来源尚未生成" || "当前使用本地剧情";
     if (!hasLive) {
       this.qmCache.innerText = this.apiConfig.enabled ? "⚠ 当前来源未配置完整 · 待处理" : "⚡ 缓存: 本地模式";
     } else if (status?.state === "fallback") {
@@ -4554,82 +4538,8 @@ ${currentProfile.npcRoster}`;
         ? "⚡ AI 已生成 · 未提供缓存统计" : `⚡ AI 已生成 · 命中 ${this.cacheTelemetry.lastHitRate || "0.0%"}`;
       this.qmCache.classList.add("hit");
     } else {
-      this.qmCache.innerText = route?.useGateway ? "⚡ 共享 AI 已选择 · 待生成" : "⚡ 自定义 AI 已配置 · 待生成";
+      this.qmCache.innerText = "⚡ 个人 AI 已配置 · 待生成";
     }
-  }
-
-  // 平台密钥永远只存在 Cloudflare Worker Secret 中，静态网页只知道公开地址。
-  getSharedGatewayBase() {
-    const value = String(window.JIUZHOU_AI_GATEWAY?.endpoint || "").trim();
-    let url;
-    try { url = new URL(value); } catch { throw new Error("gateway_config_invalid"); }
-    if (!/^https:\/\//i.test(value) || value.includes("\\") || /[?#]/.test(value) ||
-        url.protocol !== "https:" || url.username || url.password || url.pathname !== "/") {
-      throw new Error("gateway_config_invalid");
-    }
-    return url.origin;
-  }
-
-  getSharedGatewayEndpoint() {
-    return this.getSharedGatewayBase() + "/api/jiuzhou/turn";
-  }
-
-  // 当前行动完整保留；历史按完整轮次装入预算，绝不截断上一轮长篇 JSON。
-  buildGatewayMessages(messages, reserveCharacters = 0) {
-    if (!Array.isArray(messages) || messages.length < 3) throw new Error("游戏上下文不完整");
-    const keep = messages.slice(0, 2).map((m, i) => ({
-      role: "system", content: String(m.content || "").slice(0, i === 0 ? 8500 : 18000)
-    }));
-    const current = messages.at(-1);
-    if (!current || current.role !== "user" || typeof current.content !== "string") throw new Error("invalid_structure");
-    if (current.content.length > 40000) throw new Error("context_too_large");
-    let budget = 120000 - keep.reduce((n, m) => n + m.content.length, 0) - current.content.length - Math.max(0, reserveCharacters);
-    if (budget < 0) throw new Error("context_too_large");
-    const history = messages.slice(2, -1);
-    const pairs = [];
-    for (let i = 0; i < history.length - 1; i++) {
-      const user = history[i], assistant = history[i + 1];
-      if (user?.role === "user" && assistant?.role === "assistant" && typeof user.content === "string" && typeof assistant.content === "string") {
-        pairs.push([{role: "user", content: user.content}, {role: "assistant", content: assistant.content}]);
-        i++;
-      }
-    }
-    const recent = [];
-    for (let i = pairs.length - 1; i >= 0 && recent.length < 8; i--) {
-      const pair = pairs[i];
-      const size = pair[0].content.length + pair[1].content.length;
-      if (pair[0].content.length > 40000 || pair[1].content.length > 60000 || size > budget) break;
-      recent.unshift(pair);
-      budget -= size;
-    }
-    return keep.concat(recent.flat(), {role: "user", content: current.content});
-  }
-
-  // GitHub Pages 不能执行仓库中的 Vercel /api/* 文件，必须访问外部 Worker。
-  async checkServerSharedApi() {
-    if (typeof window === "undefined" || !window.fetch) return;
-    const sequence = (this.sharedHealthSequence || 0) + 1;
-    this.sharedHealthSequence = sequence;
-    this.sharedGatewayStatus = {state: "checking", message: "正在检查共享 AI 连接…"};
-    this.updateCachePillUI();
-    try {
-      const base = this.getSharedGatewayBase();
-      const res = await fetch(base + "/health", {cache: "no-store",
-        signal: typeof AbortSignal !== "undefined" && AbortSignal.timeout ? AbortSignal.timeout(9000) : undefined});
-      if (!res.ok) { const error = new Error("gateway_not_ready"); error.status = res.status; throw error; }
-      const data = await res.json();
-      if (sequence !== this.sharedHealthSequence) return;
-      if (data.jiuzhouReady !== true) throw Error("gateway_unconfigured");
-      this.serverSharedConfig = {hasServerKey:true,model:typeof data.model === "string" ? data.model : "",useGateway:true};
-      this.sharedGatewayStatus = {state: "ready", message: "共享 AI 网关已就绪，可直接生成剧情。"};
-    } catch(e) {
-      if (sequence !== this.sharedHealthSequence) return;
-      this.serverSharedConfig = null;
-      this.sharedGatewayStatus = {state: "unavailable", message: `共享 AI 无法连接：${this.describeAIError(e)}。可重新检查连接；离线剧情仍可继续。`};
-    }
-    if (sequence !== this.sharedHealthSequence) return;
-    this.updateAIProviderSettingsUI();
-    this.updateCachePillUI();
   }
 
   // 5. 更新设置抽屉中的遥测指标

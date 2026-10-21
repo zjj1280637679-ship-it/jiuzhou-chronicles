@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="mobile.css?v=20261020-theater02">
   <link rel="stylesheet" href="settings.css?v=20261021-0800">
   <link rel="stylesheet" href="favorites.css?v=20261021-0800">
-  <link rel="stylesheet" href="recovery-ui.css?v=20261021-0802">
+  <link rel="stylesheet" href="recovery-ui.css?v=20261022-0900">
   <link rel="stylesheet" href="input-viewport.css?v=20261021-0800">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -258,20 +258,16 @@
         </div>
         <div class="drawer-body settings-body">
           <section class="settings-section" aria-labelledby="settings-connection-title">
-            <h2 id="settings-connection-title">连接来源</h2>
+            <h2 id="settings-connection-title">个人 AI 连接</h2>
             <label class="settings-switch">
               <input type="checkbox" id="setting-enable-api">
               <span>使用远端 AI<small>关闭后使用离线剧情</small></span>
             </label>
             <div class="form-group">
-              <label for="setting-api-source">API 来源</label>
-              <select id="setting-api-source" class="form-select">
-                <option value="shared">站长共享 API</option>
-                <option value="custom">自定义 API（官方、第三方或本地代理）</option>
-              </select>
-              <p class="ai-test-help" id="ai-provider-description">使用所选来源；切换来源后保存应用。</p>
+              <input type="hidden" id="setting-api-source" value="custom">
+              <p class="ai-test-help" id="ai-provider-description">直接连接您填写的 API 地址；保存后应用。</p>
             </div>
-            <div id="api-custom-fields" class="api-custom-fields" hidden>
+            <div id="api-custom-fields" class="api-custom-fields">
               <div class="form-group">
                 <label for="setting-endpoint">API 地址</label>
                 <input type="text" id="setting-endpoint" class="form-input" value="https://api.deepseek.com/chat/completions" inputmode="url" spellcheck="false" autocapitalize="off" aria-describedby="settings-endpoint-help">
@@ -279,7 +275,7 @@
               </div>
               <div class="form-group">
                 <label for="setting-api-key">API Key（端点不需要时可留空）</label>
-                <input type="password" id="setting-api-key" class="form-input" placeholder="可留空，不会切换到共享 API" autocomplete="off" spellcheck="false" autocapitalize="off">
+                <input type="password" id="setting-api-key" class="form-input" placeholder="端点不需要密钥时可留空" autocomplete="off" spellcheck="false" autocapitalize="off">
               </div>
               <div class="form-group">
                 <label for="setting-model">模型 ID</label>
@@ -313,7 +309,7 @@
                 </div>
               </details>
             </div>
-            <p class="ai-test-help">配置保存在本机；自定义来源不会修改站长共享服务。</p>
+            <p class="ai-test-help">配置保存在当前浏览器，AI 请求直接发送到您填写的地址。</p>
           </section>
 
           <section class="settings-section" aria-labelledby="settings-generation-title">
@@ -333,7 +329,7 @@
 
           <section class="settings-section settings-test-result" aria-labelledby="settings-test-title">
             <h2 id="settings-test-title">连接测试</h2>
-            <p class="ai-test-help">使用当前填写的配置，无需先保存。只发送一条简短请求，不推进剧情；共享来源使用站长额度，自定义来源使用所填端点。</p>
+            <p class="ai-test-help">使用当前填写的配置，无需先保存。只发送一条简短请求，不推进剧情；使用您填写的端点和凭据。</p>
             <div id="ai-connection-test-status" role="status" aria-live="polite">尚未发送测试请求。</div>
           </section>
 
@@ -347,8 +343,7 @@
             <div class="settings-fold-body">
               <div class="ai-connection-test">
                 <h3>服务状态</h3>
-                <div id="ai-connection-status" role="status" aria-live="polite">共享 AI 尚未检查</div>
-                <button type="button" class="qm-btn" id="btn-retry-shared-ai">检查共享服务状态</button>
+                <div id="ai-connection-status" role="status" aria-live="polite">当前尚未配置个人 API</div>
               </div>
               <div class="ai-connection-test">
                 <h3>最近一次有效剧情</h3>
@@ -583,7 +578,7 @@
           </div>
 
           <div style="font-size: 0.85rem; color: var(--text-dim); border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 12px;">
-            💡 提示：共享 AI 可直接使用，无需游客 API Key 或验证码。长篇推演按你设置的输出 Token 与篇幅偏好请求；遇到网络或模型错误时会说明原因，并保留离线剧情。
+            💡 提示：AI 自由探索使用您在设置中填写的个人 API；未启用时可继续本地剧情。长篇推演按你设置的输出 Token 与篇幅偏好请求；遇到网络或模型错误时会说明原因，并保留离线剧情。
           </div>
         </div>
       </div>
@@ -595,14 +590,13 @@
   <script src="data/faction-novels.js"></script>
   <script src="data/illustrations/illustrations-data.js"></script>
   <script src="skills-data.js"></script>
-  <script src="ai-gateway-config.js"></script>
-  <script src="harness/providers.js?v=20261020-0601"></script>
+  <script src="harness/providers.js?v=20261022-0900"></script>
   <script src="game-recovery.js?v=20261021-0800"></script>
   <script src="scene-favorites.js?v=20261021-0800"></script>
   <script src="harness/protocol.js?v=20261021-0800"></script>
   <script src="harness/runtime.js?v=20261020-0600"></script>
-  <script src="app.js?v=20261021-0802"></script>
-  <script src="recovery-ui.js?v=20261021-0802"></script>
+  <script src="app.js?v=20261022-0900"></script>
+  <script src="recovery-ui.js?v=20261022-0900"></script>
   <script src="favorites-ui.js?v=20261021-0800"></script>
   <script src="mobile-ui.js?v=20261020-theater02"></script>
   <script src="settings-ui.js?v=20261021-0800"></script>

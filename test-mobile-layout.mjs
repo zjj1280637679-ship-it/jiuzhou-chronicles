@@ -199,7 +199,7 @@ try{
       if(target.pathname==="/health"){
         await route.fulfill({status:200,contentType:"application/json",headers:{"access-control-allow-origin":origin},body:JSON.stringify({ok:true,configured:true,enabled:true,jiuzhouEnabled:true,jiuzhouReady:true,model:"layout-fixture"})});return;
       }
-      if(target.pathname==="/api/jiuzhou/turn"){
+      if(target.origin==="https://layout.fixture"&&target.pathname==="/v1/chat/completions"){
         const headers={"access-control-allow-origin":origin,"access-control-allow-methods":"POST, OPTIONS","access-control-allow-headers":"content-type"};
         if(request.method()==="OPTIONS"){await route.fulfill({status:204,headers});return}
         modelCalls++;
@@ -224,7 +224,7 @@ try{
 
       await page.click("#title-btn-settings");
       await reachable(page,"#btn-close-settings");
-      await page.selectOption("#setting-api-source","custom");
+
       await page.fill("#setting-endpoint","https://layout.fixture/v1");
       await page.selectOption("#setting-model","custom");
       await page.fill("#setting-custom-model","layout-fixture");
@@ -233,7 +233,6 @@ try{
       if(size.mobile)await reachable(page,"#btn-close-settings");
       await shot(page,size,"settings");
       // Save only fixture settings into this new isolated browser context.
-      await page.selectOption("#setting-api-source","shared");
       await page.check("#setting-enable-api");
       await page.click("#btn-save-settings");
       await page.waitForFunction(()=>!document.querySelector("#drawer-settings").classList.contains("open"));
