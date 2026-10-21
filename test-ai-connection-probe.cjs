@@ -99,37 +99,6 @@ test("probe uses the unsaved private Key, endpoint and custom model without savi
   assertRestored(e);
 });
 
-test("explicit shared selection probes shared AI despite a saved private Key, offline preference and unavailable health", async () => {
-  const e = engine();
-  e.settingApiSource.value = "shared";
-  e.settingApiKey.value = "   ";
-  e.settingEndpoint.value = "invalid private endpoint must be ignored";
-  e.settingModel.value = "custom";
-  e.settingCustomModel.value = "ignored-private-model";
-  const before = gameState(e);
-  let requests = 0;
-  global.fetch = async (url, options) => {
-    requests++;
-    assert.equal(url, "https://gateway.example.com/api/jiuzhou/turn");
-    assert.equal(options.headers.Authorization, undefined);
-    const body = JSON.parse(options.body);
-    assert.equal(body.mode, "suture");
-    assert.equal(body.max_tokens, 256);
-    assert.deepEqual(body.messages.map(m => m.role), ["system", "system", "user"]);
-    assert.equal(body.model, undefined);
-    assert.equal(body.turnstileToken, undefined);
-    assert.equal(body.inviteCode, undefined);
-    return successResponse("fixture-shared-model");
-  };
-  await e.testAIConnection();
-  assert.equal(requests, 1, "health is not a prerequisite or a substitute for a real request");
-  assert.match(e.aiConnectionTestStatus.textContent, /测试成功/);
-  assert.match(e.aiConnectionTestStatus.textContent, /共享/);
-  assert.match(e.aiConnectionTestStatus.textContent, /fixture-shared-model/);
-  assert.deepEqual(gameState(e), before);
-  assertRestored(e);
-});
-
 test("a private probe does not require a valid shared gateway setting", async () => {
   const e = engine();
   window.JIUZHOU_AI_GATEWAY.endpoint = "broken shared setting";
@@ -289,20 +258,6 @@ test("changing the form during a pending probe cannot label the new configuratio
   await pending;
   assert.match(e.aiConnectionTestStatus.textContent, /配置已修改/);
   assertRestored(e);
-});
-
-test("switching the selected provider during a pending probe cannot mark the new provider as tested", async () => {
-  const e = engine(); let release; let requests = 0;
-  const before = gameState(e);
-  global.fetch = url => {requests++; assert.equal(url, "https://unsaved.example.com/chat/completions"); return new Promise(resolve => {release = resolve;});};
-  const pending = e.testAIConnection();
-  e.settingApiSource.value = "shared";
-  release(successResponse("old-custom-probe-model"));
-  await pending;
-  assert.equal(requests, 1);
-  assert.match(e.aiConnectionTestStatus.textContent, /当前配置已修改/);
-  assert.doesNotMatch(e.aiConnectionTestStatus.textContent, /测试成功/);
-  assert.deepEqual(gameState(e), before); assertRestored(e);
 });
 
 test("probe timeout aborts only its request and clears timer, lock and button state", async () => {

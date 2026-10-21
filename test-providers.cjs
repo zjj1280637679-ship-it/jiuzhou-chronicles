@@ -11,13 +11,6 @@ function custom(overrides = {}) {
     model: "fixture-generic-model", apiKey: "", adapter: "auto", tokenParameter: "max_tokens", ...overrides});
 }
 
-test("fresh defaults may enable shared AI, while an existing offline preference is preserved", () => {
-  const fresh = normalizeConfig(null, {fresh: true});
-  assert.equal(fresh.source, "shared"); assert.equal(fresh.enabled, true);
-  const saved = normalizeConfig({enabled: false, source: "shared"});
-  assert.equal(saved.enabled, false);
-});
-
 test("legacy personal keys or non-default endpoints migrate to custom, including endpoints without keys", () => {
   for (const legacy of [
     {enabled: true, apiKey: "fixture-personal-key", endpoint: "https://api.deepseek.com/chat/completions", model: "deepseek-reasoner"},
@@ -29,16 +22,6 @@ test("legacy personal keys or non-default endpoints migrate to custom, including
     assert.equal(config.endpoint, legacy.endpoint); assert.equal(config.apiKey, legacy.apiKey);
     assert.equal(config.enabled, legacy.enabled); assert.deepEqual(legacy, before);
   }
-});
-
-test("an explicit source is not overridden by saved keys, endpoint values or legacy gateway flags", () => {
-  const config = normalizeConfig({enabled: true, source: "shared", apiKey: "fixture-personal-key",
-    endpoint: "https://compatible.fixture/v1/chat/completions", model: "deepseek-reasoner", useGateway: false});
-  assert.equal(config.source, "shared"); assert.equal(config.model, "deepseek-reasoner");
-  const route = resolve(config, shared);
-  assert.equal(route.source, "shared"); assert.equal(route.endpoint, shared.sharedEndpoint);
-  assert.equal(route.model, shared.sharedModel); assert.equal(route.headers.Authorization, undefined);
-  assert.doesNotMatch(JSON.stringify(route), /fixture-personal-key/);
 });
 
 test("custom HTTPS and loopback HTTP endpoints work without a Key or shared health configuration", () => {
@@ -102,13 +85,6 @@ test("explicit blank custom endpoint or model fields are rejected rather than si
   assert.equal(missingLegacyFields.model, "deepseek-flash");
 });
 
-test("shared selection ignores blank fields belonging to an unselected custom provider", () => {
-  const route = resolve(normalizeConfig({enabled: true, source: "shared", endpoint: "", model: "", customModel: "", apiKey: ""}), shared);
-  assert.equal(route.endpoint, shared.sharedEndpoint); assert.equal(route.model, shared.sharedModel);
-  const request = createRequest(route, {messages: transcript, mode: "probe"});
-  assert.equal(request.body.mode, "suture"); assert.equal(request.body.model, undefined);
-});
-
 test("custom authentication goes only to its selected endpoint and never appears in a request body", () => {
   const route = resolve(custom({apiKey: "fixture-personal-key"}));
   const request = createRequest(route, {messages: transcript, maxTokens: 256, mode: "probe"});
@@ -146,18 +122,6 @@ test("DeepSeek-specific options depend on its adapter rather than a model name a
   assert.equal(createRequest(generic, {messages: transcript, mode: "probe"}).body.thinking, undefined);
 });
 
-test("shared AI is one explicit provider and sends only its gateway contract without the personal model or Key", () => {
-  const route = resolve(normalizeConfig({enabled: true, source: "shared", apiKey: "fixture-personal-key", model: "personal-model"}), shared);
-  const request = createRequest(route, {messages: transcript, tools, maxTokens: 32768, expectedLength: 5000, harness: true, mode: "story"});
-  assert.equal(request.endpoint, shared.sharedEndpoint); assert.equal(request.headers.Authorization, undefined);
-  assert.equal(request.body.mode, "agent");
-  assert.deepEqual(request.body.enabledTools, tools.map(tool => tool.function.name));
-  assert.equal(request.body.tools, undefined); assert.equal(request.body.model, undefined);
-  assert.doesNotMatch(JSON.stringify(request), /fixture-personal-key|personal-model/);
-  const probe = createRequest(route, {messages: transcript, mode: "probe", maxTokens: 256});
-  assert.equal(probe.body.mode, "suture"); assert.equal(probe.body.max_tokens, 256);
-});
-
 test("a provider can use max_completion_tokens and large user settings without a global DeepSeek clamp", () => {
   const route = resolve(custom({tokenParameter: "max_completion_tokens"}));
   const request = createRequest(route, {messages: transcript, maxTokens: 500000, mode: "story"});
@@ -191,7 +155,7 @@ test("a separately registered provider uses the same transport contract and can 
     assert.equal(request.body.fixture, true); assert.equal(request.body.max_tokens, 1234);
     assert.equal(request.body.model, "independent-model");
     assert.equal(resolve(custom()).source, "custom");
-    assert.equal(resolve({source: "shared"}, shared).source, "shared");
+    assert.equal(resolve({source: "shared"}, shared).source, "custom");
   } finally {dispose();}
   assert.deepEqual(list(), before);
   assert.throws(() => resolve({source: plugin.id}), /invalid_provider/);

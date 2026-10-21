@@ -202,14 +202,14 @@ try {
       assert.equal(await page.locator("#setting-max-tokens").isVisible(), false);
       assert.equal(await page.locator("#ai-generation-metrics").isVisible(), false);
       await reachable(page, "#btn-save-settings"); await reachable(page, "#btn-test-ai-connection");
-      await page.selectOption("#setting-api-source", "custom");
+
       await page.fill("#setting-endpoint", "https://exploration.fixture/v1");
       await page.fill("#setting-api-key", "");
       await page.selectOption("#setting-model", "custom"); await page.fill("#setting-custom-model", "exploration-fixture");
       await page.click("#settings-compatibility > summary"); await page.selectOption("#setting-api-adapter", "openai");
       await page.selectOption("#setting-token-parameter", "max_completion_tokens");
       await page.click("#settings-generation-advanced > summary"); await page.fill("#setting-max-tokens", "4096");
-      await page.click("#settings-diagnostics > summary"); await reachable(page, "#btn-retry-shared-ai");
+      await page.click("#settings-diagnostics > summary"); assert.equal(await page.locator("#btn-retry-shared-ai").count(), 0);
       await page.click("#btn-test-ai-connection");
       await page.waitForFunction(() => document.querySelector("#ai-connection-test-status").textContent.includes("测试成功"));
       assert.equal(probeCalls, 1); assert.equal(customCalls, 1); assert.equal(bodies.length, 0);
@@ -219,7 +219,7 @@ try {
       assert.equal(await page.locator("#setting-api-source").inputValue(), "custom");
       assert.equal(await page.locator("#setting-api-key").inputValue(), "");
       assert.equal(await page.locator("#setting-max-tokens").inputValue(), "4096");
-      await page.selectOption("#setting-api-source", "shared"); await page.click("#btn-save-settings");
+      await page.check("#setting-enable-api"); await page.click("#btn-save-settings");
       await page.waitForFunction(() => !document.querySelector("#drawer-settings").classList.contains("open"));
       await page.click("#title-btn-start"); await page.waitForFunction(() => window.__vnEngine.gameState === "PLAYING");
       // Set the visible body target through the existing reading UI.
@@ -390,7 +390,7 @@ try {
       // Hold one real UI request at the mocked custom endpoint. The reader must
       // keep time while no model response exists, then expose the actual 401.
       await returnToReading(page); await openSettings(page, size);
-      await page.selectOption("#setting-api-source", "custom"); await page.click("#btn-save-settings");
+       await page.click("#btn-save-settings");
       await page.waitForFunction(() => !document.querySelector("#drawer-settings").classList.contains("open"));
       const configBeforeAuth = await page.evaluate(() => localStorage.getItem("vn_api_config"));
       const beforeAuth = await state(page), countBeforeAuth = bodies.length, customBeforeAuth = customCalls;
@@ -432,7 +432,7 @@ try {
       if (size.mobile) assert.notEqual(await page.locator("#mobile-page-position").textContent(), "推演中");
       await shot(page, size, "auth-failure");
       await reachable(page, "#btn-turn-api-settings"); await page.click("#btn-turn-api-settings");
-      await modalReady(page, "drawer-settings"); await reachable(page, "#setting-api-source");
+      await modalReady(page, "drawer-settings"); await reachable(page, "#setting-endpoint");
       assert.equal(await page.locator("#setting-api-source").inputValue(), "custom");
       assert.equal(await page.locator("#setting-endpoint").inputValue(), "https://exploration.fixture/v1");
       assert.equal(await page.locator("#setting-api-key").inputValue(), "");
@@ -444,7 +444,7 @@ try {
       assert.deepEqual(await state(page), beforeAuth); await closeSettings(page);
       assert.equal(bodies.length, countBeforeAuth + 1, "An authentication error and its settings shortcut must not retry automatically");
       assert.deepEqual(errors, []); assert.deepEqual(unexpected, []);
-      console.log(`PASS ${size.name}: honest preset-persona reference; settings → empty-key custom test/save → shared; favorites persistence/dedupe/delete; retry original dice/one settlement; choices survive reading/home/reload/discard and restore on rewind; reload/collapse/reopen/local; quota notice/last good save/export/import/preview/restore/read; live waiting clock then 401 cleanup/settings shortcut preserves provider/action/dice; all external requests intercepted`);
+      console.log(`PASS ${size.name}: honest preset-persona reference; settings → direct empty-key API test/save; favorites persistence/dedupe/delete; retry original dice/one settlement; choices survive reading/home/reload/discard and restore on rewind; reload/collapse/reopen/local; quota notice/last good save/export/import/preview/restore/read; live waiting clock then 401 cleanup/settings shortcut preserves provider/action/dice; all external requests intercepted`);
     } finally {await context.close();}
   }
 } finally {await browser.close(); await new Promise(done => server.close(done));}

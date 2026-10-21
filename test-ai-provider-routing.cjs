@@ -145,41 +145,6 @@ test("a Keyless custom provider has a live route and does not access an unselect
   assert.equal(result.reconciledBeats[0].text, "自定义来源续接成功");
 });
 
-test("explicit shared selection ignores a saved personal Key and an invalid unselected custom endpoint", async t => {
-  const e = engine(t, {source: "shared", apiKey: "fixture-personal-key", endpoint: "broken-unselected-endpoint", model: "personal-model"});
-  assert.equal(e.hasLiveAIRoute(), true); let requests = 0;
-  global.fetch = async (url, init) => {
-    requests++; assert.equal(url, "https://shared.fixture/api/jiuzhou/turn"); assert.equal(init.headers.Authorization, undefined);
-    const body = JSON.parse(init.body); assert.equal(body.mode, "suture"); assert.equal(body.model, undefined);
-    assert.doesNotMatch(init.body, /fixture-personal-key|personal-model/);
-    return response({model: "shared-returned-model", choices: [{finish_reason: "stop", message: {content: JSON.stringify({reconciledBeats: [{text: "共享来源续接成功"}]})}}]});
-  };
-  await e.callDeepSeekSutureAPI({title: "守城", desc: "", originalBeats: [{text: "原文"}]}, []);
-  assert.equal(requests, 1); assert.equal(e.aiRequestStatus.channel, "shared");
-});
-
-test("shared health success and failure do not change the selected custom provider or offline preference", async t => {
-  const e = engine(t, {enabled: false}); const before = structuredClone(e.apiConfig);
-  global.fetch = async () => response({jiuzhouReady: true, model: "shared-model"});
-  await e.checkServerSharedApi();
-  assert.deepEqual(e.apiConfig, before); assert.equal(e.settingEnableApi.checked, false);
-  assert.equal(e.serverSharedConfig.hasServerKey, true);
-  global.fetch = async () => {throw new TypeError("shared unavailable");};
-  await e.checkServerSharedApi();
-  assert.deepEqual(e.apiConfig, before); assert.equal(e.apiConfig.source, "custom");
-});
-
-test("a late older health failure cannot overwrite a newer successful shared check", async t => {
-  const e = engine(t); const requests = [];
-  global.fetch = () => new Promise(resolve => requests.push(resolve));
-  const old = e.checkServerSharedApi(), latest = e.checkServerSharedApi();
-  assert.equal(requests.length, 2);
-  requests[1](response({jiuzhouReady: true, model: "newest-shared-model"})); await latest;
-  requests[0](response({jiuzhouReady: false})); await old;
-  assert.equal(e.sharedGatewayStatus.state, "ready"); assert.equal(e.serverSharedConfig.model, "newest-shared-model");
-  assert.equal(e.apiConfig.source, "custom");
-});
-
 test("a generic Keyless custom provider runs the same native-tool harness and reports missing cache telemetry honestly", async t => {
   const e = engine(t); e.serverSharedConfig = {hasServerKey: true}; let requests = 0; const signals = [];
   global.fetch = async (url, init) => {
