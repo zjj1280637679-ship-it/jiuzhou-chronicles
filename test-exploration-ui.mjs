@@ -82,6 +82,13 @@ async function toChoices(page, size) {
   }
   assert.fail(`${size.name}: normal navigation did not reach choices`);
 }
+async function choiceLabels(page) {
+  return (await page.locator("#choice-container .choice-card-text").allTextContents()).slice(0, 3).map(text => text.trim());
+}
+async function returnToReading(page) {
+  await page.keyboard.press("Escape");
+  await page.waitForFunction(() => !document.querySelector("#choice-overlay").classList.contains("visible"));
+}
 async function submitAction(page, size, text) {
   await toChoices(page, size);
   await page.click("#choice-container .choice-card:last-child");
@@ -169,6 +176,14 @@ try {
       assert.deepEqual(await page.evaluate(() => ["settings.css", "settings-ui.js", "favorites-ui.js", "recovery-ui.js"].map(name =>
         Boolean(document.querySelector(`link[href^="${name}"], script[src^="${name}"]`)))), [true, true, true, true], "The actual index must load the new modules");
 
+      await page.click("#title-btn-swarm"); await modalReady(page, "drawer-swarm");
+      const referenceText = await page.locator("#swarm-observatory-body").textContent();
+      assert.match(referenceText, /预设参考分布/); assert.match(referenceText, /游戏内置的设计示例/);
+      assert.match(referenceText, /未接入实时玩家统计/);
+      assert.doesNotMatch(referenceText, /12,480|12480|全网样本|全服/);
+      assert.match(await page.locator("#qm-swarm").getAttribute("title"), /预设人物镜像/);
+      await page.click("#btn-close-swarm");
+
       await openSettings(page, size, true);
       for (const id of ["settings-generation-advanced", "settings-diagnostics", "settings-compatibility"])
         assert.equal(await page.locator("#" + id).getAttribute("open"), null, `${id} must start folded`);
@@ -250,6 +265,16 @@ try {
       await shot(page, size, "delivered");
 
       responseMode = "fail"; await toChoices(page, size);
+      const deliveredChoices = await choiceLabels(page);
+      for (const [index, text] of ["核对账目", "商议运粮", "巡查城门"].entries()) assert.ok(deliveredChoices[index].includes(text));
+      await returnToReading(page); await toChoices(page, size);
+      assert.deepEqual(await choiceLabels(page), deliveredChoices, "Returning to reading must not consume the delivered choices");
+      await returnToReading(page);
+      await page.click(size.mobile ? "#mobile-home" : "#qm-home");
+      await page.waitForFunction(() => window.__vnEngine.gameState === "TITLE");
+      await reloadContinue(page); await toChoices(page, size);
+      assert.deepEqual(await choiceLabels(page), deliveredChoices, "Home, reload, and continue must retain the delivered choices");
+      assert.equal(bodies.length, 2, "Reading and resuming existing choices must not call AI");
       const beforeReload = await state(page);
       await submitAction(page, size, "检查雨后城墙，安排乡民修缮。"); await waitFailed(page);
       const interrupted = await pending(page), requestCount = bodies.length;
@@ -261,6 +286,7 @@ try {
       await reachable(page, recoveryButton(page, "放弃本次尝试")); await recoveryButton(page, "放弃本次尝试").click();
       await page.waitForFunction(() => !window.__vnEngine.pendingTurnAttempt);
       assert.equal((await state(page)).turn, beforeReload.turn); assert.equal(bodies.length, requestCount);
+      assert.deepEqual(await choiceLabels(page), deliveredChoices, "Discarding a failed action must return to the original delivered choices");
       await submitAction(page, size, "走访粮仓，按村户商议赈济。"); await waitFailed(page);
       const localAttempt = await pending(page), beforeLocal = await state(page), countBeforeLocal = bodies.length;
       await reloadContinue(page); await waitFailed(page);
@@ -338,8 +364,16 @@ try {
         const el = document.querySelector(selector); return el.scrollWidth > el.clientWidth + 1;
       }));
       assert.deepEqual(overflow, []); await shot(page, size, "settings-progress");
+      await closeSettings(page);
+      await menuAction(page, size, "#qm-ribbon"); await modalReady(page, "drawer-ribbon");
+      const rewind = page.locator(".ribbon-knot-item").filter({hasText:`外推 #${delivered.turn}`}).locator(".btn-rewind-knot");
+      await reachable(page, rewind); await rewind.click();
+      await page.waitForFunction(turn => window.__vnEngine.currentTurn === turn, delivered.turn);
+      await toChoices(page, size);
+      assert.deepEqual(await choiceLabels(page), deliveredChoices, "Rewinding an earlier delivered turn must restore its choices instead of later actions");
+      assert.equal(bodies.length, countBeforeLocal, "Rewinding a saved choice snapshot must not call AI");
       assert.deepEqual(errors, []); assert.deepEqual(unexpected, []);
-      console.log(`PASS ${size.name}: settings → empty-key custom test/save → shared; favorites persistence/dedupe/delete; retry original dice/one settlement; reload/collapse/reopen/discard/local; quota notice/last good save/export/import/preview/restore/read; all external requests intercepted`);
+      console.log(`PASS ${size.name}: honest preset-persona reference; settings → empty-key custom test/save → shared; favorites persistence/dedupe/delete; retry original dice/one settlement; choices survive reading/home/reload/discard and restore on rewind; reload/collapse/reopen/local; quota notice/last good save/export/import/preview/restore/read; all external requests intercepted`);
     } finally {await context.close();}
   }
 } finally {await browser.close(); await new Promise(done => server.close(done));}

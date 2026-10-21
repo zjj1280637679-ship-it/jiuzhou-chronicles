@@ -254,3 +254,32 @@ test("a cold title screen exports the existing saved game instead of its fresh d
   const backup = JSON.parse(e.exportGameProgress());
   assert.equal(backup.state.currentTurn, 3); assert.equal(backup.state.backlog.length, 1);
 });
+
+test("rewind restores an independent choice snapshot while older knots clear later choices", t => {
+  const {e} = fixture(t);
+  e.drawerRibbon = {classList: {remove() {}}};
+  e.pendingApiChoices = [{text: "查验旧粮册", tag: "查验", bias: {authority: 2}, diceBase: 11}];
+  e.recordFateKnot("旧时刻", "已交付");
+  e.pendingApiChoices[0].text = "未来战后册封功臣";
+  assert.equal(e.fateKnots[0].choices[0].text, "查验旧粮册", "later actions cannot mutate the knot snapshot");
+  e.rewindToKnot(0);
+  assert.equal(e.pendingApiChoices[0].text, "查验旧粮册");
+  assert.equal(e.pendingApiChoices[0].diceBase, 11);
+  assert.equal(e.pendingApiChoices[0].bias.authority, 2);
+  e.pendingApiChoices[0].text = "本轮临时变更";
+  assert.equal(e.fateKnots[0].choices[0].text, "查验旧粮册");
+  delete e.fateKnots[0].choices;
+  e.pendingApiChoices = [{text: "未来战后册封功臣"}];
+  e.rewindToKnot(0);
+  assert.equal(e.pendingApiChoices, null, "legacy knots must not inherit later choices");
+});
+
+test("explicit scene navigation and canonical loading clear the previous scene's choices", async t => {
+  const {e} = fixture(t);
+  e.pendingApiChoices = [{text: "离开场景前的行动"}];
+  e.abandonTurnForNavigation();
+  assert.equal(e.pendingApiChoices, null);
+  e.pendingApiChoices = [{text: "主线加载前的行动"}];
+  await e.loadCanonicalNode("ming_act1", false);
+  assert.equal(e.pendingApiChoices, null);
+});
