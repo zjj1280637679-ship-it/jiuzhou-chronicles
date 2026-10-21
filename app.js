@@ -6,7 +6,7 @@
 // =============================================================================
 
 const APP_VERSION = "v2.5.0";
-const BUILD_STAMP = "2026.10.21.0801";
+const BUILD_STAMP = "2026.10.21.0802";
 const VERSION_FULL = `v2.5.0 (Build ${BUILD_STAMP} · 插件式工具循环 · 交付正文实测 · 3选项+开放输入)`;
 const AIProviders = typeof module === "object" && module.exports
   ? require("./harness/providers.js") : globalThis.JiuzhouProviders;
@@ -3863,23 +3863,40 @@ ${currentProfile.npcRoster}`;
   updateAIHarnessProgress(event) {
     const previous = this.aiHarnessProgress || {};
     this.aiHarnessProgress = {
-      ...previous, mode: "agent", phase: event.type,
+      ...previous, mode: "agent", phase: event.type, tool: event.tool || "", phaseStartedAt: Date.now(),
       modelCalls: Number.isSafeInteger(event.modelCalls) ? event.modelCalls : (previous.modelCalls || 0),
       toolCalls: Number.isSafeInteger(event.toolCalls) ? event.toolCalls : (previous.toolCalls || 0),
       textCharacters: Number.isSafeInteger(event.textCharacters) ? event.textCharacters : (previous.textCharacters || 0),
       targetCharacters: Number.isSafeInteger(event.targetCharacters) ? event.targetCharacters : (previous.targetCharacters || 2000)
     };
+    this.renderAIHarnessProgress();
+  }
+
+  renderAIHarnessProgress() {
+    const progress = this.aiHarnessProgress;
+    if (!progress || !this.aiHarnessProgressDisplay) return;
     const phases = {
-      model_start: "模型正在推演", model_end: "模型回复已接收", tool_start: "正在运行剧情工具",
+      preparing: "正在准备剧情工具", model_start: "等待模型回复", model_end: "模型回复已接收", tool_start: "正在运行剧情工具",
       tool_end: "工具结果已返回模型", plugin_error: "插件报告错误，已反馈模型",
       delivery_check: "正在检查交付正文", delivered: "正文已通过交付检查"
     };
-    if (this.aiHarnessProgressDisplay) {
-      const tools = {read_world: "读取本轮世界资料", read_draft: "读取草稿", write_draft: "记录剧情草稿", inspect_draft: "检查正文字数", deliver_story: "检查并交付正文"};
-      const phase = event.type === "tool_start" && tools[event.tool] ? `正在${tools[event.tool]}` : (phases[event.type] || "正在推演");
-      const elapsed = ((Date.now() - (previous.startedAt || Date.now())) / 1000).toFixed(1);
-      this.aiHarnessProgressDisplay.textContent = `${phase} · 模型 ${this.aiHarnessProgress.modelCalls} 次 · 工具 ${this.aiHarnessProgress.toolCalls} 次 · 耗时 ${elapsed} 秒\n草稿正文 ${this.aiHarnessProgress.textCharacters} 字 · 本轮目标至少 ${this.aiHarnessProgress.targetCharacters} 字`;
-    }
+    const tools = {read_world: "读取本轮世界资料", read_draft: "读取草稿", write_draft: "记录剧情草稿", inspect_draft: "检查正文字数", deliver_story: "检查并交付正文"};
+    const phase = progress.phase === "tool_start" && tools[progress.tool] ? `正在${tools[progress.tool]}` : (phases[progress.phase] || "等待模型回复");
+    const now = Date.now();
+    const elapsed = (Math.max(0, now - (progress.startedAt ?? now)) / 1000).toFixed(1);
+    const waiting = Math.max(0, now - (progress.phaseStartedAt ?? progress.startedAt ?? now));
+    const waitText = progress.phase === "model_start" ? ` · 本次等待 ${(waiting / 1000).toFixed(1)} 秒` : "";
+    const hint = progress.phase === "model_start" && waiting >= 30000 ? "\n服务尚未返回本次回复，可继续等待或取消本次生成。" : "";
+    const source = progress.sourceLabel ? `${progress.sourceLabel} · ` : "";
+    const phaseText = `${source}${phase} · 模型 ${progress.modelCalls} 次 · 工具 ${progress.toolCalls} 次`;
+    const clockText = ` · 耗时 ${elapsed} 秒${waitText}\n草稿正文 ${progress.textCharacters} 字 · 本轮目标至少 ${progress.targetCharacters} 字${hint}`;
+    const phaseNode = this.aiHarnessProgressDisplay.querySelector?.("#ai-harness-phase");
+    const clockNode = this.aiHarnessProgressDisplay.querySelector?.("#ai-harness-clock");
+    if (phaseNode && clockNode) {
+      // Announce actual phase changes; a one-second clock must not keep interrupting a screen reader.
+      if (phaseNode.textContent !== phaseText) phaseNode.textContent = phaseText;
+      clockNode.textContent = clockText;
+    } else this.aiHarnessProgressDisplay.textContent = phaseText + clockText;
   }
 
   // 异步调用模型；只对完整交付执行规范化、历史写入和舞台效果。
@@ -4290,7 +4307,7 @@ ${currentProfile.npcRoster}`;
       gateway_unconfigured: "共享 AI 密钥尚未配置，或 Worker 尚未更新",
       ai_not_configured: "AI 服务尚未配置完整，请联系站长",
       origin_rejected: "AI 服务未允许此网页访问，请联系站长",
-      upstream_auth_failed: "AI 服务认证失败，请检查所选来源的凭据或配置",
+      upstream_auth_failed: "所选 API 未通过认证，请检查此来源的 API Key 与访问权限，或在设置中选择其他来源",
       upstream_quota_exceeded: "所选 AI 服务额度不足，请检查相应账户",
       upstream_rate_limited: "AI 服务繁忙，请稍后重试",
       upstream_request_rejected: "所选 AI 服务拒绝本轮请求，请检查模型及参数配置",
@@ -4414,11 +4431,15 @@ ${currentProfile.npcRoster}`;
     this.activeAIRequestController = controller;
     this.aiGenerationMetrics = null;
     if (this.btnCancelAIRequest) this.btnCancelAIRequest.hidden = false;
-    this.aiHarnessProgress = {mode: runner ? "agent" : "compatibility", modelCalls: 0, toolCalls: 0, textCharacters: 0, targetCharacters: this.expectedLength || 2000, startedAt: Date.now()};
+    this.aiHarnessProgress = {mode: runner ? "agent" : "compatibility", phase: runner ? "preparing" : "model_start", sourceLabel: route ? `${route.label} · ${route.model}` : "", modelCalls: runner ? 0 : 1, toolCalls: 0, textCharacters: 0, targetCharacters: this.expectedLength || 2000, startedAt: Date.now(), phaseStartedAt: Date.now()};
     if (this.aiHarnessProgressDisplay) {
       this.aiHarnessProgressDisplay.hidden = false;
-      this.aiHarnessProgressDisplay.textContent = runner ? "工具循环已开始，正在准备本轮推演…" : "单次请求兼容模式 · 正在等待模型回复…";
+      this.renderAIHarnessProgress();
     }
+    // This is a display clock, not a request deadline or an automatic retry.
+    const progressClock = setInterval(() => {
+      if (this.activeAIRequestController === controller && !controller.signal.aborted) this.renderAIHarnessProgress();
+    }, 1000);
     let timedOut = false;
     const timer = useGateway || runner ? null : setTimeout(() => {
       timedOut = true;
@@ -4437,6 +4458,7 @@ ${currentProfile.npcRoster}`;
       if (failure.code !== "source_changed") this.setAIRequestStatus("fallback", mode, failure, "", route, revision);
       throw failure;
     } finally {
+      clearInterval(progressClock);
       if (timer !== null) clearTimeout(timer);
       if (this.activeAIRequestController === controller) {
         this.activeAIRequestController = null;

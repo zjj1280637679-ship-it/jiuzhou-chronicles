@@ -114,7 +114,9 @@ async function pending(page) {
   });
 }
 function diceIn(body) {
-  const text = body.messages.filter(m => m.role === "user").map(m => m.content).join("\n");
+  // A later turn includes earlier user actions in its native transcript. The
+  // current action belongs to the last user message, never the first dice seen.
+  const text = body.messages.filter(m => m.role === "user").at(-1)?.content || "";
   const match = text.match(/2d6 掷骰检定：\((\d) \+ (\d)\)/);
   assert.ok(match, "Fixture request must include public dice check");
   return [Number(match[1]), Number(match[2])];
@@ -144,7 +146,7 @@ try {
     });
     const page = await context.newPage();
     const errors = [], bodies = [], unexpected = [];
-    let responseMode = "fail", probeCalls = 0, customCalls = 0;
+    let responseMode = "fail", probeCalls = 0, customCalls = 0, releaseHeldResponse, heldResponseStarted;
     page.on("pageerror", e => errors.push(e.message));
     await context.route("**/*", async route => {
       const req = route.request(), url = new URL(req.url());
@@ -168,6 +170,10 @@ try {
             message:{content:JSON.stringify({reconciledBeats:[{speaker:"旁白", text:"连接测试成功。"}]})}}]})}); return;
         }
         bodies.push(body);
+        if (responseMode === "held-auth") {
+          await new Promise(resolve => {releaseHeldResponse = resolve; heldResponseStarted();});
+          await route.fulfill({status:401, headers:cors, contentType:"application/json", body:JSON.stringify({error:"invalid_api_key"})}); return;
+        }
         if (responseMode === "fail") {await route.fulfill({status:503, headers:cors, contentType:"application/json", body:JSON.stringify({error:"upstream_unavailable"})}); return;}
         await route.fulfill({status:200, headers:cors, contentType:"application/json", body:JSON.stringify({model:"exploration-fixture", choices:[{
           finish_reason:"stop", message:{role:"assistant", content:JSON.stringify({beats:[{speaker:"粮官", sub:"模拟回复", text:replyText}],
@@ -265,6 +271,8 @@ try {
       await reachable(page, recoveryButton(page, "按原行动重试")); await recoveryButton(page, "按原行动重试").click();
       await page.waitForFunction(() => !window.__vnEngine.pendingTurnAttempt && !window.__vnEngine.isAIGenerating);
       assert.equal(bodies.length, 2); assert.deepEqual(diceIn(bodies[1]), failed.dice, "Retry must reuse original dice");
+      assert.equal(await page.locator("#qm-recovery").evaluate(node => getComputedStyle(node).display), "none",
+        "Successful delivery must hide the stale recovery menu action, including when More is opened");
       const delivered = await state(page);
       assert.equal(delivered.turn, beforeFailure.turn + 1); assert.equal(delivered.branchDepth, beforeFailure.branchDepth + 1);
       assert.equal(delivered.history.length, beforeFailure.history.length + 1, "Only one turn may be settled");
@@ -378,8 +386,65 @@ try {
       await toChoices(page, size);
       assert.deepEqual(await choiceLabels(page), deliveredChoices, "Rewinding an earlier delivered turn must restore its choices instead of later actions");
       assert.equal(bodies.length, countBeforeLocal, "Rewinding a saved choice snapshot must not call AI");
+
+      // Hold one real UI request at the mocked custom endpoint. The reader must
+      // keep time while no model response exists, then expose the actual 401.
+      await returnToReading(page); await openSettings(page, size);
+      await page.selectOption("#setting-api-source", "custom"); await page.click("#btn-save-settings");
+      await page.waitForFunction(() => !document.querySelector("#drawer-settings").classList.contains("open"));
+      const configBeforeAuth = await page.evaluate(() => localStorage.getItem("vn_api_config"));
+      const beforeAuth = await state(page), countBeforeAuth = bodies.length, customBeforeAuth = customCalls;
+      const heldStarted = new Promise(resolve => {heldResponseStarted = resolve;});
+      responseMode = "held-auth";
+      await submitAction(page, size, "与粮官逐项复核仓储，暂不改变原有安排。"); await heldStarted;
+      await reachable(page, "#btn-cancel-ai-request");
+      assert.equal(await page.locator("#ai-harness-progress").isVisible(), true);
+      // This read-only status intentionally ignores pointer events on desktop;
+      // assess its visible geometry instead of requiring a clickable hit target.
+      const progressBounds = await page.locator("#ai-harness-progress").boundingBox();
+      assert.ok(progressBounds && progressBounds.x >= -1 && progressBounds.y >= -1 &&
+        progressBounds.x + progressBounds.width <= size.width + 1 && progressBounds.y + progressBounds.height <= size.height + 1);
+      assert.equal(await page.locator("#ai-harness-phase").getAttribute("role"), "status");
+      assert.equal(await page.locator("#ai-harness-phase").getAttribute("aria-live"), "polite");
+      assert.equal(await page.locator("#ai-harness-clock").getAttribute("aria-live"), "off");
+      assert.equal(await page.locator("#ai-harness-progress").getAttribute("aria-live"), "off");
+      const announcedPhase = await page.locator("#ai-harness-phase").textContent();
+      const initialProgress = await page.locator("#ai-harness-progress").textContent();
+      await page.waitForFunction(previous => document.querySelector("#ai-harness-progress").textContent !== previous,
+        initialProgress, {timeout:5000});
+      const tickingProgress = await page.locator("#ai-harness-progress").textContent();
+      await page.waitForFunction(previous => document.querySelector("#ai-harness-progress").textContent !== previous,
+        tickingProgress, {timeout:5000});
+      assert.equal(await page.locator("#ai-harness-phase").textContent(), announcedPhase,
+        "A waiting clock must not change the phase announced by the screen reader every second");
+      assert.equal(bodies.length, countBeforeAuth + 1, "Waiting must not silently retry a pending model request");
+      assert.equal(customCalls, customBeforeAuth + 1);
+      assert.equal((await pending(page)).status, "running");
+      await shot(page, size, "waiting");
+      releaseHeldResponse(); await waitFailed(page);
+      const authAttempt = await pending(page);
+      assert.equal(authAttempt.action, "与粮官逐项复核仓储，暂不改变原有安排。");
+      assert.deepEqual(authAttempt.dice, diceIn(bodies.at(-1)));
+      assert.deepEqual(await state(page), beforeAuth, "An authentication error must restore the original world");
+      assert.equal(await page.locator("#ai-harness-progress").isVisible(), false);
+      assert.equal(await page.locator("#btn-cancel-ai-request").isVisible(), false);
+      assert.match(await page.locator("#turn-recovery-panel").textContent(), /认证|密钥|Key|鉴权/);
+      if (size.mobile) assert.notEqual(await page.locator("#mobile-page-position").textContent(), "推演中");
+      await shot(page, size, "auth-failure");
+      await reachable(page, "#btn-turn-api-settings"); await page.click("#btn-turn-api-settings");
+      await modalReady(page, "drawer-settings"); await reachable(page, "#setting-api-source");
+      assert.equal(await page.locator("#setting-api-source").inputValue(), "custom");
+      assert.equal(await page.locator("#setting-endpoint").inputValue(), "https://exploration.fixture/v1");
+      assert.equal(await page.locator("#setting-api-key").inputValue(), "");
+      assert.equal(await page.locator("#setting-custom-model").inputValue(), "exploration-fixture");
+      assert.equal(await page.evaluate(() => localStorage.getItem("vn_api_config")), configBeforeAuth,
+        "Checking settings must not save, replace, or switch the selected provider");
+      assert.deepEqual(await pending(page), authAttempt, "Opening settings must preserve the exact action and dice");
+      await shot(page, size, "auth-settings");
+      assert.deepEqual(await state(page), beforeAuth); await closeSettings(page);
+      assert.equal(bodies.length, countBeforeAuth + 1, "An authentication error and its settings shortcut must not retry automatically");
       assert.deepEqual(errors, []); assert.deepEqual(unexpected, []);
-      console.log(`PASS ${size.name}: honest preset-persona reference; settings → empty-key custom test/save → shared; favorites persistence/dedupe/delete; retry original dice/one settlement; choices survive reading/home/reload/discard and restore on rewind; reload/collapse/reopen/local; quota notice/last good save/export/import/preview/restore/read; all external requests intercepted`);
+      console.log(`PASS ${size.name}: honest preset-persona reference; settings → empty-key custom test/save → shared; favorites persistence/dedupe/delete; retry original dice/one settlement; choices survive reading/home/reload/discard and restore on rewind; reload/collapse/reopen/local; quota notice/last good save/export/import/preview/restore/read; live waiting clock then 401 cleanup/settings shortcut preserves provider/action/dice; all external requests intercepted`);
     } finally {await context.close();}
   }
 } finally {await browser.close(); await new Promise(done => server.close(done));}

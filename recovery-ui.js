@@ -26,16 +26,21 @@
     const retry = button("按原行动重试", () => engine.retryPendingTurn());
     const local = button("改用本地剧情", () => engine.retryPendingTurn(true));
     const discard = button("放弃本次尝试", () => engine.discardPendingTurn());
+    const settings = button("检查 API 设置", () => {
+      engine.openDrawer(engine.drawerSettings);
+      requestAnimationFrame(() => document.getElementById("settings-connection-title")?.scrollIntoView({block: "start", behavior: "instant"}));
+    });
     retry.id = "btn-retry-turn";
     local.id = "btn-local-turn";
     discard.id = "btn-discard-turn";
+    settings.id = "btn-turn-api-settings";
     let collapsed = false;
     let renderedAttemptId = null;
     const collapse = button("收起，继续阅读", () => {collapsed = true; render();});
     collapse.id = "btn-collapse-turn-recovery";
     const reopen = document.getElementById("qm-recovery");
     reopen?.addEventListener("click", () => {collapsed = false; render(); retry.focus();});
-    buttons.append(retry, local, discard);
+    buttons.append(settings, retry, local, discard);
     section.append(title, collapse, message, action, buttons);
     document.body.append(section);
 
