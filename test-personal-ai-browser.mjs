@@ -90,7 +90,16 @@ try {
     }
     await page.click("#choice-container .choice-card:last-child"); await page.fill("#open-input-text","核对粮册，再听取军民的意见。");
     await page.click("#btn-submit-open-input");
-    await page.waitForFunction(() => !window.__vnEngine.isAIGenerating && window.__vnEngine.aiGenerationMetrics, undefined, {timeout:30000});
+    try {
+      await page.waitForFunction(() => !window.__vnEngine.isAIGenerating && (window.__vnEngine.aiGenerationMetrics || window.__vnEngine.pendingTurnAttempt), undefined, {timeout:30000});
+    } catch (error) {
+      const state = await page.evaluate(() => ({generating:window.__vnEngine.isAIGenerating, enabled:window.__vnEngine.apiConfig.enabled,
+        progress:document.querySelector("#ai-harness-progress").textContent, pending:window.__vnEngine.pendingTurnAttempt?.errorCode,
+        status:window.__vnEngine.aiRequestStatus?.message}));
+      throw new Error(`${size.name}: fixture turn did not settle; model calls=${requests.length}; state=${JSON.stringify(state)}; browser errors=${JSON.stringify(errors)}`, {cause:error});
+    }
+    assert.equal(await page.evaluate(() => window.__vnEngine.pendingTurnAttempt?.errorCode), undefined,
+      JSON.stringify(await page.evaluate(() => ({error:window.__vnEngine.pendingTurnAttempt?.errorCode,message:window.__vnEngine.pendingTurnAttempt?.errorMessage}))));
     const delivered = await page.evaluate(() => ({characters:window.__vnEngine.aiGenerationMetrics.textCharacters,
       recount:Array.from(window.__vnEngine.storyQueue.filter(b=>b.type!=="illustration").map(b=>b.text).join("").replace(/\s/gu,"")).length,
       pending:Boolean(window.__vnEngine.pendingTurnAttempt),calls:window.__vnEngine.aiGenerationMetrics.harness.modelCalls,
