@@ -86,6 +86,12 @@ async function choiceLabels(page) {
   return (await page.locator("#choice-container .choice-card-text").allTextContents()).slice(0, 3).map(text => text.trim());
 }
 async function returnToReading(page) {
+  // class=visible is set by the engine before the next paint establishes the
+  // accessible modal/focus. A keyboard user acts after that paint.
+  await page.waitForFunction(() => {
+    const choices = document.querySelector("#choice-overlay");
+    return choices.getAttribute("aria-modal") === "true" && !choices.closest("[inert]");
+  });
   await page.keyboard.press("Escape");
   await page.waitForFunction(() => !document.querySelector("#choice-overlay").classList.contains("visible"));
 }
