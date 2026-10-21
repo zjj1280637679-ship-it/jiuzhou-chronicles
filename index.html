@@ -63,7 +63,7 @@
           </button>
           <button class="title-action-btn" id="title-btn-swarm">
             <span class="btn-icon">🌌</span>
-            <span class="btn-text">群体星盘 (Swarm Observatory)</span>
+            <span class="btn-text">人物星盘 (Persona Reference)</span>
           </button>
           <button class="title-action-btn" id="title-btn-settings">
             <span class="btn-icon">⚙</span>
@@ -109,7 +109,7 @@
       <button class="qm-btn qm-accent" id="qm-home" title="返回主界面 (自动存档)">⌂ 主页</button>
       <button class="qm-btn" id="qm-faction" title="切换四大阵营 DLC (大明/清朝/蒙古/南明)">🚩 阵营</button>
       <button class="qm-btn" id="qm-destiny" title="查看当前隐式测评折射出的天命政治人物镜像">🪞 天命</button>
-      <button class="qm-btn" id="qm-swarm" title="透视全网玩家群体思潮星相图">🌌 群体</button>
+      <button class="qm-btn" id="qm-swarm" title="查看预设人物镜像与设计参考分布">🌌 星盘</button>
       <button class="qm-btn" id="qm-log" title="滚轮向上或点击查看回溯卷宗">📜 卷宗</button>
       <button class="qm-btn" id="qm-pocket" title="袖里乾坤 · 行囊卡牌">🎴 行囊 <span class="badge-count" id="pocket-count">4</span></button>
       <button class="qm-btn" id="qm-ribbon" title="拉动书签红丝带时光机">⏳ 宿命</button>
@@ -428,15 +428,15 @@
       </div>
     </aside>
 
-    <!-- 抽屉 G: 群体思潮星相观测台 (Swarm Observatory Modal) -->
+    <!-- 抽屉 G: 预设人物镜像与设计参考分布 -->
     <aside class="drawer drawer-modal" id="drawer-swarm">
       <div class="ribbon-modal-box" style="max-width: 580px;">
         <div class="drawer-header">
-          <div class="drawer-title">🌌 全网经略使 · 群体思潮星宿观测台</div>
+          <div class="drawer-title">🌌 预设人物镜像 · 设计参考星盘</div>
           <button class="drawer-close" id="btn-close-swarm">收起 ✕</button>
         </div>
         <div class="drawer-body" id="swarm-observatory-body" style="padding:20px;">
-          <!-- 动态渲染全服热力图与稀有度对标 -->
+          <!-- 展示游戏内置的静态人物镜像示例数据 -->
         </div>
       </div>
     </aside>
@@ -601,7 +601,7 @@
   <script src="scene-favorites.js?v=20261021-0800"></script>
   <script src="harness/protocol.js?v=20261021-0800"></script>
   <script src="harness/runtime.js?v=20261020-0600"></script>
-  <script src="app.js?v=20261021-0800"></script>
+  <script src="app.js?v=20261021-0801"></script>
   <script src="recovery-ui.js?v=20261021-0800"></script>
   <script src="favorites-ui.js?v=20261021-0800"></script>
   <script src="mobile-ui.js?v=20261020-theater02"></script>

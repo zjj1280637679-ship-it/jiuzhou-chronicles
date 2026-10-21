@@ -250,6 +250,9 @@ try{
   assert.equal(truncated.before,truncated.after);
   assert.equal(truncated.locked,false);
   responseMode="pending";
+  // This case tests cancellation after transport starts. The cancel control
+  // becomes available earlier, while isolated plugins are still starting.
+  const pendingModelRequest=page.waitForRequest(request=>request.method()==="POST"&&new URL(request.url()).pathname==="/api/jiuzhou/turn");
   const pendingAction=page.evaluate(async()=>{
     const e=window.__vnEngine,before=e.apiHistory.length;
     e.discardPendingTurn();
@@ -257,6 +260,7 @@ try{
     await e.resolveFactionAction({text:"等待中的自由探索",customInput:"等待中的自由探索",diceBase:7,isExtrapolation:true});
     return {before,after:e.apiHistory.length,status:e.aiRequestStatus,locked:e.isAIGenerating,choicesBefore,choicesAfter:JSON.stringify(e.pendingApiChoices)};
   });
+  await pendingModelRequest;
   await page.waitForSelector('#btn-cancel-ai-request:not([hidden])');
   await page.click('#btn-cancel-ai-request');
   const cancelled=await pendingAction;

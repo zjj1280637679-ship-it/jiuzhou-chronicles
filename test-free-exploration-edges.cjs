@@ -180,7 +180,7 @@ test("metrics describe only valid prose, not whitespace, reasoning or synthesize
   assert.equal(e.aiGenerationMetrics.textCharacters, 6);
   assert.equal(e.aiGenerationMetrics.hanCharacters, 3);
   assert.equal(e.aiGenerationMetrics.choiceCount, 0);
-  assert.equal(e.aiGenerationMetrics.displayChoiceCount, 3);
+  assert.equal(e.aiGenerationMetrics.displayChoiceCount, 4);
   assert.equal(e.aiGenerationMetrics.beatCount, 1);
   assert.equal(e.aiGenerationMetrics.completionTokens, 1234);
   assert.equal(e.aiGenerationMetrics.finishReason, "stop");

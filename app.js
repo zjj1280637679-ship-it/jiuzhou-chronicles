@@ -6,7 +6,7 @@
 // =============================================================================
 
 const APP_VERSION = "v2.5.0";
-const BUILD_STAMP = "2026.10.21.0800";
+const BUILD_STAMP = "2026.10.21.0801";
 const VERSION_FULL = `v2.5.0 (Build ${BUILD_STAMP} · 插件式工具循环 · 交付正文实测 · 3选项+开放输入)`;
 const AIProviders = typeof module === "object" && module.exports
   ? require("./harness/providers.js") : globalThis.JiuzhouProviders;
@@ -1041,6 +1041,7 @@ class WebVisualNovelEngine {
     const node = tree.nodes[nodeId];
     if (!node) return;
 
+    this.pendingApiChoices = null;
     this.currentStoryNodeId = nodeId;
     if (!this.visitedNodeIds) this.visitedNodeIds = [];
     if (!this.visitedNodeIds.includes(nodeId)) this.visitedNodeIds.push(nodeId);
@@ -2211,7 +2212,6 @@ ${JSON.stringify(targetNode.originalBeats)}
         })
           .filter(c => !c.isOpenEndedInput && (!c.text || !c.text.includes("输入文字")))
           .slice(0, 3);
-        this.pendingApiChoices = null;
       }
 
       if (baseChoices.length === 0) {
@@ -2918,6 +2918,7 @@ ${JSON.stringify(targetNode.originalBeats)}
     }
     if (this.pendingTurnAttempt?.status === "running") GameRecovery.restore(this, this.pendingTurnAttempt.before);
     this.pendingTurnAttempt = null;
+    this.pendingApiChoices = null;
     this.turnPresentationError = null;
     this.isAIGenerating = false;
     this.notifyRecoveryUI();
@@ -3090,7 +3091,7 @@ ${JSON.stringify(targetNode.originalBeats)}
         </div>
 
         <button class="qm-btn qm-accent" style="width:100%; justify-content:center; padding:10px;" onclick="window.__vnEngine.openSwarmFromCard()">
-          🌌 透视此人格在全网群体思潮星盘中的稀有度
+          🌌 查看此人物镜像的预设参考分布
         </button>
       </div>
     `;
@@ -3102,7 +3103,7 @@ ${JSON.stringify(targetNode.originalBeats)}
     this.openDrawer(this.drawerSwarm);
   }
 
-  // 渲染全服群体思潮观测台
+  // 展示游戏内置的人物镜像设计参考，不读取玩家统计。
   renderSwarmObservatory() {
     const persona = this.calculateFittedPersona();
     const list = WORLD_PRESETS.swarmSamplingPool;
@@ -3111,11 +3112,12 @@ ${JSON.stringify(targetNode.originalBeats)}
     this.swarmObservatoryBody.innerHTML = `
       <div class="swarm-meta-banner">
         <div style="font-size:0.95rem; font-weight:700; color:var(--accent-gold); margin-bottom:4px;">
-          📊 九州沉浮 · 12,480 位经略使思潮采样报告
+          📊 九州人物镜像 · 预设参考分布
         </div>
         <div style="font-size:0.8rem; color:var(--text-main); line-height:1.6;">
           当前您身处【${WORLD_PRESETS.factions[this.currentFaction].name}】阵营；<br/>
-          您的选择在此动荡世道中折射出 <strong>${persona.name}</strong>（在全网样本中约占 <strong>${userItem.pct}%</strong>）。
+          您的选择在此动荡世道中折射出 <strong>${persona.name}</strong>（预设参考占比 <strong>${userItem.pct}%</strong>）。<br/>
+          下列百分比来自游戏内置的设计示例，供人物镜像对照；未接入实时玩家统计。
         </div>
       </div>
 
@@ -3153,6 +3155,7 @@ ${JSON.stringify(targetNode.originalBeats)}
       desc,
       apiHistoryLength: (this.apiHistory || []).length,
       extrapolationHistoryLength: (this.extrapolationHistory || []).length,
+      choices: Array.isArray(this.pendingApiChoices) ? JSON.parse(JSON.stringify(this.pendingApiChoices)) : null,
       isExtrapolating: this.isExtrapolating,
       isEpilogueSequel: this.isEpilogueSequel
     });
@@ -3193,6 +3196,16 @@ ${JSON.stringify(targetNode.originalBeats)}
     }
     this.isExtrapolating = knot.isExtrapolating || false;
     this.isEpilogueSequel = knot.isEpilogueSequel || false;
+    // Older knots have no choice snapshot. Never carry a later scene's actions backwards.
+    this.pendingApiChoices = this.isExtrapolating && Array.isArray(knot.choices) ? knot.choices
+      .filter(choice => typeof choice === "string" || (choice && typeof choice === "object" && !Array.isArray(choice) && typeof choice.text === "string"))
+      .map(choice => typeof choice === "string" ? choice : ({
+        text: choice.text,
+        tag: typeof choice.tag === "string" ? choice.tag : "自由抉择",
+        bias: Object.fromEntries(["authority", "pragmatism", "progress", "cognition"].map(axis =>
+          [axis, Number.isFinite(choice.bias?.[axis]) ? choice.bias[axis] : 0])),
+        diceBase: Number.isFinite(choice.diceBase) ? choice.diceBase : 10
+      })) : null;
 
     this.updateIncenseHUD();
     this.closeDrawer(this.drawerRibbon);
@@ -4225,7 +4238,7 @@ ${currentProfile.npcRoster}`;
     // 只记录已验证交付的累计缓存；中间工具轮和无效正文不冒充成功生成。
     this.recordAIProviderCache(data, route);
     this.recordAIGenerationMetrics(data, validStoryBeats, validStoryChoices, "story", startedAt, requestedExpectedLength);
-    this.aiGenerationMetrics.displayChoiceCount = rawChoices.slice(0, 3).length;
+    this.aiGenerationMetrics.displayChoiceCount = rawChoices.slice(0, 3).length + 1; // Includes the engine's free-input action.
     this.aiGenerationMetrics.sourceIdentity = route.identity;
     this.setAIRequestStatus("success", "story", null, data.model, route, revision);
     return {
