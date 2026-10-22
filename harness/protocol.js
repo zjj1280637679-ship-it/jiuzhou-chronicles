@@ -10,7 +10,7 @@
   const storySchema = {
     type: "object", properties: {
       beats: {type: "array", items: {type: "object", properties: {
-        text: {type: "string", description: "玩家实际阅读的叙述或对白正文。只合并最终稿各段 text 的非空白 Unicode 字符核算目标，标点计入；JSON、角色名、sub、选项、思考、工具、插画及说明不计入。"}, speaker: {type: "string"}, sub: {type: "string"},
+        text: {type: "string", description: "玩家实际阅读的叙述或对白正文。篇幅要求只针对此处正文，JSON、角色名、sub、选项、思考、工具、插画及说明不属于正文。篇幅由模型理解，程序不统计或验收字数。"}, speaker: {type: "string"}, sub: {type: "string"},
         type: {type: "string"}, stageChar: {type: "string"}
       }, required: ["text"]}},
       choices: {type: "array", items: {type: "object", properties: {text: {type: "string"}, tag: {type: "string"}}, required: ["text"]}},
@@ -26,11 +26,11 @@
     tool("write_draft", "暂存剧情JSON；replace替换草稿，append只追加新的beats并更新提供的choices。可逐段补写，不能重复粘贴已有正文。正文只呈现已发生的行动和眼前悬念；下一步选项只放choices，正文不要预告或罗列选项。", {
       story: storySchema, mode: {type: "string", enum: ["replace", "append"]}
     }, ["story"]),
-    tool("inspect_draft", "检查暂存剧情的实际交付正文字数和剩余字数。只合并最终稿叙述和对白 beats[].text 的非空白 Unicode 字符，标点计入；排除思考、工具、JSON、角色名、sub、选项、插画及说明和被替换的旧草稿。"),
+    tool("inspect_draft", "查看是否已有草稿及其段落、选项概况；不计算字数，不判断篇幅是否达标。"),
     tool("select_illustration", "暂存本轮插画句柄，成功交付正文后才展示。afterBeat为分页前整稿正文段落位置，追加草稿也按整稿编号：0在首段前，N在第N段后，超出末尾排在末尾；默认1。同位置再次选择会替换旧图，clear:true清空本轮全部选图。只用目录ID，不接受URL；错误不会改变已有选择。", {
       id: {type: "string"}, afterBeat: {type: "integer", minimum: 0}, caption: {type: "string"}, clear: {type: "boolean"}
     }),
-    tool("deliver_story", "校验并交付完整暂存剧情；未达正文目标时返回检查结果，继续补写或修订。只有成功交付才写入玩家剧情。")
+    tool("deliver_story", "交付含有效正文的暂存剧情；不按字数拒绝交付或要求补写。只有成功交付才写入玩家剧情。")
   ].sort((a, b) => a.function.name.localeCompare(b.function.name, "en"));
   const excludedTypes = new Set(["illustration", "thinking", "thought", "reasoning", "deliberation", "metadata", "tool", "tool_result"]);
   function sanitizeDialogueText(value) {
@@ -60,11 +60,5 @@
       .map(e => ({name: e.name || e.tool, params: e.params && typeof e.params === "object" && !Array.isArray(e.params) ? e.params : {}}));
     return {beats, choices, stage_effects};
   }
-  function measureStory(value) {
-    const story = normalizeStory(value);
-    const text = story.beats.map(b => b.text).join("");
-    return {textCharacters: Array.from(text.replace(/\s/gu, "")).length,
-      hanCharacters: (text.match(/\p{Script=Han}/gu) || []).length, beatCount: story.beats.length};
-  }
-  return {version: 1, tools, normalizeStory, measureStory, sanitizeDialogueText};
+  return {version: 1, tools, normalizeStory, sanitizeDialogueText};
 });

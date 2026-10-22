@@ -27,7 +27,7 @@ const fixtureKey = "fixture-illustrations-only-key";
 const config = {source:"custom", enabled:false, endpoint:"https://illustrations.fixture/v1", apiKey:fixtureKey,
   model:"custom", customModel:"illustrations-fixture", adapter:"openai", tokenParameter:"max_tokens", maxTokens:32768};
 const chosen = ["qing_night_raid", "qing_lamplit_questioning"];
-const story = {beats:[{speaker:"旁白", text:"文".repeat(250)}, {speaker:"随行者", text:"言".repeat(250)}],
+const story = {beats:[{speaker:"旁白", text:"文书核对完毕，营火照亮了卷宗。"}, {speaker:"随行者", text:"言辞尚有出入，明日再访证人。"}],
   choices:[{text:"核对卷宗"}, {text:"访查营地"}, {text:"照看伤者"}]};
 const steps = [
   {name:"list_illustrations", arguments:{faction:"qing"}},
@@ -117,6 +117,8 @@ try {
       assert.equal(body.model, "illustrations-fixture");
       assert.ok(body.tools.some(tool => tool.function.name === "list_illustrations"));
       assert.ok(body.tools.some(tool => tool.function.name === "select_illustration"));
+      if (requests.length === 1) assert.match(body.messages.at(-1).content, /1000/,
+        "The selected 500 tier sends its 500-character drafting allowance in the first prompt");
       if (requests.length > 1) assert.deepEqual(body.messages.slice(0, requests[0].messages.length), requests[0].messages,
         "Native tool turns must preserve the original request prefix");
       const resultOf = id => {const entry = body.messages.find(message => message.role === "tool" && message.tool_call_id === id); return entry && JSON.parse(entry.content);};
@@ -131,7 +133,10 @@ try {
       }
       if (requests.length === 7) {
         const result = resultOf("illustration_6");
-        assert.equal(result.textCharacters, 500, "Inspection must exclude captions, tools and JSON");
+        assert.equal(result.ok, true); assert.equal(result.hasDraft, true);
+        assert.equal(result.beatCount, 2); assert.equal(result.choiceCount, 3);
+        assert.deepEqual(Object.keys(result).filter(key => /characters|remaining|target/i.test(key)), [],
+          "Draft inspection reports structure without a character target or deficit");
       }
       assert.ok(requests.length <= steps.length, "Unexpected additional model request");
       const step = steps[requests.length - 1];
@@ -191,12 +196,18 @@ try {
     const state = await page.evaluate(() => {
       const engine = window.__vnEngine;
       return {error:engine.pendingTurnAttempt?.errorCode, message:engine.pendingTurnAttempt?.errorMessage,
-        characters:engine.aiGenerationMetrics?.textCharacters,
-        recount:Array.from(engine.storyQueue.filter(beat => beat.type !== "illustration").map(beat => beat.text).join("").replace(/\s/gu, "")).length,
+        prose:engine.storyQueue.filter(beat => beat.type !== "illustration").map(beat => beat.text),
+        beats:engine.aiGenerationMetrics?.beatCount, tokens:engine.aiGenerationMetrics?.completionTokens,
+        elapsedValid:Number.isFinite(engine.aiGenerationMetrics?.elapsedMs) && engine.aiGenerationMetrics.elapsedMs >= 0,
+        removedMetricFields:[...Object.keys(engine.aiGenerationMetrics || {}), ...Object.keys(engine.aiGenerationMetrics?.harness || {})]
+          .filter(key => /characters|expectedLength|targetLength/i.test(key)),
+        metricsText:document.querySelector("#ai-generation-metrics").textContent,
         illustrations:engine.storyQueue.map((beat, index) => beat.illustrationData ? {id:beat.illustrationData.id, index} : null).filter(Boolean)};
     });
     assert.equal(state.error, undefined, JSON.stringify(state));
-    assert.equal(state.characters, 500); assert.equal(state.recount, 500);
+    assert.deepEqual(state.prose, story.beats.map(beat => beat.text), "Short prose succeeds unchanged alongside native illustration tools");
+    assert.equal(state.beats, 2); assert.equal(state.tokens, steps.length * 40); assert.equal(state.elapsedValid, true);
+    assert.deepEqual(state.removedMetricFields, []); assert.doesNotMatch(state.metricsText, /正文(?:未|已)达目标|剩余字数|其中中文/);
     assert.equal(requests.length, steps.length);
     assert.deepEqual(state.illustrations.map(asset => asset.id), chosen,
       "A rejected unknown ID must neither guess wealth nor displace valid choices");
@@ -241,11 +252,11 @@ try {
     await noOverflow(page, size.name + " missing image");
     assert.deepEqual(unexpected, []); assert.deepEqual(errors, []);
     evidence.viewports.push({name:size.name, width:size.width, height:size.height, passed:true,
-      assets:assets.length, modelCalls:requests.length, proseCharacters:state.characters,
+      assets:assets.length, modelCalls:requests.length, proseBeats:state.beats, shortProseDelivered:true,
       insertedIllustrationIds:state.illustrations.map(asset => asset.id), initialSceneId:scene.expected,
       automaticIllustrationModal:false, keyboardActivation:true, saveAndResume:true, missingImageContinuation:true});
     await context.close();
-    console.log(`PASS ${size.name}: 32 assets, canonical scene, native list/select correction, 2 paragraph-positioned images, exact 500 prose characters, click/Enter/Space modal, save/resume and missing-image continuation`);
+    console.log(`PASS ${size.name}: 32 assets, canonical scene, native list/select correction, 2 paragraph-positioned images, short prose delivery without a length gate, click/Enter/Space modal, save/resume and missing-image continuation`);
   }
   if (screenshots) await writeFile(join(screenshots, "browser-verification.json"), JSON.stringify(evidence, null, 2) + "\n");
 } finally {await browser.close(); await new Promise(done => server.close(done));}

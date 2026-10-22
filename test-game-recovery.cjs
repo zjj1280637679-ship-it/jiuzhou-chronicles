@@ -52,52 +52,37 @@ test("a failed turn rolls back world and formal history; only explicit retry reu
   assert.equal(e.backlog.some(beat => /正在推演/.test(beat.text)), false);
 });
 
-test("a short compatibility story exits requesting, preserves the committed save and permits one explicit retry", async t => {
+test("a short compatibility story settles once without rejection or an automatic expansion request", async t => {
   const {e, store} = fixture(t), requests = [], effects = [];
   e.expectedLength = 2000;
   e.executeAITools = tools => effects.push(...tools);
-  const before = recovery.snapshot(e);
   const shortStory = {
-    beats: [{speaker: "角色名".repeat(2000), sub: "神态".repeat(2000), text: "文".repeat(1998) + "𠮷\n\t "},
+    beats: [{speaker: "角色名".repeat(2000), sub: "神态".repeat(2000), text: "村民已脱险。\n\t "},
       {type: "illustration", text: "画面说明".repeat(2000)}],
     choices: [{text: "可选行动".repeat(2000)}], deliberation: "思考".repeat(2000),
     stage_effects: [{name: "screen_flash", params: {color: "gold"}}]
   };
-  assert.ok(JSON.stringify(shortStory).length > 20000, "JSON and metadata cannot make 1999 prose characters satisfy 2000");
+  assert.ok(JSON.stringify(shortStory).length > 20000);
   const respond = story => ({ok: true, json: async () => ({model: "test-model", choices: [{finish_reason: "stop", message: {content: JSON.stringify(story)}}]})});
   global.fetch = async (_url, init) => {
     requests.push(JSON.parse(JSON.parse(init.body).messages.at(-1).content));
     return respond(shortStory);
   };
   await e.resolveFactionAction(action);
-  assert.equal(requests.length, 1, "failed delivery must not automatically send another paid request");
-  assert.equal(e.aiRequestStatus.state, "fallback");
-  assert.match(e.aiRequestStatus.message, /交付正文未达到/);
+  assert.equal(requests.length, 1, "valid short prose must not trigger an automatic expansion request");
+  assert.equal(e.aiRequestStatus.state, "success");
   assert.equal(e.isAIGenerating, false);
   assert.equal(e.activeAIRequestController, null);
-  assert.equal(e.aiGenerationMetrics, null);
-  assert.deepEqual(recovery.snapshot(e), before);
-  assert.deepEqual(effects, []);
-  assert.equal(e.pendingTurnAttempt.status, "failed");
-  assert.equal(e.pendingTurnAttempt.errorCode, "delivery_too_short");
-  assert.deepEqual(e.pendingTurnAttempt.choice, action);
-  const saved = recovery.parseSave(store.get("vn_save_state"));
-  assert.deepEqual(recovery.snapshot(saved), before, "only the prior committed world may be saved after a short response");
-  assert.deepEqual(saved.pendingTurnAttempt.choice, action);
-  assert.equal(saved.pendingTurnAttempt.errorCode, "delivery_too_short");
-  global.fetch = async (_url, init) => {
-    requests.push(JSON.parse(JSON.parse(init.body).messages.at(-1).content));
-    return respond({...shortStory, beats: [{speaker: "旁白", text: "文".repeat(2000)}]});
-  };
-  await e.retryPendingTurn();
-  assert.equal(requests.length, 2);
-  assert.deepEqual(requests[1], requests[0], "the explicit retry keeps the original action, dice and tentative world");
-  assert.equal(e.aiRequestStatus.state, "success");
-  assert.equal(e.aiGenerationMetrics.textCharacters, 2000);
+  assert.equal(e.aiGenerationMetrics.textCharacters, undefined);
+  assert.equal(e.aiGenerationMetrics.hanCharacters, undefined);
+  assert.equal(e.aiGenerationMetrics.beatCount, 1);
   assert.equal(e.pendingTurnAttempt, null);
   assert.equal(e.apiHistory.length, 2);
   assert.equal(e.currentTurn, 4);
+  assert.equal(e.extrapolationHistory.length, 1);
   assert.deepEqual(effects, [{tool: "screen_flash", params: {color: "gold"}}]);
+  assert.equal(await e.retryPendingTurn(), undefined, "a successful short response must not expose a failed-turn retry");
+  assert.equal(requests.length, 1);
   const completedSave = recovery.parseSave(store.get("vn_save_state"));
   assert.equal(completedSave.currentTurn, 4);
   assert.equal(completedSave.apiHistory.length, 2);

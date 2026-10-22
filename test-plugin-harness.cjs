@@ -24,13 +24,13 @@ function calls(names, reasoning = "内部推演") {
       arguments: typeof spec === "string" ? "{}" : (spec.arguments || "{}")}}))}}], usage: {completion_tokens: 4, prompt_cache_hit_tokens: 60, prompt_cache_miss_tokens: 10}};
 }
 function options(extra = {}) {
-  return {baseURL, workerFactory: createNodeWorkerFactory(), messages: structuredClone(messages), world: {location: "城门", facts: ["粮库已开"]}, targetCharacters: 5, ...extra};
+  return {baseURL, workerFactory: createNodeWorkerFactory(), messages: structuredClone(messages), world: {location: "城门", facts: ["粮库已开"]}, ...extra};
 }
 
 test("an unknown or failing plugin returns a tool error while an independent plugin remains usable", async () => {
   let terminated = 0;
   const host = await createPluginHost(options({plugins: [{id: "chaos", url: fixtureURL}, {id: "world", url: new URL("plugins/world.js", baseURL).href}],
-    context: {world: {location: "城门"}, targetCharacters: 5}, workerFactory: createNodeWorkerFactory({onTerminate() {terminated++;}})}));
+    context: {world: {location: "城门"}}, workerFactory: createNodeWorkerFactory({onTerminate() {terminated++;}})}));
   try {
     const failed = await host.invoke("test_throw", {});
     assert.equal(failed.result.ok, false);
@@ -124,7 +124,9 @@ test("native tools, error results, reasoning and stable schemas survive the comp
   }}));
   assert.equal(result.harness.modelCalls, 3);
   assert.equal(result.harness.toolCalls, 2);
-  assert.equal(result.harness.deliveryCharacters, Array.from("你打开粮库，先救村民。").length);
+  assert.equal(result.harness.beatCount, 1);
+  assert.equal(result.harness.deliveryCharacters, undefined);
+  assert.equal(result.harness.hanCharacters, undefined);
   assert.equal(result.harness.completionTokens, 18);
   for (const request of requests) {
     assert.deepEqual(request.messages.slice(0, 3), messages);
@@ -133,46 +135,50 @@ test("native tools, error results, reasoning and stable schemas survive the comp
   assert.equal(JSON.parse(result.data.choices[0].message.content).beats[0].text, "你打开粮库，先救村民。");
 });
 
-test("only the final delivered beats text satisfies 5000, excluding drafts, reasoning, metadata, illustrations and JSON", async () => {
+test("a short valid story is delivered once without measuring prose or requesting automatic expansion", async () => {
   let modelCalls = 0;
-  const result = await createGameHarness(options({targetCharacters: 5000, model: async request => {
+  const result = await createGameHarness(options({model: async () => {
     modelCalls++;
-    const story = narrative("文".repeat(modelCalls === 1 ? 10 : 5000));
+    assert.equal(modelCalls, 1, "valid prose must never trigger an automatic request for more characters");
+    const story = narrative("村民已脱险。");
     story.deliberation = "思考".repeat(5000);
     story.beats[0].speaker = "人物".repeat(5000);
     story.beats[0].sub = "动作".repeat(5000);
     story.beats.push({type: "illustration", text: "插画".repeat(5000)});
     story.choices[0].text = "选项".repeat(5000);
-    if (modelCalls === 2) assert.match(request.messages.at(-1).content, /5000|4990|10/);
     return completion(story);
   }}));
-  assert.equal(modelCalls, 2);
-  assert.equal(result.harness.deliveryCharacters, 5000);
-  assert.equal(result.harness.hanCharacters, 5000);
-  assert.equal(result.harness.completionTokens, 20);
-  assert.equal(JSON.parse(result.data.choices[0].message.content).beats[0].text.length, 5000);
+  assert.equal(modelCalls, 1);
+  assert.equal(result.harness.beatCount, 1);
+  for (const field of ["deliveryCharacters", "textCharacters", "hanCharacters", "targetCharacters", "remainingCharacters"]) {
+    assert.equal(result.harness[field], undefined, `${field} must not be a delivery metric`);
+  }
+  assert.equal(result.harness.completionTokens, 10);
+  const delivered = JSON.parse(result.data.choices[0].message.content);
+  assert.equal(delivered.beats[0].text, "村民已脱险。");
+  assert.equal(delivered.beats.length, 1);
 });
 
-test("thought and metadata cards do not inflate delivery metrics, and Unicode text is counted after whitespace removal", () => {
+test("normalization keeps visible Unicode prose and removes non-story cards without a prose counter", () => {
   const story = narrative("山河 A🌟！\n\t");
   for (const type of ["thought", "thinking", "reasoning", "metadata", "tool", "tool_result", "deliberation", "illustration"]) {
     story.beats.push({type, text: "不交付".repeat(5000)});
   }
-  assert.deepEqual(protocol.measureStory(story), {textCharacters: 5, hanCharacters: 2, beatCount: 1});
+  assert.equal(protocol.measureStory, undefined);
+  const normalized = protocol.normalizeStory(story);
+  assert.equal(normalized.beats.length, 1);
+  assert.equal(normalized.beats[0].text, "山河 A🌟！");
 });
 
-test("leaked JSON inside a text field is cleaned before length checks, so syntax cannot satisfy a prose target", async () => {
+test("leaked JSON inside a text field is cleaned and delivered without a length-driven retry", async () => {
   let calls = 0;
-  const result = await createGameHarness(options({targetCharacters: 5000, model: async request => {
+  const result = await createGameHarness(options({model: async () => {
     calls++;
-    if (calls === 1) return completion(narrative('{"speaker":"npc","text":"正文"}'.repeat(1000)));
-    const feedback = request.messages.at(-1).content;
-    assert.match(feedback, /"textCharacters":2000/);
-    assert.match(feedback, /"remainingCharacters":3000/);
-    return completion(narrative("文".repeat(5000)));
+    assert.equal(calls, 1);
+    return completion(narrative('{"speaker":"npc","text":"正文"}'));
   }}));
-  assert.equal(calls, 2); assert.equal(result.harness.deliveryCharacters, 5000);
-  assert.equal(JSON.parse(result.data.choices[0].message.content).beats[0].text, "文".repeat(5000));
+  assert.equal(calls, 1); assert.equal(result.harness.beatCount, 1);
+  assert.equal(JSON.parse(result.data.choices[0].message.content).beats[0].text, "正文");
 });
 
 test("cache hits without a usable denominator remain unknown rather than pretending a 100 percent hit rate", async () => {
@@ -193,49 +199,56 @@ test("a valid prompt total supplies cache misses when a provider's raw miss valu
   assert.equal(result.data.usage.prompt_cache_miss_tokens, 80);
 });
 
-test("draft tools measure the current manuscript once, replace revisions and append only new delivered text", async () => {
-  const host = await createPluginHost(options({context: {world: {}, targetCharacters: 5000}}));
+test("draft tools inspect structure, replace revisions and allow optional append without a minimum length", async () => {
+  const host = await createPluginHost(options({context: {world: {}}}));
   try {
-    let result = await host.invoke("write_draft", {story: narrative("甲".repeat(3000))});
-    assert.equal(result.result.textCharacters, 3000);
-    result = await host.invoke("write_draft", {mode: "replace", story: narrative("乙".repeat(2000))});
-    assert.equal(result.result.textCharacters, 2000);
+    let result = await host.invoke("inspect_draft", {});
+    assert.equal(result.result.hasDraft, false);
+    assert.equal(result.result.beatCount, 0);
     result = await host.invoke("deliver_story", {});
-    assert.equal(result.result.ok, false); assert.equal(result.delivery, undefined);
-    assert.equal(result.result.remainingCharacters, 3000);
-    result = await host.invoke("write_draft", {mode: "append", story: narrative("丙".repeat(3000))});
-    assert.equal(result.result.textCharacters, 5000);
+    assert.equal(result.result.ok, false); assert.equal(result.result.error.code, "missing_draft");
+    result = await host.invoke("write_draft", {story: narrative("甲")});
+    assert.equal(result.result.hasDraft, true); assert.equal(result.result.beatCount, 1);
+    result = await host.invoke("write_draft", {mode: "replace", story: narrative("乙")});
+    assert.equal(result.result.beatCount, 1);
+    result = await host.invoke("deliver_story", {});
+    assert.equal(result.result.ok, true); assert.equal(result.delivery.beats[0].text, "乙");
+    result = await host.invoke("write_draft", {mode: "append", story: narrative("丙")});
+    assert.equal(result.result.beatCount, 2);
+    for (const field of ["textCharacters", "hanCharacters", "targetCharacters", "remainingCharacters"]) assert.equal(result.result[field], undefined);
     result = await host.invoke("deliver_story", {});
     assert.equal(result.result.ok, true);
-    assert.deepEqual(result.delivery.beats.map(beat => beat.text), ["乙".repeat(2000), "丙".repeat(3000)]);
+    assert.deepEqual(result.delivery.beats.map(beat => beat.text), ["乙", "丙"]);
   } finally {host.dispose();}
 });
 
-test("native draft, inspect, expand and deliver is a tool-driven loop rather than concatenated model completions", async () => {
+test("native draft, inspect, optional append and deliver remain a model-controlled tool loop", async () => {
   let turns = 0;
-  const result = await createGameHarness(options({targetCharacters: 5000, model: async request => {
+  const result = await createGameHarness(options({model: async request => {
     turns++;
-    if (turns === 1) return calls([{name: "write_draft", arguments: JSON.stringify({story: narrative("甲".repeat(3000))})}]);
+    if (turns === 1) return calls([{name: "write_draft", arguments: JSON.stringify({story: narrative("甲")})}]);
     if (turns === 2) {
-      assert.equal(JSON.parse(request.messages.at(-1).content).textCharacters, 3000);
+      assert.equal(JSON.parse(request.messages.at(-1).content).beatCount, 1);
       return calls(["inspect_draft"]);
     }
     if (turns === 3) {
-      assert.equal(JSON.parse(request.messages.at(-1).content).remainingCharacters, 2000);
-      return calls([{name: "write_draft", arguments: JSON.stringify({mode: "append", story: narrative("乙".repeat(2000))})}]);
+      const inspected = JSON.parse(request.messages.at(-1).content);
+      assert.equal(inspected.hasDraft, true); assert.equal(inspected.choiceCount, 3);
+      assert.equal(inspected.remainingCharacters, undefined);
+      return calls([{name: "write_draft", arguments: JSON.stringify({mode: "append", story: narrative("乙")})}]);
     }
     assert.equal(turns, 4);
     return calls(["deliver_story"]);
   }}));
-  assert.equal(result.harness.deliveryCharacters, 5000);
+  assert.equal(result.harness.beatCount, 2);
   assert.equal(result.harness.modelCalls, 4); assert.equal(result.harness.toolCalls, 4);
-  assert.deepEqual(JSON.parse(result.data.choices[0].message.content).beats.map(beat => beat.text), ["甲".repeat(3000), "乙".repeat(2000)]);
+  assert.deepEqual(JSON.parse(result.data.choices[0].message.content).beats.map(beat => beat.text), ["甲", "乙"]);
 });
 
 test("reading the same world again after a productive draft step is not mistaken for a stalled agent", async () => {
   let turns = 0;
   const text = "你打开粮库，先救村民。";
-  const result = await createGameHarness(options({targetCharacters: Array.from(text).length, model: async () => {
+  const result = await createGameHarness(options({model: async () => {
     turns++;
     if (turns === 1 || turns === 3) return calls(["read_world"]);
     if (turns === 2) return calls([{name: "write_draft", arguments: JSON.stringify({story: narrative(text)})}]);
@@ -243,7 +256,7 @@ test("reading the same world again after a productive draft step is not mistaken
     return calls(["deliver_story"]);
   }}));
   assert.equal(result.harness.modelCalls, 4); assert.equal(result.harness.toolCalls, 4);
-  assert.equal(result.harness.deliveryCharacters, Array.from(text).length);
+  assert.equal(result.harness.beatCount, 1);
 });
 
 test("malformed tool arguments become feedback rather than crashing the webpage loop", async () => {
@@ -287,9 +300,9 @@ test("a cancelled model turn uses one signal, disposes plugins and permits a sub
   assert.equal(next.harness.modelCalls, 1);
 });
 
-test("repeated identical rejected deliveries stop with an explicit stalled error", async () => {
+test("repeated identical invalid story objects stop with an explicit stalled error", async () => {
   let calls = 0;
-  await assert.rejects(createGameHarness(options({targetCharacters: 5000, model: async () => {calls++; return completion(narrative("太短。"));}})), error => error.code === "agent_stalled");
+  await assert.rejects(createGameHarness(options({model: async () => {calls++; return completion({beats: []});}})), error => error.code === "agent_stalled");
   assert.ok(calls >= 2 && calls < 5);
 });
 
@@ -358,7 +371,8 @@ test("app runs native agent requests with one signal and commits only the verifi
   assert.equal(engine.apiHistory.length, 2);
   assert.doesNotMatch(JSON.stringify(engine.apiHistory), /tool_calls|tool_call_id|reasoning_content|内部思考|不得计入正文/);
   assert.equal(result.beats.map(beat => beat.text).join("").length, 500);
-  assert.equal(engine.aiGenerationMetrics.textCharacters, 500);
+  assert.equal(engine.aiGenerationMetrics.beatCount, 1);
+  assert.equal(engine.aiGenerationMetrics.textCharacters, undefined);
   assert.equal(engine.aiGenerationMetrics.harness.modelCalls, 2);
   assert.equal(engine.aiGenerationMetrics.harness.toolCalls, 1);
   assert.equal(engine.activeAIRequestController, null);
@@ -404,7 +418,7 @@ test("changing desired length, dice or action leaves the cacheable system prefix
   const second = engine.buildDeepSeekCachePayload({text: "再查账", diceBase: 12}, 6, 6, 14, true);
   assert.deepEqual(first.messages.slice(0, 2), second.messages.slice(0, 2));
   assert.notEqual(first.messages.at(-1).content, second.messages.at(-1).content);
-  assert.match(first.messages.at(-1).content, /至少500/); assert.match(second.messages.at(-1).content, /至少5000/);
+  assert.match(first.messages.at(-1).content, /1000/); assert.match(second.messages.at(-1).content, /5500/);
 });
 
 test("world lookup carries an index rather than duplicating three long player actions already in the transcript", t => {

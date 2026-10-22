@@ -160,7 +160,8 @@ test("a generic Keyless custom provider runs the same native-tool harness and re
   };
   await turn(e);
   assert.equal(requests, 2); assert.equal(signals[0], signals[1]); assert.equal(e.apiHistory.length, 2);
-  assert.equal(e.aiGenerationMetrics.textCharacters, 500); assert.equal(e.aiGenerationMetrics.harness.modelCalls, 2);
+  assert.equal(e.aiGenerationMetrics.beatCount, 1); assert.equal(e.aiGenerationMetrics.harness.modelCalls, 2);
+  assert.equal(e.aiGenerationMetrics.textCharacters, undefined);
   assert.equal(e.cacheTelemetry.cacheUsageKnown, false); assert.equal(e.cacheTelemetry.lastHitTokens, null);
   assert.match(e.aiGenerationMetricsDisplay.textContent, /未提供|未知/);
   assert.doesNotMatch(e.aiGenerationMetricsDisplay.textContent, /命中 0 Token|命中率 0\.0%/);
@@ -179,7 +180,7 @@ test("single-request cache metrics also require a denominator and may derive mis
 test("saving a new custom endpoint clears only provider results and keeps narrative history", t => {
   const e = engine(t); e.apiHistory = [{role: "user", content: "既往行动"}, {role: "assistant", content: JSON.stringify(story)}];
   const history = structuredClone(e.apiHistory);
-  e.aiRequestStatus = {state: "success", channel: "custom"}; e.aiGenerationMetrics = {textCharacters: 500};
+  e.aiRequestStatus = {state: "success", channel: "custom"}; e.aiGenerationMetrics = {beatCount: 1};
   e.cacheTelemetry = {lastHitTokens: 1234, lastMissTokens: 0, lastHitRate: "100.0%", cacheUsageKnown: true};
   e.settingEndpoint.value = "https://custom-b.fixture/v1/chat/completions";
   e.saveAISettings();

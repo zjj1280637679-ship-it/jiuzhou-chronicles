@@ -6,8 +6,8 @@
 // =============================================================================
 
 const APP_VERSION = "v2.5.0";
-const BUILD_STAMP = "2026.10.23.0001";
-const VERSION_FULL = `v2.5.0 (Build ${BUILD_STAMP} · 插件式工具循环 · 交付正文实测 · 3选项+开放输入)`;
+const BUILD_STAMP = "2026.10.23.0002";
+const VERSION_FULL = `v2.5.0 (Build ${BUILD_STAMP} · 插件式工具循环 · 自由篇幅交付 · 3选项+开放输入)`;
 const AIProviders = typeof module === "object" && module.exports
   ? require("./harness/providers.js") : globalThis.JiuzhouProviders;
 const GameRecovery = typeof module === "object" && module.exports
@@ -631,7 +631,7 @@ class WebVisualNovelEngine {
     this.drawerBranchExplainer = document.getElementById("drawer-branch-explainer");
     this.btnCloseBranchExplainer = document.getElementById("btn-close-branch-explainer");
 
-    if (this.titleVersionBadge) this.titleVersionBadge.innerText = `Build ${APP_VERSION} (${BUILD_STAMP} · 插件式推演 · 正文字数实测)`;
+    if (this.titleVersionBadge) this.titleVersionBadge.innerText = `Build ${APP_VERSION} (${BUILD_STAMP} · 插件式推演 · 自由篇幅交付)`;
     if (this.qmVersionTag) this.qmVersionTag.innerText = APP_VERSION;
     if (this.settingsVersionDisplay) this.settingsVersionDisplay.innerText = `${APP_VERSION} (Build ${BUILD_STAMP})`;
 
@@ -3690,9 +3690,10 @@ ${JSON.stringify(targetNode.originalBeats)}
         detailDesc: "宏大史诗质感、极深的人物心理博弈、细腻的环境感官与全景战场/朝堂多重视角交织。"
       }
     };
-    const targetCharacters = [500, 2000, 5000].includes(this.expectedLength) ? this.expectedLength : 2000;
-    const targetLengthCfg = lengthSettings[targetCharacters];
-    const wordCount = `交付正文至少${targetCharacters}个非空白 Unicode 字符：只合并最终交付的叙述和对白 beats[].text，去掉空格、换行及制表符后计数，标点计入，汉字另列。JSON 键名和括号、speaker 角色名、sub、choices 选项、思考、工具调用及回执、插画及说明、元数据和被替换的旧草稿均不计入；不是整个 JSON 或全部输出至少${targetCharacters}字。不设输出上限`;
+    const preferredLength = [500, 2000, 5000].includes(this.expectedLength) ? this.expectedLength : 2000;
+    const targetLengthCfg = lengthSettings[preferredLength];
+    // A writing preference communicated only to the model; never a programmatic delivery gate.
+    const wordCount = `请以至少${preferredLength + 500}字正文为写作目标，只指最终交付的叙述和对白 beats[].text。JSON 结构、speaker 角色名、sub、choices 选项、思考、工具调用及回执、插画及说明和旧草稿都不属于正文。自然完成本轮剧情即可交付，不设输出上限`;
 
     const factionKey = this.currentFaction || "qing";
 
@@ -3784,9 +3785,9 @@ ${toolLines || "     当前图库不可用，正文可继续。"}
    - 不要在正文罗列、复述或提前预告选项，不写“你有三个选择”“你可以选择A、B、C”等菜单话术，也不要替玩家选定尚未作出的行动。抉择在阅读结束后由独立弹窗呈现。
 
 【输出格式铁律】：
-正文目标只针对最终交付的叙述和对白 beats[].text，不针对 JSON 总长度或 Token 数；思考、工具调用及回执、角色名、sub、选项、插画说明和旧草稿均不计入。
-若接口提供 write_draft、inspect_draft 和 deliver_story 工具：用 write_draft 暂存下述剧情对象，用 inspect_draft 核对实际正文及剩余字数；不足时用 append 补写新段落或 replace 修订，达到目标后用 deliver_story 交付。工具参数中的正文只是草稿，不代表已经交付；不必每步重发完整 JSON。
-若接口未提供上述原生工具：输出前按相同口径自检正文达标，只返回下述严格合法的 JSON 对象，严禁前后闲聊。剧情对象格式如下：
+篇幅要求只针对最终交付的叙述和对白 beats[].text，不针对 JSON 总长度或 Token 数；思考、工具调用及回执、角色名、sub、选项、插画说明和旧草稿都不属于正文。程序不统计或验收字数。
+若接口提供 write_draft、inspect_draft 和 deliver_story 工具：可用 write_draft 暂存下述剧情对象，用 inspect_draft 查看草稿概况；有叙事需要时可用 append 追加新段落或 replace 修订，自然完成后用 deliver_story 交付。工具参数中的正文只是草稿，不代表已经交付；不必每步重发完整 JSON。
+若接口未提供上述原生工具：只返回下述严格合法的 JSON 对象，严禁前后闲聊。剧情对象格式如下：
 {
   "beats": [
     {
@@ -3876,7 +3877,7 @@ ${currentProfile.npcRoster}`;
 【判定因果】：
 - 2d6 掷骰检定：(${d1} + ${d2}) + 2 = ${total} vs DC ${choice.diceBase}（判定：${success ? "检定成功" : "检定受挫"}）
 - 玩家思潮：威权(${this.ideologyVector.authority}) 经世(${this.ideologyVector.pragmatism}) 变革(${this.ideologyVector.progress}) 格局(${this.ideologyVector.cognition})
-请你作为跑团主持推进剧情，按上述工具或直接 JSON 方式交付正文达标的剧情对象。`;
+请你作为跑团主持推进剧情，按上述工具或直接 JSON 方式交付剧情对象。`;
 
     messages.push({ role: "user", content: ephemeralTail });
 
@@ -3915,9 +3916,7 @@ ${currentProfile.npcRoster}`;
     this.aiHarnessProgress = {
       ...previous, mode: "agent", phase: event.type, tool: event.tool || "", phaseStartedAt: Date.now(),
       modelCalls: Number.isSafeInteger(event.modelCalls) ? event.modelCalls : (previous.modelCalls || 0),
-      toolCalls: Number.isSafeInteger(event.toolCalls) ? event.toolCalls : (previous.toolCalls || 0),
-      textCharacters: Number.isSafeInteger(event.textCharacters) ? event.textCharacters : (previous.textCharacters || 0),
-      targetCharacters: Number.isSafeInteger(event.targetCharacters) ? event.targetCharacters : (previous.targetCharacters || 2000)
+      toolCalls: Number.isSafeInteger(event.toolCalls) ? event.toolCalls : (previous.toolCalls || 0)
     };
     this.renderAIHarnessProgress();
   }
@@ -3928,9 +3927,9 @@ ${currentProfile.npcRoster}`;
     const phases = {
       preparing: "正在准备剧情工具", model_start: "等待模型回复", model_end: "模型回复已接收", tool_start: "正在运行剧情工具",
       tool_end: "工具结果已返回模型", plugin_error: "插件报告错误，已反馈模型",
-      delivery_check: "正在检查交付正文", delivered: "正文已通过交付检查"
+      delivery_check: "正在检查剧情格式", delivered: "剧情已交付"
     };
-    const tools = {read_world: "读取本轮世界资料", read_draft: "读取草稿", write_draft: "记录剧情草稿", inspect_draft: "检查正文字数", deliver_story: "检查并交付正文", list_illustrations: "查找场景插图", select_illustration: "暂存本轮场景插图"};
+    const tools = {read_world: "读取本轮世界资料", read_draft: "读取草稿", write_draft: "记录剧情草稿", inspect_draft: "查看草稿概况", deliver_story: "交付剧情", list_illustrations: "查找场景插图", select_illustration: "暂存本轮场景插图"};
     const phase = progress.phase === "tool_start" && tools[progress.tool] ? `正在${tools[progress.tool]}` : (phases[progress.phase] || "等待模型回复");
     const now = Date.now();
     const elapsed = (Math.max(0, now - (progress.startedAt ?? now)) / 1000).toFixed(1);
@@ -3939,7 +3938,7 @@ ${currentProfile.npcRoster}`;
     const hint = progress.phase === "model_start" && waiting >= 30000 ? "\n服务尚未返回本次回复，可继续等待或取消本次生成。" : "";
     const source = progress.sourceLabel ? `${progress.sourceLabel} · ` : "";
     const phaseText = `${source}${phase} · 模型 ${progress.modelCalls} 次 · 工具 ${progress.toolCalls} 次`;
-    const clockText = ` · 耗时 ${elapsed} 秒${waitText}\n草稿正文 ${progress.textCharacters} 字 · 本轮目标至少 ${progress.targetCharacters} 字${hint}`;
+    const clockText = ` · 耗时 ${elapsed} 秒${waitText}${hint}`;
     const phaseNode = this.aiHarnessProgressDisplay.querySelector?.("#ai-harness-phase");
     const clockNode = this.aiHarnessProgressDisplay.querySelector?.("#ai-harness-clock");
     if (phaseNode && clockNode) {
@@ -3955,7 +3954,6 @@ ${currentProfile.npcRoster}`;
     const route = this.resolveAIProvider();
     const revision = this.aiConfigRevision || 0;
     const config = AIProviders.normalizeConfig(this.apiConfig);
-    const requestedExpectedLength = [500, 2000, 5000].includes(this.expectedLength) ? this.expectedLength : 2000;
     const { messages, ephemeralTail } = this.buildDeepSeekCachePayload(choice, d1, d2, total, success);
 
     const harnessRuntime = typeof window !== "undefined" && window.JiuzhouHarness;
@@ -3963,7 +3961,7 @@ ${currentProfile.npcRoster}`;
     const worldSnapshot = useHarness ? this.buildAIHarnessWorldSnapshot() : null;
     const initialMessages = messages;
     const initialRequest = AIProviders.createRequest(route, {mode: "story", messages: initialMessages,
-      maxTokens: config.maxTokens, expectedLength: requestedExpectedLength});
+      maxTokens: config.maxTokens});
     const runner = useHarness ? async signal => {
       const result = await harnessRuntime.createGameHarness({
         messages: initialMessages,
@@ -3974,7 +3972,6 @@ ${currentProfile.npcRoster}`;
         },
         world: worldSnapshot,
         illustrations: this.getIllustrationRegistry()?.list({includeLegacy: true}) || [],
-        targetCharacters: requestedExpectedLength,
         signal,
         onEvent: event => { if (this.isAIProviderRouteCurrent(route, revision)) this.updateAIHarnessProgress(event); }
       });
@@ -4144,9 +4141,7 @@ ${currentProfile.npcRoster}`;
     }).filter(b => b.text && b.text.trim().length > 0);
     if (!beats.length) throw new Error("invalid_game_response");
     const validStoryBeats = beats.filter(b => !["illustration", "tool", "tool_result", "thought", "thinking", "reasoning", "metadata", "deliberation"].includes(b.type));
-    // Every route checks the normalized prose before committing history, images or effects.
-    const deliveredCharacters = Array.from(validStoryBeats.map(b => b.text).join("").replace(/\s/gu, "")).length;
-    if (deliveredCharacters < requestedExpectedLength) throw new Error("delivery_too_short");
+    if (!validStoryBeats.length) throw new Error("invalid_game_response");
     beats = validStoryBeats.slice();
 
     // 调度视听与舞台效果 (对账：无缝统一 stage_effects 与 legacy tools 格式)
@@ -4258,7 +4253,7 @@ ${currentProfile.npcRoster}`;
     }
     // 只记录已验证交付的累计缓存；中间工具轮和无效正文不冒充成功生成。
     this.recordAIProviderCache(data, route);
-    this.recordAIGenerationMetrics(data, validStoryBeats, validStoryChoices, "story", startedAt, requestedExpectedLength);
+    this.recordAIGenerationMetrics(data, validStoryBeats, validStoryChoices, "story", startedAt);
     this.aiGenerationMetrics.displayChoiceCount = rawChoices.slice(0, 3).length + 1; // Includes the engine's free-input action.
     this.aiGenerationMetrics.sourceIdentity = route.identity;
     this.setAIRequestStatus("success", "story", null, data.model, route, revision);
@@ -4279,19 +4274,15 @@ ${currentProfile.npcRoster}`;
     throw error;
   }
 
-  recordAIGenerationMetrics(data, beats, choices, mode, startedAt, expectedLength = null) {
+  recordAIGenerationMetrics(data, beats, choices, mode, startedAt) {
     const nonNarrativeTypes = ["illustration", "tool", "tool_result", "thought", "thinking", "reasoning", "metadata", "deliberation"];
     const validBeats = (Array.isArray(beats) ? beats : []).filter(b => b && !nonNarrativeTypes.includes(b.type) && typeof b.text === "string" && b.text.trim()).map(b => ({
       speaker: typeof b.speaker === "string" ? b.speaker : "旁白", text: b.text
     }));
     const validChoices = (Array.isArray(choices) ? choices : []).map(c => ({text: c.text, tag: c.tag}));
-    const text = validBeats.map(b => b.text).join("");
     const tokens = data?.usage?.completion_tokens;
     this.aiGenerationMetrics = {
       mode,
-      expectedLength: mode === "story" ? expectedLength : null,
-      textCharacters: Array.from(text.replace(/\s/g, "")).length,
-      hanCharacters: (text.match(/\p{Script=Han}/gu) || []).length,
       beatCount: validBeats.length,
       choiceCount: validChoices.length,
       elapsedMs: Math.max(0, Date.now() - startedAt),
@@ -4333,7 +4324,6 @@ ${currentProfile.npcRoster}`;
       source_changed: "API 配置已修改，本轮已停止且未提交旧来源剧情",
       invalid_test_response: "模型未返回有效测试正文，可能是输出不完整或响应格式不兼容",
       invalid_game_response: "AI 返回的剧情格式无效",
-      delivery_too_short: "交付正文未达到所选目标，本轮未提交不完整剧情",
       plugin_error: "剧情插件执行失败，本轮尚未交付",
       invalid_tool_call: "模型调用的剧情工具无效，本轮尚未交付",
       invalid_tool_response: "模型的工具调用格式无效，本轮未提交不完整剧情",
@@ -4381,10 +4371,7 @@ ${currentProfile.npcRoster}`;
         ? this.aiGenerationMetrics : null;
       if (metrics) {
         const tokens = metrics.completionTokens === null ? "未知" : String(metrics.completionTokens);
-        const finish = metrics.harness?.mode === "agent" ? "交付完成（插件验证通过）" : (metrics.finishReason || "未知（尚不能确认完整结束）");
-        const target = [500, 2000, 5000].includes(metrics.expectedLength) ? metrics.expectedLength : null;
-        const lengthResult = metrics.mode !== "story" || !target ? "" :
-          metrics.textCharacters < target ? " · 正文未达目标" : " · 正文已达目标";
+        const finish = metrics.harness?.mode === "agent" ? "交付完成" : (metrics.finishReason || "未知（尚不能确认完整结束）");
         const supplied = metrics.displayChoiceCount === undefined ? "" : `（界面共 ${metrics.displayChoiceCount} 项）`;
         const harness = metrics.harness || {mode: "compatibility", modelCalls: 1, toolCalls: 0};
         const runMode = harness.mode === "agent" ? "插件式工具循环" : "单次请求兼容模式";
@@ -4392,7 +4379,7 @@ ${currentProfile.npcRoster}`;
         const hit = Number(harness.cacheHitTokens ?? this.cacheTelemetry?.lastHitTokens) || 0;
         const miss = Number(harness.cacheMissTokens ?? this.cacheTelemetry?.lastMissTokens) || 0;
         const cache = cacheKnown ? `累计缓存命中 ${hit} Token / 新算 ${miss} Token` : "供应商未提供缓存统计";
-        this.aiGenerationMetricsDisplay.textContent = `最近一次有效${metrics.mode === "suture" ? "弥合" : "剧情"}：${metrics.textCharacters} 字符（其中中文 ${metrics.hanCharacters} 字）${lengthResult} · ${metrics.beatCount} 段 / ${metrics.choiceCount} 个模型选项${supplied}\n${runMode} · 模型 ${harness.modelCalls || 0} 次 · 工具 ${harness.toolCalls || 0} 次 · 总耗时 ${(metrics.elapsedMs / 1000).toFixed(1)} 秒\n${cache} · 完成 Token ${tokens} · 结束原因 ${finish}`;
+        this.aiGenerationMetricsDisplay.textContent = `最近一次有效${metrics.mode === "suture" ? "弥合" : "剧情"}：${metrics.beatCount} 段 / ${metrics.choiceCount} 个模型选项${supplied}\n${runMode} · 模型 ${harness.modelCalls || 0} 次 · 工具 ${harness.toolCalls || 0} 次 · 总耗时 ${(metrics.elapsedMs / 1000).toFixed(1)} 秒\n${cache} · 完成 Token ${tokens} · 结束原因 ${finish}`;
       } else {
         this.aiGenerationMetricsDisplay.textContent = "本轮尚无有效 AI 剧情指标。";
       }
@@ -4430,7 +4417,7 @@ ${currentProfile.npcRoster}`;
     this.activeAIRequestController = controller;
     this.aiGenerationMetrics = null;
     if (this.btnCancelAIRequest) this.btnCancelAIRequest.hidden = false;
-    this.aiHarnessProgress = {mode: runner ? "agent" : "compatibility", phase: runner ? "preparing" : "model_start", sourceLabel: route ? `${route.label} · ${route.model}` : "", modelCalls: runner ? 0 : 1, toolCalls: 0, textCharacters: 0, targetCharacters: this.expectedLength || 2000, startedAt: Date.now(), phaseStartedAt: Date.now()};
+    this.aiHarnessProgress = {mode: runner ? "agent" : "compatibility", phase: runner ? "preparing" : "model_start", sourceLabel: route ? `${route.label} · ${route.model}` : "", modelCalls: runner ? 0 : 1, toolCalls: 0, startedAt: Date.now(), phaseStartedAt: Date.now()};
     if (this.aiHarnessProgressDisplay) {
       this.aiHarnessProgressDisplay.hidden = false;
       this.renderAIHarnessProgress();

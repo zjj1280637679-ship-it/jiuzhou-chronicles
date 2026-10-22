@@ -314,14 +314,14 @@
 
           <section class="settings-section" aria-labelledby="settings-generation-title">
             <h2 id="settings-generation-title">生成偏好</h2>
-            <p class="ai-test-help">正文目标可选至少 500／2000／5000 个非空白字符，只计算最终交付的对白与叙述；JSON、思考、工具和选项不计入。</p>
+            <p class="ai-test-help">正文篇幅可在阅读界面选择 500／2000／5000 档。篇幅作为写作偏好，实际长短由您判断。</p>
             <details class="settings-fold" id="settings-generation-advanced">
               <summary>请求输出设置<span>按服务支持的范围填写</span></summary>
               <div class="settings-fold-body">
                 <div class="form-group">
                   <label for="setting-max-tokens">单次请求输出 Token（可留空）</label>
                   <input type="number" id="setting-max-tokens" class="form-input" min="1" placeholder="留空使用当前服务默认值" aria-describedby="settings-token-help">
-                  <p class="ai-test-help" id="settings-token-help">这不是正文字数。正文目标由工具循环单独检查；思考、工具记录、JSON 和选项均不计入交付字数。</p>
+                  <p class="ai-test-help" id="settings-token-help">Token 不等于正文字数，可能包含思考、工具记录和 JSON。游戏不会按字数拒绝剧情交付。</p>
                 </div>
               </div>
             </details>
@@ -339,7 +339,7 @@
           </section>
 
           <details class="settings-fold settings-diagnostics" id="settings-diagnostics">
-            <summary>指标与诊断<span>连接状态、正文字数与缓存</span></summary>
+            <summary>指标与诊断<span>连接状态、生成用量与缓存</span></summary>
             <div class="settings-fold-body">
               <div class="ai-connection-test">
                 <h3>服务状态</h3>
@@ -347,7 +347,7 @@
               </div>
               <div class="ai-connection-test">
                 <h3>最近一次有效剧情</h3>
-                <p class="ai-test-help">各档只统计最终正文的非空白 Unicode 字符，标点计入，汉字另列；JSON、角色名、选项、思考、工具及插画说明不计入。取消浏览器等待不能保证模型服务停止计费。</p>
+                <p class="ai-test-help">显示生成耗时、段落、工具与模型用量，不统计或验收字数。取消浏览器等待不能保证模型服务停止计费。</p>
                 <div id="ai-generation-metrics" role="status" aria-live="polite">尚无有效剧情指标。</div>
               </div>
               <div class="cache-telemetry-box" id="cache-telemetry-box">
@@ -569,7 +569,7 @@
 
           <div style="margin-bottom: 16px;">
             <strong style="color: var(--accent-gold);">2. AI 小说续写与 3 个全新走向：</strong><br>
-            每一回合由 AI 历史小说家按您选择的篇幅推演，工具循环可查阅背景、检查正文并补全交付。5000字档以最终正文实测至少5000字为准，并提供 <strong>3 个新的具体剧情走向（+ 1 个自定输入框）</strong>。
+            每一回合由 AI 历史小说家按您选择的篇幅偏好推演，工具循环可查阅背景、暂存草稿并交付剧情。实际篇幅由您判断，并提供 <strong>3 个新的具体剧情走向（+ 1 个自定输入框）</strong>。
           </div>
 
           <div style="margin-bottom: 16px;">
@@ -595,9 +595,9 @@
   <script src="harness/providers.js?v=20261022-0900"></script>
   <script src="game-recovery.js?v=20261021-0800"></script>
   <script src="scene-favorites.js?v=20261021-0800"></script>
-  <script src="harness/protocol.js?v=20261023-body01"></script>
-  <script src="harness/runtime.js?v=20261023-body01"></script>
-  <script src="app.js?v=20261023-body01"></script>
+  <script src="harness/protocol.js?v=20261023-body02"></script>
+  <script src="harness/runtime.js?v=20261023-body02"></script>
+  <script src="app.js?v=20261023-body02"></script>
   <script src="recovery-ui.js?v=20261022-0900"></script>
   <script src="favorites-ui.js?v=20261021-0800"></script>
   <script src="mobile-ui.js?v=20261022-2200"></script>

@@ -1,23 +1,21 @@
 "use strict";
 const protocol = self.JiuzhouHarnessProtocol;
 let draft = null;
-function inspect(context) {
-  const metric = draft ? protocol.measureStory(draft) : {textCharacters: 0, hanCharacters: 0, beatCount: 0};
-  return {...metric, targetCharacters: context.targetCharacters, remainingCharacters: Math.max(0, context.targetCharacters - metric.textCharacters),
-    countingRule: "仅最终交付的beats[].text非空白Unicode字符；汉字另列；不计思考、工具、JSON、角色名、选项、插画或重复修订稿。"};
+function inspect() {
+  return {hasDraft: Boolean(draft), beatCount: draft?.beats.length || 0, choiceCount: draft?.choices.length || 0};
 }
-function deliver(context) {
-  const metrics = inspect(context);
-  if (!draft || metrics.remainingCharacters > 0) return {result: {ok: false, error: {code: draft ? "draft_too_short" : "missing_draft"}, ...metrics}};
-  return {result: {ok: true, delivered: true, ...metrics}, delivery: protocol.normalizeStory(draft)};
+function deliver() {
+  const overview = inspect();
+  if (!draft) return {result: {ok: false, error: {code: "missing_draft"}, ...overview}};
+  return {result: {ok: true, delivered: true, ...overview}, delivery: protocol.normalizeStory(draft)};
 }
 self.JiuzhouPlugin = {
   name: "story",
   tools: protocol.tools.filter(t => ["read_draft", "write_draft", "inspect_draft", "deliver_story"].includes(t.function.name)),
-  execute(name, args, context) {
-    if (name === "read_draft") return {result: {ok: true, story: draft, ...inspect(context)}};
-    if (name === "inspect_draft") return {result: {ok: true, ...inspect(context)}};
-    if (name === "deliver_story") return deliver(context);
+  execute(name, args) {
+    if (name === "read_draft") return {result: {ok: true, story: draft, ...inspect()}};
+    if (name === "inspect_draft") return {result: {ok: true, ...inspect()}};
+    if (name === "deliver_story") return deliver();
     if (name === "write_draft" || name === "accept_delivery") {
       try {
         if (args.mode !== undefined && args.mode !== "replace" && args.mode !== "append") throw new Error("invalid_mode");
@@ -27,7 +25,7 @@ self.JiuzhouPlugin = {
             choices: Array.isArray(args.story.choices) ? next.choices : draft.choices,
             stage_effects: [...draft.stage_effects, ...next.stage_effects]};
         } else draft = next;
-        return name === "accept_delivery" ? deliver(context) : {result: {ok: true, ...inspect(context)}};
+        return name === "accept_delivery" ? deliver() : {result: {ok: true, ...inspect()}};
       } catch (_) {
         return {result: {ok: false, error: {code: "invalid_draft", message: "提供包含有效beats[].text的剧情对象；草稿未被替换。"}}};
       }

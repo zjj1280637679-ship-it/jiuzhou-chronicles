@@ -23,7 +23,7 @@ if (shots) await mkdir(shots, {recursive:true});
 const fixtureKey = "fixture-personal-only-key";
 const config = {source:"shared", enabled:true, endpoint:"https://personal.fixture/v1", apiKey:fixtureKey,
   model:"custom", customModel:"personal-fixture", adapter:"openai", tokenParameter:"max_tokens", maxTokens:32768};
-const story = {beats:[{speaker:"旁白", text:"文".repeat(5000)}], choices:[{text:"查账"},{text:"运粮"},{text:"巡城"}]};
+const story = {beats:[{speaker:"旁白", text:"粮册核对完毕，军民的疑虑逐渐平息。"}], choices:[{text:"查账"},{text:"运粮"},{text:"巡城"}]};
 async function readyModal(page, id) {
   await page.waitForFunction(id => {
     const node = document.getElementById(id);
@@ -53,6 +53,8 @@ try {
       requests.push(body);
       assert.equal(body.mode, undefined); assert.equal(body.enabledTools, undefined);
       assert.ok(body.tools.some(tool => tool.function.name === "deliver_story"));
+      if (requests.length === 1) assert.match(body.messages.at(-1).content, /5500/,
+        "The selected 5000 tier sends its 500-character drafting allowance in the first prompt");
       if (requests.length > 1) assert.deepEqual(body.messages.slice(0, requests[0].messages.length), requests[0].messages);
       const tool = requests.length === 1 ? {name:"read_world",arguments:"{}"} : requests.length === 2 ?
         {name:"write_draft",arguments:JSON.stringify({story,mode:"replace"})} : {name:"deliver_story",arguments:"{}"};
@@ -111,14 +113,26 @@ try {
     }
     assert.equal(await page.evaluate(() => window.__vnEngine.pendingTurnAttempt?.errorCode), undefined,
       JSON.stringify(await page.evaluate(() => ({error:window.__vnEngine.pendingTurnAttempt?.errorCode,message:window.__vnEngine.pendingTurnAttempt?.errorMessage}))));
-    const delivered = await page.evaluate(() => ({characters:window.__vnEngine.aiGenerationMetrics.textCharacters,
-      recount:Array.from(window.__vnEngine.storyQueue.filter(b=>b.type!=="illustration").map(b=>b.text).join("").replace(/\s/gu,"")).length,
-      pending:Boolean(window.__vnEngine.pendingTurnAttempt),calls:window.__vnEngine.aiGenerationMetrics.harness.modelCalls,
-      tools:window.__vnEngine.aiGenerationMetrics.harness.toolCalls,choicesVisible:document.querySelector("#choice-overlay").classList.contains("visible")}));
-    assert.deepEqual(delivered,{characters:5000,recount:5000,pending:false,calls:3,tools:3,choicesVisible:false});
+    const delivered = await page.evaluate(() => {
+      const engine = window.__vnEngine, metrics = engine.aiGenerationMetrics;
+      return {prose:engine.storyQueue.filter(beat => beat.type !== "illustration").map(beat => beat.text),
+        pending:Boolean(engine.pendingTurnAttempt), calls:metrics.harness.modelCalls, tools:metrics.harness.toolCalls,
+        beats:metrics.beatCount, options:metrics.choiceCount, tokens:metrics.completionTokens,
+        elapsedValid:Number.isFinite(metrics.elapsedMs) && metrics.elapsedMs >= 0,
+        removedMetricFields:[...Object.keys(metrics), ...Object.keys(metrics.harness)].filter(key => /characters|expectedLength|targetLength/i.test(key)),
+        progress:document.querySelector("#ai-harness-progress").textContent,
+        metricsText:document.querySelector("#ai-generation-metrics").textContent,
+        choicesVisible:document.querySelector("#choice-overlay").classList.contains("visible")};
+    });
+    assert.deepEqual(delivered.prose, story.beats.map(beat => beat.text), "Short valid prose is delivered without padding or a repair request");
+    assert.equal(delivered.pending, false); assert.equal(delivered.calls, 3); assert.equal(delivered.tools, 3);
+    assert.equal(delivered.beats, 1); assert.equal(delivered.options, 3); assert.equal(delivered.tokens, 150);
+    assert.equal(delivered.elapsedValid, true); assert.deepEqual(delivered.removedMetricFields, []);
+    assert.doesNotMatch(delivered.progress + delivered.metricsText, /草稿正文|正文(?:未|已)达目标|剩余字数|其中中文/);
+    assert.equal(delivered.choicesVisible, false);
     assert.equal(requests.length, 3); assert.deepEqual(unexpected, []); assert.deepEqual(errors, []);
     assert.equal(await page.evaluate(() => window.__vnEngine.apiConfig.sharedApiRemoved), undefined);
     await context.close();
-    console.log(`PASS ${size.name}: shared settings → offline personal migration, exact progress resume, explicit direct probe, native tools and 5000 fixture prose; zero shared gateway requests`);
+    console.log(`PASS ${size.name}: shared settings → offline personal migration, exact progress resume, explicit direct probe, 5500 prompt and short native-tool delivery without a length gate; token/time/paragraph metrics; zero shared gateway requests`);
   }
 } finally {await browser.close(); await new Promise(done => server.close(done));}
