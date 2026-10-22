@@ -35,7 +35,7 @@
       {id: "illustrations", url: new URL("plugins/illustrations.js", baseURL).href}
     ];
     const makeWorker = options.workerFactory || (url => new Worker(url));
-    const assetVersion = "20261022-2200";
+    const assetVersion = "20261023-body01";
     const timeoutMs = options.pluginTimeoutMs ?? 10000;
     const entries = [], registry = new Map();
     let sequence = 0, disposed = false;

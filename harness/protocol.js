@@ -10,7 +10,7 @@
   const storySchema = {
     type: "object", properties: {
       beats: {type: "array", items: {type: "object", properties: {
-        text: {type: "string"}, speaker: {type: "string"}, sub: {type: "string"},
+        text: {type: "string", description: "玩家实际阅读的叙述或对白正文。只合并最终稿各段 text 的非空白 Unicode 字符核算目标，标点计入；JSON、角色名、sub、选项、思考、工具、插画及说明不计入。"}, speaker: {type: "string"}, sub: {type: "string"},
         type: {type: "string"}, stageChar: {type: "string"}
       }, required: ["text"]}},
       choices: {type: "array", items: {type: "object", properties: {text: {type: "string"}, tag: {type: "string"}}, required: ["text"]}},
@@ -26,7 +26,7 @@
     tool("write_draft", "暂存剧情JSON；replace替换草稿，append只追加新的beats并更新提供的choices。可逐段补写，不能重复粘贴已有正文。正文只呈现已发生的行动和眼前悬念；下一步选项只放choices，正文不要预告或罗列选项。", {
       story: storySchema, mode: {type: "string", enum: ["replace", "append"]}
     }, ["story"]),
-    tool("inspect_draft", "检查暂存剧情的实际交付正文字数和剩余字数。只计beats[].text，排除思考、工具、JSON、角色名、选项与插画。"),
+    tool("inspect_draft", "检查暂存剧情的实际交付正文字数和剩余字数。只合并最终稿叙述和对白 beats[].text 的非空白 Unicode 字符，标点计入；排除思考、工具、JSON、角色名、sub、选项、插画及说明和被替换的旧草稿。"),
     tool("select_illustration", "暂存本轮插画句柄，成功交付正文后才展示。afterBeat为分页前整稿正文段落位置，追加草稿也按整稿编号：0在首段前，N在第N段后，超出末尾排在末尾；默认1。同位置再次选择会替换旧图，clear:true清空本轮全部选图。只用目录ID，不接受URL；错误不会改变已有选择。", {
       id: {type: "string"}, afterBeat: {type: "integer", minimum: 0}, caption: {type: "string"}, clear: {type: "boolean"}
     }),

@@ -6,7 +6,7 @@
 // =============================================================================
 
 const APP_VERSION = "v2.5.0";
-const BUILD_STAMP = "2026.10.22.2200";
+const BUILD_STAMP = "2026.10.23.0001";
 const VERSION_FULL = `v2.5.0 (Build ${BUILD_STAMP} · 插件式工具循环 · 交付正文实测 · 3选项+开放输入)`;
 const AIProviders = typeof module === "object" && module.exports
   ? require("./harness/providers.js") : globalThis.JiuzhouProviders;
@@ -3677,23 +3677,22 @@ ${JSON.stringify(targetNode.originalBeats)}
       500: {
         label: "精炼快节奏",
         beatsRange: "2 到 3 拍",
-        wordCount: "交付正文至少500个非空白可见字符，不设输出上限",
         detailDesc: "篇幅精简、节奏凌厉，快速推进局势转折与当面交锋，绝无冗余修辞。"
       },
       2000: {
         label: "标准推演深度",
         beatsRange: "3 到 5 拍",
-        wordCount: "交付正文至少2000个非空白可见字符，不设输出上限",
         detailDesc: "层次分明、张弛有度，人物心理交锋、氛围烘托与局势演化兼备。"
       },
       5000: {
         label: "史诗宏大详述",
         beatsRange: "按需要组织完整段落",
-        wordCount: "最终交付的 beats[].text 合并后至少5000个非空白可见字符，思考、JSON键、工具、插画说明及选项不计入正文",
         detailDesc: "宏大史诗质感、极深的人物心理博弈、细腻的环境感官与全景战场/朝堂多重视角交织。"
       }
     };
-    const targetLengthCfg = lengthSettings[this.expectedLength] || lengthSettings[2000];
+    const targetCharacters = [500, 2000, 5000].includes(this.expectedLength) ? this.expectedLength : 2000;
+    const targetLengthCfg = lengthSettings[targetCharacters];
+    const wordCount = `交付正文至少${targetCharacters}个非空白 Unicode 字符：只合并最终交付的叙述和对白 beats[].text，去掉空格、换行及制表符后计数，标点计入，汉字另列。JSON 键名和括号、speaker 角色名、sub、choices 选项、思考、工具调用及回执、插画及说明、元数据和被替换的旧草稿均不计入；不是整个 JSON 或全部输出至少${targetCharacters}字。不设输出上限`;
 
     const factionKey = this.currentFaction || "qing";
 
@@ -3785,7 +3784,9 @@ ${toolLines || "     当前图库不可用，正文可继续。"}
    - 不要在正文罗列、复述或提前预告选项，不写“你有三个选择”“你可以选择A、B、C”等菜单话术，也不要替玩家选定尚未作出的行动。抉择在阅读结束后由独立弹窗呈现。
 
 【输出格式铁律】：
-若接口提供原生工具，可先读取世界、暂存与检查草稿，再交付；工具调用和工具结果不属于正文。最终交付必须为严格合法的 JSON 对象，严禁前后闲聊，格式如下：
+正文目标只针对最终交付的叙述和对白 beats[].text，不针对 JSON 总长度或 Token 数；思考、工具调用及回执、角色名、sub、选项、插画说明和旧草稿均不计入。
+若接口提供 write_draft、inspect_draft 和 deliver_story 工具：用 write_draft 暂存下述剧情对象，用 inspect_draft 核对实际正文及剩余字数；不足时用 append 补写新段落或 replace 修订，达到目标后用 deliver_story 交付。工具参数中的正文只是草稿，不代表已经交付；不必每步重发完整 JSON。
+若接口未提供上述原生工具：输出前按相同口径自检正文达标，只返回下述严格合法的 JSON 对象，严禁前后闲聊。剧情对象格式如下：
 {
   "beats": [
     {
@@ -3865,17 +3866,17 @@ ${currentProfile.npcRoster}`;
     if (isGodModeInput) {
       actionGuidance = `\n【天命高潮契机】：玩家施展了超常规伟力！请以 TRPG 终局高潮笔触，描摹无量光芒照彻天地、众生俯首的史诗场景，有匹配场景图时查询图库并选择准确句柄，给出 3 个君临天下的具体行动选项。`;
     } else {
-      actionGuidance = `\n【主持要求】：请根据玩家意图与掷骰判定，输出 ${targetLengthCfg.beatsRange} 充满戏剧张力的第二人称场景卡（beats，${targetLengthCfg.wordCount}），并在末尾给出 3 个具象的下一步跑团行动走向（choices）。最终交付必须为合法 JSON。`;
+      actionGuidance = `\n【主持要求】：请根据玩家意图与掷骰判定，输出 ${targetLengthCfg.beatsRange} 充满戏剧张力的第二人称场景卡（beats），并在末尾给出 3 个具象的下一步跑团行动走向（choices）。`;
     }
 
     const branchStatusPrompt = `\n【当前自由推演阶段】：已推演 ${this.branchDepth || 1} 轮。`;
 
     const ephemeralTail = `${actionText}${actionGuidance}${branchStatusPrompt}
-【本轮交付篇幅】：${targetLengthCfg.label}；${targetLengthCfg.wordCount}。${targetLengthCfg.detailDesc}
+【本轮交付篇幅】：${targetLengthCfg.label}；${wordCount}。${targetLengthCfg.detailDesc}
 【判定因果】：
 - 2d6 掷骰检定：(${d1} + ${d2}) + 2 = ${total} vs DC ${choice.diceBase}（判定：${success ? "检定成功" : "检定受挫"}）
 - 玩家思潮：威权(${this.ideologyVector.authority}) 经世(${this.ideologyVector.pragmatism}) 变革(${this.ideologyVector.progress}) 格局(${this.ideologyVector.cognition})
-请你作为跑团主持推进剧情，最终交付必须为合法 JSON。`;
+请你作为跑团主持推进剧情，按上述工具或直接 JSON 方式交付正文达标的剧情对象。`;
 
     messages.push({ role: "user", content: ephemeralTail });
 
@@ -4143,11 +4144,10 @@ ${currentProfile.npcRoster}`;
     }).filter(b => b.text && b.text.trim().length > 0);
     if (!beats.length) throw new Error("invalid_game_response");
     const validStoryBeats = beats.filter(b => !["illustration", "tool", "tool_result", "thought", "thinking", "reasoning", "metadata", "deliberation"].includes(b.type));
-    if (useHarness) {
-      const deliveredCharacters = Array.from(validStoryBeats.map(b => b.text).join("").replace(/\s/g, "")).length;
-      if (deliveredCharacters < requestedExpectedLength) throw new Error("delivery_too_short");
-      beats = validStoryBeats.slice();
-    }
+    // Every route checks the normalized prose before committing history, images or effects.
+    const deliveredCharacters = Array.from(validStoryBeats.map(b => b.text).join("").replace(/\s/gu, "")).length;
+    if (deliveredCharacters < requestedExpectedLength) throw new Error("delivery_too_short");
+    beats = validStoryBeats.slice();
 
     // 调度视听与舞台效果 (对账：无缝统一 stage_effects 与 legacy tools 格式)
     const effectSource = Array.isArray(parsed.stage_effects) ? parsed.stage_effects : parsed.tools;

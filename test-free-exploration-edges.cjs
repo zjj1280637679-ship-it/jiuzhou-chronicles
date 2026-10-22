@@ -31,7 +31,7 @@ function response(content, finish = "stop") {
     content: typeof content === "string" ? content : JSON.stringify(content)
   }, ...(finish ? {finish_reason: finish} : {})}], usage: {completion_tokens: 1234}})};
 }
-function story(text = "你核对粮册，决定先救百姓。") {
+function story(text = "文".repeat(5000)) {
   return {beats: [{speaker: "旁白", text}], choices: [{text: "安置流民"}, {text: "查验粮库"}, {text: "召集医者"}]};
 }
 const action = {text: "先救百姓，再核对军粮账册"};
@@ -119,12 +119,84 @@ test("real payload builder transmits the 5000 tier and preserves a long latest a
   assert.ok(body.max_tokens >= 12288);
 });
 
+test("every length tier reaches the first real request with an explicit final-prose-only counting contract", async () => {
+  for (const target of [500, 2000, 5000]) {
+    const e = engine(); delete e.buildDeepSeekCachePayload;
+    e.expectedLength = target;
+    const requests = [];
+    global.fetch = async (_url, options) => {
+      requests.push(JSON.parse(options.body));
+      return response(story("文".repeat(target)));
+    };
+    await turn(e);
+    assert.equal(requests.length, 1);
+    const tail = requests[0].messages.at(-1).content;
+    assert.match(tail, new RegExp(`至少\\s*${target}`), `${target}: target must be model-visible before any tool feedback`);
+    assert.match(tail, /beats\[\]\.text/, `${target}: identify the delivered text fields`);
+    assert.match(tail, /最终交付/, `${target}: count the delivered story, not every revision`);
+    assert.match(tail, /非空白.*Unicode.*字符/, `${target}: specify the counter's unit`);
+    for (const excluded of ["JSON", "角色名", "选项", "思考", "工具", "插画"]) {
+      assert.ok(tail.includes(excluded), `${target}: explicitly exclude ${excluded}`);
+    }
+    assert.equal(e.aiGenerationMetrics.textCharacters, target);
+    assert.equal(e.aiGenerationMetrics.expectedLength, target);
+  }
+});
+
+test("compatibility mode rejects 1999 delivered characters even when JSON and non-prose fields are much longer", async () => {
+  const e = engine(), effects = [];
+  e.expectedLength = 2000;
+  e.apiHistory = [{role: "user", content: "既往行动"}, {role: "assistant", content: "既往剧情"}];
+  const before = structuredClone(e.apiHistory);
+  e.executeAITools = tools => effects.push(...tools);
+  // The supplementary-plane Han character is one Unicode character, not two UTF-16 code units.
+  const fixture = story("文".repeat(1997) + "，𠮷\n\t ");
+  fixture.beats[0].speaker = "角色名".repeat(2000);
+  fixture.beats[0].sub = "动作".repeat(2000);
+  for (const type of ["illustration", "tool", "tool_result", "thinking", "reasoning", "metadata", "deliberation"]) {
+    fixture.beats.push({type, text: "不算正文".repeat(1000)});
+  }
+  fixture.choices = [{text: "选项".repeat(2000)}];
+  fixture.deliberation = "思考".repeat(2000);
+  fixture.stage_effects = [{name: "screen_flash", params: {color: "gold"}},
+    {name: "show_illustration", params: {id: "qing_night_raid", caption: "插画说明".repeat(2000)}}];
+  assert.ok(JSON.stringify(fixture).length > 20000);
+  global.fetch = async () => response(fixture);
+  await assert.rejects(turn(e), /delivery_too_short/);
+  assert.deepEqual(e.apiHistory, before);
+  assert.deepEqual(effects, []);
+  assert.equal(e.aiGenerationMetrics, null);
+  assert.notEqual(e.aiRequestStatus?.state, "success");
+  assert.doesNotMatch(e.qmCache.innerText, /AI 已生成/);
+});
+
+test("compatibility mode commits exactly 2000 Unicode prose characters across beats, excluding whitespace", async () => {
+  const e = engine(), effects = [];
+  e.expectedLength = 2000;
+  e.executeAITools = tools => effects.push(...tools);
+  const fixture = story("文".repeat(999) + "𠮷\n\t ");
+  fixture.beats.push({speaker: "守军", type: "npc", text: "\n " + "话".repeat(999) + "！\t"});
+  fixture.beats.push({type: "illustration", text: "插画说明不计入正文"});
+  fixture.stage_effects = [{name: "screen_flash", params: {color: "gold"}}];
+  global.fetch = async () => response(fixture);
+  const result = await turn(e);
+  assert.deepEqual(result.beats.map(beat => beat.type), ["narrator", "npc"]);
+  assert.equal(e.aiGenerationMetrics.textCharacters, 2000);
+  assert.equal(e.aiGenerationMetrics.hanCharacters, 1999);
+  assert.equal(e.aiGenerationMetrics.beatCount, 2);
+  assert.equal(e.aiGenerationMetrics.expectedLength, 2000);
+  assert.equal(e.aiGenerationMetrics.harness.mode, "compatibility");
+  assert.equal(e.aiRequestStatus.state, "success");
+  assert.equal(e.apiHistory.length, 2);
+  assert.deepEqual(effects, [{tool: "screen_flash", params: {color: "gold"}}]);
+});
+
 test("metrics describe only valid prose, not whitespace, reasoning or synthesized choices", async () => {
   const e = engine();
-  global.fetch = async () => response({beats: [{speaker: "旁白", text: "你 A。\n\t山河！"}, {type: "illustration", text: "插画说明不算正文"}], choices: [null], deliberation: "模型局势思考不算正文"});
+  global.fetch = async () => response({beats: [{speaker: "旁白", text: "你 A。\n\t山河！" + "文".repeat(4994)}, {type: "illustration", text: "插画说明不算正文"}], choices: [null], deliberation: "模型局势思考不算正文"});
   await turn(e);
-  assert.equal(e.aiGenerationMetrics.textCharacters, 6);
-  assert.equal(e.aiGenerationMetrics.hanCharacters, 3);
+  assert.equal(e.aiGenerationMetrics.textCharacters, 5000);
+  assert.equal(e.aiGenerationMetrics.hanCharacters, 4997);
   assert.equal(e.aiGenerationMetrics.choiceCount, 0);
   assert.equal(e.aiGenerationMetrics.displayChoiceCount, 4);
   assert.equal(e.aiGenerationMetrics.beatCount, 1);
@@ -142,7 +214,7 @@ test("an absent finish reason is reported as unknown, never as confirmed complet
   assert.match(e.aiGenerationMetricsDisplay.textContent, /结束原因 未知/);
 });
 
-test("changing the length preference while waiting cannot relabel the in-flight generation metrics", async () => {
+test("changing the length preference while waiting cannot lower the in-flight 5000-character delivery threshold", async () => {
   const e = engine(); let resolveResponse, sentBody;
   global.fetch = async (_url, options) => {
     sentBody = JSON.parse(options.body);
@@ -152,11 +224,25 @@ test("changing the length preference while waiting cannot relabel the in-flight 
   assert.equal(sentBody.expectedLength, undefined);
   e.expectedLength = 500;
   resolveResponse(response(story("史".repeat(3600))));
+  await assert.rejects(pending, /delivery_too_short/);
+  assert.equal(e.expectedLength, 500);
+  assert.equal(e.aiGenerationMetrics, null);
+  assert.equal(e.apiHistory.length, 0);
+  assert.notEqual(e.aiRequestStatus?.state, "success");
+});
+
+test("a completed in-flight 5000-character story retains its original metric target after preference changes", async () => {
+  const e = engine(); let resolveResponse;
+  global.fetch = async () => new Promise(resolve => {resolveResponse = resolve;});
+  const pending = turn(e);
+  e.expectedLength = 500;
+  resolveResponse(response(story()));
   await pending;
   assert.equal(e.expectedLength, 500);
   assert.equal(e.aiGenerationMetrics.expectedLength, 5000);
-  assert.match(e.aiGenerationMetricsDisplay.textContent, /未达目标|正文偏短/);
-  assert.doesNotMatch(e.aiGenerationMetricsDisplay.textContent, /超出偏好/);
+  assert.equal(e.aiGenerationMetrics.textCharacters, 5000);
+  assert.match(e.aiGenerationMetricsDisplay.textContent, /正文已达目标/);
+  assert.equal(e.apiHistory.length, 2);
 });
 
 test("manual cancellation exposes its cause, cleans up and permits a fresh request without retries", async () => {
