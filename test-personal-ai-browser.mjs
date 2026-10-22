@@ -30,6 +30,12 @@ async function readyModal(page, id) {
     return node?.getAttribute("aria-modal") === "true" && !node.closest("[inert]");
   }, id);
 }
+async function closeIllustrationIfOpen(page) {
+  if (await page.locator("#modal-illustration").evaluate(node => node.classList.contains("open"))) {
+    await page.click("#btn-close-illustration");
+    await page.waitForFunction(() => !document.querySelector("#dialogue-content").closest("[inert]"));
+  }
+}
 try {
   for (const size of [{name:"phone", width:390, height:844, mobile:true},{name:"desktop", width:1440, height:900, mobile:false}]) {
     const context = await browser.newContext({viewport:{width:size.width,height:size.height}, isMobile:size.mobile, hasTouch:size.mobile, serviceWorkers:"block", reducedMotion:"reduce"});
@@ -68,10 +74,13 @@ try {
     assert.equal(probes + requests.length, 0);
     assert.deepEqual(unexpected, [], "Legacy startup must not contact a shared gateway or its health endpoint");
     await page.click("#title-btn-start");
+    await closeIllustrationIfOpen(page);
     await page.click(size.mobile ? "#mobile-next" : "#dialogue-box");
+    await closeIllustrationIfOpen(page);
     const before = await page.evaluate(() => ({step:window.__vnEngine.currentStep,turn:window.__vnEngine.currentTurn,queue:window.__vnEngine.storyQueue.map(b=>b.text)}));
     await page.reload({waitUntil:"domcontentloaded"});
     await page.click("#title-btn-continue");
+    await closeIllustrationIfOpen(page);
     assert.deepEqual(await page.evaluate(() => ({step:window.__vnEngine.currentStep,turn:window.__vnEngine.currentTurn,queue:window.__vnEngine.storyQueue.map(b=>b.text)})), before);
     if (size.mobile) await page.click("#mobile-menu-toggle");
     await page.click("#qm-settings");
@@ -94,6 +103,7 @@ try {
     await page.click('.btn-length[data-length="5000"]');
     if (size.mobile) await page.click("#mobile-menu-close");
     for (let i=0;i<180;i++) {
+      await closeIllustrationIfOpen(page);
       if (await page.locator("#choice-overlay").evaluate(el=>el.classList.contains("visible"))) break;
       await page.click(size.mobile ? "#mobile-next" : "#dialogue-box");
     }
@@ -107,7 +117,7 @@ try {
       await page.waitForFunction(() => !window.__vnEngine.isAIGenerating && (window.__vnEngine.aiGenerationMetrics || window.__vnEngine.pendingTurnAttempt), undefined, {timeout:30000});
     } catch (error) {
       const state = await page.evaluate(() => ({generating:window.__vnEngine.isAIGenerating, enabled:window.__vnEngine.apiConfig.enabled,
-        progress:document.querySelector("#ai-harness-progress").textContent, pending:window.__vnEngine.pendingTurnAttempt?.errorCode,
+        pending:window.__vnEngine.pendingTurnAttempt?.errorCode,
         status:window.__vnEngine.aiRequestStatus?.message}));
       throw new Error(`${size.name}: fixture turn did not settle; model calls=${requests.length}; state=${JSON.stringify(state)}; browser errors=${JSON.stringify(errors)}`, {cause:error});
     }
@@ -120,19 +130,19 @@ try {
         beats:metrics.beatCount, options:metrics.choiceCount, tokens:metrics.completionTokens,
         elapsedValid:Number.isFinite(metrics.elapsedMs) && metrics.elapsedMs >= 0,
         removedMetricFields:[...Object.keys(metrics), ...Object.keys(metrics.harness)].filter(key => /characters|expectedLength|targetLength/i.test(key)),
-        progress:document.querySelector("#ai-harness-progress").textContent,
-        metricsText:document.querySelector("#ai-generation-metrics").textContent,
+        diagnosticNodes:document.querySelectorAll("#ai-harness-progress, #ai-generation-metrics, #cache-telemetry-box, #settings-diagnostics, #qm-cache").length,
         choicesVisible:document.querySelector("#choice-overlay").classList.contains("visible")};
     });
     assert.deepEqual(delivered.prose, story.beats.map(beat => beat.text), "Short valid prose is delivered without padding or a repair request");
     assert.equal(delivered.pending, false); assert.equal(delivered.calls, 3); assert.equal(delivered.tools, 3);
     assert.equal(delivered.beats, 1); assert.equal(delivered.options, 3); assert.equal(delivered.tokens, 150);
     assert.equal(delivered.elapsedValid, true); assert.deepEqual(delivered.removedMetricFields, []);
-    assert.doesNotMatch(delivered.progress + delivered.metricsText, /草稿正文|正文(?:未|已)达目标|剩余字数|其中中文/);
+    assert.equal(delivered.diagnosticNodes, 0, "Token, time, model, tool and cache metrics have no UI nodes");
+    assert.doesNotMatch(await page.locator("body").innerText(), /模型\s*\d+\s*次|工具\s*\d+\s*次|本次等待|缓存命中|completion_tokens|prompt_cache/);
     assert.equal(delivered.choicesVisible, false);
     assert.equal(requests.length, 3); assert.deepEqual(unexpected, []); assert.deepEqual(errors, []);
     assert.equal(await page.evaluate(() => window.__vnEngine.apiConfig.sharedApiRemoved), undefined);
     await context.close();
-    console.log(`PASS ${size.name}: shared settings → offline personal migration, exact progress resume, explicit direct probe, 5500 prompt and short native-tool delivery without a length gate; token/time/paragraph metrics; zero shared gateway requests`);
+    console.log(`PASS ${size.name}: shared settings → offline personal migration, exact progress resume, explicit direct probe, 5500 prompt and short native-tool delivery without a length gate; runtime metrics remain internal; zero shared gateway requests`);
   }
 } finally {await browser.close(); await new Promise(done => server.close(done));}

@@ -90,10 +90,9 @@ test("probe uses the unsaved private Key, endpoint and custom model without savi
   };
   await e.testAIConnection();
   assert.equal(requests, 1);
-  assert.match(e.aiConnectionTestStatus.textContent, /测试成功/);
-  assert.match(e.aiConnectionTestStatus.textContent, /自定义|私有/);
-  assert.match(e.aiConnectionTestStatus.textContent, /fixture-returned-model/);
-  assert.match(e.aiConnectionTestStatus.textContent, /耗时|\d+(?:\.\d+)?\s*秒/);
+  assert.equal(e.aiConnectionTestStatus.textContent, "测试成功，已收到有效回复。");
+  assert.doesNotMatch(e.aiConnectionTestStatus.textContent, /fixture-returned-model|Token|耗时|\d+(?:\.\d+)?\s*秒/,
+    "An explicit connection test reports its outcome without model or timing logs");
   assert.doesNotMatch(e.aiConnectionTestStatus.textContent, /private-fixture/);
   assert.deepEqual(gameState(e), before);
   assertRestored(e);
@@ -108,7 +107,7 @@ test("a private probe does not require a valid shared gateway setting", async ()
     return successResponse();
   };
   await e.testAIConnection();
-  assert.match(e.aiConnectionTestStatus.textContent, /测试成功.*(?:自定义|私有)/);
+  assert.equal(e.aiConnectionTestStatus.textContent, "测试成功，已收到有效回复。");
   assertRestored(e);
 });
 
@@ -132,7 +131,7 @@ test("an explicit custom probe without a Key never falls back to shared AI", asy
     return successResponse("generic-fixture-model");
   };
   await e.testAIConnection();
-  assert.equal(requests, 1); assert.match(e.aiConnectionTestStatus.textContent, /测试成功.*自定义/);
+  assert.equal(requests, 1); assert.equal(e.aiConnectionTestStatus.textContent, "测试成功，已收到有效回复。");
   assert.deepEqual(gameState(e), before); assertRestored(e);
 });
 

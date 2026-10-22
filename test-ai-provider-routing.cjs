@@ -75,24 +75,32 @@ function waitingRequest(e, route = e.resolveAIProvider()) {
   }, route);
 }
 
-test("a delayed model response keeps its waiting clock live without issuing a second request", async t => {
+function assertNoRuntimeLogRendering(e) {
+  for (const field of ["aiHarnessProgressDisplay", "aiGenerationMetricsDisplay", "qmCache", "cacheStatusTag"]) {
+    assert.equal(e[field].textContent, "", `${field} must not receive runtime diagnostic output`);
+    assert.equal(e[field].innerText, "", `${field} must not receive runtime diagnostic output`);
+  }
+  assert.equal(e.qmCache.classList.contains("hit"), false);
+  assert.doesNotMatch(e.aiConnectionStatus.textContent, /模型\s*\d+\s*次|工具\s*\d+\s*次|Token|耗时|命中率/);
+}
+
+test("a delayed model response exposes cancellation without a diagnostic clock or extra requests", async t => {
   const e = engine(t), clock = progressClock(t); let release, requests = 0;
   global.fetch = () => {requests++; return new Promise(resolve => {release = resolve;});};
   const pending = waitingRequest(e);
-  assert.equal(clock.running.size, 1); assert.equal(requests, 1);
+  assert.equal(clock.running.size, 0); assert.equal(requests, 1);
+  assert.equal(e.btnCancelAIRequest.hidden, false);
   assert.equal(e.aiHarnessProgress.phase, "model_start");
   clock.advance(1000);
-  const first = e.aiHarnessProgressDisplay.textContent;
-  assert.match(first, /1\.0\s*秒/);
   clock.advance(2000);
-  assert.match(e.aiHarnessProgressDisplay.textContent, /3\.0\s*秒/);
-  assert.notEqual(e.aiHarnessProgressDisplay.textContent, first);
+  assertNoRuntimeLogRendering(e);
   assert.equal(e.aiHarnessProgress.modelCalls, 1); assert.equal(e.aiHarnessProgress.toolCalls, 0);
-  assert.equal(requests, 1, "A progress heartbeat must never retry or probe the model");
+  assert.equal(requests, 1, "Waiting must never retry or probe the model");
   release(response(final())); await pending;
-  assert.equal(clock.running.size, 0); assert.equal(clock.cleared.length, 1);
+  assert.equal(clock.running.size, 0); assert.equal(clock.callbacks.size, 0);
   assert.equal(e.aiHarnessProgressDisplay.hidden, true); assert.equal(e.btnCancelAIRequest.hidden, true);
   assert.equal(e.activeAIRequestController, null);
+  assertNoRuntimeLogRendering(e);
 });
 
 test("an authentication failure clears waiting state and preserves the selected provider without retrying", async t => {
@@ -104,30 +112,29 @@ test("an authentication failure clears waiting state and preserves the selected 
   assert.match(e.aiRequestStatus.message, /认证|密钥|Key|鉴权/);
   assert.equal(e.activeAIRequestController, null); assert.equal(clock.running.size, 0);
   assert.equal(e.aiHarnessProgressDisplay.hidden, true); assert.equal(e.btnCancelAIRequest.hidden, true);
+  assertNoRuntimeLogRendering(e);
 });
 
 for (const interruption of ["cancel", "source change"]) {
-  test(`${interruption} clears its clock and a queued old heartbeat cannot overwrite a later request`, async t => {
+  test(`${interruption} settles its request without a log clock and permits a new cancellable request`, async t => {
     const e = engine(t), clock = progressClock(t); let requests = 0;
     global.fetch = (_url, init) => {
       requests++;
       return new Promise((_resolve, reject) => init.signal.addEventListener("abort", () => reject(new DOMException("Aborted", "AbortError")), {once: true}));
     };
-    const first = waitingRequest(e), oldHeartbeat = [...clock.callbacks.values()][0];
-    assert.equal(typeof oldHeartbeat, "function");
+    const first = waitingRequest(e);
+    assert.equal(clock.callbacks.size, 0, "A request must not create a UI clock");
     if (interruption === "cancel") e.cancelAIRequest();
     else {e.settingEndpoint.value = "https://custom-b.fixture/v1/chat/completions"; e.saveAISettings();}
     await assert.rejects(first, {code: interruption === "cancel" ? "request_cancelled" : "source_changed"});
     assert.equal(clock.running.size, 0); assert.equal(e.activeAIRequestController, null);
     const second = waitingRequest(e);
-    e.aiHarnessProgressDisplay.textContent = "Later request owns this display";
-    oldHeartbeat();
-    assert.equal(e.aiHarnessProgressDisplay.textContent, "Later request owns this display");
     clock.advance(1000);
-    assert.match(e.aiHarnessProgressDisplay.textContent, /1\.0\s*秒/);
+    assert.equal(e.btnCancelAIRequest.hidden, false); assertNoRuntimeLogRendering(e);
     assert.equal(requests, 2, "Only the two explicit requests may reach the provider");
     e.cancelAIRequest(); await assert.rejects(second, {code: "request_cancelled"});
     assert.equal(clock.running.size, 0); assert.equal(e.aiHarnessProgressDisplay.hidden, true);
+    assertNoRuntimeLogRendering(e);
   });
 }
 
@@ -145,7 +152,7 @@ test("a Keyless custom provider has a live route and does not access an unselect
   assert.equal(result.reconciledBeats[0].text, "自定义来源续接成功");
 });
 
-test("a generic Keyless custom provider runs the same native-tool harness and reports missing cache telemetry honestly", async t => {
+test("a generic Keyless custom provider runs native tools while keeping missing cache telemetry internal", async t => {
   const e = engine(t); e.serverSharedConfig = {hasServerKey: true}; let requests = 0; const signals = [];
   global.fetch = async (url, init) => {
     requests++; signals.push(init.signal); assert.equal(url, e.apiConfig.endpoint);
@@ -163,8 +170,7 @@ test("a generic Keyless custom provider runs the same native-tool harness and re
   assert.equal(e.aiGenerationMetrics.beatCount, 1); assert.equal(e.aiGenerationMetrics.harness.modelCalls, 2);
   assert.equal(e.aiGenerationMetrics.textCharacters, undefined);
   assert.equal(e.cacheTelemetry.cacheUsageKnown, false); assert.equal(e.cacheTelemetry.lastHitTokens, null);
-  assert.match(e.aiGenerationMetricsDisplay.textContent, /未提供|未知/);
-  assert.doesNotMatch(e.aiGenerationMetricsDisplay.textContent, /命中 0 Token|命中率 0\.0%/);
+  assertNoRuntimeLogRendering(e);
 });
 
 test("single-request cache metrics also require a denominator and may derive misses from a valid prompt total", t => {
@@ -189,16 +195,16 @@ test("saving a new custom endpoint clears only provider results and keeps narrat
   assert.deepEqual(e.apiHistory, history);
 });
 
-test("a new custom endpoint cannot inherit a different endpoint's successful cache badge or displayed metrics", async t => {
+test("successful cache metrics and provider changes never render a badge or diagnostic panel", async t => {
   const e = engine(t);
   global.fetch = async () => response({...final(), usage: {prompt_tokens: 100, prompt_cache_hit_tokens: 100, prompt_cache_miss_tokens: 0, completion_tokens: 50}});
   await turn(e);
-  assert.equal(e.qmCache.classList.contains("hit"), true);
+  assert.equal(e.cacheTelemetry.cacheUsageKnown, true); assertNoRuntimeLogRendering(e);
   e.apiConfig.endpoint = "https://custom-b.fixture/v1/chat/completions";
   e.updateCachePillUI();
   assert.equal(e.qmCache.classList.contains("hit"), false);
-  assert.match(e.aiConnectionStatus.textContent, /当前来源尚未进行真实 AI 生成/);
-  assert.match(e.aiGenerationMetricsDisplay.textContent, /尚无有效/);
+  assert.equal(e.aiConnectionStatus.textContent, "个人 AI 已启用。");
+  assertNoRuntimeLogRendering(e);
 });
 
 test("changing sources aborts an in-flight route and rejects its late completion before writing history", async t => {

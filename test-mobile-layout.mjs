@@ -73,6 +73,12 @@ async function counterMatches(page){
     return nav.dataset.step===String(e.currentStep)&&nav.dataset.total===String(e.storyQueue.length)&&document.querySelector("#mobile-page-position").textContent.trim()===`${e.currentStep} / ${e.storyQueue.length}`;
   });
 }
+async function closeIllustrationIfOpen(page){
+  if(await page.locator("#modal-illustration").evaluate(node=>node.classList.contains("open"))){
+    await page.click("#btn-close-illustration");
+    await page.waitForFunction(()=>!document.querySelector("#dialogue-content").closest("[inert]"));
+  }
+}
 async function resizeRoundTrip(page){
   const before=await engineState(page);
   await page.click("#mobile-menu-toggle");
@@ -86,17 +92,18 @@ async function resizeRoundTrip(page){
   await page.click("#mobile-menu-toggle");
   await page.waitForFunction(()=>document.querySelector("#quick-menu").getAttribute("aria-modal")==="true");
   await page.setViewportSize({width:1440,height:900});
-  await page.waitForFunction(()=>!document.documentElement.classList.contains("mobile-layout")&&document.querySelector("#ai-length-group").parentElement.id==="story-branch-indicator"&&document.querySelector("#ai-harness-progress").parentElement.id==="game-viewport");
-  const desktopParents=await page.evaluate(()=>Object.fromEntries(["ai-length-group","btn-branch-explainer","ai-harness-progress","btn-cancel-ai-request"].map(id=>[id,document.getElementById(id).parentElement.id])));
-  assert.deepEqual(desktopParents,{"ai-length-group":"story-branch-indicator","btn-branch-explainer":"story-branch-indicator","ai-harness-progress":"game-viewport","btn-cancel-ai-request":"quick-menu"});
+  await page.waitForFunction(()=>!document.documentElement.classList.contains("mobile-layout")&&document.querySelector("#ai-length-group").parentElement.id==="story-branch-indicator");
+  const desktopParents=await page.evaluate(()=>Object.fromEntries(["ai-length-group","btn-branch-explainer","btn-cancel-ai-request"].map(id=>[id,document.getElementById(id).parentElement.id])));
+  assert.deepEqual(desktopParents,{"ai-length-group":"story-branch-indicator","btn-branch-explainer":"story-branch-indicator","btn-cancel-ai-request":"quick-menu"});
+  assert.equal(await page.locator("#ai-harness-progress, #ai-generation-metrics, #cache-telemetry-box, #settings-diagnostics, #qm-cache").count(),0);
   assert.equal(await page.locator("#quick-menu").evaluate(node=>node.classList.contains("mobile-menu-open")),false);
   assert.equal(await page.locator("#mobile-menu-toggle").getAttribute("aria-expanded"),"false");
   assert.equal(await page.locator("#mobile-topbar").isVisible(),false);
   await reachable(page,"#qm-settings");
   await page.setViewportSize({width:390,height:844});
-  await page.waitForFunction(()=>document.documentElement.classList.contains("mobile-layout")&&document.querySelector("#ai-length-group").parentElement.id==="mobile-reading-tools"&&document.querySelector("#ai-harness-progress").parentElement.id==="dialogue-box");
-  const mobileParents=await page.evaluate(()=>Object.fromEntries(["ai-length-group","btn-branch-explainer","ai-harness-progress","btn-cancel-ai-request"].map(id=>[id,document.getElementById(id).parentElement.id])));
-  assert.deepEqual(mobileParents,{"ai-length-group":"mobile-reading-tools","btn-branch-explainer":"mobile-reading-tools","ai-harness-progress":"dialogue-box","btn-cancel-ai-request":"dialogue-box"});
+  await page.waitForFunction(()=>document.documentElement.classList.contains("mobile-layout")&&document.querySelector("#ai-length-group").parentElement.id==="mobile-reading-tools");
+  const mobileParents=await page.evaluate(()=>Object.fromEntries(["ai-length-group","btn-branch-explainer","btn-cancel-ai-request"].map(id=>[id,document.getElementById(id).parentElement.id])));
+  assert.deepEqual(mobileParents,{"ai-length-group":"mobile-reading-tools","btn-branch-explainer":"mobile-reading-tools","btn-cancel-ai-request":"dialogue-box"});
   assert.equal(await page.locator("#quick-menu").isVisible(),false);
   assert.equal(await page.locator("#mobile-menu-toggle").getAttribute("aria-expanded"),"false");
   assert.equal(await page.locator("#dialogue-content").evaluate(node=>parseFloat(getComputedStyle(node).fontSize)),initialFont+1,"phone font preference must survive breakpoint changes");
@@ -108,7 +115,7 @@ async function resizeRoundTrip(page){
   assert.equal(await page.locator("#dialogue-content").evaluate(node=>parseFloat(getComputedStyle(node).fontSize)),initialFont);
   assert.equal((await engineState(page)).step,before.step,"breakpoint switches and font controls must not advance the story");
   await noOverflow(page,"same-context phone → desktop → phone",["#dialogue-box","#dialogue-content"]);
-  console.log("PASS same context 390 → 1440 → 390 restores tool/progress/cancel parents, closes menus and preserves functional font controls");
+  console.log("PASS same context 390 → 1440 → 390 restores reading/cancel parents, does not recreate diagnostic UI, closes menus and preserves functional font controls");
 }
 async function resumeMiddleBeat(page){
   const before=await engineState(page);
@@ -117,6 +124,7 @@ async function resumeMiddleBeat(page){
   await page.waitForFunction(()=>window.__vnEngine.gameState==="TITLE");
   await page.click("#title-btn-continue");
   await page.waitForFunction(()=>window.__vnEngine.gameState==="PLAYING");
+  await closeIllustrationIfOpen(page);
   await counterMatches(page);
   const after=await engineState(page);
   // currentStep indexes the next unread beat; the visible saved page is step-1.
@@ -140,6 +148,7 @@ async function openMenuAction(page,size,button){
 async function toChoices(page,size){
   const advance=size.mobile?"#mobile-next":"#dialogue-box";
   for(let i=0;i<180;i++){
+    await closeIllustrationIfOpen(page);
     if(await page.locator("#choice-overlay").evaluate(el=>el.classList.contains("visible")))return;
     await page.click(advance);
   }
@@ -156,7 +165,7 @@ async function openFreeAction(page){
 }
 async function illustrationFlow(page,size){
   // Supply an actual illustration beat through the rendering API, then operate
-  // its normal card and modal. This does not bypass opening/closing with classes.
+  // its normal independent modal. This does not bypass opening/closing with classes.
   const before=await engineState(page);
   await page.evaluate(()=>{
     const description="远处烽烟渐起，城门前的众人仍守着灯火。长卷注脚应当可以滚动阅读。".repeat(80);
@@ -165,8 +174,9 @@ async function illustrationFlow(page,size){
       factionName:"大明",categoryName:"测试画卷",symbol:"◇"
     });
   });
-  await page.click(".dialogue-illustration-card .illustration-view-pill");
   await page.waitForFunction(()=>document.querySelector("#modal-illustration").getAttribute("aria-modal")==="true");
+  assert.equal(await page.locator("#dialogue-content img, #dialogue-content .dialogue-illustration-card").count(),0);
+  assert.equal(await page.locator("#modal-illustration").evaluate(node=>getComputedStyle(node).position==="fixed"&&!node.closest("#dialogue-box")),true);
   await page.waitForFunction(()=>{const image=document.querySelector("#illustration-graphic img");return Boolean(image?.complete&&image.naturalWidth>0)});
   await reachable(page,"#btn-close-illustration");
   assert.ok(await page.locator("#illustration-caption").evaluate(node=>node.scrollHeight>node.clientHeight+20),`${size.name}: long image caption needs an independent scroll area`);
@@ -179,6 +189,12 @@ async function illustrationFlow(page,size){
   await page.click("#btn-close-illustration");
   await page.waitForFunction(()=>!document.querySelector("#modal-illustration").classList.contains("open")&&!document.querySelector("#mobile-next").closest("[inert]"));
   assert.equal((await engineState(page)).step,before.step,"opening/closing an image must not advance the story");
+  await reachable(page,"#btn-view-illustration");
+  await page.click("#btn-view-illustration");
+  await page.waitForFunction(()=>document.querySelector("#modal-illustration").getAttribute("aria-modal")==="true");
+  await page.click("#btn-close-illustration");
+  await page.waitForFunction(()=>!document.querySelector("#dialogue-content").closest("[inert]"));
+  assert.equal((await engineState(page)).step,before.step,"reopening from the independent image button must not advance the story");
 }
 
 try{
@@ -245,6 +261,7 @@ try{
       await page.click("#btn-close-faction");
       await page.click("#title-btn-start");
       await page.waitForFunction(()=>window.__vnEngine.gameState==="PLAYING");
+      await closeIllustrationIfOpen(page);
       assert.equal(await page.locator("#choice-overlay").evaluate(el=>el.classList.contains("visible")),false);
       if(size.mobile)assert.equal(await page.locator("#choice-overlay").evaluate(el=>getComputedStyle(el).display),"none","decisions must occupy no layout before the story asks for them");
       await noOverflow(page,`${size.name} reading`,["#dialogue-box","#dialogue-content"]);
@@ -261,7 +278,9 @@ try{
         await page.mouse.wheel(0,180);
         assert.equal((await engineState(page)).step,before.step,"reading clicks/scroll must not turn the page");
         await page.click("#mobile-next");
+        await closeIllustrationIfOpen(page);
         if((await engineState(page)).step<=before.step)await page.click("#mobile-next");
+        await closeIllustrationIfOpen(page);
         assert.ok((await engineState(page)).step>before.step,"explicit next should advance");
         if((await engineState(page)).typing)await page.click("#mobile-next");
         await page.waitForFunction(()=>/\d/.test(document.querySelector("#mobile-page-position").textContent));
@@ -355,6 +374,7 @@ try{
       const saved=await engineState(page);
       await page.click("#title-btn-continue");
       await page.waitForFunction(()=>window.__vnEngine.gameState==="PLAYING");
+      await closeIllustrationIfOpen(page);
       const restored=await engineState(page);
       assert.equal(restored.node,saved.node);assert.equal(restored.turn,saved.turn);
       await noOverflow(page,`${size.name} resume`,["#dialogue-box","#dialogue-content"]);

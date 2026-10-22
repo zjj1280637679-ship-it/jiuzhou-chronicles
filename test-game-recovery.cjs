@@ -19,7 +19,7 @@ function fixture(t) {
     currentStoryNodeId: "ming_act1", isExtrapolating: true, branchDepth: 2, extrapolationHistory: [], reconciledCardsCache: {},
     visitedNodeIds: ["ming_act1"], cacheTelemetry: {}, expectedLength: 500, gameState: "PLAYING", aiConfigRevision: 0,
     apiConfig: providers.normalizeConfig({enabled: true, source: "custom", endpoint: "https://fixture.example/v1", model: "test-model", apiKey: "fixture-secret"}),
-    choiceOverlay: element(), isAIGenerating: false,
+    choiceOverlay: element(), isAIGenerating: false, stageBackground:null,
     updateDialogueNavUI() {}, updateIncenseHUD() {}, updateBranchIndicatorUI() {}, updateCachePillUI() {}, updateCacheTelemetryUI() {},
     executeAITools() {}, appendBacklogEntry() {}, updateAIProviderSettingsUI() {}, invalidateAIConnectionTest() {},
     displayDialogue(speaker, sub, type, text) {this.backlog.push({speaker, text});},
@@ -228,17 +228,72 @@ test("persisted progress and backups omit telemetry reasoning without removing d
   assert.equal(e.cacheTelemetry.lastReasoning, "private-thought-fixture");
 });
 
-test("continuing an illustration page retains the image instead of replacing it with plain typewriter text", t => {
+test("continuing a popup page restores its modal while retaining prose and an independent stage background", t => {
   const {e} = fixture(t);
   e.storyQueue = [{speaker: "旁白", text: "已保存画卷说明", illustrationData: {relativePath: "data/illustrations/ming/wealth.svg", title: "画卷"}}];
   e.currentStep = 1;
   e.displayDialogue = WebVisualNovelEngine.prototype.displayDialogue;
   e.speakerName = {}; e.speakerSub = {}; e.speakerBadge = {}; e.continuePrompt = {style: {}};
   e.typewriterText = {innerHTML: "", textContent: ""}; e.updateCharacterStage = () => {};
-  e.fastForwardTypewriter = () => {throw new Error("An illustration must never be replaced with plain text");};
+  e.stageBackground = {id:"ming_battle"};
+  const shown = [];
+  e.showIllustration = (...args) => shown.push(args);
+  e.fastForwardTypewriter = () => {throw new Error("A restored popup does not need typewriter replacement");};
   e.saveGameState(); e.continueGame();
-  assert.match(e.typewriterText.innerHTML, /<img src="data\/illustrations\/ming\/wealth.svg"/);
+  assert.equal(e.typewriterText.innerHTML, "");
+  assert.equal(e.typewriterText.textContent, "已保存画卷说明");
+  assert.equal(shown.length, 1); assert.equal(shown[0][3], "data/illustrations/ming/wealth.svg");
+  assert.deepEqual(e.stageBackground, {id:"ming_battle"});
   assert.equal(e.saveStatus.state, "saved"); assert.equal(e.currentStep, 1);
+});
+
+test("stage background round-trips through progress and backups independently of popup data", t => {
+  const {e, store} = fixture(t);
+  e.stageBackground = {id:"qing_holding_cell"};
+  const snapshot = recovery.snapshot(e);
+  assert.deepEqual(snapshot.stageBackground, {id:"qing_holding_cell"});
+  e.stageBackground.id = "qing_night_raid";
+  assert.deepEqual(snapshot.stageBackground, {id:"qing_holding_cell"}, "A background snapshot must not alias mutable live state");
+  recovery.restore(e, snapshot);
+  assert.deepEqual(e.stageBackground, {id:"qing_holding_cell"});
+  e.saveGameState();
+  assert.deepEqual(recovery.parseSave(store.get("vn_save_state")).stageBackground, {id:"qing_holding_cell"});
+  assert.deepEqual(recovery.parseBackup(recovery.backup(e)).stageBackground, {id:"qing_holding_cell"});
+  e.stageBackground = null;
+  assert.equal(recovery.parseBackup(recovery.backup(e)).stageBackground, null);
+  const oldSave = JSON.parse(store.get("vn_save_state")); delete oldSave.stageBackground;
+  assert.ok(!recovery.parseSave(JSON.stringify(oldSave)).stageBackground, "Old saves without a background override remain readable");
+});
+
+test("an interrupted turn saves and restores the committed background rather than a tentative draft", t => {
+  const {e} = fixture(t);
+  e.stageBackground = {id:"qing_holding_cell"};
+  e.pendingTurnAttempt = recovery.makeAttempt(e, action, [3,4]);
+  e.stageBackground = {id:"qing_night_raid"};
+  assert.deepEqual(recovery.savedState(e).stageBackground, {id:"qing_holding_cell"});
+  recovery.restore(e, e.pendingTurnAttempt.before);
+  assert.deepEqual(e.stageBackground, {id:"qing_holding_cell"});
+});
+
+test("compatibility JSON commits background effects independently of popup beats", async t => {
+  const {e} = fixture(t);
+  e.executeAITools = WebVisualNovelEngine.prototype.executeAITools;
+  const reply = effects => ({ok:true, json:async () => ({choices:[{finish_reason:"stop", message:{content:JSON.stringify({
+    beats:[{speaker:"旁白", text:"先核查旧案，再听取当事人的意见。"}],
+    choices:[{text:"查阅"},{text:"听取"},{text:"等候"}], stage_effects:effects
+  })}}]})});
+  global.fetch = async () => reply([{name:"set_scene_background", params:{id:"qing_holding_cell"}}]);
+  await e.resolveFactionAction(action);
+  assert.deepEqual(e.stageBackground, {id:"qing_holding_cell"});
+  assert.equal(e.storyQueue.some(beat => beat.type === "illustration"), false);
+  global.fetch = async () => reply([{name:"show_illustration", params:{id:"qing_night_raid", afterBeat:0}}]);
+  await e.resolveFactionAction(action);
+  assert.deepEqual(e.stageBackground, {id:"qing_holding_cell"}, "Popup-only compatibility delivery preserves the stage");
+  assert.equal(e.storyQueue[0].illustrationData.id, "qing_night_raid");
+  global.fetch = async () => reply([{name:"set_scene_background", params:{clear:true}}]);
+  await e.resolveFactionAction(action);
+  assert.equal(e.stageBackground, null);
+  assert.equal(e.storyQueue.some(beat => beat.type === "illustration"), false);
 });
 
 test("grant_item supplies complete card fields and its result can render and round-trip through a backup", t => {
@@ -292,23 +347,30 @@ test("a cold title screen exports the existing saved game instead of its fresh d
   assert.equal(backup.state.currentTurn, 3); assert.equal(backup.state.backlog.length, 1);
 });
 
-test("rewind restores an independent choice snapshot while older knots clear later choices", t => {
+test("rewind restores independent choice and background snapshots while old knots clear later state", t => {
   const {e} = fixture(t);
   e.drawerRibbon = {classList: {remove() {}}};
   e.pendingApiChoices = [{text: "查验旧粮册", tag: "查验", bias: {authority: 2}, diceBase: 11}];
+  e.stageBackground = {id:"qing_holding_cell"};
   e.recordFateKnot("旧时刻", "已交付");
   e.pendingApiChoices[0].text = "未来战后册封功臣";
+  e.stageBackground.id = "qing_night_raid";
   assert.equal(e.fateKnots[0].choices[0].text, "查验旧粮册", "later actions cannot mutate the knot snapshot");
+  assert.deepEqual(e.fateKnots[0].stageBackground, {id:"qing_holding_cell"});
   e.rewindToKnot(0);
+  assert.deepEqual(e.stageBackground, {id:"qing_holding_cell"});
   assert.equal(e.pendingApiChoices[0].text, "查验旧粮册");
   assert.equal(e.pendingApiChoices[0].diceBase, 11);
   assert.equal(e.pendingApiChoices[0].bias.authority, 2);
   e.pendingApiChoices[0].text = "本轮临时变更";
   assert.equal(e.fateKnots[0].choices[0].text, "查验旧粮册");
   delete e.fateKnots[0].choices;
+  delete e.fateKnots[0].stageBackground;
   e.pendingApiChoices = [{text: "未来战后册封功臣"}];
+  e.stageBackground = {id:"qing_night_raid"};
   e.rewindToKnot(0);
   assert.equal(e.pendingApiChoices, null, "legacy knots must not inherit later choices");
+  assert.equal(e.stageBackground, null, "legacy knots must not inherit later background overrides");
 });
 
 test("explicit scene navigation and canonical loading clear the previous scene's choices", async t => {

@@ -83,13 +83,17 @@ registry.sceneFor({ faction: "qing", nodeId: "qing_act1", coords: "qing:mukden" 
 ## AI 选图
 
 1. `list_illustrations({ query, category, faction })` 返回准确 ID 和图像语义，供模型挑选。筛选均可省略。
-2. `select_illustration({ id, afterBeat, caption })` 记录本轮草稿的选图。可以重复调用，修订同一位置。
-3. 成功交付时，工具暂存选图由宿主附加为 `stage_effects` 中的 `show_illustration`。不支持顶层 `illustrations` 字段。使用 JSON 兼容通路时，可直接提交以下效果；准确旧 ID 仍然有效，所有通路都由同一个注册表解析。
+2. `set_scene_background({ id })` 暂存持续的舞台背景，只替换桌面背景层及手机上方场景画面，不弹窗、不插入正文段。`{ clear: true }` 恢复当前场景默认背景，不清除弹窗。背景 ID 独立保存在进度、备份和回溯节点中；切换地图、新章节或新篇会恢复相应静态背景。
+3. `select_illustration({ id, afterBeat, caption })` 暂存图片互动弹窗。可以重复调用修订同一位置，`clear:true` 只清空本轮弹窗草稿。弹窗不改变舞台背景，背景也不会自动生成弹窗。
+4. 成功交付时，背景操作由宿主附加为 `stage_effects` 的 `set_scene_background`，弹窗操作附加为 `show_illustration`。两者独立提交，取消或失败均不提交草稿。不支持顶层 `illustrations` 字段。使用 JSON 兼容通路时，可直接提交以下效果；准确旧 ID 仍然有效，所有通路都由同一个注册表解析。
 
 ```json
 {
   "beats": [{ "type": "narrator", "text": "你在门外停步，屋内的问讯仍在继续。" }],
   "stage_effects": [{
+    "name": "set_scene_background",
+    "params": { "id": "qing_holding_cell" }
+  }, {
     "name": "show_illustration",
     "params": { "id": "qing_lamplit_questioning", "afterBeat": 1, "caption": "灯下的问讯尚无结论。" }
   }]
@@ -98,7 +102,11 @@ registry.sceneFor({ faction: "qing", nodeId: "qing_act1", coords: "qing:mukden" 
 
 `afterBeat` 是**分页前、整份最终草稿**的正文段索引，不是屏幕上每 90 字分页后的编号；叙述和人物对白都各算一段。省略默认 `1`，`0` 在正文前，`2` 在第二段正文后。要求非负整数；大于正文段数时明确排在结尾并返回告警。同一个 `afterBeat` 最后一次有效选图生效，错误 ID 不会覆盖之前有效选择。不同超尾位置均在结尾按请求位置排序，原请求位置相同才替换。
 
-工具结果、图柄、说明文字、思考、JSON 和插画段均不算交付正文字数。成功交付之前，选图只留在生成草稿；取消或失败不会让图片抢先弹出。成功后，插画作为独立阅读段显示，玩家点击画卷才放大。
+背景与弹窗共享图库，使用不同工具及独立状态。静态 `sceneFor` 绑定仅作为背景，不隐式插入弹窗段；背景解析不扫描弹窗或正文。切换地点后，旧章节节点的图片不会覆盖新地点背景。
+
+到达显式插画阅读段时，图片以覆盖舞台的独立居中弹窗展示，正文框只显示普通说明文字，不再嵌入大图卡。关闭按钮、Escape 或遮罩可收起，关闭不会跳页；小“画卷”按钮可以重开。查看弹窗时暂停自动播放，长说明独立滚动，坏图可关闭后继续阅读。弹窗切换、关闭或前后翻页均不改变背景。
+
+工具、图柄、说明、思考与 JSON 不属于正文。程序不统计或验收字数；模型/工具次数、耗时、Token 和缓存等运行日志不输出到游戏或设置界面。保留简单等待、取消、连接测试结果与可恢复错误。
 
 `normalizeSelection` 成功返回 `{ ok: true, selection: { id, afterBeat, caption } }`，失败返回 `{ ok: false, error: { code, message } }`。未知 ID 为 `unknown_illustration`；错误位置为 `invalid_illustration_position`。`compose` 跳过无效图并记录告警，不因图柄错误丢弃正文，也不猜成另一张图。
 
