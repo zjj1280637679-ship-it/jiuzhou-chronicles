@@ -13,7 +13,7 @@ function deliver(context) {
 }
 self.JiuzhouPlugin = {
   name: "story",
-  tools: protocol.tools.filter(t => t.function.name !== "read_world"),
+  tools: protocol.tools.filter(t => ["read_draft", "write_draft", "inspect_draft", "deliver_story"].includes(t.function.name)),
   execute(name, args, context) {
     if (name === "read_draft") return {result: {ok: true, story: draft, ...inspect(context)}};
     if (name === "inspect_draft") return {result: {ok: true, ...inspect(context)}};

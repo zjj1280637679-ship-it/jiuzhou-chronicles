@@ -6,12 +6,14 @@
 // =============================================================================
 
 const APP_VERSION = "v2.5.0";
-const BUILD_STAMP = "2026.10.22.0900";
+const BUILD_STAMP = "2026.10.22.2200";
 const VERSION_FULL = `v2.5.0 (Build ${BUILD_STAMP} · 插件式工具循环 · 交付正文实测 · 3选项+开放输入)`;
 const AIProviders = typeof module === "object" && module.exports
   ? require("./harness/providers.js") : globalThis.JiuzhouProviders;
 const GameRecovery = typeof module === "object" && module.exports
   ? require("./game-recovery.js") : globalThis.JiuzhouGameRecovery;
+const Illustrations = typeof module === "object" && module.exports
+  ? require("./illustration-system.js") : globalThis.JiuzhouIllustrations;
 const escapeHTML = value => String(value ?? "").replace(/[&<>"']/g, char => ({
   "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
 })[char]);
@@ -54,6 +56,8 @@ class WebVisualNovelEngine {
     // 剧情流队列
     this.storyQueue = [];
     this.currentStep = 0;
+    this.currentSceneIllustration = null;
+    this.pendingIllustrationSelections = [];
 
     // DeepSeek API 通道与 Prompt Caching 四层前缀架构
     let savedApiConfig = null;
@@ -233,6 +237,45 @@ class WebVisualNovelEngine {
   // ===========================================================================
 
   // 执行 AI GM 舞台特效与视听工具指令 (支持屏幕震颤、全屏闪烁、天气调度、插图CG展示、道具发放与时相操纵)
+  getIllustrationRegistry() {
+    return Illustrations || null;
+  }
+
+  resolveIllustrationData(value) {
+    if (!value || typeof value !== "object") return null;
+    const registered = this.getIllustrationRegistry()?.resolve(value.id);
+    if (registered) return {...registered, description: typeof value.description === "string" ? value.description : registered.description};
+    // Saves predating registered handles may contain only a local asset path.
+    if (value.id || typeof value.relativePath !== "string" || value.relativePath.includes("..") ||
+        !/^data\/illustrations\/[\w/.-]+\.(?:svg|webp|png|jpe?g)$/i.test(value.relativePath)) return null;
+    return Object.fromEntries(["id", "relativePath", "title", "description", "symbol", "categoryName", "factionName"]
+      .map(key => [key, typeof value[key] === "string" ? value[key] : ""]));
+  }
+
+  getSceneIllustration() {
+    const registry = this.getIllustrationRegistry();
+    if (!registry) return null;
+    // Derive the projection from the page being read, including restored saves
+    // and backwards navigation; future cards must not reveal the next scene.
+    for (let index = Math.min(this.currentStep || 0, this.storyQueue?.length || 0) - 1; index >= 0; index--) {
+      const asset = this.resolveIllustrationData(this.storyQueue[index]?.illustrationData);
+      if (asset) return asset;
+    }
+    return registry.sceneFor({faction: this.currentFaction, nodeId: this.currentStoryNodeId, coords: this.currentCoords});
+  }
+
+  isIllustrationEffect(effect) {
+    return effect?.name === "show_illustration" || /^(qing|ming|mongol|nanming)_/.test(effect?.name || "");
+  }
+
+  illustrationSelectionsFromEffects(effects) {
+    return (effects || []).filter(effect => this.isIllustrationEffect(effect)).map(effect => ({
+      id: effect.params?.id || (effect.name === "show_illustration" ? undefined : effect.name),
+      afterBeat: effect.params?.afterBeat,
+      caption: effect.params?.caption ?? effect.params?.description ?? ""
+    }));
+  }
+
   executeAITools(tools) {
     if (!tools || !Array.isArray(tools) || tools.length === 0) return;
 
@@ -309,20 +352,11 @@ class WebVisualNovelEngine {
         case "nanming_romance":
         case "nanming_victory":
         case "nanming_wealth": {
-          const fKey = this.currentFaction || "qing";
-          let fVault = {};
-          if (typeof window !== "undefined" && window.FACTION_ILLUSTRATION_VAULT) {
-            fVault = window.FACTION_ILLUSTRATION_VAULT[fKey] || {};
-          }
-          let targetItem = fVault[toolName] || fVault[params.id];
-          if (!targetItem) {
-            const cat = params.category || (params.title && /俘虏/.test(params.title) ? "captive" : (/战斗|肉搏/.test(params.title) ? "battle" : (/战争|攻城|巨舰/.test(params.title) ? "war" : (/爱情|情深|风月|同袍|誓/.test(params.title) ? "romance" : (/胜利|登极|凯旋/.test(params.title) ? "victory" : "wealth")))));
-            targetItem = fVault[`${fKey}_${cat}`] || Object.values(fVault)[0];
-          }
-          const finalTitle = params.title || (targetItem && targetItem.title) || "史诗画卷";
-          const finalDesc = params.caption || params.description || (targetItem && targetItem.description) || "天地玄黄，宇宙洪荒。";
-          const finalUrl = params.url || (targetItem && targetItem.relativePath) || null;
-          this.showIllustration(finalTitle, finalDesc, params.style || "divine_gold", finalUrl);
+          const result = this.getIllustrationRegistry()?.normalizeSelection({
+            id: params.id || (toolName === "show_illustration" ? undefined : toolName),
+            afterBeat: params.afterBeat, caption: params.caption ?? params.description ?? ""
+          });
+          if (result?.ok) (this.pendingIllustrationSelections ||= []).push(result.selection);
           break;
         }
 
@@ -687,7 +721,8 @@ class WebVisualNovelEngine {
     // 键盘快捷键导航 (← / Q 返回上一段, → / 空格 / 回车 推进下一段)
     window.addEventListener("keydown", (e) => {
       if (this.gameState !== "PLAYING") return;
-      if (e.target.matches("input, textarea")) return;
+      if (e.target.closest("input, textarea, button, a, [role=button], .drawer-modal, .choice-overlay")) return;
+      if (this.modalIllustration?.classList.contains("visible")) return;
       if (e.key === "ArrowLeft" || e.key === "q" || e.key === "Q") {
         e.preventDefault();
         this.playPreviousInQueue();
@@ -706,7 +741,7 @@ class WebVisualNovelEngine {
     // 点击对话框推进 (严格受控：若 AI 正在推演生成中，严禁调用 nextStoryBeat 杜绝伪造早产选项卡！)
     this.dialogueBox.addEventListener("click", (e) => {
       if (this.gameState !== "PLAYING") return;
-      if (e.target.closest("#btn-branch-explainer, #ai-length-group, .btn-length, #btn-dialogue-prev")) return;
+      if (e.target.closest("#btn-branch-explainer, #ai-length-group, .btn-length, #btn-dialogue-prev, .dialogue-illustration-card")) return;
       const selection = window.getSelection();
       if (selection && selection.toString().length > 0) return;
 
@@ -1082,6 +1117,12 @@ class WebVisualNovelEngine {
       this.storyQueue = this.normalizeAndChunkBeats(node.originalBeats, 90);
       this.needsSuturing = false;
       this.updateBranchIndicatorUI(false);
+    }
+
+    const sceneArt = this.getIllustrationRegistry()?.sceneFor({faction: this.currentFaction, nodeId, coords: this.currentCoords});
+    this.currentSceneIllustration = sceneArt || null;
+    if (sceneArt) {
+      this.storyQueue = this.getIllustrationRegistry().compose(this.storyQueue, [{id: sceneArt.id, afterBeat: 0}]).beats;
     }
 
     this.recordFateKnot(node.title, `主剧情树 · 第${node.actNumber}幕展开`);
@@ -1960,9 +2001,9 @@ ${JSON.stringify(targetNode.originalBeats)}
   normalizeAndChunkBeats(beats, maxChars = 90) {
     const chunked = [];
     (beats || []).forEach(b => {
-      const text = typeof b === "string" ? b : (b.text || b.content || b.dialogue || "");
-      if (!text || !text.trim()) return;
-      const chunks = this.splitTextIntoDialogueChunks(text, maxChars);
+      if (!b) return;
+      const rawText = typeof b === "string" ? b : (b.text || b.content || b.dialogue || "");
+      const text = typeof rawText === "string" ? rawText : "";
       const speaker = (typeof b === "object" && b.speaker) ? b.speaker : "跑团GM";
       const sub = (typeof b === "object" && b.sub) ? b.sub : "";
       const type = (typeof b === "object" && b.type) ? b.type : "narrator";
@@ -1970,15 +2011,17 @@ ${JSON.stringify(targetNode.originalBeats)}
 
       // A delivered illustration is one visual beat, with its own safe asset
       // reference. Text pagination must not discard its image or repeat it.
-      const image = b?.illustrationData;
+      const image = this.resolveIllustrationData(b?.illustrationData);
       if (image && typeof image.relativePath === "string" &&
           /^data\/illustrations\/[\w/.-]+\.(?:svg|webp|png|jpe?g)$/i.test(image.relativePath) && !image.relativePath.includes("..")) {
         const illustrationData = Object.fromEntries(["id", "relativePath", "title", "description", "symbol", "categoryName", "factionName"]
           .map(key => [key, typeof image[key] === "string" ? image[key] : ""]));
-        chunked.push({speaker, sub, type: "illustration", stageChar, text: text.trim(), illustrationData});
+        chunked.push({speaker, sub, type: "illustration", stageChar, text: text.trim() || illustrationData.description || illustrationData.title, illustrationData});
         return;
       }
 
+      if (!text.trim()) return;
+      const chunks = this.splitTextIntoDialogueChunks(text, maxChars);
       chunks.forEach((chunkText, idx) => {
         chunked.push({
           speaker,
@@ -2073,6 +2116,7 @@ ${JSON.stringify(targetNode.originalBeats)}
   }
 
   displayDialogue(speaker, sub, type, text, stagePos = "center", illustrationData = null) {
+    illustrationData = this.resolveIllustrationData(illustrationData);
     speaker = speaker || "跑团GM";
     text = String(text || "");
     this.speakerName.innerText = speaker;
@@ -2086,15 +2130,19 @@ ${JSON.stringify(targetNode.originalBeats)}
 
     this.currentFullText = text;
     if (this.typeTimer) clearInterval(this.typeTimer);
+    this.currentSceneIllustration = illustrationData?.id
+      ? this.getIllustrationRegistry()?.resolve(illustrationData.id) || this.getSceneIllustration()
+      : this.getSceneIllustration();
 
     // 套图的使用方法和特效一样在独立段落展示
     if (illustrationData) {
       this.isTyping = false;
       const relPath = illustrationData.relativePath || "";
       this.typewriterText.innerHTML = `
-        <div class="dialogue-illustration-card">
+        <div class="dialogue-illustration-card" role="button" tabindex="0" aria-label="放大查看${escapeHTML(illustrationData.title)}">
           <div class="illustration-thumb-wrap">
             <img src="${escapeHTML(relPath)}" alt="${escapeHTML(illustrationData.title)}" class="illustration-inline-svg" />
+            <span class="illustration-load-error" hidden>插图暂时不可用，您可以继续阅读。</span>
           </div>
           <div class="illustration-card-content">
             <div class="illustration-badge-row">
@@ -2107,9 +2155,20 @@ ${JSON.stringify(targetNode.originalBeats)}
           </div>
         </div>
       `;
-      this.typewriterText.firstElementChild?.addEventListener("click", () => this.showIllustration(
+      const card = this.typewriterText.firstElementChild;
+      const open = () => this.showIllustration(
         illustrationData.title || "", illustrationData.description || text, "divine_gold", relPath
-      ));
+      );
+      card?.addEventListener("click", event => {event.stopPropagation(); open();});
+      card?.addEventListener("keydown", event => {
+        if (event.key === "Enter" || event.key === " ") {event.preventDefault(); event.stopPropagation(); open();}
+      });
+      const image = card?.querySelector("img");
+      image?.addEventListener("error", () => {
+        image.hidden = true;
+        const fallback = card.querySelector(".illustration-load-error");
+        if (fallback) fallback.hidden = false;
+      });
       this.finishTyping();
       return;
     }
@@ -2498,6 +2557,7 @@ ${JSON.stringify(targetNode.originalBeats)}
       });
       this.updateBranchIndicatorUI();
 
+      this.pendingIllustrationSelections = [];
       let nextBeats = null;
 
       // 若启用了 DeepSeek API (玩家已启用个人 API)
@@ -2784,20 +2844,21 @@ ${JSON.stringify(targetNode.originalBeats)}
             toolsToExecute.push({ tool: "screen_shake", params: { intensity: "medium", duration: 500 } });
           }
           if (this.branchDepth >= 6 && this.branchDepth % 6 === 0) {
-            toolsToExecute.push({
-              tool: "show_illustration",
-              params: {
-                title: success ? "关河落日 · 乾坤初定" : "烽烟四起 · 风云际会",
-                description: success ? "极目远眺，山海长关横亘塞北，万里河山尽入胸怀，天下大势已悄然易手！" : "残阳如血，塞外烽烟滚滚，群雄逐鹿正值最烈之时，前路步步皆是死生大劫！",
-                style: success ? "divine_gold" : "war_fire"
-              }
+            const asset = this.getIllustrationRegistry()?.sceneFor({
+              faction: this.currentFaction, nodeId: this.currentStoryNodeId, coords: this.currentCoords
             });
+            if (asset) toolsToExecute.push({tool: "show_illustration", params: {id: asset.id, afterBeat: 1}});
           }
           this.executeAITools(toolsToExecute);
         }
       }
 
       if (!hasLiveChannel) this.setAIRequestStatus("local", "story");
+      const pendingImages = this.pendingIllustrationSelections || [];
+      this.pendingIllustrationSelections = [];
+      if (pendingImages.length && this.getIllustrationRegistry()) {
+        nextBeats = this.getIllustrationRegistry().compose(nextBeats, pendingImages).beats;
+      }
       this.storyQueue = this.normalizeAndChunkBeats(nextBeats, 90);
       try {this.recordFateKnot(`外推 #${this.currentTurn}`, (choice.customInput || choice.text).substring(0, 20) + "...");}
       catch (_) { /* An optional rewind marker cannot discard already delivered prose. */ }
@@ -3691,16 +3752,9 @@ ${JSON.stringify(targetNode.originalBeats)}
 
     const currentProfile = factionProfiles[factionKey] || factionProfiles.qing;
 
-    // 阵营隔离铁律：仅为当前阵营注入其专属套图工具，严禁窥探或引入其他阵营套图！
-    let factionVault = {};
-    if (typeof window !== "undefined" && window.FACTION_ILLUSTRATION_VAULT) {
-      factionVault = window.FACTION_ILLUSTRATION_VAULT[factionKey] || {};
-    } else if (typeof global !== "undefined" && global.FACTION_ILLUSTRATION_VAULT) {
-      factionVault = global.FACTION_ILLUSTRATION_VAULT[factionKey] || {};
-    }
-
-    const toolLines = Object.values(factionVault).map(t => 
-      `     * show_illustration: { "id": "${t.id}", "title": "${t.title}", "caption": "${t.description.substring(0, 45)}..." }`
+    // This stable directory is descriptive data; scene setting is independent of player allegiance.
+    const toolLines = (this.getIllustrationRegistry()?.list() || []).map(asset =>
+      `     * ${asset.id}: ${asset.title} · ${asset.categoryName}`
     ).join("\n");
 
     const harnessIdentityAndPersona = `你是一位沉浸感与戏剧张力兼备的明末清初历史跑团主持人（TRPG Game Master）。
@@ -3719,8 +3773,12 @@ ${JSON.stringify(targetNode.originalBeats)}
      * screen_flash: { "color": "white|red|gold" }
      * screen_shake: { "intensity": "light|medium|heavy", "duration": 500 }
      * weather_effect: { "type": "blizzard|rain|clear" }
-   - 【${currentProfile.name}专属插画展示工具（仅限本阵营调用，将在剧情流中以独立视觉段落全景呈现，涵盖俘虏、战斗、战争、爱情/同袍深情羁绊、胜利、财富）】：
-${toolLines || `     * show_illustration: { "id": "${factionKey}_war", "title": "战局画卷", "caption": "战鼓惊天" }`}
+   - 插画可选：先用 list_illustrations 按场景、标签或画面设定查询，再用 select_illustration 选择准确 id。画面地域不等于玩家阵营，可按实际处境跨目录选图。
+   - select_illustration 的 afterBeat=0 表示正文前、1 表示第一段正文后；按原始正文段落计数，不是阅读分页。可为不同位置选择不同图，同位置后一次覆盖，clear:true 清空本轮选图。
+   - 图片只随成功交付进入阅读队列，点击才放大。图片、图片说明、工具结果、JSON 和思考不计入交付正文字数；无合适图时照常交付正文，不猜句柄、不传图片 URL。
+   - 兼容 JSON 交付：stage_effects 可写 {"name":"show_illustration","params":{"id":"qing_night_raid","afterBeat":1,"caption":"营栅外的夜色"}}。画面描述不能替正文断定罪责、胜负或人物忠诚。
+   - 当前登记句柄（详细描述与匹配建议由 list_illustrations 查询）：
+${toolLines || "     当前图库不可用，正文可继续。"}
 4. 行动抉择（choices）：
    - 在结尾给出 3 个具象、充满战术张力与利益博弈的下一步跑团行动建议供玩家抉择（第4项由玩家开放自填）。
    - 正文 beats[].text 及场景说明只呈现已经发生的行动、此刻感官、人物对白和悬念；下一步可选行动只放在 choices。
@@ -3805,7 +3863,7 @@ ${currentProfile.npcRoster}`;
 
     let actionGuidance = "";
     if (isGodModeInput) {
-      actionGuidance = `\n【天命高潮契机】：玩家施展了超常规伟力！请以 TRPG 终局高潮笔触，描摹无量光芒照彻天地、众生俯首的史诗场景，在 stage_effects 中调用 show_illustration 并给出 3 个君临天下的具体行动选项。`;
+      actionGuidance = `\n【天命高潮契机】：玩家施展了超常规伟力！请以 TRPG 终局高潮笔触，描摹无量光芒照彻天地、众生俯首的史诗场景，有匹配场景图时查询图库并选择准确句柄，给出 3 个君临天下的具体行动选项。`;
     } else {
       actionGuidance = `\n【主持要求】：请根据玩家意图与掷骰判定，输出 ${targetLengthCfg.beatsRange} 充满戏剧张力的第二人称场景卡（beats，${targetLengthCfg.wordCount}），并在末尾给出 3 个具象的下一步跑团行动走向（choices）。最终交付必须为合法 JSON。`;
     }
@@ -3871,7 +3929,7 @@ ${currentProfile.npcRoster}`;
       tool_end: "工具结果已返回模型", plugin_error: "插件报告错误，已反馈模型",
       delivery_check: "正在检查交付正文", delivered: "正文已通过交付检查"
     };
-    const tools = {read_world: "读取本轮世界资料", read_draft: "读取草稿", write_draft: "记录剧情草稿", inspect_draft: "检查正文字数", deliver_story: "检查并交付正文"};
+    const tools = {read_world: "读取本轮世界资料", read_draft: "读取草稿", write_draft: "记录剧情草稿", inspect_draft: "检查正文字数", deliver_story: "检查并交付正文", list_illustrations: "查找场景插图", select_illustration: "暂存本轮场景插图"};
     const phase = progress.phase === "tool_start" && tools[progress.tool] ? `正在${tools[progress.tool]}` : (phases[progress.phase] || "等待模型回复");
     const now = Date.now();
     const elapsed = (Math.max(0, now - (progress.startedAt ?? now)) / 1000).toFixed(1);
@@ -3914,6 +3972,7 @@ ${currentProfile.npcRoster}`;
           return this.fetchAICompletion(step.endpoint, step.body, step.headers, request.signal || signal);
         },
         world: worldSnapshot,
+        illustrations: this.getIllustrationRegistry()?.list({includeLegacy: true}) || [],
         targetCharacters: requestedExpectedLength,
         signal,
         onEvent: event => { if (this.isAIProviderRouteCurrent(route, revision)) this.updateAIHarnessProgress(event); }
@@ -4096,55 +4155,11 @@ ${currentProfile.npcRoster}`;
       name: typeof e.name === "string" && e.name.trim() ? e.name : (typeof e.tool === "string" ? e.tool : ""),
       params: e.params && typeof e.params === "object" && !Array.isArray(e.params) ? e.params : {}
     })).filter(e => e.name.trim());
-    let inlineIllustration = null;
-
-    if (effects.length) {
-      // 提取套图并在剧情流中生成独立段落展示卡片
-      const curFaction = this.currentFaction || "qing";
-      let fVault = {};
-      if (typeof window !== "undefined" && window.FACTION_ILLUSTRATION_VAULT) {
-        fVault = window.FACTION_ILLUSTRATION_VAULT[curFaction] || {};
-      }
-      for (const eff of effects) {
-        const tName = eff.name || eff.tool || "";
-        const p = eff.params || {};
-        if (tName === "show_illustration" || tName.startsWith(curFaction + "_") || Object.keys(fVault).includes(tName)) {
-          const targetId = p.id || (tName.startsWith(curFaction + "_") ? tName : null);
-          let targetIllus = null;
-          if (targetId && fVault[targetId]) {
-            targetIllus = fVault[targetId];
-          } else {
-            const cat = p.category || (p.title && /俘虏/.test(p.title) ? "captive" : (/战斗|肉搏/.test(p.title) ? "battle" : (/战争|攻城|巨舰/.test(p.title) ? "war" : (/爱情|情深|风月|同袍|誓/.test(p.title) ? "romance" : (/胜利|登极|凯旋/.test(p.title) ? "victory" : "wealth")))));
-            targetIllus = fVault[`${curFaction}_${cat}`] || Object.values(fVault)[0];
-          }
-          if (targetIllus) {
-            inlineIllustration = {
-              ...targetIllus,
-              title: p.title || targetIllus.title,
-              description: p.caption || p.description || targetIllus.description
-            };
-            break;
-          }
-        }
-      }
-    }
-
-    // 套图的使用方法和特效一样会在独立段落展示：
-    // 在 beats 叙事推进流的转折时机插入独立插画段落卡片
-    if (inlineIllustration) {
-      const illusBeat = {
-        speaker: `【${inlineIllustration.categoryName || "史诗画卷"}】`,
-        sub: inlineIllustration.title,
-        type: "illustration",
-        stageChar: "center",
-        text: `《${inlineIllustration.title}》：${inlineIllustration.description}`,
-        illustrationData: inlineIllustration
-      };
-      if (beats.length > 1) {
-        beats.splice(Math.min(2, beats.length - 1), 0, illusBeat);
-      } else {
-        beats.push(illusBeat);
-      }
+    const registry = this.getIllustrationRegistry();
+    if (registry) {
+      const composition = registry.compose(beats, this.illustrationSelectionsFromEffects(effects));
+      beats = composition.beats;
+      if (composition.warnings.length) console.warn("[Illustrations] 已跳过不匹配的选图或将超尾位置排至末尾，正文继续。");
     }
 
     // 1. 若有 DeepSeek 原生思考链 (reasoning_content)，妥善留存于遥测对象供抽屉/监控查阅，不污染前台主角在场剧情流
@@ -4237,7 +4252,7 @@ ${currentProfile.npcRoster}`;
     const assistantHistMsg = {role: "assistant", content: contentStr};
     this.apiHistory.push({role: "user", content: ephemeralTail}, assistantHistMsg);
     if (this.apiHistory.length > 200) this.apiHistory = this.apiHistory.slice(-200);
-    for (const effect of effects) {
+    for (const effect of effects.filter(effect => !this.isIllustrationEffect(effect))) {
       try { this.executeAITools([{tool: effect.name, params: effect.params}]); }
       catch (_) { console.warn("[Narrative Engine] 已忽略无效的 AI 舞台效果，正文继续。"); }
     }

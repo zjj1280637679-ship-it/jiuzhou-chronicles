@@ -1,4 +1,4 @@
-/* 九州沉浮录 · 移动阅读界面。只同步现有 DOM，不读取或改写剧情、AI 与存档状态。 */
+/* 九州沉浮录 · 移动阅读界面。同步 DOM 与引擎只读场景图投影，不改写剧情、AI 或存档。 */
 (() => {
   "use strict";
 
@@ -323,13 +323,14 @@
     if (sceneArt) {
       const faction = incense?.textContent || "";
       const illustration = dialogueContent.querySelector(".dialogue-illustration-card img");
+      const scene = window.__vnEngine?.currentSceneIllustration;
       let art = defaultArt;
-      if (/八旗|清朝|满洲|大清/.test(faction)) art = "data/illustrations/qing/war.jpg";
-      else if (/草原|蒙古|大汗/.test(faction)) art = "data/illustrations/mongol/battle.svg";
+      if (/草原|蒙古|大汗/.test(faction)) art = "data/illustrations/mongol/battle.svg";
       else if (/海邦|南明|海疆|海上/.test(faction)) art = "data/illustrations/nanming/war.svg";
+      if (scene?.relativePath) art = scene.relativePath;
       if (illustration?.getAttribute("src")) art = illustration.getAttribute("src");
       attr(sceneArt, "src", art);
-      attr(sceneArt, "alt", (speakerSub?.textContent.trim() || title || "九州行旅") + " · 场景画面");
+      attr(sceneArt, "alt", scene?.title || (speakerSub?.textContent.trim() || title || "九州行旅") + " · 场景画面");
     }
     const promptText = prompt?.textContent || "";
     const count = promptText.match(/\[(\d+)\s*\/\s*(\d+)\]/);

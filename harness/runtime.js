@@ -31,10 +31,11 @@
     if (!baseURL) throw new Error("plugin_base_url_missing");
     const manifests = options.plugins || [
       {id: "world", url: new URL("plugins/world.js", baseURL).href},
-      {id: "story", url: new URL("plugins/story.js", baseURL).href}
+      {id: "story", url: new URL("plugins/story.js", baseURL).href},
+      {id: "illustrations", url: new URL("plugins/illustrations.js", baseURL).href}
     ];
     const makeWorker = options.workerFactory || (url => new Worker(url));
-    const assetVersion = "20261020-0600";
+    const assetVersion = "20261022-2200";
     const timeoutMs = options.pluginTimeoutMs ?? 10000;
     const entries = [], registry = new Map();
     let sequence = 0, disposed = false;
@@ -134,11 +135,16 @@
       stats.events.push(event);
       try { options.onEvent?.(clone(event)); } catch (_) { /* UI listeners cannot break the turn. */ }
     };
-    const host = await createPluginHost({...options, context: {world: clone(options.world || {}), targetCharacters}});
+    const host = await createPluginHost({...options, context: {world: clone(options.world || {}), targetCharacters,
+      illustrations: clone(Array.isArray(options.illustrations) ? options.illustrations : [])}});
+    // A selection belongs to this generation only. Neither tools nor drafts change the page.
+    let illustrations = [];
     let lastRejectedStep = null;
     let lastModel = "";
     function settle(delivery) {
+      checkSignal(signal);
       const story = protocol.normalizeStory(delivery);
+      story.stage_effects.push(...illustrations.map(selection => ({name: "show_illustration", params: clone(selection)})));
       const measured = protocol.measureStory(story);
       stats.deliveryCharacters = measured.textCharacters;
       stats.hanCharacters = measured.hanCharacters;
@@ -207,6 +213,9 @@
               output = failure("invalid_tool_arguments", "工具参数不是有效JSON对象，请修正参数。");
             }
             messages.push({role: "tool", tool_call_id: call.id, content: JSON.stringify(output.result)});
+            if (call.function.name === "select_illustration" && output.result?.ok === true && Array.isArray(output.result.selections)) {
+              illustrations = clone(output.result.selections);
+            }
             emit("tool_end", {tool: call.function.name, ...(output.result?.textCharacters !== undefined ? {textCharacters: output.result.textCharacters, targetCharacters} : {})});
             stepResults.push([call.function.name, call.function.arguments, output.result]);
             if (output.delivery) delivery = output.delivery;

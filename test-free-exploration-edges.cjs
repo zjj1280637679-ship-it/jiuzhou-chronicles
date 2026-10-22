@@ -187,10 +187,15 @@ test("shared generation has no automatic deadline; private deadline clears in fi
   assert.equal(e.activeAIRequestController, null); assert.equal(e.btnCancelAIRequest.hidden, true);
 });
 
-test("illustration tool uses the current tool name instead of an undefined identifier", () => {
+test("legacy illustration names queue exact registered assets without opening a modal or guessing unknown IDs", () => {
   const e = engine(); let shown;
-  window.FACTION_ILLUSTRATION_VAULT = {ming: {ming_war: {title: "战局", description: "画卷", relativePath: "war.jpg"}}};
   e.showIllustration = (...args) => {shown = args;};
   e.executeAITools([{tool: "ming_war", params: {}}]);
-  assert.equal(shown[0], "战局"); assert.equal(shown[3], "war.jpg");
+  assert.equal(shown, undefined);
+  assert.deepEqual(e.pendingIllustrationSelections, [{id: "ming_war", afterBeat: 1, caption: ""}]);
+  e.executeAITools([{tool: "show_illustration", params: {id: "qing_missing", title: "俘虏", url: "https://invalid.example/a.png"}}]);
+  assert.equal(e.pendingIllustrationSelections.length, 1);
+  const result = e.getIllustrationRegistry().compose([{text: "正文继续。"}], e.pendingIllustrationSelections);
+  assert.equal(result.beats[1].illustrationData.id, "ming_war");
+  assert.equal(result.beats[1].illustrationData.relativePath, "data/illustrations/ming/war.svg");
 });

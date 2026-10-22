@@ -2631,9 +2631,10 @@ body, html {
 }
 
 .illustration-thumb-wrap {
-  width: 190px;
+  width: 42%;
   min-width: 160px;
-  height: 115px;
+  height: auto;
+  aspect-ratio: 16 / 9;
   background: #020617;
   border-radius: 6px;
   overflow: hidden;
@@ -2648,12 +2649,20 @@ body, html {
 .illustration-inline-svg {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   transition: transform 0.4s ease;
 }
 
 .dialogue-illustration-card:hover .illustration-inline-svg {
-  transform: scale(1.05);
+  transform: none;
+}
+
+.dialogue-illustration-card:focus-visible {outline: 2px solid var(--accent-gold); outline-offset: 3px;}
+.illustration-load-error {padding: 14px; font-size: .85rem; color: var(--text-dim); text-align: center;}
+.illustration-load-error[hidden], .illustration-inline-svg[hidden] {display: none;}
+@media (max-width: 768px) {
+  .dialogue-illustration-card {flex-direction: column;}
+  .dialogue-illustration-card .illustration-thumb-wrap {width: 100%; min-width: 0;}
 }
 
 .illustration-card-content {
