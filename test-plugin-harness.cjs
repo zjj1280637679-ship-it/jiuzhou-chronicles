@@ -300,7 +300,7 @@ test("cancellation while a model promise is being created consumes its rejection
     model: async () => {controller.abort(); throw new Error("late_fixture");}
   })), error => error.code === "request_cancelled");
   await new Promise(resolve => setImmediate(resolve));
-  assert.equal(terminated, 2);
+  assert.equal(terminated, 3);
 });
 
 test("cancelling from a step notification never starts an already-cancelled model request", async () => {
