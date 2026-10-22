@@ -45,10 +45,11 @@ async function noOverflow(page, label) {
 }
 async function modalClosed(page) {
   assert.equal(await page.locator("#modal-illustration").evaluate(el => el.classList.contains("open")), false,
-    "Selection and successful delivery must not open an illustration modal");
+    "A closed illustration must return control to reading");
 }
 async function toChoices(page, size) {
   for (let i = 0; i < 180; i++) {
+    if (await page.locator("#modal-illustration").evaluate(el => el.classList.contains("open"))) await closeCard(page);
     if (await page.locator("#choice-overlay").evaluate(el => el.classList.contains("visible"))) return;
     await page.click(size.mobile ? "#mobile-next" : "#continue-prompt");
   }
@@ -67,37 +68,57 @@ async function showQueueIndex(page, index) {
     if (engine.isTyping) engine.fastForwardTypewriter();
   }, index);
 }
-async function openCard(page, key = null) {
-  const step = await page.evaluate(() => window.__vnEngine.currentStep);
-  const card = page.locator(".dialogue-illustration-card");
-  await card.waitFor({state:"visible"});
-  if (key) {await card.focus(); await card.press(key);} else await card.click();
+async function illustrationVisible(page, expectedId = null) {
   await page.waitForFunction(() => document.querySelector("#modal-illustration").getAttribute("aria-modal") === "true");
+  assert.equal(await page.locator("#dialogue-content img, #dialogue-content .dialogue-illustration-card").count(), 0,
+    "An illustration is a separate modal, never a large card or image inside prose");
+  if (expectedId) assert.match(await page.locator("#illustration-graphic img").getAttribute("src"), new RegExp(expectedId));
   await page.waitForFunction(() => {
     const image = document.querySelector("#illustration-graphic img");
     return image?.complete && image.naturalWidth > 0;
   });
-  await page.waitForFunction(() => {
-    const modal = document.querySelector("#modal-illustration"), box = modal?.querySelector(".illustration-box");
-    return getComputedStyle(modal).opacity === "1" && getComputedStyle(box).opacity === "1";
+  const geometry = await page.locator("#modal-illustration").evaluate(node => {
+    const r = node.getBoundingClientRect(), box = node.querySelector(".illustration-box").getBoundingClientRect();
+    const close = document.querySelector("#btn-close-illustration"), c = close.getBoundingClientRect();
+    const hit = document.elementFromPoint(c.x + c.width / 2, c.y + c.height / 2);
+    return {position:getComputedStyle(node).position, independent:!node.closest("#dialogue-box"),
+      viewport:Math.abs(r.x) < 1 && Math.abs(r.y) < 1 && r.width >= innerWidth - 1 && r.height >= innerHeight - 1,
+      boxInside:box.x >= -1 && box.y >= -1 && box.right <= innerWidth + 1 && box.bottom <= innerHeight + 1,
+      centered:Math.abs(box.x + box.width / 2 - innerWidth / 2) < 2,
+      closeInside:c.x >= -1 && c.y >= -1 && c.right <= innerWidth + 1 && c.bottom <= innerHeight + 1,
+      closeReachable:hit === close || close.contains(hit)};
   });
+  assert.deepEqual(geometry, {position:"fixed", independent:true, viewport:true, boxInside:true, centered:true,
+    closeInside:true, closeReachable:true}, "The full-viewport modal and close button must escape the prose clipping box");
+}
+async function reopenCard(page, key = null) {
+  const step = await page.evaluate(() => window.__vnEngine.currentStep);
+  const trigger = page.locator("#btn-view-illustration");
+  await trigger.waitFor({state:"visible"});
+  if (key) {await trigger.focus(); await trigger.press(key);} else await trigger.click();
+  await illustrationVisible(page);
   assert.equal(await page.locator("#illustration-graphic").evaluate(node => {
     const bounds = node.getBoundingClientRect();
     const hit = document.elementFromPoint(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
     return node === hit || node.contains(hit);
   }), true, "The expanded illustration must be above the dialogue and receive pointer hits");
   assert.equal(await page.evaluate(() => window.__vnEngine.currentStep), step,
-    "Opening a card by pointer or keyboard must not advance the story behind its modal");
+    "Reopening an illustration by pointer or keyboard must not advance the story behind its modal");
   assert.equal(await page.locator("#choice-overlay").evaluate(el => el.classList.contains("visible")), false,
     "Opening the final illustration must not also open the decision overlay");
 }
-async function closeCard(page) {
-  await page.click("#btn-close-illustration");
+async function closeCard(page, method = "button") {
+  const before = await page.evaluate(() => ({step:window.__vnEngine.currentStep,text:document.querySelector("#dialogue-content").textContent}));
+  if (method === "escape") await page.keyboard.press("Escape");
+  else if (method === "backdrop") await page.locator("#modal-illustration").click({position:{x:2,y:2}});
+  else await page.click("#btn-close-illustration");
   await page.waitForFunction(() => !document.querySelector("#modal-illustration").classList.contains("open") &&
     !document.querySelector("#dialogue-content").closest("[inert]"));
+  assert.deepEqual(await page.evaluate(() => ({step:window.__vnEngine.currentStep,text:document.querySelector("#dialogue-content").textContent})), before,
+    `Closing an illustration by ${method} must preserve the reading position and all visible prose`);
 }
 try {
-  for (const size of [{name:"phone", width:390, height:844, mobile:true}, {name:"desktop", width:1440, height:900, mobile:false}]) {
+  for (const size of [{name:"phone-320", width:320, height:740, mobile:true}, {name:"phone-390", width:390, height:844, mobile:true}, {name:"desktop", width:1440, height:900, mobile:false}]) {
     const context = await browser.newContext({viewport:{width:size.width,height:size.height}, isMobile:size.mobile,
       hasTouch:size.mobile, serviceWorkers:"block", reducedMotion:"reduce"});
     await context.addInitScript(config => localStorage.setItem("vn_api_config", JSON.stringify(config)), config);
@@ -176,8 +197,10 @@ try {
     });
     assert.ok(scene.expected, "The authored initial Later Jin scene needs an explicit illustration binding");
     assert.equal(scene.current, scene.expected);
-    assert.ok(scene.queue.includes(scene.expected), "Canonical story includes its authored scene illustration");
+    assert.equal(scene.queue.includes(scene.expected), false, "Canonical scene art is a background, never an inserted popup beat");
     await modalClosed(page);
+    assert.equal(await page.locator("#btn-view-illustration").isVisible(), false,
+      "A background alone must not create a popup opener");
     if (size.mobile) {
       // A prose page does not erase the scene image selected for this chapter.
       await page.waitForFunction(path => document.querySelector("#mobile-scene-art").getAttribute("src") === path, scene.expectedPath);
@@ -201,13 +224,14 @@ try {
         elapsedValid:Number.isFinite(engine.aiGenerationMetrics?.elapsedMs) && engine.aiGenerationMetrics.elapsedMs >= 0,
         removedMetricFields:[...Object.keys(engine.aiGenerationMetrics || {}), ...Object.keys(engine.aiGenerationMetrics?.harness || {})]
           .filter(key => /characters|expectedLength|targetLength/i.test(key)),
-        metricsText:document.querySelector("#ai-generation-metrics").textContent,
+        diagnosticNodes:document.querySelectorAll("#ai-generation-metrics, #ai-harness-progress, #cache-telemetry-box, #settings-diagnostics").length,
         illustrations:engine.storyQueue.map((beat, index) => beat.illustrationData ? {id:beat.illustrationData.id, index} : null).filter(Boolean)};
     });
     assert.equal(state.error, undefined, JSON.stringify(state));
     assert.deepEqual(state.prose, story.beats.map(beat => beat.text), "Short prose succeeds unchanged alongside native illustration tools");
     assert.equal(state.beats, 2); assert.equal(state.tokens, steps.length * 40); assert.equal(state.elapsedValid, true);
-    assert.deepEqual(state.removedMetricFields, []); assert.doesNotMatch(state.metricsText, /正文(?:未|已)达目标|剩余字数|其中中文/);
+    assert.deepEqual(state.removedMetricFields, []); assert.equal(state.diagnosticNodes, 0,
+      "Internal metrics may exist in memory, but runtime logs and diagnostics must have no UI nodes");
     assert.equal(requests.length, steps.length);
     assert.deepEqual(state.illustrations.map(asset => asset.id), chosen,
       "A rejected unknown ID must neither guess wealth nor displace valid choices");
@@ -215,36 +239,49 @@ try {
     const queueLength = await page.evaluate(() => window.__vnEngine.storyQueue.length);
     assert.equal(state.illustrations[1].index, queueLength - 1,
       "afterBeat indexes original paragraphs before prose pagination");
-    await modalClosed(page);
-    await openCard(page, "Enter");
-    assert.match(await page.locator("#illustration-graphic img").getAttribute("src"), /qing_night_raid/);
+    await illustrationVisible(page, chosen[0]);
     await noOverflow(page, size.name + " image modal");
     if (screenshots) await page.screenshot({path:join(screenshots, size.name + "-illustration-modal.png")});
     await closeCard(page);
-    await openCard(page, "Space");
+    await reopenCard(page, "Enter");
+    await closeCard(page, "escape");
+    await reopenCard(page, "Space");
+    await closeCard(page, "backdrop");
+    const firstImageStep = await page.evaluate(() => window.__vnEngine.currentStep);
+    await next(page, size);
+    await page.evaluate(() => window.__vnEngine.fastForwardTypewriter());
+    assert.equal(await page.evaluate(() => window.__vnEngine.currentStep), firstImageStep + 1,
+      "Only the explicit next-page control advances out of an illustration beat");
+    assert.equal(await page.locator("#typewriter-text").textContent(), story.beats[0].text);
+    await page.click("#btn-dialogue-prev");
+    await illustrationVisible(page, chosen[0]);
     await closeCard(page);
     await showQueueIndex(page, state.illustrations[1].index);
-    await openCard(page);
-    assert.match(await page.locator("#illustration-graphic img").getAttribute("src"), /qing_lamplit_questioning/);
+    await illustrationVisible(page, chosen[1]);
     await closeCard(page);
     // Persist a real selected beat, reload and resume it through the title UI.
     await page.evaluate(() => window.__vnEngine.saveGameState());
     await page.reload({waitUntil:"domcontentloaded"});
     await page.click("#title-btn-continue");
-    await page.waitForFunction(id => document.querySelector(".dialogue-illustration-card img")?.getAttribute("src")?.includes(id), chosen[1]);
-    await modalClosed(page);
+    await illustrationVisible(page, chosen[1]);
+    await closeCard(page);
+    await reopenCard(page);
+    await closeCard(page);
     await noOverflow(page, size.name + " saved illustration");
-    if (screenshots) await page.screenshot({path:join(screenshots, size.name + "-illustration-card.png")});
+    if (screenshots) await page.screenshot({path:join(screenshots, size.name + "-illustration-reading.png")});
     // Simulate the browser failing one registered asset. The image error must
     // leave a readable placeholder and preserve ordinary next-page navigation.
     const missingPath = assets.find(asset => asset.id === chosen[0]).relativePath;
     await page.route("**/" + missingPath, route => route.fulfill({status:404, body:"fixture missing image"}));
     await showQueueIndex(page, 0);
     await page.waitForFunction(() => {
-      const card = document.querySelector(".dialogue-illustration-card");
-      return card && /(?:缺失|未能|加载失败|不可用)/.test(card.textContent);
+      const modal = document.querySelector("#modal-illustration");
+      const fallback = modal.querySelector(".illustration-load-error"), image = modal.querySelector("#illustration-graphic img");
+      return modal.classList.contains("open") && image?.hidden && fallback && getComputedStyle(fallback).display !== "none" &&
+        /(?:缺失|未能|加载失败|不可用|无法)/.test(fallback.textContent);
     });
     const missingStep = await page.evaluate(() => window.__vnEngine.currentStep);
+    await closeCard(page);
     await next(page, size);
     await page.waitForFunction(step => window.__vnEngine.currentStep > step, missingStep);
     await page.evaluate(() => window.__vnEngine.fastForwardTypewriter());
@@ -254,9 +291,10 @@ try {
     evidence.viewports.push({name:size.name, width:size.width, height:size.height, passed:true,
       assets:assets.length, modelCalls:requests.length, proseBeats:state.beats, shortProseDelivered:true,
       insertedIllustrationIds:state.illustrations.map(asset => asset.id), initialSceneId:scene.expected,
-      automaticIllustrationModal:false, keyboardActivation:true, saveAndResume:true, missingImageContinuation:true});
+      automaticIllustrationModal:true, noInlineIllustration:true, independentViewportModal:true, keyboardActivation:true,
+      escapeAndBackdropClose:true, previousPageRestoresModal:true, saveAndResume:true, missingImageContinuation:true, diagnosticUINodes:0});
     await context.close();
-    console.log(`PASS ${size.name}: 32 assets, canonical scene, native list/select correction, 2 paragraph-positioned images, short prose delivery without a length gate, click/Enter/Space modal, save/resume and missing-image continuation`);
+    console.log(`PASS ${size.name}: 32 assets, canonical and native tool images open independent viewport modals; no prose cards or diagnostic UI; afterBeat placement, exact prose, close/reopen/previous/save/resume and missing-image continuation`);
   }
   if (screenshots) await writeFile(join(screenshots, "browser-verification.json"), JSON.stringify(evidence, null, 2) + "\n");
 } finally {await browser.close(); await new Promise(done => server.close(done));}

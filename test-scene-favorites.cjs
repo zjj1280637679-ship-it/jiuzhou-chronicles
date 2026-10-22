@@ -70,3 +70,22 @@ test("stable narrative rules and tool guidance keep action menus separate from d
     assert.equal(normalized.choices[0].text,"长选项".repeat(900));
   }finally{global.window=previous;}
 });
+
+test("map visits use their own background without advancing the old story node or borrowing popup art", () => {
+  const previous = global.WORLD_PRESETS;
+  global.WORLD_PRESETS = {canonicalTrees:{qing:{nodes:{qing_act3_civil_backlash:{coords:"beijing:high"}}}}};
+  try {
+    const engine = Object.assign(Object.create(WebVisualNovelEngine.prototype), {
+      currentFaction:"qing", currentStoryNodeId:"qing_act3_civil_backlash", currentCoords:"beijing:high",
+      stageBackground:null, currentStep:1, storyQueue:[{type:"illustration", illustrationData:{id:"qing_night_raid"}}]
+    });
+    assert.equal(engine.getSceneIllustration().id, "qing_secret_letter");
+    engine.currentCoords = "qing:mukden";
+    assert.equal(engine.getSceneIllustration().id, "qing_campaign_map");
+    assert.equal(engine.currentStoryNodeId, "qing_act3_civil_backlash");
+    engine.stageBackground = {id:"qing_holding_cell"};
+    assert.equal(engine.getSceneIllustration().id, "qing_holding_cell");
+    engine.stageBackground = null;
+    assert.equal(engine.getSceneIllustration().id, "qing_campaign_map");
+  } finally {global.WORLD_PRESETS = previous;}
+});

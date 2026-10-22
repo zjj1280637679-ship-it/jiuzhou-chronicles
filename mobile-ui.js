@@ -24,17 +24,16 @@
   const branchPill = byId("branch-pill");
   const speaker = byId("speaker-name");
   const speakerSub = byId("speaker-sub");
-  const incense = byId("incense-label");
-  const progress = byId("ai-harness-progress");
   const cancelRequest = byId("btn-cancel-ai-request");
-  const drawers = Array.from(document.querySelectorAll(".drawer, #modal-illustration"));
-  const modalElements = new Set(drawers);
-  const interactiveSelector = "button, a, input, textarea, select, summary, [contenteditable='true'], [role='button'], #branch-pill, .dialogue-illustration-card";
+  const drawers = Array.from(document.querySelectorAll(".drawer"));
+  const dialogSurfaces = [...drawers, byId("modal-illustration")].filter(Boolean);
+  const modalElements = new Set(dialogSurfaces);
+  const interactiveSelector = "button, a, input, textarea, select, summary, [contenteditable='true'], [role='button'], #branch-pill";
   const focusableSelector = "button:not([disabled]), a[href], input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex='-1'])";
   const originalMenuRole = menu.getAttribute("role");
   const originalMenuLabel = menu.getAttribute("aria-label");
   let activeModal = null;
-  let preferredDrawer = null;
+  let preferredSurface = null;
   let fontSize = 17;
   let syncPending = false;
   let modalDirty = true;
@@ -60,8 +59,8 @@
     return Boolean(choice && !choice.hidden && choice.classList.contains("visible"));
   }
 
-  function isDrawerOpen(drawer) {
-    return !drawer.hidden && drawer.classList.contains("open");
+  function isDialogOpen(dialog) {
+    return !dialog.hidden && dialog.classList.contains("open");
   }
 
   function isMenuOpen() {
@@ -69,7 +68,7 @@
   }
 
   function isGenerating() {
-    return dialogueNav?.getAttribute("data-generating") === "true" || Boolean(progress && !progress.hidden);
+    return dialogueNav?.getAttribute("data-generating") === "true";
   }
 
   function setMenuOpen(open) {
@@ -114,7 +113,6 @@
   function homeLocation(node) {
     return node ? { parent: node.parentNode, next: node.nextSibling } : null;
   }
-  const progressHome = homeLocation(progress);
   const cancelHome = homeLocation(cancelRequest);
   const lengthGroup = byId("ai-length-group");
   const explainer = byId("btn-branch-explainer");
@@ -149,14 +147,12 @@
     document.documentElement.classList.toggle("mobile-layout", mobileQuery.matches);
     setMenuOpen(false);
     if (mobileQuery.matches) {
-      if (progress && progress.parentNode !== dialogueBox) dialogueBox.insertBefore(progress, dialogueContent);
       if (cancelRequest && cancelRequest.parentNode !== dialogueBox) dialogueBox.insertBefore(cancelRequest, dialogueContent);
       if (readingTools) {
         if (lengthGroup && lengthGroup.parentNode !== readingTools) readingTools.appendChild(lengthGroup);
         if (explainer && explainer.parentNode !== readingTools) readingTools.appendChild(explainer);
       }
     } else {
-      returnHome(progress, progressHome);
       returnHome(cancelRequest, cancelHome);
       returnHome(lengthGroup, lengthHome);
       returnHome(explainer, explainerHome);
@@ -236,33 +232,33 @@
   function syncModals() {
     const previous = activeModal;
     const focused = document.activeElement;
-    const openDrawers = drawers.filter(isDrawerOpen);
-    const topDrawer = preferredDrawer && openDrawers.includes(preferredDrawer)
-      ? preferredDrawer : (openDrawers.includes(previous) ? previous : openDrawers.at(-1));
-    preferredDrawer = null;
-    if (mobileQuery.matches && topDrawer) {
-      openDrawers.forEach(drawer => {
-        if (drawer !== topDrawer) drawer.classList.remove("open");
+    const openDialogs = dialogSurfaces.filter(isDialogOpen);
+    const topDialog = preferredSurface && openDialogs.includes(preferredSurface)
+      ? preferredSurface : (openDialogs.includes(previous) ? previous : openDialogs.at(-1));
+    preferredSurface = null;
+    if (mobileQuery.matches && topDialog) {
+      openDialogs.forEach(dialog => {
+        if (dialog !== topDialog) dialog.classList.remove("open");
       });
       if (isMenuOpen()) {
         menu.classList.remove("mobile-menu-open");
         attr(menuToggle, "aria-expanded", false);
       }
     }
-    activeModal = topDrawer || (isMenuOpen() ? menu : (isChoiceVisible() ? choice : null));
+    activeModal = topDialog || (isMenuOpen() ? menu : (isChoiceVisible() ? choice : null));
     restoreInert();
 
-    drawers.forEach(drawer => {
-      const shown = isDrawerOpen(drawer);
-      attr(drawer, "role", "dialog");
-      const title = drawer.querySelector(".drawer-title, .illustration-title");
-      if (!drawer.hasAttribute("aria-labelledby") && !drawer.hasAttribute("aria-label")) {
-        if (title?.id) attr(drawer, "aria-labelledby", title.id);
-        else attr(drawer, "aria-label", title?.textContent.trim() || "游戏详情");
+    dialogSurfaces.forEach(dialog => {
+      const shown = isDialogOpen(dialog);
+      attr(dialog, "role", "dialog");
+      const title = dialog.querySelector(".drawer-title, .illustration-title");
+      if (!dialog.hasAttribute("aria-labelledby") && !dialog.hasAttribute("aria-label")) {
+        if (title?.id) attr(dialog, "aria-labelledby", title.id);
+        else attr(dialog, "aria-label", title?.textContent.trim() || "游戏详情");
       }
-      attr(drawer, "aria-hidden", !shown);
-      attr(drawer, "aria-modal", drawer === activeModal ? "true" : null);
-      if (!shown) manageInert(drawer);
+      attr(dialog, "aria-hidden", !shown);
+      attr(dialog, "aria-modal", dialog === activeModal ? "true" : null);
+      if (!shown) manageInert(dialog);
     });
     if (choice) {
       const shown = isChoiceVisible();
@@ -321,15 +317,8 @@
     text(sceneTitle, title || speakerSub?.textContent.trim() || "九州行旅");
 
     if (sceneArt) {
-      const faction = incense?.textContent || "";
-      const illustration = dialogueContent.querySelector(".dialogue-illustration-card img");
       const scene = window.__vnEngine?.currentSceneIllustration;
-      let art = defaultArt;
-      if (/草原|蒙古|大汗/.test(faction)) art = "data/illustrations/mongol/battle.svg";
-      else if (/海邦|南明|海疆|海上/.test(faction)) art = "data/illustrations/nanming/war.svg";
-      if (scene?.relativePath) art = scene.relativePath;
-      if (illustration?.getAttribute("src")) art = illustration.getAttribute("src");
-      attr(sceneArt, "src", art);
+      attr(sceneArt, "src", scene?.relativePath || defaultArt);
       attr(sceneArt, "alt", scene?.title || (speakerSub?.textContent.trim() || title || "九州行旅") + " · 场景画面");
     }
     const promptText = prompt?.textContent || "";
@@ -373,27 +362,27 @@
 
   const modalObserver = new MutationObserver(records => {
     for (const record of records) {
-      if (modalElements.has(record.target) && isDrawerOpen(record.target)) preferredDrawer = record.target;
+      if (modalElements.has(record.target) && isDialogOpen(record.target)) preferredSurface = record.target;
     }
     queueSync(true);
   });
-  [...drawers, menu].forEach(node => {
+  [...dialogSurfaces, menu].forEach(node => {
     modalObserver.observe(node, { attributes: true, attributeFilter: ["class", "hidden"] });
   });
   if (choice) modalObserver.observe(choice, {
     attributes: true, attributeFilter: ["class", "hidden"], childList: true, subtree: true
   });
   const sceneObserver = new MutationObserver(() => queueSync());
-  [branchPill, speaker, speakerSub, incense, dialogueContent].filter(Boolean).forEach(node => {
+  [branchPill, speaker, speakerSub, dialogueContent].filter(Boolean).forEach(node => {
     sceneObserver.observe(node, { childList: true, characterData: true, subtree: true });
   });
   if (prompt) sceneObserver.observe(prompt, {
     attributes: true, attributeFilter: ["style"], childList: true, characterData: true, subtree: true
   });
-  if (progress) sceneObserver.observe(progress, { attributes: true, attributeFilter: ["hidden"], childList: true, subtree: true });
   if (dialogueNav) sceneObserver.observe(dialogueNav, {
     attributes: true, attributeFilter: ["data-step", "data-total", "data-generating"]
   });
+  window.addEventListener("jiuzhou:scene-background", () => queueSync());
 
   document.addEventListener("focusin", event => {
     if (!activeModal) return;

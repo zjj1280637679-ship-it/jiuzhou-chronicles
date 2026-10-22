@@ -35,7 +35,7 @@
       {id: "illustrations", url: new URL("plugins/illustrations.js", baseURL).href}
     ];
     const makeWorker = options.workerFactory || (url => new Worker(url));
-    const assetVersion = "20261023-body02";
+    const assetVersion = "20261023-ui04";
     const timeoutMs = options.pluginTimeoutMs ?? 10000;
     const entries = [], registry = new Map();
     let sequence = 0, disposed = false;
@@ -136,13 +136,15 @@
     };
     const host = await createPluginHost({...options, context: {world: clone(options.world || {}),
       illustrations: clone(Array.isArray(options.illustrations) ? options.illustrations : [])}});
-    // A selection belongs to this generation only. Neither tools nor drafts change the page.
+    // Background and popup drafts belong to this generation only and never change each other.
     let illustrations = [];
+    let backgroundChange = null;
     let lastRejectedStep = null;
     let lastModel = "";
     function settle(delivery) {
       checkSignal(signal);
       const story = protocol.normalizeStory(delivery);
+      if (backgroundChange) story.stage_effects.push({name: "set_scene_background", params: clone(backgroundChange)});
       story.stage_effects.push(...illustrations.map(selection => ({name: "show_illustration", params: clone(selection)})));
       stats.beatCount = story.beats.length;
       emit("delivered", {beatCount: stats.beatCount});
@@ -212,6 +214,11 @@
             messages.push({role: "tool", tool_call_id: call.id, content: JSON.stringify(output.result)});
             if (call.function.name === "select_illustration" && output.result?.ok === true && Array.isArray(output.result.selections)) {
               illustrations = clone(output.result.selections);
+            }
+            if (call.function.name === "set_scene_background" && output.result?.ok === true) {
+              const change = output.result.backgroundChange;
+              if (change?.clear === true) backgroundChange = {clear: true};
+              else if (typeof change?.id === "string") backgroundChange = {id: change.id};
             }
             emit("tool_end", {tool: call.function.name});
             stepResults.push([call.function.name, call.function.arguments, output.result]);

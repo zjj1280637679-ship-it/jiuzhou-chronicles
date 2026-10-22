@@ -7,12 +7,15 @@
   // Progress is an allowlist: provider configuration and authentication never enter a save or export.
   const fields = ["currentFaction", "currentTurn", "currentCoords", "dangerTicks", "ideologyVector", "inventory",
     "backlog", "fateKnots", "storyQueue", "currentStep", "apiHistory", "pendingApiChoices", "cacheTelemetry",
-    "currentStoryNodeId", "isExtrapolating", "isEpilogueSequel", "branchDepth", "extrapolationHistory",
+    "currentStoryNodeId", "stageBackground", "isExtrapolating", "isEpilogueSequel", "branchDepth", "extrapolationHistory",
     "reconciledCardsCache", "lastSutureNote", "convergenceTargetId", "visitedNodeIds", "inspectedNodeId", "needsSuturing"];
   const clone = value => JSON.parse(JSON.stringify(value));
   function snapshot(engine) {
     const state = {};
-    for (const key of fields) if (engine[key] !== undefined) state[key] = clone(engine[key]);
+    for (const key of fields) if (engine[key] !== undefined) {
+      state[key] = key === "stageBackground" ?
+        (typeof engine[key]?.id === "string" && /^[a-z][a-z0-9_]*$/.test(engine[key].id) ? {id: engine[key].id} : null) : clone(engine[key]);
+    }
     return state;
   }
   function restore(engine, state) {

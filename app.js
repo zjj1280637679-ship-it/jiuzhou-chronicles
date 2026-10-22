@@ -6,7 +6,7 @@
 // =============================================================================
 
 const APP_VERSION = "v2.5.0";
-const BUILD_STAMP = "2026.10.23.0002";
+const BUILD_STAMP = "2026.10.23.0004";
 const VERSION_FULL = `v2.5.0 (Build ${BUILD_STAMP} · 插件式工具循环 · 自由篇幅交付 · 3选项+开放输入)`;
 const AIProviders = typeof module === "object" && module.exports
   ? require("./harness/providers.js") : globalThis.JiuzhouProviders;
@@ -57,6 +57,7 @@ class WebVisualNovelEngine {
     this.storyQueue = [];
     this.currentStep = 0;
     this.currentSceneIllustration = null;
+    this.stageBackground = null;
     this.pendingIllustrationSelections = [];
 
     // DeepSeek API 通道与 Prompt Caching 四层前缀架构
@@ -255,13 +256,36 @@ class WebVisualNovelEngine {
   getSceneIllustration() {
     const registry = this.getIllustrationRegistry();
     if (!registry) return null;
-    // Derive the projection from the page being read, including restored saves
-    // and backwards navigation; future cards must not reveal the next scene.
-    for (let index = Math.min(this.currentStep || 0, this.storyQueue?.length || 0) - 1; index >= 0; index--) {
-      const asset = this.resolveIllustrationData(this.storyQueue[index]?.illustrationData);
-      if (asset) return asset;
+    const override = registry.resolve(this.stageBackground?.id);
+    if (override) return override;
+    const node = typeof WORLD_PRESETS !== "undefined" ? WORLD_PRESETS.canonicalTrees?.[this.currentFaction]?.nodes?.[this.currentStoryNodeId] : null;
+    // Visiting another map does not advance the story tree; its old node art must not cover the new location.
+    const nodeId = node?.coords && this.currentCoords && node.coords !== this.currentCoords ? undefined : this.currentStoryNodeId;
+    return registry.sceneFor({faction: this.currentFaction, nodeId, coords: this.currentCoords});
+  }
+
+  refreshStageBackground() {
+    const asset = this.getSceneIllustration();
+    this.currentSceneIllustration = asset || null;
+    const layer = typeof document !== "undefined" ? document.getElementById("bg-active") : null;
+    const map = typeof WORLD_PRESETS !== "undefined" ? WORLD_PRESETS.thinMaps?.[this.currentCoords] : null;
+    if (layer?.style) layer.style.backgroundImage = asset ? `url("${asset.relativePath}")` : (map?.bgGradient || "");
+    if (layer?.dataset) layer.dataset.backgroundId = asset?.id || "";
+    if (typeof window !== "undefined" && typeof window.dispatchEvent === "function") window.dispatchEvent(new Event("jiuzhou:scene-background"));
+  }
+
+  setSceneBackground(params = {}) {
+    if (!params || typeof params !== "object" || Array.isArray(params) ||
+        Object.keys(params).some(key => !["id", "clear"].includes(key)) ||
+        (params.clear !== undefined && typeof params.clear !== "boolean")) return false;
+    if (params.clear === true) this.stageBackground = null;
+    else {
+      const asset = this.getIllustrationRegistry()?.resolve(params.id);
+      if (!asset) return false;
+      this.stageBackground = {id: asset.id};
     }
-    return registry.sceneFor({faction: this.currentFaction, nodeId: this.currentStoryNodeId, coords: this.currentCoords});
+    this.refreshStageBackground();
+    return true;
   }
 
   isIllustrationEffect(effect) {
@@ -286,6 +310,10 @@ class WebVisualNovelEngine {
       const params = t.params || {};
 
       switch (toolName) {
+        case "set_scene_background": {
+          this.setSceneBackground(params);
+          break;
+        }
         case "screen_shake": {
           const intensity = params.intensity || "medium";
           const duration = params.duration || 600;
@@ -393,12 +421,22 @@ class WebVisualNovelEngine {
   // 唤起全屏视觉小说插图 / 特写 CG 视窗
   showIllustration(title, description, style = "tragic_snow", customUrl = null) {
     if (!this.modalIllustration) return;
+    clearTimeout(this.autoTimer);
+    this.illustrationPausedAutoPlay = Boolean(this.autoPlay);
     if (this.illustrationTitle) this.illustrationTitle.innerText = title || "史诗画卷";
     if (this.illustrationCaption) this.illustrationCaption.innerText = description || "天地玄黄，宇宙洪荒。";
 
     if (this.illustrationGraphic) {
       if (customUrl) {
         this.illustrationGraphic.innerHTML = `<img src="${escapeHTML(customUrl)}" alt="${escapeHTML(title)}" class="illustration-img" />`;
+        const image = this.illustrationGraphic.querySelector("img");
+        image?.addEventListener("error", () => {
+          image.hidden = true;
+          const message = document.createElement("p");
+          message.className = "illustration-load-error";
+          message.textContent = "画卷暂时无法显示，可关闭后继续阅读。";
+          this.illustrationGraphic.appendChild(message);
+        }, {once: true});
       } else {
         this.illustrationGraphic.innerHTML = this.generateIllustrationSVG(title, description, style);
       }
@@ -408,10 +446,13 @@ class WebVisualNovelEngine {
   }
 
   // 收起插图特写视窗
-  closeIllustration() {
+  closeIllustration(resumeAutoPlay = true) {
     if (this.modalIllustration) {
       this.modalIllustration.classList.remove("open");
     }
+    const paused = this.illustrationPausedAutoPlay;
+    this.illustrationPausedAutoPlay = false;
+    if (resumeAutoPlay && paused && this.autoPlay && this.gameState === "PLAYING" && !this.isTyping && !this.isAIGenerating) this.finishTyping();
   }
 
   // 离线/实时矢量插图生成器 (古典水墨意境与电影画幅)
@@ -524,7 +565,6 @@ class WebVisualNovelEngine {
     this.titleBtnSettings = document.getElementById("title-btn-settings");
     this.titleSaveHint = document.getElementById("title-save-hint");
     this.qmHome = document.getElementById("qm-home");
-    this.qmCache = document.getElementById("qm-cache");
     this.qmStoryTree = document.getElementById("qm-storytree");
 
     // 剧情树与弥合指示器
@@ -607,12 +647,6 @@ class WebVisualNovelEngine {
     this.btnCancelAIRequest = document.getElementById("btn-cancel-ai-request");
     this.btnTestAiConnection = document.getElementById("btn-test-ai-connection");
     this.aiConnectionTestStatus = document.getElementById("ai-connection-test-status");
-    this.aiGenerationMetricsDisplay = document.getElementById("ai-generation-metrics");
-    this.aiHarnessProgressDisplay = document.getElementById("ai-harness-progress");
-    this.cmHitRate = document.getElementById("cm-hit-rate");
-    this.cmHitTokens = document.getElementById("cm-hit-tokens");
-    this.cmMissTokens = document.getElementById("cm-miss-tokens");
-    this.cacheStatusTag = document.getElementById("cache-status-tag");
 
     // 视觉特效与插图特写 DOM
     this.screenFlashOverlay = document.getElementById("screen-flash-overlay");
@@ -622,6 +656,7 @@ class WebVisualNovelEngine {
     this.illustrationCaption = document.getElementById("illustration-caption");
     this.illustrationGraphic = document.getElementById("illustration-graphic");
     this.btnCloseIllustration = document.getElementById("btn-close-illustration");
+    this.btnViewIllustration = document.getElementById("btn-view-illustration");
 
     // 版本指示器与分支解释器 DOM
     this.titleVersionBadge = document.getElementById("title-version-badge");
@@ -721,8 +756,8 @@ class WebVisualNovelEngine {
     // 键盘快捷键导航 (← / Q 返回上一段, → / 空格 / 回车 推进下一段)
     window.addEventListener("keydown", (e) => {
       if (this.gameState !== "PLAYING") return;
-      if (e.target.closest("input, textarea, button, a, [role=button], .drawer-modal, .choice-overlay")) return;
-      if (this.modalIllustration?.classList.contains("visible")) return;
+      if (e.target.closest("input, textarea, button, a, [role=button], .drawer-modal, .illustration-modal, .choice-overlay")) return;
+      if (this.modalIllustration?.classList.contains("open")) return;
       if (e.key === "ArrowLeft" || e.key === "q" || e.key === "Q") {
         e.preventDefault();
         this.playPreviousInQueue();
@@ -924,9 +959,6 @@ class WebVisualNovelEngine {
     });
 
     // 快捷菜单缓存胶囊点击直达设置抽屉
-    if (this.qmCache) {
-      this.qmCache.addEventListener("click", () => this.openDrawer(this.drawerSettings));
-    }
 
     // 模型选择器联动
     if (this.settingModel) {
@@ -967,6 +999,15 @@ class WebVisualNovelEngine {
     if (this.btnCloseIllustration) {
       this.btnCloseIllustration.addEventListener("click", () => this.closeIllustration());
     }
+    this.modalIllustration?.addEventListener("click", event => {
+      event.stopPropagation();
+      if (event.target === this.modalIllustration) this.closeIllustration();
+    });
+    this.btnViewIllustration?.addEventListener("click", event => {
+      event.stopPropagation();
+      const image = this.activeIllustration;
+      if (image) this.showIllustration(image.title, image.description, "divine_gold", image.relativePath);
+    });
 
     // 开放式文字外推弹窗按钮绑定
     if (this.btnCloseOpenInput) {
@@ -1038,6 +1079,7 @@ class WebVisualNovelEngine {
     this.abandonTurnForNavigation();
 
     this.currentFaction = factionId;
+    this.stageBackground = null;
     this.currentCoords = f.defaultCoords;
     this.closeDrawer(this.drawerFaction);
 
@@ -1078,6 +1120,7 @@ class WebVisualNovelEngine {
     this.isExtrapolating = false;
     this.isEpilogueSequel = false;
     this.currentCoords = node.coords || this.currentCoords;
+    this.stageBackground = null;
 
     const map = WORLD_PRESETS.thinMaps[this.currentCoords];
     if (map) {
@@ -1119,11 +1162,8 @@ class WebVisualNovelEngine {
       this.updateBranchIndicatorUI(false);
     }
 
-    const sceneArt = this.getIllustrationRegistry()?.sceneFor({faction: this.currentFaction, nodeId, coords: this.currentCoords});
-    this.currentSceneIllustration = sceneArt || null;
-    if (sceneArt) {
-      this.storyQueue = this.getIllustrationRegistry().compose(this.storyQueue, [{id: sceneArt.id, afterBeat: 0}]).beats;
-    }
+    // Authored scene art is a stage background, never an implicit popup event.
+    this.refreshStageBackground();
 
     this.recordFateKnot(node.title, `主剧情树 · 第${node.actNumber}幕展开`);
     this.currentStep = 0;
@@ -2111,11 +2151,13 @@ ${JSON.stringify(targetNode.originalBeats)}
 
   nextStoryBeat() {
     if (this.isAIGenerating) return;
+    if (this.modalIllustration?.classList.contains("open")) return;
     if (this.choiceOverlay.classList.contains("visible")) return;
     this.playNextInQueue();
   }
 
   displayDialogue(speaker, sub, type, text, stagePos = "center", illustrationData = null) {
+    this.closeIllustration(false);
     illustrationData = this.resolveIllustrationData(illustrationData);
     speaker = speaker || "跑团GM";
     text = String(text || "");
@@ -2130,46 +2172,16 @@ ${JSON.stringify(targetNode.originalBeats)}
 
     this.currentFullText = text;
     if (this.typeTimer) clearInterval(this.typeTimer);
-    this.currentSceneIllustration = illustrationData?.id
-      ? this.getIllustrationRegistry()?.resolve(illustrationData.id) || this.getSceneIllustration()
-      : this.getSceneIllustration();
+    this.refreshStageBackground();
+    this.activeIllustration = illustrationData ? {...illustrationData, description: illustrationData.description || text} : null;
+    if (this.btnViewIllustration) this.btnViewIllustration.hidden = !this.activeIllustration;
 
-    // 套图的使用方法和特效一样在独立段落展示
+    // Illustration beats use a separate modal; the reading area contains only text.
     if (illustrationData) {
       this.isTyping = false;
-      const relPath = illustrationData.relativePath || "";
-      this.typewriterText.innerHTML = `
-        <div class="dialogue-illustration-card" role="button" tabindex="0" aria-label="放大查看${escapeHTML(illustrationData.title)}">
-          <div class="illustration-thumb-wrap">
-            <img src="${escapeHTML(relPath)}" alt="${escapeHTML(illustrationData.title)}" class="illustration-inline-svg" />
-            <span class="illustration-load-error" hidden>插图暂时不可用，您可以继续阅读。</span>
-          </div>
-          <div class="illustration-card-content">
-            <div class="illustration-badge-row">
-              <span class="illustration-card-badge">${escapeHTML(illustrationData.symbol || "🖼️")} ${escapeHTML(illustrationData.categoryName || "阵营专属套图")}</span>
-              <span style="font-size:0.75rem; color:var(--text-dim);">${escapeHTML(illustrationData.factionName)}</span>
-            </div>
-            <div class="illustration-card-title">${escapeHTML(illustrationData.title)}</div>
-            <div class="illustration-text-desc">${escapeHTML(illustrationData.description || text)}</div>
-            <div class="illustration-view-pill">🔍 点击全屏品鉴史诗画卷</div>
-          </div>
-        </div>
-      `;
-      const card = this.typewriterText.firstElementChild;
-      const open = () => this.showIllustration(
-        illustrationData.title || "", illustrationData.description || text, "divine_gold", relPath
-      );
-      card?.addEventListener("click", event => {event.stopPropagation(); open();});
-      card?.addEventListener("keydown", event => {
-        if (event.key === "Enter" || event.key === " ") {event.preventDefault(); event.stopPropagation(); open();}
-      });
-      const image = card?.querySelector("img");
-      image?.addEventListener("error", () => {
-        image.hidden = true;
-        const fallback = card.querySelector(".illustration-load-error");
-        if (fallback) fallback.hidden = false;
-      });
+      this.typewriterText.textContent = text || illustrationData.description || illustrationData.title || "";
       this.finishTyping();
+      this.showIllustration(illustrationData.title || "", illustrationData.description || text, "divine_gold", illustrationData.relativePath);
       return;
     }
 
@@ -2199,7 +2211,7 @@ ${JSON.stringify(targetNode.originalBeats)}
     this.continuePrompt.style.opacity = "1";
 
     if (this.isAIGenerating) {
-      this.continuePrompt.innerHTML = `<span style="color:#38bdf8; font-weight:700;">⚡ DeepSeek-V4.1-Flash 局势推演中，请稍候……</span>`;
+      this.continuePrompt.innerText = "推演中，请稍候……";
       return;
     }
 
@@ -2209,7 +2221,7 @@ ${JSON.stringify(targetNode.originalBeats)}
       this.continuePrompt.innerText = "▼ 点击做出你的决断";
     }
 
-    if (this.autoPlay && !this.choiceOverlay.classList.contains("visible")) {
+    if (this.autoPlay && !this.choiceOverlay.classList.contains("visible") && !this.modalIllustration?.classList.contains("open")) {
       clearTimeout(this.autoTimer);
       this.autoTimer = setTimeout(() => this.nextStoryBeat(), 1800);
     }
@@ -3200,6 +3212,7 @@ ${JSON.stringify(targetNode.originalBeats)}
       coords: this.currentCoords,
       faction: this.currentFaction,
       storyNodeId: this.currentStoryNodeId,
+      stageBackground: this.stageBackground ? {id: this.stageBackground.id} : null,
       branchDepth: this.branchDepth || 0,
       backlogLength: (this.backlog || []).length,
       vector: JSON.parse(JSON.stringify(this.ideologyVector)),
@@ -3225,6 +3238,8 @@ ${JSON.stringify(targetNode.originalBeats)}
     this.dangerTicks = knot.dangerTicks;
     this.currentCoords = knot.coords;
     this.currentFaction = knot.faction || this.currentFaction;
+    const background = this.getIllustrationRegistry()?.resolve(knot.stageBackground?.id);
+    this.stageBackground = background ? {id: background.id} : null;
     if (knot.storyNodeId) {
       this.currentStoryNodeId = knot.storyNodeId;
     }
@@ -3327,6 +3342,7 @@ ${JSON.stringify(targetNode.originalBeats)}
     if (!WORLD_PRESETS.thinMaps[key]) return;
     this.abandonTurnForNavigation();
     this.currentCoords = key;
+    this.stageBackground = null;
     this.closeDrawer(this.drawerMap);
     const mapData = WORLD_PRESETS.thinMaps[key];
     const targetFaction = mapData.faction || this.currentFaction;
@@ -3416,6 +3432,7 @@ ${JSON.stringify(targetNode.originalBeats)}
 
   // 2. 开启新篇 (New Game)
   startNewGame(factionId) {
+    this.stageBackground = null;
     this.abandonTurnForNavigation();
     this.gameState = "PLAYING";
     this.hasActiveProgress = true;
@@ -3488,6 +3505,8 @@ ${JSON.stringify(targetNode.originalBeats)}
       this.currentFaction = saved.currentFaction || "ming";
       this.currentTurn = saved.currentTurn || 1;
       this.currentCoords = saved.currentCoords || WORLD_PRESETS.factions[this.currentFaction].defaultCoords;
+      const background = this.getIllustrationRegistry()?.resolve(saved.stageBackground?.id);
+      this.stageBackground = background ? {id: background.id} : null;
       this.dangerTicks = saved.dangerTicks !== undefined ? saved.dangerTicks : 1;
       this.ideologyVector = saved.ideologyVector || { authority: 2, pragmatism: 3, progress: 2, cognition: 1 };
       this.inventory = saved.inventory || JSON.parse(JSON.stringify(WORLD_PRESETS.initialCards));
@@ -3556,6 +3575,7 @@ ${JSON.stringify(targetNode.originalBeats)}
 
   // 4. 返回主界面 (Return to Title)
   returnToTitle() {
+    this.closeIllustration(false);
     this.cancelAIRequest();
     this.saveGameState();
 
@@ -3773,10 +3793,11 @@ ${JSON.stringify(targetNode.originalBeats)}
      * screen_flash: { "color": "white|red|gold" }
      * screen_shake: { "intensity": "light|medium|heavy", "duration": 500 }
      * weather_effect: { "type": "blizzard|rain|clear" }
-   - 插画可选：先用 list_illustrations 按场景、标签或画面设定查询，再用 select_illustration 选择准确 id。画面地域不等于玩家阵营，可按实际处境跨目录选图。
+   - 两种独立演出工具：set_scene_background 只设置舞台背景，不开弹窗、不插入正文段；select_illustration 只安排互动图片弹窗，不改背景。两者可选不同图，也可各自单独使用或清除，不能互相代替。
+   - 先用 list_illustrations 按场景、标签或画面设定查询准确 id。画面地域不等于玩家阵营，可按实际处境跨目录选图。背景用于交代持续环境，弹窗用于独立展示事件或特写，不要把每张背景都再弹一次。
    - select_illustration 的 afterBeat=0 表示正文前、1 表示第一段正文后；按原始正文段落计数，不是阅读分页。可为不同位置选择不同图，同位置后一次覆盖，clear:true 清空本轮选图。
-   - 图片只随成功交付进入阅读队列，点击才放大。图片、图片说明、工具结果、JSON 和思考不计入交付正文字数；无合适图时照常交付正文，不猜句柄、不传图片 URL。
-   - 兼容 JSON 交付：stage_effects 可写 {"name":"show_illustration","params":{"id":"qing_night_raid","afterBeat":1,"caption":"营栅外的夜色"}}。画面描述不能替正文断定罪责、胜负或人物忠诚。
+   - 两种演出都只在本轮正文成功交付后提交。背景持续到被更换或清除；弹窗到达指定正文位置时打开，关闭后继续阅读，可通过画卷按钮重看，不在正文框中嵌图卡。图片、说明、工具、JSON 和思考都不属于正文；无合适图时照常创作，不猜句柄、不传图片 URL。
+   - 兼容 JSON 交付：背景用 {"name":"set_scene_background","params":{"id":"qing_campaign_map"}}，clear:true 恢复静态场景背景；互动图片弹窗用 {"name":"show_illustration","params":{"id":"qing_night_raid","afterBeat":1,"caption":"营栅外的夜色"}}。画面描述不能替正文断定罪责、胜负或人物忠诚。
    - 当前登记句柄（详细描述与匹配建议由 list_illustrations 查询）：
 ${toolLines || "     当前图库不可用，正文可继续。"}
 4. 行动抉择（choices）：
@@ -3896,6 +3917,7 @@ ${currentProfile.npcRoster}`;
       ideology: {...this.ideologyVector},
       currentScene: {
         id: String(this.currentStoryNodeId || ""),
+        backgroundId: this.getSceneIllustration()?.id || null,
         title: typeof scene?.title === "string" ? scene.title : "",
         beats: (Array.isArray(scene?.originalBeats) ? scene.originalBeats : []).map(beat => ({
           speaker: typeof beat?.speaker === "string" ? beat.speaker : "旁白",
@@ -3918,34 +3940,6 @@ ${currentProfile.npcRoster}`;
       modelCalls: Number.isSafeInteger(event.modelCalls) ? event.modelCalls : (previous.modelCalls || 0),
       toolCalls: Number.isSafeInteger(event.toolCalls) ? event.toolCalls : (previous.toolCalls || 0)
     };
-    this.renderAIHarnessProgress();
-  }
-
-  renderAIHarnessProgress() {
-    const progress = this.aiHarnessProgress;
-    if (!progress || !this.aiHarnessProgressDisplay) return;
-    const phases = {
-      preparing: "正在准备剧情工具", model_start: "等待模型回复", model_end: "模型回复已接收", tool_start: "正在运行剧情工具",
-      tool_end: "工具结果已返回模型", plugin_error: "插件报告错误，已反馈模型",
-      delivery_check: "正在检查剧情格式", delivered: "剧情已交付"
-    };
-    const tools = {read_world: "读取本轮世界资料", read_draft: "读取草稿", write_draft: "记录剧情草稿", inspect_draft: "查看草稿概况", deliver_story: "交付剧情", list_illustrations: "查找场景插图", select_illustration: "暂存本轮场景插图"};
-    const phase = progress.phase === "tool_start" && tools[progress.tool] ? `正在${tools[progress.tool]}` : (phases[progress.phase] || "等待模型回复");
-    const now = Date.now();
-    const elapsed = (Math.max(0, now - (progress.startedAt ?? now)) / 1000).toFixed(1);
-    const waiting = Math.max(0, now - (progress.phaseStartedAt ?? progress.startedAt ?? now));
-    const waitText = progress.phase === "model_start" ? ` · 本次等待 ${(waiting / 1000).toFixed(1)} 秒` : "";
-    const hint = progress.phase === "model_start" && waiting >= 30000 ? "\n服务尚未返回本次回复，可继续等待或取消本次生成。" : "";
-    const source = progress.sourceLabel ? `${progress.sourceLabel} · ` : "";
-    const phaseText = `${source}${phase} · 模型 ${progress.modelCalls} 次 · 工具 ${progress.toolCalls} 次`;
-    const clockText = ` · 耗时 ${elapsed} 秒${waitText}${hint}`;
-    const phaseNode = this.aiHarnessProgressDisplay.querySelector?.("#ai-harness-phase");
-    const clockNode = this.aiHarnessProgressDisplay.querySelector?.("#ai-harness-clock");
-    if (phaseNode && clockNode) {
-      // Announce actual phase changes; a one-second clock must not keep interrupting a screen reader.
-      if (phaseNode.textContent !== phaseText) phaseNode.textContent = phaseText;
-      clockNode.textContent = clockText;
-    } else this.aiHarnessProgressDisplay.textContent = phaseText + clockText;
   }
 
   // 异步调用模型；只对完整交付执行规范化、历史写入和舞台效果。
@@ -4348,9 +4342,9 @@ ${currentProfile.npcRoster}`;
     const task = mode === "suture" ? "弥合" : "剧情";
     const channel = route?.source || AIProviders.normalizeConfig(this.apiConfig).source;
     const message = (error?.code || error?.message) === "request_cancelled" ? "已取消本次请求，保留原行动供重试" :
-      state === "success" ? `最近一轮 AI ${task}已生成${model ? `（${model}）` : ""}` :
+      state === "success" ? `最近一轮 AI ${task}已生成` :
       state === "local" ? "本轮由本地剧情继续，未调用远端 AI" :
-      state === "requesting" ? `正在请求 AI ${task}，尚未收到结果` :
+      state === "requesting" ? "推演中，请稍候。" :
       mode === "suture" ? `本轮已使用本地弥合：${this.describeAIError(error)}` : `本轮剧情尚未交付：${this.describeAIError(error)}`;
     this.aiRequestStatus = {state, mode, channel, sourceIdentity: route?.identity || null,
       revision, model: String(model || ""), message};
@@ -4361,31 +4355,11 @@ ${currentProfile.npcRoster}`;
     let route = null, routeError = null;
     try { route = this.resolveAIProvider(); } catch (error) { routeError = error; }
     const mode = !this.apiConfig.enabled ? "你已选择本地剧情，可在本机设置切换远端 AI。" :
-      routeError ? `当前来源配置无效：${this.describeAIError(routeError)}` : `当前使用${route.label} · 模型 ${route.model}。`;
+      routeError ? `当前来源配置无效：${this.describeAIError(routeError)}` : "个人 AI 已启用。";
     const currentStatus = this.aiRequestStatus && (!this.aiRequestStatus.sourceIdentity || this.aiRequestStatus.sourceIdentity === route?.identity)
       ? this.aiRequestStatus : null;
     const request = currentStatus?.message || "当前来源尚未进行真实 AI 生成。";
-    if (this.aiConnectionStatus) this.aiConnectionStatus.textContent = [mode, request].filter(Boolean).join("\n");
-    if (this.aiGenerationMetricsDisplay) {
-      const metrics = this.aiGenerationMetrics && (!this.aiGenerationMetrics.sourceIdentity || this.aiGenerationMetrics.sourceIdentity === route?.identity)
-        ? this.aiGenerationMetrics : null;
-      if (metrics) {
-        const tokens = metrics.completionTokens === null ? "未知" : String(metrics.completionTokens);
-        const finish = metrics.harness?.mode === "agent" ? "交付完成" : (metrics.finishReason || "未知（尚不能确认完整结束）");
-        const supplied = metrics.displayChoiceCount === undefined ? "" : `（界面共 ${metrics.displayChoiceCount} 项）`;
-        const harness = metrics.harness || {mode: "compatibility", modelCalls: 1, toolCalls: 0};
-        const runMode = harness.mode === "agent" ? "插件式工具循环" : "单次请求兼容模式";
-        const cacheKnown = harness.cacheUsageKnown !== false && this.cacheTelemetry?.cacheUsageKnown !== false;
-        const hit = Number(harness.cacheHitTokens ?? this.cacheTelemetry?.lastHitTokens) || 0;
-        const miss = Number(harness.cacheMissTokens ?? this.cacheTelemetry?.lastMissTokens) || 0;
-        const cache = cacheKnown ? `累计缓存命中 ${hit} Token / 新算 ${miss} Token` : "供应商未提供缓存统计";
-        this.aiGenerationMetricsDisplay.textContent = `最近一次有效${metrics.mode === "suture" ? "弥合" : "剧情"}：${metrics.beatCount} 段 / ${metrics.choiceCount} 个模型选项${supplied}\n${runMode} · 模型 ${harness.modelCalls || 0} 次 · 工具 ${harness.toolCalls || 0} 次 · 总耗时 ${(metrics.elapsedMs / 1000).toFixed(1)} 秒\n${cache} · 完成 Token ${tokens} · 结束原因 ${finish}`;
-      } else {
-        this.aiGenerationMetricsDisplay.textContent = "本轮尚无有效 AI 剧情指标。";
-      }
-    }
-    if (this.cacheStatusTag) this.cacheStatusTag.innerText = currentStatus?.state === "success" ?
-      `最近一次生成 · 命中率 ${this.cacheTelemetry.lastHitRate}` : "等待有效 AI 生成 · 暂无本轮缓存指标";
+    if (this.aiConnectionStatus) this.aiConnectionStatus.textContent = currentStatus ? request : mode;
   }
 
   // 网络解析与剧情状态分开：设置中的测试请求不能伪造一次剧情生成。
@@ -4418,14 +4392,6 @@ ${currentProfile.npcRoster}`;
     this.aiGenerationMetrics = null;
     if (this.btnCancelAIRequest) this.btnCancelAIRequest.hidden = false;
     this.aiHarnessProgress = {mode: runner ? "agent" : "compatibility", phase: runner ? "preparing" : "model_start", sourceLabel: route ? `${route.label} · ${route.model}` : "", modelCalls: runner ? 0 : 1, toolCalls: 0, startedAt: Date.now(), phaseStartedAt: Date.now()};
-    if (this.aiHarnessProgressDisplay) {
-      this.aiHarnessProgressDisplay.hidden = false;
-      this.renderAIHarnessProgress();
-    }
-    // This is a display clock, not a request deadline or an automatic retry.
-    const progressClock = setInterval(() => {
-      if (this.activeAIRequestController === controller && !controller.signal.aborted) this.renderAIHarnessProgress();
-    }, 1000);
     let timedOut = false;
     const timer = useGateway || runner ? null : setTimeout(() => {
       timedOut = true;
@@ -4444,12 +4410,10 @@ ${currentProfile.npcRoster}`;
       if (failure.code !== "source_changed") this.setAIRequestStatus("fallback", mode, failure, "", route, revision);
       throw failure;
     } finally {
-      clearInterval(progressClock);
       if (timer !== null) clearTimeout(timer);
       if (this.activeAIRequestController === controller) {
         this.activeAIRequestController = null;
         if (this.btnCancelAIRequest) this.btnCancelAIRequest.hidden = true;
-        if (this.aiHarnessProgressDisplay) this.aiHarnessProgressDisplay.hidden = true;
       }
     }
   }
@@ -4477,15 +4441,13 @@ ${currentProfile.npcRoster}`;
     // 对未保存的表单快照发起独立短请求，不写配置、存档、剧情历史或缓存遥测。
     const testedConfig = this.readAISettingsConfig();
     let route = null;
-    const channel = "自定义通道";
     const version = this.aiConnectionTestFormVersion || 0;
-    const started = Date.now();
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 45000);
     this.aiConnectionTestRunning = true;
     this.btnTestAiConnection.disabled = true;
     this.btnTestAiConnection.textContent = "测试中…";
-    this.aiConnectionTestStatus.textContent = `正在测试${channel}，等待模型回复…`;
+    this.aiConnectionTestStatus.textContent = "正在测试连接…";
     try {
       route = this.resolveAIProvider(testedConfig);
       const messages = [
@@ -4498,11 +4460,9 @@ ${currentProfile.npcRoster}`;
       let result;
       try { result = JSON.parse(data?.choices?.[0]?.message?.content); } catch { throw new Error("invalid_test_response"); }
       if (!Array.isArray(result?.reconciledBeats) || !result.reconciledBeats.some(beat => typeof beat?.text === "string" && beat.text.trim())) throw new Error("invalid_test_response");
-      let actualModel = typeof data.model === "string" ? data.model.replace(/[\r\n\t]/g, " ").slice(0, 100) : route.model;
-      if (testedConfig.apiKey) actualModel = actualModel.split(testedConfig.apiKey).join("[已隐藏]");
-      this.aiConnectionTestStatus.textContent = `测试成功 · ${channel} · ${actualModel} · ${((Date.now() - started) / 1000).toFixed(1)} 秒\n已收到有效模型回复。`;
+      this.aiConnectionTestStatus.textContent = "测试成功，已收到有效回复。";
     } catch (error) {
-      this.aiConnectionTestStatus.textContent = `测试失败 · ${channel} · ${this.describeAIError(error)}\n耗时 ${((Date.now() - started) / 1000).toFixed(1)} 秒，可修改配置后重试。`;
+      this.aiConnectionTestStatus.textContent = `测试失败：${this.describeAIError(error)}。可修改配置后重试。`;
     } finally {
       clearTimeout(timer);
       this.aiConnectionTestRunning = false;
@@ -4516,46 +4476,12 @@ ${currentProfile.npcRoster}`;
     }
   }
 
-  // 健康检查只证明网关已就绪；有效生成返回后才展示本轮 AI 与缓存结果。
+  // Keep connection/error notices separate from internal generation telemetry.
   updateCachePillUI() {
     this.updateAIConnectionStatusUI();
-    if (!this.qmCache) return;
-    const hasLive = this.hasLiveAIRoute();
-    let route = null;
-    try { route = this.resolveAIProvider(); } catch (_) {}
-    const status = this.aiRequestStatus && (!this.aiRequestStatus.sourceIdentity || this.aiRequestStatus.sourceIdentity === route?.identity)
-      ? this.aiRequestStatus : null;
-    this.qmCache.classList.remove("hit");
-    this.qmCache.title = status?.message || "当前来源尚未生成" || "当前使用本地剧情";
-    if (!hasLive) {
-      this.qmCache.innerText = this.apiConfig.enabled ? "⚠ 当前来源未配置完整 · 待处理" : "⚡ 缓存: 本地模式";
-    } else if (status?.state === "fallback") {
-      this.qmCache.innerText = status.mode === "suture" ? "⚠ 本轮使用本地弥合 · 设置可查看原因" : "⚠ 本轮尚未交付 · 可重试或改用本地";
-    } else if (status?.state === "requesting") {
-      this.qmCache.innerText = "⚡ AI 请求中 · 尚未生成";
-    } else if (status?.state === "local") {
-      this.qmCache.innerText = "本轮为本地剧情 · 未调用 AI";
-    } else if (status?.state === "success") {
-      this.qmCache.innerText = this.cacheTelemetry.cacheUsageKnown === false
-        ? "⚡ AI 已生成 · 未提供缓存统计" : `⚡ AI 已生成 · 命中 ${this.cacheTelemetry.lastHitRate || "0.0%"}`;
-      this.qmCache.classList.add("hit");
-    } else {
-      this.qmCache.innerText = "⚡ 个人 AI 已配置 · 待生成";
-    }
   }
 
-  // 5. 更新设置抽屉中的遥测指标
   updateCacheTelemetryUI() {
-    let route = null;
-    try { route = this.resolveAIProvider(); } catch (_) {}
-    const known = this.cacheTelemetry.cacheUsageKnown !== false && (!this.cacheTelemetry.sourceIdentity || this.cacheTelemetry.sourceIdentity === route?.identity)
-      && Number.isFinite(this.cacheTelemetry.lastHitTokens) && Number.isFinite(this.cacheTelemetry.lastMissTokens);
-    if (this.cmHitRate) this.cmHitRate.innerText = known ? this.cacheTelemetry.lastHitRate : "未提供";
-    if (this.cmHitTokens) this.cmHitTokens.innerText = known ? `${this.cacheTelemetry.lastHitTokens.toLocaleString()} tks` : "未提供";
-    if (this.cmMissTokens) this.cmMissTokens.innerText = known ? `${this.cacheTelemetry.lastMissTokens.toLocaleString()} tks` : "未提供";
-    if (this.cacheStatusTag) {
-      this.cacheStatusTag.innerText = `四层对齐 · 命中率 ${this.cacheTelemetry.lastHitRate}`;
-    }
     this.updateCachePillUI();
   }
 }

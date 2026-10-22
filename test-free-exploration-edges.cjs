@@ -198,7 +198,7 @@ test("compatibility mode retains short Unicode dialogue across beats without mea
   assert.deepEqual(effects, [{tool: "screen_flash", params: {color: "gold"}}]);
 });
 
-test("metrics retain token, timing and story structure while omitting prose character totals and target checks", async () => {
+test("metrics retain token, timing and story structure internally without rendering diagnostic logs", async () => {
   const e = engine();
   global.fetch = async () => response({beats: [{speaker: "旁白", text: "你 A。\n\t山河！"}, {type: "illustration", text: "插画说明不算正文"}], choices: [null], deliberation: "模型局势思考不算正文"});
   await turn(e);
@@ -211,16 +211,15 @@ test("metrics retain token, timing and story structure while omitting prose char
   assert.equal(e.aiGenerationMetrics.finishReason, "stop");
   assert.equal(e.aiGenerationMetrics.expectedLength, undefined);
   assert.ok(e.aiGenerationMetrics.elapsedMs >= 0);
-  assert.match(e.aiGenerationMetricsDisplay.textContent, /最近一次有效剧情/);
-  assert.match(e.aiGenerationMetricsDisplay.textContent, /完成 Token 1234/);
-  assert.doesNotMatch(e.aiGenerationMetricsDisplay.textContent, /字数|字符|汉字|中文|达标|已达目标|未达目标|正文偏短/);
+  assert.equal(e.aiGenerationMetricsDisplay.textContent, "");
+  assert.equal(e.qmCache.innerText, "");
 });
 
 test("an absent finish reason is reported as unknown, never as confirmed complete", async () => {
   const e = engine(); global.fetch = async () => response(story(), null);
   await turn(e);
   assert.equal(e.aiGenerationMetrics.finishReason, null);
-  assert.match(e.aiGenerationMetricsDisplay.textContent, /结束原因 未知/);
+  assert.equal(e.aiGenerationMetricsDisplay.textContent, "", "An unknown finish reason must stay internal rather than create a log panel");
 });
 
 test("changing the UI preference while waiting changes only future prompts and never blocks a short response", async () => {

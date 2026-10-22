@@ -30,6 +30,7 @@ function options(extra = {}) {
 }
 const storyOf = result => JSON.parse(result.data.choices[0].message.content);
 const imageEffects = story => story.stage_effects.filter(effect => effect.name === "show_illustration");
+const backgroundEffects = story => story.stage_effects.filter(effect => effect.name === "set_scene_background");
 async function createHost() {
   return createPluginHost(options({context: {world: {faction: "qing"}, illustrations: structuredClone(assets)}}));
 }
@@ -111,6 +112,75 @@ test("selected art and a short manuscript deliver in one model call without leng
   assert.equal(result.harness.hanCharacters, undefined);
   assert.deepEqual(storyOf(result).beats.map(beat => beat.text), ["门闩未动。"]);
   assert.equal(imageEffects(storyOf(result)).length, 1);
+  assert.deepEqual(backgroundEffects(storyOf(result)), [], "A popup selection cannot implicitly change the background");
+});
+
+test("background tool and popup selections retain independent state, validation and clears", async () => {
+  const host = await createHost();
+  const set = args => host.invoke("set_scene_background", args).then(output => output.result);
+  const popup = args => host.invoke("select_illustration", args).then(output => output.result);
+  try {
+    assert.deepEqual((await set({id:"qing_night_raid"})).backgroundChange, {id:"qing_night_raid"});
+    assert.deepEqual((await popup({id:"qing_holding_cell"})).selections.map(item => item.id), ["qing_holding_cell"]);
+    for (const invalid of [{id:"unknown_scene"}, {id:"https://example.com/image.webp"}, {id:"qing_prisoner_escort", caption:"popup-only"}, {}]) {
+      assert.equal((await set(invalid)).ok, false, JSON.stringify(invalid));
+    }
+    const clearedPopup = await popup({clear:true});
+    assert.deepEqual(clearedPopup.selections, []);
+    assert.deepEqual((await set({id:"qing_night_raid"})).backgroundChange, {id:"qing_night_raid"});
+    await popup({id:"qing_holding_cell"});
+    assert.deepEqual((await set({clear:true})).backgroundChange, {clear:true});
+    assert.deepEqual((await popup({id:"qing_holding_cell"})).selections.map(item => item.id), ["qing_holding_cell"],
+      "Clearing the background cannot clear popup selections");
+  } finally {host.dispose();}
+});
+
+test("background-only delivery changes only the explicit background effect and preserves prose beats", async () => {
+  const original = narrative("背景切换后，正文照常交付。");
+  const result = await createGameHarness(options({model:async () => calls([
+    {name:"set_scene_background", args:{id:"qing_night_raid"}},
+    {name:"write_draft", args:{story:original}}, {name:"deliver_story"}
+  ])}));
+  const delivered = storyOf(result);
+  assert.deepEqual(backgroundEffects(delivered), [{name:"set_scene_background", params:{id:"qing_night_raid"}}]);
+  assert.deepEqual(imageEffects(delivered), []);
+  assert.deepEqual(delivered.beats.map(beat => beat.text), original.beats.map(beat => beat.text));
+});
+
+test("one native delivery batch can request a background and a different popup after delivery", async () => {
+  const result = await createGameHarness(options({model:async () => calls([
+    {name:"write_draft", args:{story:narrative("各自负责自己的画面。")}}, {name:"deliver_story"},
+    {name:"set_scene_background", args:{id:"qing_night_raid"}},
+    {name:"select_illustration", args:{id:"qing_holding_cell", afterBeat:0}}
+  ])}));
+  assert.deepEqual(backgroundEffects(storyOf(result)), [{name:"set_scene_background", params:{id:"qing_night_raid"}}]);
+  assert.deepEqual(imageEffects(storyOf(result)).map(effect => effect.params.id), ["qing_holding_cell"]);
+});
+
+test("popup clear leaves background change while background clear leaves popup selection", async () => {
+  for (const clearTool of ["select_illustration", "set_scene_background"]) {
+    const result = await createGameHarness(options({model:async () => calls([
+      {name:"set_scene_background", args:{id:"qing_night_raid"}},
+      {name:"select_illustration", args:{id:"qing_holding_cell"}},
+      {name:clearTool, args:{clear:true}}, {name:"write_draft", args:{story:narrative("清除操作互不干扰。")}}, {name:"deliver_story"}
+    ])}));
+    const delivered = storyOf(result);
+    assert.deepEqual(backgroundEffects(delivered), [{name:"set_scene_background",
+      params:clearTool === "set_scene_background" ? {clear:true} : {id:"qing_night_raid"}}]);
+    assert.equal(imageEffects(delivered).length, clearTool === "select_illustration" ? 0 : 1);
+  }
+});
+
+test("cancelled background and popup drafts cannot leak into the next independent request", async () => {
+  const controller = new AbortController();
+  await assert.rejects(createGameHarness(options({signal:controller.signal,
+    onEvent(event) {if (event.type === "tool_end" && event.tool === "set_scene_background") controller.abort();},
+    model:async () => calls([{name:"select_illustration", args:{id:"qing_holding_cell"}},
+      {name:"write_draft", args:{story:narrative("这份草稿不会提交。")}}, {name:"deliver_story"},
+      {name:"set_scene_background", args:{id:"qing_night_raid"}}])
+  })), error => error.code === "request_cancelled");
+  const next = await createGameHarness(options({model:async () => completion(narrative("新回合保留既有舞台。"))}));
+  assert.deepEqual(backgroundEffects(storyOf(next)), []); assert.deepEqual(imageEffects(storyOf(next)), []);
 });
 
 test("clear selection before a valid compatibility delivery leaves no pending illustration", async () => {

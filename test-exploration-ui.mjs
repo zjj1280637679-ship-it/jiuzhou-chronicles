@@ -75,8 +75,15 @@ async function closeSettings(page) {
   await page.click("#btn-close-settings");
   await page.waitForFunction(() => !document.querySelector("#drawer-settings").classList.contains("open"));
 }
+async function closeIllustrationIfOpen(page) {
+  if (await page.locator("#modal-illustration").evaluate(node => node.classList.contains("open"))) {
+    await page.click("#btn-close-illustration");
+    await page.waitForFunction(() => !document.querySelector("#dialogue-content").closest("[inert]"));
+  }
+}
 async function toChoices(page, size) {
   for (let i = 0; i < 180; i++) {
+    await closeIllustrationIfOpen(page);
     if (await page.locator("#choice-overlay").evaluate(el => el.classList.contains("visible"))) return;
     await page.click(size.mobile ? "#mobile-next" : "#dialogue-box");
   }
@@ -126,6 +133,7 @@ async function reloadContinue(page) {
   await page.waitForFunction(() => Boolean(window.__vnEngine?.apiConfig));
   await page.click("#title-btn-continue");
   await page.waitForFunction(() => window.__vnEngine.gameState === "PLAYING");
+  await closeIllustrationIfOpen(page);
 }
 async function shot(page, size, phase) {
   if (shots) await page.screenshot({path:join(shots, `${size.name}-${phase}.png`)});
@@ -197,10 +205,11 @@ try {
       await page.click("#btn-close-swarm");
 
       await openSettings(page, size, true);
-      for (const id of ["settings-generation-advanced", "settings-diagnostics", "settings-compatibility"])
+      for (const id of ["settings-generation-advanced", "settings-compatibility"])
         assert.equal(await page.locator("#" + id).getAttribute("open"), null, `${id} must start folded`);
       assert.equal(await page.locator("#setting-max-tokens").isVisible(), false);
-      assert.equal(await page.locator("#ai-generation-metrics").isVisible(), false);
+      assert.equal(await page.locator("#ai-generation-metrics, #ai-harness-progress, #cache-telemetry-box, #settings-diagnostics, #qm-cache").count(), 0,
+        "Runtime logs, generation metrics and cache diagnostics are removed from the UI");
       await reachable(page, "#btn-save-settings"); await reachable(page, "#btn-test-ai-connection");
 
       await page.fill("#setting-endpoint", "https://exploration.fixture/v1");
@@ -209,7 +218,7 @@ try {
       await page.click("#settings-compatibility > summary"); await page.selectOption("#setting-api-adapter", "openai");
       await page.selectOption("#setting-token-parameter", "max_completion_tokens");
       await page.click("#settings-generation-advanced > summary"); await page.fill("#setting-max-tokens", "4096");
-      await page.click("#settings-diagnostics > summary"); assert.equal(await page.locator("#btn-retry-shared-ai").count(), 0);
+      assert.equal(await page.locator("#btn-retry-shared-ai").count(), 0);
       await page.click("#btn-test-ai-connection");
       await page.waitForFunction(() => document.querySelector("#ai-connection-test-status").textContent.includes("测试成功"));
       assert.equal(probeCalls, 1); assert.equal(customCalls, 1); assert.equal(bodies.length, 0);
@@ -222,11 +231,13 @@ try {
       await page.check("#setting-enable-api"); await page.click("#btn-save-settings");
       await page.waitForFunction(() => !document.querySelector("#drawer-settings").classList.contains("open"));
       await page.click("#title-btn-start"); await page.waitForFunction(() => window.__vnEngine.gameState === "PLAYING");
+      await closeIllustrationIfOpen(page);
       // Set the visible body target through the existing reading UI.
       if (size.mobile) {
         await page.click("#mobile-menu-toggle"); await page.click('.btn-length[data-length="500"]'); await page.click("#mobile-menu-close");
       } else await page.click('.btn-length[data-length="500"]');
       await page.click(size.mobile ? "#mobile-next" : "#dialogue-box");
+      await closeIllustrationIfOpen(page);
 
       const beforeFavorite = await state(page);
       const currentText = await page.evaluate(() => window.__vnEngine.getCurrentReadingScene().text);
@@ -388,7 +399,7 @@ try {
       assert.equal(bodies.length, countBeforeLocal, "Rewinding a saved choice snapshot must not call AI");
 
       // Hold one real UI request at the mocked custom endpoint. The reader must
-      // keep time while no model response exists, then expose the actual 401.
+      // show a simple waiting state without runtime logs, then expose the actual 401.
       await returnToReading(page); await openSettings(page, size);
        await page.click("#btn-save-settings");
       await page.waitForFunction(() => !document.querySelector("#drawer-settings").classList.contains("open"));
@@ -398,25 +409,13 @@ try {
       responseMode = "held-auth";
       await submitAction(page, size, "与粮官逐项复核仓储，暂不改变原有安排。"); await heldStarted;
       await reachable(page, "#btn-cancel-ai-request");
-      assert.equal(await page.locator("#ai-harness-progress").isVisible(), true);
-      // This read-only status intentionally ignores pointer events on desktop;
-      // assess its visible geometry instead of requiring a clickable hit target.
-      const progressBounds = await page.locator("#ai-harness-progress").boundingBox();
-      assert.ok(progressBounds && progressBounds.x >= -1 && progressBounds.y >= -1 &&
-        progressBounds.x + progressBounds.width <= size.width + 1 && progressBounds.y + progressBounds.height <= size.height + 1);
-      assert.equal(await page.locator("#ai-harness-phase").getAttribute("role"), "status");
-      assert.equal(await page.locator("#ai-harness-phase").getAttribute("aria-live"), "polite");
-      assert.equal(await page.locator("#ai-harness-clock").getAttribute("aria-live"), "off");
-      assert.equal(await page.locator("#ai-harness-progress").getAttribute("aria-live"), "off");
-      const announcedPhase = await page.locator("#ai-harness-phase").textContent();
-      const initialProgress = await page.locator("#ai-harness-progress").textContent();
-      await page.waitForFunction(previous => document.querySelector("#ai-harness-progress").textContent !== previous,
-        initialProgress, {timeout:5000});
-      const tickingProgress = await page.locator("#ai-harness-progress").textContent();
-      await page.waitForFunction(previous => document.querySelector("#ai-harness-progress").textContent !== previous,
-        tickingProgress, {timeout:5000});
-      assert.equal(await page.locator("#ai-harness-phase").textContent(), announcedPhase,
-        "A waiting clock must not change the phase announced by the screen reader every second");
+      assert.equal(await page.locator("#ai-harness-progress, #ai-harness-phase, #ai-harness-clock, #ai-generation-metrics, #cache-telemetry-box").count(), 0);
+      assert.doesNotMatch(await page.locator("body").innerText(), /模型\s*\d+\s*次|工具\s*\d+\s*次|本次等待|耗时\s*\d|缓存命中|prompt_cache|completion_tokens/,
+        "Waiting must not render model/tool/time/token/cache logs");
+      if (size.mobile) assert.equal((await page.locator("#mobile-page-position").textContent()).trim(), "推演中");
+      await page.waitForTimeout(1200);
+      assert.doesNotMatch(await page.locator("body").innerText(), /模型\s*\d+\s*次|工具\s*\d+\s*次|本次等待|耗时\s*\d|缓存命中/,
+        "No delayed timer may recreate a diagnostic log");
       assert.equal(bodies.length, countBeforeAuth + 1, "Waiting must not silently retry a pending model request");
       assert.equal(customCalls, customBeforeAuth + 1);
       assert.equal((await pending(page)).status, "running");
@@ -426,7 +425,7 @@ try {
       assert.equal(authAttempt.action, "与粮官逐项复核仓储，暂不改变原有安排。");
       assert.deepEqual(authAttempt.dice, diceIn(bodies.at(-1)));
       assert.deepEqual(await state(page), beforeAuth, "An authentication error must restore the original world");
-      assert.equal(await page.locator("#ai-harness-progress").isVisible(), false);
+      assert.equal(await page.locator("#ai-harness-progress").count(), 0);
       assert.equal(await page.locator("#btn-cancel-ai-request").isVisible(), false);
       assert.match(await page.locator("#turn-recovery-panel").textContent(), /认证|密钥|Key|鉴权/);
       if (size.mobile) assert.notEqual(await page.locator("#mobile-page-position").textContent(), "推演中");
@@ -444,7 +443,7 @@ try {
       assert.deepEqual(await state(page), beforeAuth); await closeSettings(page);
       assert.equal(bodies.length, countBeforeAuth + 1, "An authentication error and its settings shortcut must not retry automatically");
       assert.deepEqual(errors, []); assert.deepEqual(unexpected, []);
-      console.log(`PASS ${size.name}: honest preset-persona reference; settings → direct empty-key API test/save; favorites persistence/dedupe/delete; retry original dice/one settlement; choices survive reading/home/reload/discard and restore on rewind; reload/collapse/reopen/local; quota notice/last good save/export/import/preview/restore/read; live waiting clock then 401 cleanup/settings shortcut preserves provider/action/dice; all external requests intercepted`);
+      console.log(`PASS ${size.name}: honest preset-persona reference; settings → direct empty-key API test/save; favorites persistence/dedupe/delete; retry original dice/one settlement; choices survive reading/home/reload/discard and restore on rewind; reload/collapse/reopen/local; quota notice/last good save/export/import/preview/restore/read; simple wait without diagnostic logs then 401 cleanup/settings shortcut preserves provider/action/dice; all external requests intercepted`);
     } finally {await context.close();}
   }
 } finally {await browser.close(); await new Promise(done => server.close(done));}

@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>暮灯星栈 · 东方奇幻文字冒险 (Visual Novel & AVG)</title>
-  <link rel="stylesheet" href="styles.css?v=20261022-2200">
-  <link rel="stylesheet" href="mobile.css?v=20261020-theater02">
+  <link rel="stylesheet" href="styles.css?v=20261023-ui04">
+  <link rel="stylesheet" href="mobile.css?v=20261023-ui04">
   <link rel="stylesheet" href="settings.css?v=20261021-0800">
   <link rel="stylesheet" href="favorites.css?v=20261021-0800">
   <link rel="stylesheet" href="recovery-ui.css?v=20261022-0900">
@@ -116,7 +116,6 @@
       <button class="qm-btn" id="qm-map" title="切换薄地图空间坐标">🗺 舆图</button>
       <button class="qm-btn" id="qm-auto" title="开启/关闭自动播放">▶ 自动</button>
       <button class="qm-btn" id="qm-storytree" title="查看法定主剧情树、AI外推分支与动态因果弥合">🌲 剧情树</button>
-      <button class="qm-btn qm-cache-pill" id="qm-cache" title="DeepSeek 前缀缓存监控: 点击查看四层对齐架构与命中指标">⚡ 缓存: 本地模式</button>
       <button type="button" class="qm-btn" id="btn-cancel-ai-request" hidden title="取消本次等待，保留原行动供重试">取消本次生成</button>
       <button type="button" class="qm-btn" id="qm-recovery" hidden>处理未完成行动</button>
       <button class="qm-btn" id="qm-settings" title="连接、生成偏好与进度备份">⚙ 设置</button>
@@ -126,8 +125,6 @@
         <div class="mobile-font-tools"><span>正文字号</span><button type="button" id="mobile-font-decrease" aria-label="缩小正文字号"><img src="data/mobile/icons/minus.svg" alt=""></button><button type="button" id="mobile-font-increase" aria-label="放大正文字号"><img src="data/mobile/icons/plus.svg" alt=""></button></div>
       </section>
     </nav>
-
-    <div class="ai-harness-progress" id="ai-harness-progress" aria-live="off" hidden><span id="ai-harness-phase" role="status" aria-live="polite"></span><span id="ai-harness-clock" aria-live="off"></span></div>
 
     <!-- 3. 环境线香与时相指示器 (替代冰冷的时钟数字) -->
     <div class="incense-clock-hud" id="incense-hud" title="夜巡警戒时相：线香燃尽将引爆危机">
@@ -164,6 +161,7 @@
         <span class="speaker-icon" id="speaker-icon">◆</span>
         <span class="speaker-name" id="speaker-name">旁白</span>
         <span class="speaker-sub" id="speaker-sub">崇文门外 · 鬼市夜市</span>
+        <button type="button" class="illustration-open-button" id="btn-view-illustration" aria-controls="modal-illustration" aria-haspopup="dialog" hidden>画卷</button>
         <button type="button" class="mobile-backlog mobile-only" id="mobile-backlog"><img src="data/mobile/icons/scroll.svg" alt="">卷宗</button>
       </div>
 
@@ -331,6 +329,7 @@
             <h2 id="settings-test-title">连接测试</h2>
             <p class="ai-test-help">使用当前填写的配置，无需先保存。只发送一条简短请求，不推进剧情；使用您填写的端点和凭据。</p>
             <div id="ai-connection-test-status" role="status" aria-live="polite">尚未发送测试请求。</div>
+            <div id="ai-connection-status" role="status" aria-live="polite">当前尚未配置个人 API</div>
           </section>
 
           <section class="settings-section" aria-labelledby="settings-progress-title">
@@ -338,44 +337,7 @@
             <div id="settings-progress-status"></div>
           </section>
 
-          <details class="settings-fold settings-diagnostics" id="settings-diagnostics">
-            <summary>指标与诊断<span>连接状态、生成用量与缓存</span></summary>
-            <div class="settings-fold-body">
-              <div class="ai-connection-test">
-                <h3>服务状态</h3>
-                <div id="ai-connection-status" role="status" aria-live="polite">当前尚未配置个人 API</div>
-              </div>
-              <div class="ai-connection-test">
-                <h3>最近一次有效剧情</h3>
-                <p class="ai-test-help">显示生成耗时、段落、工具与模型用量，不统计或验收字数。取消浏览器等待不能保证模型服务停止计费。</p>
-                <div id="ai-generation-metrics" role="status" aria-live="polite">尚无有效剧情指标。</div>
-              </div>
-              <div class="cache-telemetry-box" id="cache-telemetry-box">
-                <div class="settings-cache-heading">
-                  <h3>所选 API 的请求缓存</h3>
-                  <span class="cache-status-tag" id="cache-status-tag">等待有效生成与实测缓存指标</span>
-                </div>
-                <div class="cache-metrics-row">
-                  <div class="cache-metric-card"><span class="cm-label">最近缓存命中率</span><span class="cm-value" id="cm-hit-rate">--</span></div>
-                  <div class="cache-metric-card"><span class="cm-label">命中 Token</span><span class="cm-value" id="cm-hit-tokens">--</span></div>
-                  <div class="cache-metric-card"><span class="cm-label">新算 Token</span><span class="cm-value" id="cm-miss-tokens">--</span></div>
-                </div>
-                <details class="settings-fold settings-cache-explainer">
-                  <summary>缓存前缀如何安排</summary>
-                  <div class="settings-fold-body">
-                    <p class="ai-test-help">规则、阵营资料与完整近期历史置前，骰子和临时变量置后。实际命中以服务商返回为准。</p>
-                    <div class="cache-layer-indicators">
-                      <div class="cache-layer-badge" title="保持静态规则与工具声明稳定">L1：静态规则前缀</div>
-                      <div class="cache-layer-badge" title="当前阵营背景资料保持稳定">L2：阵营背景前缀</div>
-                      <div class="cache-layer-badge" title="保留完整近期回合">L3：完整近期历史</div>
-                      <div class="cache-layer-badge" title="骰子、临时卡牌与危险刻度置后">L4：易变变量置尾</div>
-                    </div>
-                  </div>
-                </details>
-              </div>
-              <p class="settings-version">当前版本 <span id="settings-version-display">v2.5.0 (Build 2026.10.19)</span></p>
-            </div>
-          </details>
+          <p class="settings-version">当前版本 <span id="settings-version-display">v2.5.0 (Build 2026.10.19)</span></p>
         </div>
         <div class="settings-actions">
           <button type="button" class="qm-btn" id="btn-test-ai-connection">测试请求</button>
@@ -477,12 +439,12 @@
     </aside>
 
     <!-- 抽屉 Modal-Illustration: 视觉小说插图与特写 CG 视窗 (Illustration & CG Lightbox) -->
-    <aside class="drawer-modal illustration-modal" id="modal-illustration">
+    <aside class="illustration-modal" id="modal-illustration" role="dialog" aria-labelledby="illustration-title" aria-hidden="true">
       <div class="illustration-box">
         <div class="illustration-header">
           <span class="illustration-badge">🖼 史诗画卷 · 特写展示</span>
           <span class="illustration-title" id="illustration-title">画卷标题</span>
-          <button class="drawer-close" id="btn-close-illustration">收起画卷 ✕</button>
+          <button type="button" class="drawer-close" id="btn-close-illustration">关闭画卷 ✕</button>
         </div>
         <div class="illustration-canvas-wrap" id="illustration-canvas-wrap">
           <div class="illustration-graphic" id="illustration-graphic"></div>
@@ -593,15 +555,15 @@
   <script src="illustration-system.js?v=20261022-2200"></script>
   <script src="skills-data.js"></script>
   <script src="harness/providers.js?v=20261022-0900"></script>
-  <script src="game-recovery.js?v=20261021-0800"></script>
+  <script src="game-recovery.js?v=20261023-ui04"></script>
   <script src="scene-favorites.js?v=20261021-0800"></script>
-  <script src="harness/protocol.js?v=20261023-body02"></script>
-  <script src="harness/runtime.js?v=20261023-body02"></script>
-  <script src="app.js?v=20261023-body02"></script>
+  <script src="harness/protocol.js?v=20261023-ui04"></script>
+  <script src="harness/runtime.js?v=20261023-ui04"></script>
+  <script src="app.js?v=20261023-ui04"></script>
   <script src="recovery-ui.js?v=20261022-0900"></script>
   <script src="favorites-ui.js?v=20261021-0800"></script>
-  <script src="mobile-ui.js?v=20261022-2200"></script>
-  <script src="settings-ui.js?v=20261021-0800"></script>
+  <script src="mobile-ui.js?v=20261023-ui04"></script>
+  <script src="settings-ui.js?v=20261023-ui04"></script>
   <script src="input-viewport.js?v=20261021-0800"></script>
 </body>
 </html>
