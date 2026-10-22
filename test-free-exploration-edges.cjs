@@ -114,25 +114,106 @@ test("real payload builder transmits the 5000 tier and preserves a long latest a
   await e.callDeepSeekLiveAPI({text: customInput, customInput}, 3, 4, 9, true);
   assert.equal(body.expectedLength, undefined);
   assert.doesNotMatch(body.messages[0].content, /3500~4800|至少\s*5000|少于\s*5000/);
-  assert.match(body.messages.at(-1).content, /至少\s*5000/);
+  assert.match(body.messages.at(-1).content, /5500/);
   assert.match(body.messages.at(-1).content, /最后决定：先救村民/);
   assert.ok(body.max_tokens >= 12288);
 });
 
-test("metrics describe only valid prose, not whitespace, reasoning or synthesized choices", async () => {
+test("the UI tiers remain unchanged while the first request asks for 500 extra prose characters", async () => {
+  for (const target of [500, 2000, 5000]) {
+    const e = engine(); delete e.buildDeepSeekCachePayload;
+    e.expectedLength = target;
+    const requests = [];
+    global.fetch = async (_url, options) => {
+      requests.push(JSON.parse(options.body));
+      return response(story("村民得救。"));
+    };
+    await turn(e);
+    assert.equal(requests.length, 1);
+    const tail = requests[0].messages.at(-1).content;
+    assert.match(tail, new RegExp(String(target + 500)), `${target}: the model receives the preference plus 500 in its first prompt`);
+    assert.match(tail, /beats\[\]\.text/, `${target}: identify the delivered text fields`);
+    for (const excluded of ["JSON", "角色名", "选项", "思考", "工具", "插画"]) {
+      assert.ok(tail.includes(excluded), `${target}: explicitly exclude ${excluded}`);
+    }
+    assert.equal(e.expectedLength, target, "the displayed preference must not be replaced with its prompt allowance");
+    assert.equal(e.aiRequestStatus.state, "success");
+    assert.equal(e.apiHistory.length, 2);
+    assert.equal(e.aiGenerationMetrics.textCharacters, undefined);
+    assert.equal(e.aiGenerationMetrics.hanCharacters, undefined);
+    assert.equal(e.aiGenerationMetrics.expectedLength, undefined);
+  }
+});
+
+test("compatibility mode delivers short prose once while keeping metadata out of the reading queue", async () => {
+  const e = engine(), effects = [];
+  e.expectedLength = 2000;
+  e.apiHistory = [{role: "user", content: "既往行动"}, {role: "assistant", content: "既往剧情"}];
+  const before = structuredClone(e.apiHistory);
+  e.executeAITools = tools => effects.push(...tools);
+  const fixture = story("村民已脱险。\n\t ");
+  fixture.beats[0].speaker = "角色名".repeat(2000);
+  fixture.beats[0].sub = "动作".repeat(2000);
+  for (const type of ["illustration", "tool", "tool_result", "thinking", "reasoning", "metadata", "deliberation"]) {
+    fixture.beats.push({type, text: "不算正文".repeat(1000)});
+  }
+  fixture.choices = [{text: "选项".repeat(2000)}];
+  fixture.deliberation = "思考".repeat(2000);
+  fixture.stage_effects = [{name: "screen_flash", params: {color: "gold"}},
+    {name: "show_illustration", params: {id: "qing_night_raid", caption: "插画说明".repeat(2000)}}];
+  assert.ok(JSON.stringify(fixture).length > 20000);
+  let requests = 0;
+  global.fetch = async () => {requests++; return response(fixture);};
+  const result = await turn(e);
+  assert.equal(requests, 1, "short prose is accepted without an automatic expansion request");
+  assert.deepEqual(e.apiHistory.slice(0, before.length), before);
+  assert.equal(e.apiHistory.length, before.length + 2);
+  assert.equal(result.beats.filter(beat => beat.type !== "illustration").length, 1);
+  assert.equal(result.beats.find(beat => beat.type !== "illustration").text, "村民已脱险。");
+  assert.deepEqual(effects, [{tool: "screen_flash", params: {color: "gold"}}]);
+  assert.equal(e.aiGenerationMetrics.beatCount, 1);
+  assert.equal(e.aiGenerationMetrics.textCharacters, undefined);
+  assert.equal(e.aiRequestStatus.state, "success");
+});
+
+test("compatibility mode retains short Unicode dialogue across beats without measuring its length", async () => {
+  const e = engine(), effects = [];
+  e.expectedLength = 2000;
+  e.executeAITools = tools => effects.push(...tools);
+  const fixture = story("𠮷\n\t ");
+  fixture.beats.push({speaker: "守军", type: "npc", text: "\n 援军到了！\t"});
+  fixture.beats.push({type: "illustration", text: "插画说明不计入正文"});
+  fixture.stage_effects = [{name: "screen_flash", params: {color: "gold"}}];
+  global.fetch = async () => response(fixture);
+  const result = await turn(e);
+  assert.deepEqual(result.beats.map(beat => beat.type), ["narrator", "npc"]);
+  assert.deepEqual(result.beats.map(beat => beat.text), ["𠮷", "援军到了！"]);
+  assert.equal(e.aiGenerationMetrics.textCharacters, undefined);
+  assert.equal(e.aiGenerationMetrics.hanCharacters, undefined);
+  assert.equal(e.aiGenerationMetrics.beatCount, 2);
+  assert.equal(e.aiGenerationMetrics.expectedLength, undefined);
+  assert.equal(e.aiGenerationMetrics.harness.mode, "compatibility");
+  assert.equal(e.aiRequestStatus.state, "success");
+  assert.equal(e.apiHistory.length, 2);
+  assert.deepEqual(effects, [{tool: "screen_flash", params: {color: "gold"}}]);
+});
+
+test("metrics retain token, timing and story structure while omitting prose character totals and target checks", async () => {
   const e = engine();
   global.fetch = async () => response({beats: [{speaker: "旁白", text: "你 A。\n\t山河！"}, {type: "illustration", text: "插画说明不算正文"}], choices: [null], deliberation: "模型局势思考不算正文"});
   await turn(e);
-  assert.equal(e.aiGenerationMetrics.textCharacters, 6);
-  assert.equal(e.aiGenerationMetrics.hanCharacters, 3);
+  assert.equal(e.aiGenerationMetrics.textCharacters, undefined);
+  assert.equal(e.aiGenerationMetrics.hanCharacters, undefined);
   assert.equal(e.aiGenerationMetrics.choiceCount, 0);
   assert.equal(e.aiGenerationMetrics.displayChoiceCount, 4);
   assert.equal(e.aiGenerationMetrics.beatCount, 1);
   assert.equal(e.aiGenerationMetrics.completionTokens, 1234);
   assert.equal(e.aiGenerationMetrics.finishReason, "stop");
-  assert.equal(e.aiGenerationMetrics.expectedLength, 5000);
+  assert.equal(e.aiGenerationMetrics.expectedLength, undefined);
+  assert.ok(e.aiGenerationMetrics.elapsedMs >= 0);
   assert.match(e.aiGenerationMetricsDisplay.textContent, /最近一次有效剧情/);
   assert.match(e.aiGenerationMetricsDisplay.textContent, /完成 Token 1234/);
+  assert.doesNotMatch(e.aiGenerationMetricsDisplay.textContent, /字数|字符|汉字|中文|达标|已达目标|未达目标|正文偏短/);
 });
 
 test("an absent finish reason is reported as unknown, never as confirmed complete", async () => {
@@ -142,21 +223,27 @@ test("an absent finish reason is reported as unknown, never as confirmed complet
   assert.match(e.aiGenerationMetricsDisplay.textContent, /结束原因 未知/);
 });
 
-test("changing the length preference while waiting cannot relabel the in-flight generation metrics", async () => {
-  const e = engine(); let resolveResponse, sentBody;
+test("changing the UI preference while waiting changes only future prompts and never blocks a short response", async () => {
+  const e = engine(); delete e.buildDeepSeekCachePayload;
+  let resolveResponse, sentBody, requests = 0;
   global.fetch = async (_url, options) => {
+    requests++;
     sentBody = JSON.parse(options.body);
     return new Promise(resolve => {resolveResponse = resolve;});
   };
   const pending = turn(e);
   assert.equal(sentBody.expectedLength, undefined);
+  assert.match(sentBody.messages.at(-1).content, /5500/);
   e.expectedLength = 500;
-  resolveResponse(response(story("史".repeat(3600))));
+  resolveResponse(response(story("村民已得救。")));
   await pending;
   assert.equal(e.expectedLength, 500);
-  assert.equal(e.aiGenerationMetrics.expectedLength, 5000);
-  assert.match(e.aiGenerationMetricsDisplay.textContent, /未达目标|正文偏短/);
-  assert.doesNotMatch(e.aiGenerationMetricsDisplay.textContent, /超出偏好/);
+  assert.equal(requests, 1);
+  assert.equal(e.aiRequestStatus.state, "success");
+  assert.equal(e.aiGenerationMetrics.expectedLength, undefined);
+  assert.equal(e.aiGenerationMetrics.textCharacters, undefined);
+  assert.equal(e.apiHistory.length, 2);
+  assert.match(e.buildDeepSeekCachePayload(action, 3, 4, 9, true).ephemeralTail, /1000/);
 });
 
 test("manual cancellation exposes its cause, cleans up and permits a fresh request without retries", async () => {

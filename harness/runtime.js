@@ -35,7 +35,7 @@
       {id: "illustrations", url: new URL("plugins/illustrations.js", baseURL).href}
     ];
     const makeWorker = options.workerFactory || (url => new Worker(url));
-    const assetVersion = "20261022-2200";
+    const assetVersion = "20261023-body02";
     const timeoutMs = options.pluginTimeoutMs ?? 10000;
     const entries = [], registry = new Map();
     let sequence = 0, disposed = false;
@@ -126,16 +126,15 @@
     if (!protocol || typeof options.model !== "function") throw new Error("harness_unconfigured");
     const {signal} = options;
     checkSignal(signal);
-    const targetCharacters = Number.isSafeInteger(options.targetCharacters) && options.targetCharacters > 0 ? options.targetCharacters : 2000;
     const messages = clone(options.messages);
     const stats = {mode: "agent", modelCalls: 0, toolCalls: 0, cacheHitTokens: 0, cacheMissTokens: 0, cacheUsageKnown: true, promptTokens: 0,
-      completionTokens: 0, reasoningTokens: 0, deliveryCharacters: 0, hanCharacters: 0, providerFinishReason: null, events: []};
+      completionTokens: 0, reasoningTokens: 0, beatCount: 0, providerFinishReason: null, events: []};
     const emit = (type, detail = {}) => {
       const event = {type, modelCalls: stats.modelCalls, toolCalls: stats.toolCalls, ...detail};
       stats.events.push(event);
       try { options.onEvent?.(clone(event)); } catch (_) { /* UI listeners cannot break the turn. */ }
     };
-    const host = await createPluginHost({...options, context: {world: clone(options.world || {}), targetCharacters,
+    const host = await createPluginHost({...options, context: {world: clone(options.world || {}),
       illustrations: clone(Array.isArray(options.illustrations) ? options.illustrations : [])}});
     // A selection belongs to this generation only. Neither tools nor drafts change the page.
     let illustrations = [];
@@ -145,10 +144,8 @@
       checkSignal(signal);
       const story = protocol.normalizeStory(delivery);
       story.stage_effects.push(...illustrations.map(selection => ({name: "show_illustration", params: clone(selection)})));
-      const measured = protocol.measureStory(story);
-      stats.deliveryCharacters = measured.textCharacters;
-      stats.hanCharacters = measured.hanCharacters;
-      emit("delivered", {textCharacters: measured.textCharacters, targetCharacters});
+      stats.beatCount = story.beats.length;
+      emit("delivered", {beatCount: stats.beatCount});
       return {data: {model: lastModel, choices: [{message: {role: "assistant", content: JSON.stringify(story)}, finish_reason: "stop"}],
         usage: {...(stats.cacheUsageKnown ? {prompt_cache_hit_tokens: stats.cacheHitTokens, prompt_cache_miss_tokens: stats.cacheMissTokens} : {}),
           prompt_tokens: stats.promptTokens, completion_tokens: stats.completionTokens,
@@ -216,7 +213,7 @@
             if (call.function.name === "select_illustration" && output.result?.ok === true && Array.isArray(output.result.selections)) {
               illustrations = clone(output.result.selections);
             }
-            emit("tool_end", {tool: call.function.name, ...(output.result?.textCharacters !== undefined ? {textCharacters: output.result.textCharacters, targetCharacters} : {})});
+            emit("tool_end", {tool: call.function.name});
             stepResults.push([call.function.name, call.function.arguments, output.result]);
             if (output.delivery) delivery = output.delivery;
           }
@@ -229,10 +226,10 @@
         try {output = await host.acceptDelivery(JSON.parse(message.content));}
         catch (error) {if (signal?.aborted) throw cancelled(); output = failure("invalid_game_response", "请提供合法剧情JSON或使用write_draft与deliver_story工具。");}
         if (output.delivery) return settle(output.delivery);
-        emit("delivery_check", {textCharacters: output.result?.textCharacters || 0, targetCharacters});
+        emit("delivery_check");
         trackProgress(["final", message.content], output);
         if (output.result?.error?.code === "delivery_unavailable") throw new Error("delivery_unavailable");
-        messages.push({role: "assistant", content: message.content}, {role: "user", content: "【剧情交付检查，尚未交付】\n" + JSON.stringify(output.result) + "\n请依据检查继续补写或修订，只计算最终正文，达到目标后再交付。"});
+        messages.push({role: "assistant", content: message.content}, {role: "user", content: "【剧情格式有误，尚未交付】\n" + JSON.stringify(output.result) + "\n请修正剧情对象格式，提供有效的正文 beats[].text 后交付。"});
       }
     } finally {host.dispose();}
   }

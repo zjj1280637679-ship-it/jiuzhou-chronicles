@@ -26,12 +26,12 @@ const calls = specs => ({model: "fixture", choices: [{finish_reason: "tool_calls
     function: {name: spec.name, arguments: JSON.stringify(spec.args || {})}}))}}]});
 function options(extra = {}) {
   return {baseURL, workerFactory: createNodeWorkerFactory(), messages: structuredClone(messages),
-    world: {faction: "qing", currentScene: {title: "押解途中"}}, illustrations: structuredClone(assets), targetCharacters: 5, ...extra};
+    world: {faction: "qing", currentScene: {title: "押解途中"}}, illustrations: structuredClone(assets), ...extra};
 }
 const storyOf = result => JSON.parse(result.data.choices[0].message.content);
 const imageEffects = story => story.stage_effects.filter(effect => effect.name === "show_illustration");
 async function createHost() {
-  return createPluginHost(options({context: {world: {faction: "qing"}, targetCharacters: 5, illustrations: structuredClone(assets)}}));
+  return createPluginHost(options({context: {world: {faction: "qing"}, illustrations: structuredClone(assets)}}));
 }
 
 test("default workers register distinct stable illustration and story tools", async () => {
@@ -47,7 +47,8 @@ test("default workers register distinct stable illustration and story tools", as
     assert.ok(all.result.illustrations.some(item => item.faction === "ming"), "player faction must not hide other scene settings");
     const ming = await host.invoke("list_illustrations", {faction: "ming"});
     assert.deepEqual(ming.result.illustrations.map(item => item.id), ["ming_frontier"]);
-    assert.deepEqual(await host.invoke("inspect_draft", {}).then(output => output.result.textCharacters), 0);
+    const inspected = await host.invoke("inspect_draft", {}).then(output => output.result);
+    assert.equal(inspected.hasDraft, false); assert.equal(inspected.beatCount, 0);
   } finally {host.dispose();}
 });
 
@@ -94,22 +95,21 @@ test("native selection is appended only to a successful final story after all ca
   assert.deepEqual(imageEffects(story).map(effect => ({id: effect.params.id, afterBeat: effect.params.afterBeat})),
     [{id: "qing_holding_cell", afterBeat: 0}, {id: "qing_prisoner_escort", afterBeat: 99}]);
   assert.deepEqual(story.beats.map(beat => beat.text), original.beats.map(beat => beat.text));
-  assert.equal(result.harness.deliveryCharacters, Array.from(original.beats[0].text).length);
+  assert.equal(result.harness.beatCount, 1);
 });
 
-test("selected art and long captions cannot satisfy a short manuscript's 5000 character target", async () => {
+test("selected art and a short manuscript deliver in one model call without length checks or forced expansion", async () => {
   let step = 0;
-  const result = await createGameHarness(options({targetCharacters: 5000, model: async request => {
+  const result = await createGameHarness(options({model: async () => {
     step++;
-    if (step === 1) return calls([{name: "select_illustration", args: {id: "qing_holding_cell", caption: "插画说明".repeat(2000)}},
-      {name: "write_draft", args: {story: narrative("文".repeat(10))}}, {name: "deliver_story"}]);
-    const check = JSON.parse(request.messages.at(-1).content);
-    assert.equal(check.ok, false); assert.equal(check.error.code, "draft_too_short");
-    assert.equal(check.textCharacters, 10); assert.equal(check.remainingCharacters, 4990);
-    return calls([{name: "write_draft", args: {mode: "append", story: narrative("文".repeat(4990))}}, {name: "deliver_story"}]);
+    assert.equal(step, 1, "the host cannot require a longer manuscript after a valid delivery");
+    return calls([{name: "select_illustration", args: {id: "qing_holding_cell", caption: "插画说明".repeat(2000)}},
+      {name: "write_draft", args: {story: narrative("门闩未动。")}}, {name: "deliver_story"}]);
   }}));
-  assert.equal(step, 2); assert.equal(result.harness.deliveryCharacters, 5000);
-  assert.equal(result.harness.hanCharacters, 5000);
+  assert.equal(step, 1); assert.equal(result.harness.beatCount, 1);
+  assert.equal(result.harness.deliveryCharacters, undefined);
+  assert.equal(result.harness.hanCharacters, undefined);
+  assert.deepEqual(storyOf(result).beats.map(beat => beat.text), ["门闩未动。"]);
   assert.equal(imageEffects(storyOf(result)).length, 1);
 });
 

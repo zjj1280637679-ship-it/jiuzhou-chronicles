@@ -65,6 +65,8 @@ test("stable narrative rules and tool guidance keep action menus separate from d
     assert.match(payload.messages[0].content,/不要在正文罗列、复述或提前预告选项/);
     const protocol=require("./harness/protocol.js");
     assert.match(protocol.tools.find(t=>t.function.name==="write_draft").function.description,/正文不要预告或罗列选项/);
-    assert.equal(protocol.measureStory({beats:[{text:"已交付"}],choices:[{text:"长选项".repeat(900)}]}).textCharacters,3);
+    const normalized=protocol.normalizeStory({beats:[{text:"已交付"}],choices:[{text:"长选项".repeat(900)}]});
+    assert.deepEqual(normalized.beats.map(beat=>beat.text),["已交付"]);
+    assert.equal(normalized.choices[0].text,"长选项".repeat(900));
   }finally{global.window=previous;}
 });
