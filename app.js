@@ -643,6 +643,7 @@ class WebVisualNovelEngine {
     this.settingCustomModel = document.getElementById("setting-custom-model");
     this.settingEndpoint = document.getElementById("setting-endpoint");
     this.settingApiKey = document.getElementById("setting-api-key");
+    this.settingApiKeyLabel = document.getElementById("setting-api-key-label");
     this.settingMaxTokens = document.getElementById("setting-max-tokens");
     this.aiConnectionStatus = document.getElementById("ai-connection-status");
     this.btnCancelAIRequest = document.getElementById("btn-cancel-ai-request");
@@ -1323,7 +1324,7 @@ class WebVisualNovelEngine {
     const config = this.readAISettingsConfig();
     const custom = config.source === "custom" || config.source === "google";
     const selectedPreset = this.aiPresetSelection || AIProviders.presetId(config);
-    const keyLabel = document.getElementById("setting-api-key-label");
+    const keyLabel = this.settingApiKeyLabel;
     if (keyLabel) keyLabel.textContent = config.source === "google" ? "Google Gemini API Key" : "API Key（端点不需要时可留空）";
     if (this.settingApiKey) this.settingApiKey.placeholder = config.source === "google" ? "填写 Google AI Studio API Key" : "端点不需要密钥时可留空";
     for (const button of this.settingPresetButtons || []) button.setAttribute("aria-pressed", String(button.dataset.aiPreset === selectedPreset));
