@@ -6,7 +6,7 @@
 // =============================================================================
 
 const APP_VERSION = "v2.5.0";
-const BUILD_STAMP = "2026.10.23.0004";
+const BUILD_STAMP = "2026.10.24.0001";
 const VERSION_FULL = `v2.5.0 (Build ${BUILD_STAMP} · 插件式工具循环 · 自由篇幅交付 · 3选项+开放输入)`;
 const AIProviders = typeof module === "object" && module.exports
   ? require("./harness/providers.js") : globalThis.JiuzhouProviders;
@@ -639,6 +639,7 @@ class WebVisualNovelEngine {
     this.apiCustomFields = document.getElementById("api-custom-fields");
     this.aiProviderDescription = document.getElementById("ai-provider-description");
     this.settingModel = document.getElementById("setting-model");
+    this.settingPresetButtons = document.querySelectorAll("[data-ai-preset]");
     this.settingCustomModel = document.getElementById("setting-custom-model");
     this.settingEndpoint = document.getElementById("setting-endpoint");
     this.settingApiKey = document.getElementById("setting-api-key");
@@ -675,7 +676,7 @@ class WebVisualNovelEngine {
     if (this.settingApiSource) this.settingApiSource.value = this.apiConfig.source;
     if (this.settingApiAdapter) this.settingApiAdapter.value = this.apiConfig.adapter;
     if (this.settingTokenParameter) this.settingTokenParameter.value = this.apiConfig.tokenParameter;
-    const modelIsPreset = ["deepseek-flash", "deepseek-v4-pro", "deepseek-chat", "deepseek-reasoner", "custom"].includes(this.apiConfig.model);
+    const modelIsPreset = ["deepseek-flash", "deepseek-v4-pro", "deepseek-chat", "deepseek-reasoner", "gemini-flash-lite-latest", "custom"].includes(this.apiConfig.model);
     if (this.settingModel) this.settingModel.value = modelIsPreset ? this.apiConfig.model : "custom";
     if (this.settingCustomModel) {
       this.settingCustomModel.value = modelIsPreset ? this.apiConfig.customModel || "" : this.apiConfig.model;
@@ -961,6 +962,9 @@ class WebVisualNovelEngine {
     // 快捷菜单缓存胶囊点击直达设置抽屉
 
     // 模型选择器联动
+    for (const button of this.settingPresetButtons || []) {
+      button.addEventListener("click", () => this.applyAIPreset(button.dataset.aiPreset));
+    }
     if (this.settingModel) {
       this.settingModel.addEventListener("change", (e) => {
         if (this.settingCustomModel) {
@@ -1240,6 +1244,30 @@ class WebVisualNovelEngine {
     });
   }
 
+  applyAIPreset(id) {
+    const preset = AIProviders.presets().find(item => item.id === id);
+    if (!preset) return;
+    const current = this.readAISettingsConfig();
+    const previous = this.aiPresetSelection || AIProviders.presetId(current);
+    // Unsaved per-card drafts stay in this page only. Never carry a service's Key to another card.
+    if (!this.aiPresetDrafts) this.aiPresetDrafts = new Map();
+    this.aiPresetDrafts.set(previous, {...current});
+    const remembered = this.aiPresetDrafts.get(id);
+    const next = remembered || (id === "custom" ? {...current, source: "custom", apiKey: ""} :
+      {...current, ...preset, apiKey: "", customModel: "", maxTokens: null});
+    const fields = [[this.settingApiSource, next.source], [this.settingEndpoint, next.endpoint],
+      [this.settingApiAdapter, next.adapter], [this.settingTokenParameter, next.tokenParameter],
+      [this.settingApiKey, next.apiKey], [this.settingMaxTokens, next.maxTokens ?? ""]];
+    for (const [field, value] of fields) if (field) field.value = value;
+    const knownModel = ["deepseek-flash", "deepseek-v4-pro", "deepseek-chat", "deepseek-reasoner", "gemini-flash-lite-latest", "custom"].includes(next.model);
+    if (this.settingModel) this.settingModel.value = knownModel ? next.model : "custom";
+    if (this.settingCustomModel) this.settingCustomModel.value = knownModel ? next.customModel || "" : next.model;
+    if (this.settingEnableApi) this.settingEnableApi.checked = true;
+    this.aiPresetSelection = id;
+    this.invalidateAIConnectionTest();
+    this.updateAIProviderSettingsUI();
+  }
+
   resolveAIProvider(value = this.apiConfig) {
     const config = AIProviders.normalizeConfig(value);
     return AIProviders.resolve(config);
@@ -1296,7 +1324,9 @@ class WebVisualNovelEngine {
 
   updateAIProviderSettingsUI() {
     const config = this.readAISettingsConfig();
-    const custom = config.source === "custom";
+    const custom = config.source === "custom" || config.source === "google";
+    const selectedPreset = this.aiPresetSelection || AIProviders.presetId(config);
+    for (const button of this.settingPresetButtons || []) button.setAttribute("aria-pressed", String(button.dataset.aiPreset === selectedPreset));
     if (this.apiCustomFields) {
       this.apiCustomFields.hidden = !custom;
       for (const field of this.apiCustomFields.querySelectorAll?.("input, select") || []) field.disabled = !custom;
@@ -1306,7 +1336,7 @@ class WebVisualNovelEngine {
       try {
         const route = this.resolveAIProvider(config);
         const migration = this.apiConfig.sharedApiRemoved ? "原共享通道已移除，个人配置已保留；确认配置后可启用远端 AI。\n" : "";
-        this.aiProviderDescription.textContent = migration + `直连个人 API · 模型 ${route.model} · ${route.adapter === "deepseek" ? "DeepSeek" : "OpenAI 兼容"}适配。Key 按端点要求填写，保存后应用。`;
+        this.aiProviderDescription.textContent = migration + `直连个人 API · 模型 ${route.model} · ${route.adapter === "google" ? "Google Gemini" : route.adapter === "deepseek" ? "DeepSeek" : "OpenAI 兼容"}适配。Key 按端点要求填写，保存后应用。`;
       } catch (error) {
         this.aiProviderDescription.textContent = `当前来源配置尚未完成：${this.describeAIError(error)}`;
       }
@@ -4313,6 +4343,7 @@ ${currentProfile.npcRoster}`;
       invalid_max_tokens: "输出 Token 设置无效或超出所选服务支持范围，可留空使用默认值",
       invalid_private_endpoint: "API 端点无效，请填写完整 HTTPS 地址（本机调试可用 HTTP）",
       invalid_model: "请填写自定义模型名称",
+      missing_api_key: "请填写所选服务的 API Key",
       invalid_provider: "请选择有效的 API 来源及适配器",
       provider_changed: "来源适配器已变化，本轮停止并未提交剧情",
       source_changed: "API 配置已修改，本轮已停止且未提交旧来源剧情",

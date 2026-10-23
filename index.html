@@ -6,7 +6,7 @@
   <title>暮灯星栈 · 东方奇幻文字冒险 (Visual Novel & AVG)</title>
   <link rel="stylesheet" href="styles.css?v=20261023-ui04">
   <link rel="stylesheet" href="mobile.css?v=20261023-ui04">
-  <link rel="stylesheet" href="settings.css?v=20261021-0800">
+  <link rel="stylesheet" href="settings.css?v=20261024-gemini01">
   <link rel="stylesheet" href="favorites.css?v=20261021-0800">
   <link rel="stylesheet" href="recovery-ui.css?v=20261022-0900">
   <link rel="stylesheet" href="input-viewport.css?v=20261021-0800">
@@ -261,6 +261,22 @@
               <input type="checkbox" id="setting-enable-api">
               <span>使用远端 AI<small>关闭后使用离线剧情</small></span>
             </label>
+            <div class="ai-preset-cards" role="group" aria-label="选择 AI 服务预设" aria-describedby="ai-preset-help">
+              <button type="button" class="ai-preset-card" data-ai-preset="deepseek" aria-pressed="false">
+                <span class="ai-preset-title">DeepSeek 官方</span>
+                <span class="ai-preset-detail">自动填写官方接口和模型，填入 API Key 即可使用。</span>
+              </button>
+              <button type="button" class="ai-preset-card" data-ai-preset="google" aria-pressed="false">
+                <span class="ai-preset-title">Google Gemini</span>
+                <span class="ai-preset-model">gemini-flash-lite-latest</span>
+                <span class="ai-preset-detail">自动填写 Google 接口和模型，只需填入 API Key。</span>
+              </button>
+              <button type="button" class="ai-preset-card" data-ai-preset="custom" aria-pressed="false">
+                <span class="ai-preset-title">自定义／本机 API</span>
+                <span class="ai-preset-detail">自行填写接口与模型，连接兼容服务或本机代理。</span>
+              </button>
+            </div>
+            <p class="ai-test-help ai-preset-help" id="ai-preset-help">切换服务后，请填写所选服务的密钥；接口地址和模型仍可编辑。可先测试，再保存。</p>
             <div class="form-group">
               <input type="hidden" id="setting-api-source" value="custom">
               <p class="ai-test-help" id="ai-provider-description">直接连接您填写的 API 地址；保存后应用。</p>
@@ -269,7 +285,7 @@
               <div class="form-group">
                 <label for="setting-endpoint">API 地址</label>
                 <input type="text" id="setting-endpoint" class="form-input" value="https://api.deepseek.com/chat/completions" inputmode="url" spellcheck="false" autocapitalize="off" aria-describedby="settings-endpoint-help">
-                <p class="ai-test-help" id="settings-endpoint-help">支持 /v1 基础地址或完整请求地址，也支持本机代理。基础地址自动补全 /chat/completions，自定义路径保持不变。</p>
+                <p class="ai-test-help" id="settings-endpoint-help">Google 预设自动填写官方接口。通用兼容接口支持 /v1 基础地址或完整请求地址，也支持本机代理；基础地址自动补全 /chat/completions，自定义路径保持不变。</p>
               </div>
               <div class="form-group">
                 <label for="setting-api-key">API Key（端点不需要时可留空）</label>
@@ -282,6 +298,7 @@
                   <option value="deepseek-v4-pro">deepseek-v4-pro</option>
                   <option value="deepseek-chat">deepseek-chat</option>
                   <option value="deepseek-reasoner">deepseek-reasoner</option>
+                  <option value="gemini-flash-lite-latest">Google Gemini · gemini-flash-lite-latest</option>
                   <option value="custom">自定义模型标识...</option>
                 </select>
                 <input type="text" id="setting-custom-model" class="form-input" placeholder="输入服务商提供的模型 ID" aria-label="自定义模型 ID" spellcheck="false" autocapitalize="off" style="display:none; margin-top:8px;">
@@ -292,7 +309,7 @@
                   <div class="form-group">
                     <label for="setting-api-adapter">API 类型</label>
                     <select id="setting-api-adapter" class="form-select">
-                      <option value="auto">自动（DeepSeek 官方专属适配，其余通用格式）</option>
+                      <option value="auto">自动（Google 预设、DeepSeek 官方及通用格式）</option>
                       <option value="openai">通用 Chat Completions 兼容接口</option>
                       <option value="deepseek">DeepSeek Chat Completions（含兼容代理）</option>
                     </select>
@@ -554,12 +571,13 @@
   <script src="data/illustrations/catalog-data.js?v=20261022-2200"></script>
   <script src="illustration-system.js?v=20261022-2200"></script>
   <script src="skills-data.js"></script>
-  <script src="harness/providers.js?v=20261022-0900"></script>
+  <script src="harness/provider-google.js?v=20261024-gemini01"></script>
+  <script src="harness/providers.js?v=20261024-gemini01"></script>
   <script src="game-recovery.js?v=20261023-ui04"></script>
   <script src="scene-favorites.js?v=20261021-0800"></script>
   <script src="harness/protocol.js?v=20261023-ui04"></script>
-  <script src="harness/runtime.js?v=20261023-ui04"></script>
-  <script src="app.js?v=20261023-ui04"></script>
+  <script src="harness/runtime.js?v=20261024-gemini01"></script>
+  <script src="app.js?v=20261024-gemini01"></script>
   <script src="recovery-ui.js?v=20261022-0900"></script>
   <script src="favorites-ui.js?v=20261021-0800"></script>
   <script src="mobile-ui.js?v=20261023-ui04"></script>

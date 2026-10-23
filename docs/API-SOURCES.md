@@ -9,6 +9,21 @@
 - 请求直接发往所填地址，Key 非空才发送 Bearer 认证。个人配置保存在当前浏览器，未硬编码到公开源码；不上传站长后台。服务商需允许浏览器跨域调用。
 - 测试使用当前未保存的表单，只发短请求，不保存设置、推进剧情或伪造生成指标。
 - 独立适配器仍可通过 `register` 注册。通用接口不附 DeepSeek 专有参数；DeepSeek 适配保留原生工具回执与必要推理续传。
+- 设置提供 DeepSeek、Google Gemini、自定义／本机 API 三张预设卡。Google 卡自动填写官方地址与 `gemini-flash-lite-latest`，开启远端 AI；只需填写该服务的 Key，可先测试再保存。各卡在当前页面保留未保存草稿，首次切换到另一服务不会沿用上一服务的 Key 或输出 Token 设置。
 - 多轮工具循环、内部缓存统计、手动取消、原行动恢复继续可用；运行日志与诊断指标不输出到 UI。2026-10-23 起篇幅仅作为提示词偏好，模型要求比原档位多 500 字，程序不统计或验收字数。输出参数支持 max_tokens/max_completion_tokens，留空使用所选服务默认值。
 
-本次验收：旧共享配置与进度恢复、个人来源短测、真实浏览器隔离工具执行及 5000 字模拟正文；所有模型回复均为测试夹具，没有使用个人模型额度。生产页面与停用网关需发布后独立核对，不能用模拟结果声称已验证任意供应商或国内全网可达。
+2026-10-22 迁移时的验收：旧共享配置与进度恢复、个人来源短测、真实浏览器隔离工具执行及 5000 字模拟正文；当时的模型回复均为测试夹具，没有使用个人模型额度。不能用模拟结果声称已验证任意供应商或国内全网可达；后续 Google 真实请求验收见下节。
+
+## Google Gemini（2026-10-24）
+
+- 独立来源 `source:google` 由 `harness/provider-google.js` 注册，不改变自定义接口和 DeepSeek 的协议行为。
+- 官方 OpenAI 兼容地址：`https://generativelanguage.googleapis.com/v1beta/openai/chat/completions`。也接受该地址的 `/v1beta/openai` 基础路径；Key 只放 Bearer 认证头，不放 URL、模型提示词或正文。
+- 默认模型为 `gemini-flash-lite-latest`；仍可编辑具体模型和接口。latest 是会变动的别名，不根据名称猜测具体底层版本。
+- 连接短测／弥合使用 JSON 对象响应；工具循环传原生工具表并保留调用 ID、参数字符串及 Google 扩展签名，不附 DeepSeek 的 `thinking` 参数，也不在工具请求中强加 JSON 响应格式。
+- 输出 Token 留空时不加游戏上限。测试按钮的既有短测范围保持独立；不将它作为剧情输出上限。
+- 使用用户提供的 Key 做了实际短测和实际隔离插件工具链，`write_draft → deliver_story` 完成，两段有效正文和两个建议选项成功交付。兼容接口回报 `model:gemini-flash-lite-latest`；另一次原生请求回报 `modelVersion:gemini-3.5-flash-lite`。这是本次响应观察，不是别名的永久映射；未统计正文字数。
+- 实际API验证经本机网络代理完成；不能据此声称中国无代理直连可达。本地浏览器已验证卡片选择、自动预填和手机布局；本次内置浏览器的真实连接短测未确认成功，不能与命令行真实请求或离线模拟合并报为端到端通过。未把测试 Key 写入源码、报告或公开网页。
+
+官方依据：[OpenAI 兼容接口](https://ai.google.dev/gemini-api/docs/openai)、[工具调用签名](https://ai.google.dev/gemini-api/docs/generate-content/thought-signatures#signatures-for-openai-compatibility)、[latest 别名](https://ai.google.dev/gemini-api/docs/models#latest)、[原生响应 modelVersion](https://ai.google.dev/api/generate-content#GenerateContentResponse)。
+
+离线回归：`node --test test-google-provider.cjs`（包含来源隔离、模型卡、未保存配置及工具签名往返）。真实 Key 仅由本机人工授权测试提供，不加入 CI。

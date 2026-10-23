@@ -9,7 +9,7 @@
 - `plugins/world.js`：`read_world` 读取玩家可见的本轮快照。
 - `plugins/story.js`：`write_draft` 替换或追加草稿，`read_draft` 读取，`inspect_draft` 检查，`deliver_story` 交付。草稿不会直接改变玩家历史。
 - `plugins/illustrations.js`：`list_illustrations` 查询真实目录，`set_scene_background` 暂存持续舞台背景，`select_illustration` 暂存指定阅读位置的独立图片弹窗。两种演出及清除互不影响，正文成功交付后才附加各自 `stage_effects`，背景不插正文段、弹窗不改背景。
-- `providers.js`：当前内置个人来源，按填写的端点构造请求；Key 可按端点要求留空，不会切换到站长通道。通用接口与DeepSeek扩展分别适配，见 [API来源](../docs/API-SOURCES.md)。
+- `providers.js`：来源注册与模型卡预设，按选中来源构造请求；不会切换到站长通道。`provider-google.js` 独立适配 Google Gemini 官方兼容接口，默认 `gemini-flash-lite-latest`。通用接口、Google 与 DeepSeek 扩展分别适配，见 [API来源](../docs/API-SOURCES.md)。
 - `protocol.js`：可替换插件与网关共用的工具契约及纯文本规范化规则。工具按名字稳定排序；注册按配置顺序，避免启动快慢改变行为。
 - `worker-entry.js`：独立插件的消息入口。异常变为工具回执；同步卡死的插件在工具超时后被终止，其他插件保持可用。这里的本地工具超时不是模型请求、字数或调用频率上限。
 

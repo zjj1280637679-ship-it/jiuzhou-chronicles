@@ -13,6 +13,7 @@ on:
       - 'test-input-viewport.cjs'
       - 'test-plugin-harness.cjs'
       - 'test-providers.cjs'
+      - 'test-google-provider.cjs'
       - 'test-ai-provider-routing.cjs'
       - 'test-all-factions-tree.js'
       - 'test/fixtures/harness-*.js'
@@ -33,6 +34,7 @@ on:
       - 'test-input-viewport.cjs'
       - 'test-plugin-harness.cjs'
       - 'test-providers.cjs'
+      - 'test-google-provider.cjs'
       - 'test-ai-provider-routing.cjs'
       - 'test-all-factions-tree.js'
       - 'test/fixtures/harness-*.js'
@@ -50,6 +52,6 @@ jobs:
           node-version: '22'
       - run: node --check app.js
       - name: Test personal API, migration and game recovery without network calls
-        run: node --unhandled-rejections=strict --test test-personal-api-migration.cjs test-ai-connection-probe.cjs test-free-exploration-edges.cjs test-plugin-harness.cjs test-providers.cjs test-ai-provider-routing.cjs test-game-recovery.cjs test-scene-favorites.cjs test-input-viewport.cjs
+        run: node --unhandled-rejections=strict --test test-personal-api-migration.cjs test-ai-connection-probe.cjs test-free-exploration-edges.cjs test-plugin-harness.cjs test-providers.cjs test-google-provider.cjs test-ai-provider-routing.cjs test-game-recovery.cjs test-scene-favorites.cjs test-input-viewport.cjs
       - name: Check four-faction offline regression with the same provider module as the webpage
         run: npm test

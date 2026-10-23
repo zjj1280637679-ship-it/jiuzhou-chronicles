@@ -1,18 +1,24 @@
 (function (root, factory) {
-  const api = factory();
+  const google = typeof module === "object" && module.exports ? require("./provider-google.js") : root.JiuzhouGoogleProvider;
+  const api = factory(google);
   if (typeof module === "object" && module.exports) module.exports = api;
   else root.JiuzhouProviders = api;
-})(typeof self !== "undefined" ? self : this, function () {
+})(typeof self !== "undefined" ? self : this, function (google) {
   "use strict";
   const DEFAULT_ENDPOINT = "https://api.deepseek.com/chat/completions";
   const sessionSalt = String(Math.random()) + String(Math.random());
   const plugins = new Map();
   const routeOwners = new WeakMap();
   const fail = code => Object.assign(new Error(code), {code});
+  const presets = [
+    {id: "deepseek", label: "DeepSeek 官方", source: "custom", endpoint: DEFAULT_ENDPOINT, model: "deepseek-flash", adapter: "auto", tokenParameter: "max_tokens"},
+    ...(google ? [{id: "google", label: "Google Gemini", source: "google", endpoint: google.endpoint, model: google.model, adapter: "auto", tokenParameter: "max_tokens"}] : []),
+    {id: "custom", label: "自定义 / 本机 API", source: "custom"}
+  ];
   function normalizeConfig(value) {
     const saved = value && typeof value === "object" && !Array.isArray(value) ? value : null;
     const config = saved || {};
-    const endpoint = typeof config.endpoint === "string" ? config.endpoint.trim() : DEFAULT_ENDPOINT;
+    const endpoint = typeof config.endpoint === "string" ? config.endpoint.trim() : config.source === "google" && google ? google.endpoint : DEFAULT_ENDPOINT;
     const apiKey = typeof config.apiKey === "string" ? config.apiKey.trim() : "";
     // Retired shared settings must never silently activate stored personal credentials.
     const retiredShared = config.source === "shared" || (!config.source && !apiKey && endpoint.replace(/\/$/, "") === DEFAULT_ENDPOINT);
@@ -21,7 +27,7 @@
       sharedApiRemoved: config.sharedApiRemoved === true || Boolean(saved && retiredShared),
       adapter: ["auto", "openai", "deepseek"].includes(config.adapter) ? config.adapter : "auto",
       tokenParameter: config.tokenParameter === "max_completion_tokens" ? "max_completion_tokens" : "max_tokens",
-      model: typeof config.model === "string" ? config.model.trim() : "deepseek-flash",
+      model: typeof config.model === "string" ? config.model.trim() : source === "google" && google ? google.model : "deepseek-flash",
       customModel: typeof config.customModel === "string" ? config.customModel.trim() : "",
       endpoint, apiKey,
       maxTokens: config.maxTokens === "" || config.maxTokens == null ? null : config.maxTokens};
@@ -77,6 +83,15 @@
           ...(!options.harness ? {response_format: {type: "json_object"}} : {})} : {})};
     }
   });
+  if (google) register(google.create({endpointURL, identity, fail}));
+  function presetId(value) {
+    const config = normalizeConfig(value);
+    if (config.source === "google") return "google";
+    try {
+      if (config.source === "custom" && new URL(config.endpoint).hostname === "api.deepseek.com") return "deepseek";
+    } catch (_) {}
+    return "custom";
+  }
   function resolve(value, context = {}) {
     const config = normalizeConfig(value);
     const plugin = plugins.get(config.source);
@@ -97,5 +112,6 @@
     return {endpoint: route.endpoint, headers: {...route.headers}, body, useGateway: route.useGateway};
   }
   return {normalizeConfig, resolve, createRequest, register,
-    list: () => [...plugins.values()].map(plugin => ({id: plugin.id, label: plugin.label || plugin.id})), DEFAULT_ENDPOINT};
+    list: () => [...plugins.values()].map(plugin => ({id: plugin.id, label: plugin.label || plugin.id})),
+    presets: () => structuredClone(presets), presetId, DEFAULT_ENDPOINT};
 });

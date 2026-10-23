@@ -195,6 +195,7 @@
           if (calls.some(c => typeof c.id !== "string" || !c.id || seen.has(c.id) || !seen.add(c.id) || c.type !== "function" || typeof c.function?.name !== "string" || typeof c.function?.arguments !== "string")) throw new Error("invalid_tool_response");
           // Keep original argument strings and call IDs. Future steps extend, rather than rewrite, this prefix.
           messages.push({role: "assistant", content: typeof message.content === "string" ? message.content : null, tool_calls: clone(calls),
+            ...(message.extra_content && typeof message.extra_content === "object" ? {extra_content: clone(message.extra_content)} : {}),
             ...(typeof message.reasoning_content === "string" ? {reasoning_content: message.reasoning_content} : {})});
           let delivery;
           const stepResults = [];
@@ -236,7 +237,9 @@
         emit("delivery_check");
         trackProgress(["final", message.content], output);
         if (output.result?.error?.code === "delivery_unavailable") throw new Error("delivery_unavailable");
-        messages.push({role: "assistant", content: message.content}, {role: "user", content: "【剧情格式有误，尚未交付】\n" + JSON.stringify(output.result) + "\n请修正剧情对象格式，提供有效的正文 beats[].text 后交付。"});
+        messages.push({role: "assistant", content: message.content,
+          ...(message.extra_content && typeof message.extra_content === "object" ? {extra_content: clone(message.extra_content)} : {})},
+          {role: "user", content: "【剧情格式有误，尚未交付】\n" + JSON.stringify(output.result) + "\n请修正剧情对象格式，提供有效的正文 beats[].text 后交付。"});
       }
     } finally {host.dispose();}
   }
