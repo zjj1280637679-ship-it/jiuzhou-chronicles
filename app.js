@@ -1323,6 +1323,9 @@ class WebVisualNovelEngine {
     const config = this.readAISettingsConfig();
     const custom = config.source === "custom" || config.source === "google";
     const selectedPreset = this.aiPresetSelection || AIProviders.presetId(config);
+    const keyLabel = document.getElementById("setting-api-key-label");
+    if (keyLabel) keyLabel.textContent = config.source === "google" ? "Google Gemini API Key" : "API Key（端点不需要时可留空）";
+    if (this.settingApiKey) this.settingApiKey.placeholder = config.source === "google" ? "填写 Google AI Studio API Key" : "端点不需要密钥时可留空";
     for (const button of this.settingPresetButtons || []) button.setAttribute("aria-pressed", String(button.dataset.aiPreset === selectedPreset));
     if (this.apiCustomFields) {
       this.apiCustomFields.hidden = !custom;
