@@ -78,7 +78,7 @@
   .form-input, .form-select, textarea, select { min-width: 0; max-width: 100%; font-size: 16px !important; }
   .form-input, .form-select { min-height: 44px; }
   #api-custom-fields, .form-group { min-width: 0; }
-  #btn-save-settings, #btn-test-ai-connection, #btn-retry-shared-ai { min-height: 46px; }
+  #btn-save-settings, #btn-test-ai-connection { min-height: 46px; }
   .faction-grid-selector, .map-grid-selector { grid-template-columns: minmax(0, 1fr); min-height: 0; overflow: auto; }
   .faction-card { min-width: 0; padding: 16px; transform: none !important; }
   .faction-card-header { min-width: 0; }

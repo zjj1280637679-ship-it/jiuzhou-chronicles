@@ -6,7 +6,7 @@ const providers = require("./harness/providers.js");
 test("fresh visitors start locally and have no built-in shared provider", () => {
   const config = providers.normalizeConfig(null);
   assert.equal(config.enabled, false); assert.equal(config.source, "custom");
-  assert.deepEqual(providers.list().map(p => p.id), ["custom"]);
+  assert.deepEqual(providers.list().map(p => p.id), ["custom", "google"]);
 });
 test("retired shared settings preserve every personal field but require explicit enabling", () => {
   const original = {enabled: true, source: "shared", endpoint: "https://personal.fixture/v1", apiKey: "fixture-personal-key",

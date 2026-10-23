@@ -20,17 +20,16 @@ function engine(t, config = {}) {
   t.after(() => Object.assign(global, original));
   global.WORLD_PRESETS = require("./skills-data.js");
   global.localStorage = {setItem() {}};
-  global.window = {fetch() {}, JIUZHOU_AI_GATEWAY: {endpoint: "https://shared.fixture"}, JiuzhouProviders: providers, JiuzhouHarnessProtocol: protocol,
+  global.window = {fetch() {}, JiuzhouProviders: providers, JiuzhouHarnessProtocol: protocol,
     JiuzhouHarness: {createGameHarness: options => createGameHarness({...options, baseURL, workerFactory: createNodeWorkerFactory()})}};
   const e = Object.assign(Object.create(WebVisualNovelEngine.prototype), {
     apiConfig: providers.normalizeConfig({enabled: true, source: "custom", endpoint: "https://custom-a.fixture/v1/chat/completions",
       model: "generic-model", apiKey: "", maxTokens: 32768, ...config}),
-    serverSharedConfig: null, sharedGatewayStatus: {state: "idle", message: "尚未检查"}, apiHistory: [], expectedLength: 500,
+    apiHistory: [], expectedLength: 500,
     currentFaction: "ming", branchDepth: 1, aiConfigRevision: 0,
     ideologyVector: {authority: 0, pragmatism: 0, progress: 0, cognition: 0},
     cacheTelemetry: {lastHitTokens: null, lastMissTokens: null, lastHitRate: "未提供", cacheUsageKnown: false},
-    qmCache: element(), aiConnectionStatus: element(), cacheStatusTag: element(), aiHarnessProgressDisplay: element(),
-    aiGenerationMetricsDisplay: element(), btnCancelAIRequest: element(), btnRetrySharedAi: element(), executeAITools() {},
+    aiConnectionStatus: element(), btnCancelAIRequest: element(), executeAITools() {},
     settingApiSource: element(), settingApiAdapter: element(), settingTokenParameter: element(), settingModel: element(),
     settingCustomModel: element(), settingApiKey: element(), settingEndpoint: element(), settingMaxTokens: element(), settingEnableApi: element(),
     aiConnectionTestStatus: element(), aiConnectionTestFormVersion: 0
@@ -69,18 +68,13 @@ function progressClock(t) {
 }
 
 function waitingRequest(e, route = e.resolveAIProvider()) {
-  return e.requestAICompletion(route.endpoint, {}, route.headers, route.useGateway, "story", async signal => {
+  return e.requestAICompletion(route.endpoint, {}, route.headers, "story", async signal => {
     e.updateAIHarnessProgress({type: "model_start", modelCalls: 1, toolCalls: 0});
     return e.fetchAICompletion(route.endpoint, {}, route.headers, signal);
   }, route);
 }
 
 function assertNoRuntimeLogRendering(e) {
-  for (const field of ["aiHarnessProgressDisplay", "aiGenerationMetricsDisplay", "qmCache", "cacheStatusTag"]) {
-    assert.equal(e[field].textContent, "", `${field} must not receive runtime diagnostic output`);
-    assert.equal(e[field].innerText, "", `${field} must not receive runtime diagnostic output`);
-  }
-  assert.equal(e.qmCache.classList.contains("hit"), false);
   assert.doesNotMatch(e.aiConnectionStatus.textContent, /模型\s*\d+\s*次|工具\s*\d+\s*次|Token|耗时|命中率/);
 }
 
@@ -98,7 +92,7 @@ test("a delayed model response exposes cancellation without a diagnostic clock o
   assert.equal(requests, 1, "Waiting must never retry or probe the model");
   release(response(final())); await pending;
   assert.equal(clock.running.size, 0); assert.equal(clock.callbacks.size, 0);
-  assert.equal(e.aiHarnessProgressDisplay.hidden, true); assert.equal(e.btnCancelAIRequest.hidden, true);
+  assert.equal(e.btnCancelAIRequest.hidden, true);
   assert.equal(e.activeAIRequestController, null);
   assertNoRuntimeLogRendering(e);
 });
@@ -111,7 +105,7 @@ test("an authentication failure clears waiting state and preserves the selected 
   assert.equal(e.aiRequestStatus.state, "fallback"); assert.equal(e.aiRequestStatus.channel, "custom");
   assert.match(e.aiRequestStatus.message, /认证|密钥|Key|鉴权/);
   assert.equal(e.activeAIRequestController, null); assert.equal(clock.running.size, 0);
-  assert.equal(e.aiHarnessProgressDisplay.hidden, true); assert.equal(e.btnCancelAIRequest.hidden, true);
+  assert.equal(e.btnCancelAIRequest.hidden, true);
   assertNoRuntimeLogRendering(e);
 });
 
@@ -133,7 +127,7 @@ for (const interruption of ["cancel", "source change"]) {
     assert.equal(e.btnCancelAIRequest.hidden, false); assertNoRuntimeLogRendering(e);
     assert.equal(requests, 2, "Only the two explicit requests may reach the provider");
     e.cancelAIRequest(); await assert.rejects(second, {code: "request_cancelled"});
-    assert.equal(clock.running.size, 0); assert.equal(e.aiHarnessProgressDisplay.hidden, true);
+    assert.equal(clock.running.size, 0); assert.equal(e.btnCancelAIRequest.hidden, true);
     assertNoRuntimeLogRendering(e);
   });
 }
@@ -153,7 +147,7 @@ test("a Keyless custom provider has a live route and does not access an unselect
 });
 
 test("a generic Keyless custom provider runs native tools while keeping missing cache telemetry internal", async t => {
-  const e = engine(t); e.serverSharedConfig = {hasServerKey: true}; let requests = 0; const signals = [];
+  const e = engine(t); let requests = 0; const signals = [];
   global.fetch = async (url, init) => {
     requests++; signals.push(init.signal); assert.equal(url, e.apiConfig.endpoint);
     assert.equal(init.headers.Authorization, undefined);
@@ -191,7 +185,8 @@ test("saving a new custom endpoint clears only provider results and keeps narrat
   e.settingEndpoint.value = "https://custom-b.fixture/v1/chat/completions";
   e.saveAISettings();
   assert.equal(e.apiConfig.endpoint, "https://custom-b.fixture/v1/chat/completions"); assert.equal(e.aiConfigRevision, 1);
-  assert.equal(e.aiRequestStatus, null); assert.equal(e.aiGenerationMetrics, null); assert.equal(e.qmCache.classList.contains("hit"), false);
+  assert.equal(e.aiRequestStatus, null); assert.equal(e.aiGenerationMetrics, null);
+  assertNoRuntimeLogRendering(e);
   assert.deepEqual(e.apiHistory, history);
 });
 
@@ -201,8 +196,7 @@ test("successful cache metrics and provider changes never render a badge or diag
   await turn(e);
   assert.equal(e.cacheTelemetry.cacheUsageKnown, true); assertNoRuntimeLogRendering(e);
   e.apiConfig.endpoint = "https://custom-b.fixture/v1/chat/completions";
-  e.updateCachePillUI();
-  assert.equal(e.qmCache.classList.contains("hit"), false);
+  e.updateAIConnectionStatusUI();
   assert.equal(e.aiConnectionStatus.textContent, "个人 AI 已启用。");
   assertNoRuntimeLogRendering(e);
 });
@@ -218,7 +212,7 @@ test("changing sources aborts an in-flight route and rejects its late completion
   release(response(final()));
   await assert.rejects(pending, error => (error.code || error.message) === "source_changed");
   assert.equal(e.apiHistory.length, 0); assert.equal(e.aiGenerationMetrics, null);
-  assert.equal(e.qmCache.classList.contains("hit"), false);
+  assertNoRuntimeLogRendering(e);
   global.fetch = async (url, init) => {assert.equal(url, e.apiConfig.endpoint); assert.equal(init.signal.aborted, false); return response(final());};
   await turn(e);
   assert.equal(e.apiHistory.length, 2); assert.equal(e.aiRequestStatus.state, "success");

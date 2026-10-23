@@ -28814,7 +28814,7 @@ const _WORLD_PRESETS = {
                 "cognition": 6
               },
               "diceBase": 10,
-              "isExtrapolation": false,
+              "isExtrapolation": true,
               "targetNodeId": null
             },
             {

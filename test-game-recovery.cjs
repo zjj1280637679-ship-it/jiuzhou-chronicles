@@ -20,7 +20,7 @@ function fixture(t) {
     visitedNodeIds: ["ming_act1"], cacheTelemetry: {}, expectedLength: 500, gameState: "PLAYING", aiConfigRevision: 0,
     apiConfig: providers.normalizeConfig({enabled: true, source: "custom", endpoint: "https://fixture.example/v1", model: "test-model", apiKey: "fixture-secret"}),
     choiceOverlay: element(), isAIGenerating: false, stageBackground:null,
-    updateDialogueNavUI() {}, updateIncenseHUD() {}, updateBranchIndicatorUI() {}, updateCachePillUI() {}, updateCacheTelemetryUI() {},
+    updateDialogueNavUI() {}, updateIncenseHUD() {}, updateBranchIndicatorUI() {}, updateAIConnectionStatusUI() {},
     executeAITools() {}, appendBacklogEntry() {}, updateAIProviderSettingsUI() {}, invalidateAIConnectionTest() {},
     displayDialogue(speaker, sub, type, text) {this.backlog.push({speaker, text});},
     buildDeepSeekCachePayload(choice, d1, d2, total, success) {

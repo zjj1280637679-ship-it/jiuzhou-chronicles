@@ -212,9 +212,6 @@ try{
       const request=route.request(),target=new URL(request.url());
       if(target.origin===origin){await route.continue();return}
       external.push({path:target.pathname,method:request.method()});
-      if(target.pathname==="/health"){
-        await route.fulfill({status:200,contentType:"application/json",headers:{"access-control-allow-origin":origin},body:JSON.stringify({ok:true,configured:true,enabled:true,jiuzhouEnabled:true,jiuzhouReady:true,model:"layout-fixture"})});return;
-      }
       if(target.origin==="https://layout.fixture"&&target.pathname==="/v1/chat/completions"){
         const headers={"access-control-allow-origin":origin,"access-control-allow-methods":"POST, OPTIONS","access-control-allow-headers":"content-type"};
         if(request.method()==="OPTIONS"){await route.fulfill({status:204,headers});return}
@@ -240,6 +237,32 @@ try{
 
       await page.click("#title-btn-settings");
       await reachable(page,"#btn-close-settings");
+
+      // Desktop and phones must expose the same Google preset in the real settings sheet.
+      assert.deepEqual(await page.locator("#drawer-settings [data-ai-preset]").evaluateAll(nodes=>nodes.map(n=>n.dataset.aiPreset)),
+        ["deepseek","google","custom"],size.name+" must expose all AI sources");
+      await reachable(page,'[data-ai-preset="google"]');
+      await page.click('[data-ai-preset="google"]');
+      assert.equal(await page.locator("#setting-api-source").inputValue(),"google");
+      assert.equal(await page.locator("#setting-model").inputValue(),"gemini-flash-lite-latest");
+      assert.equal(await page.locator("#setting-endpoint").inputValue(),
+        "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions");
+      assert.equal(await page.locator("#setting-api-key-label").textContent(),"Google Gemini API Key");
+      assert.equal(await page.locator("#setting-api-key").inputValue(),"");
+      assert.equal(await page.locator('[data-ai-preset="google"]').getAttribute("aria-pressed"),"true");
+      await reachable(page,"#setting-api-key");
+      await page.fill("#setting-api-key","fixture-google-key-never-send");
+      await reachable(page,"#btn-save-settings");
+      assert.equal(await page.evaluate(()=>window.__vnEngine.apiConfig.apiKey||""),"","switching presets does not auto-save secrets");
+      await page.click('[data-ai-preset="deepseek"]');
+      assert.notEqual(await page.locator("#setting-api-key").inputValue(),"fixture-google-key-never-send",
+        "Google Key must never leak into DeepSeek");
+      await page.click('[data-ai-preset="google"]');
+      assert.equal(await page.locator("#setting-api-key").inputValue(),"fixture-google-key-never-send",
+        "same-page Google draft must survive service switching");
+      await page.click('[data-ai-preset="custom"]');
+      assert.notEqual(await page.locator("#setting-api-key").inputValue(),"fixture-google-key-never-send",
+        "Google Key must never leak into custom providers");
 
       await page.fill("#setting-endpoint","https://layout.fixture/v1");
       await page.selectOption("#setting-model","custom");
@@ -351,7 +374,7 @@ try{
       await page.click("#btn-submit-open-input");
       await new Promise((done,reject)=>{
         const timer=setTimeout(async()=>{
-          const state=await page.evaluate(()=>({source:window.__vnEngine.apiConfig.source,enabled:window.__vnEngine.apiConfig.enabled,shared:window.__vnEngine.sharedGatewayStatus,status:window.__vnEngine.aiRequestStatus,dialogOpen:document.querySelector("#drawer-open-input").classList.contains("open"),generating:window.__vnEngine.isAIGenerating}));
+          const state=await page.evaluate(()=>({source:window.__vnEngine.apiConfig.source,enabled:window.__vnEngine.apiConfig.enabled,status:window.__vnEngine.aiRequestStatus,dialogOpen:document.querySelector("#drawer-open-input").classList.contains("open"),generating:window.__vnEngine.isAIGenerating}));
           reject(new Error(`${size.name}: mock model request was never started ${JSON.stringify({external,state})}`));
         },10000);
         firstModelRequest.then(()=>{clearTimeout(timer);done()});
