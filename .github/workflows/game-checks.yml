@@ -1,0 +1,47 @@
+name: Personal AI and Game Logic Check
+on:
+  push:
+    paths:
+      - '*.js'
+      - '*.cjs'
+      - '*.html'
+      - 'harness/**'
+      - 'data/**'
+      - 'test/fixtures/**'
+      - 'scripts/build-static.cjs'
+      - 'package.json'
+      - 'vercel.json'
+      - '.vercelignore'
+      - '.github/workflows/game-checks.yml'
+  pull_request:
+    paths:
+      - '*.js'
+      - '*.cjs'
+      - '*.html'
+      - 'harness/**'
+      - 'data/**'
+      - 'test/fixtures/**'
+      - 'scripts/build-static.cjs'
+      - 'package.json'
+      - 'vercel.json'
+      - '.vercelignore'
+      - '.github/workflows/game-checks.yml'
+permissions:
+  contents: read
+jobs:
+  syntax-and-wiring:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check app.js
+      - name: Test personal APIs, plugins, recovery, effects and static serving without model calls
+        run: npm run test:unit
+      - name: Check four-faction offline game behavior
+        run: npm test
+      - name: Check story-data fields and Qing tree structure
+        run: npm run test:content
+      - name: Assemble public static assets
+        run: npm run build

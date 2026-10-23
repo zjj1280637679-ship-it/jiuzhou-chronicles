@@ -1,108 +1,62 @@
-> **2026-10-23 更新**：界面不再显示生成运行日志或诊断指标；舞台背景和独立图片弹窗使用不同工具与状态，关闭弹窗不跳页、不改背景。接口见 [美术演出说明](docs/ILLUSTRATIONS.md#ai-选图)。篇幅按钮仍为 500／2000／5000，仅在模型提示词中分别要求 1000／2500／5500 字正文。程序不统计或验收字数，也不会因正文较短拒绝交付或强制补写。
->
-> **2026-10-22 更新**：用户已移除站长共享 API。当前游戏仅使用个人 API 或本地剧情，保留原 GitHub Pages 网址；不再依赖 Cloudflare。原共享设置会关闭自动远端请求并保留已填写的个人配置，需确认后手动启用。下文旧部署与测试记录按其历史时间理解。
+# 九州沉浮录 · Chronicles of Nine Provinces
 
-# 九州沉浮录 · Chronicles of Nine Provinces : Destiny Mirror
+东方历史题材文字冒险：预置四阵营剧情、可选个人 API 推演、场景插画与手机阅读界面。
 
-> **东方史诗文字冒险与自适应 AI GM 引擎 (Visual Novel & Interactive Fiction)**  
-> 融合明清易代历史底本、四大阵营剧情树、预置展示插画与 DeepSeek 在线剧情推演。**AI 接线已建立，长篇实际质量及续玩稳定性仍在验收。**
+**[在线游戏](https://zjj1280637679-ship-it.github.io/jiuzhou-chronicles/)**
 
-🌐 **在线直接畅玩 (Live Demo)**:  
-👉 **[https://zjj1280637679-ship-it.github.io/jiuzhou-chronicles/](https://zjj1280637679-ship-it.github.io/jiuzhou-chronicles/)**
+## 开始游玩
 
-> **时序说明：以下“当前”仅截至 2026-10-19 09:03:46 UTC 的代码快照**（`jiuzhou-chronicles@02b83d91`，后端 `starport-persona@81f8a19f` 时间 2026-10-19 08:52:17 UTC）。访问门槛的**历史引入与随后撤销**见 [带 UTC 时间线的权威决策记录](docs/CURRENT-STATE-AND-DECISIONS.md)。任何未来计划不是现有功能。
+- 默认使用浏览器本地剧情，无需账号或 API Key。
+- 要使用 AI，在“设置 → 连接来源”选择 DeepSeek、Google Gemini 或自定义／本机 API，填写该服务的 Key，先“测试请求”，再保存。Google 卡预填官方兼容接口与 `gemini-flash-lite-latest`；具体底层版本以服务响应为准。
+- 自定义接口支持不需要 Key 的服务。API 请求直接发往所选服务，不依赖站长共享网关、Cloudflare 后台或另一套密钥服务；服务商需要允许浏览器跨域访问。
+- API 设置保存在当前浏览器，不随游戏进度备份导出。连接测试使用未保存的表单，测试成功不等于已保存设置，也不证明所有网络都能连接该服务。
 
----
+## 游戏与演出
 
-## 🌟 核心特色与系统
+本地剧情和 AI 推演使用现有游戏引擎；失败或取消后保留原行动供玩家重试，也可明确改用本地剧情。程序不自动重发收费请求。
 
-### 1. 四大阵营近十万字史诗同人底本与全向剧情树
-- **大清中枢 (Qing Court)**：八旗定策、崇政殿誓盟、范文程入关定鼎策、山海关一片石鏖战。
-- **大明中枢 (Ming Empire)**：太仓库竭、东南漕税博弈、煤山挽澜誓死勤王、铁血内阁重整山河。
-- **大漠蒙古 (Mongol Steppe)**：察哈尔西奔、黄金家族直系统摄、迎奉九游白纛苏勒德神矛、铁骑横扫戈壁。
-- **南国海邦 (Southern Seas & Nanming)**：闽海龙旗、郑氏远洋舰队、佛郎机西洋火炮、隆武誓师拓土重洋。
+舞台背景持续显示，图片互动使用独立弹窗，抉择只在剧情需要时弹出。背景与图片弹窗是不同的工具与状态，关闭图片不跳页、不改背景。旧插画句柄继续兼容；新增资源见 [插画接口](docs/ILLUSTRATIONS.md)。
 
-### 2. 24 个阵营插画展示槽位与部分已安装图像素材
-- **四大阵营 × 六大情境万金油套图**：
-  - 俘虏 (`captive`)、战斗 (`battle`)、战争 (`war`)、情缘/同袍结义 (`romance`)、胜利 (`victory`)、财富 (`wealth`)
-- **严格阵营隔离**：各阵营独立视觉基因与叙事透镜，互不混淆。
-- **集成谷歌原生电影级画幅生图**：如山海关一片石万骑踏阵（`data/illustrations/qing/war.jpg`）。
+篇幅按钮保持 500／2000／5000，仅在模型提示词中分别要求 1000／2500／5500 字正文。程序不统计或验收字数，不因正文较短拒交或强制补写。游戏和设置不显示运行日志、Token、耗时、缓存或工具次数等诊断指标。
 
-### 3. 双轨解耦与单向不可逆 AI 自由推演
-- **法定主线剧情 0 消耗冻结**：基准主干对白随走随存，时光机精准悔棋。
-- **AI 自由外推单向演化**：
-  - 玩家自主行动与掷骰裁决。
-  - 3 个全新的具体走向分支 + 1 个自定开放输入框。
-  - 预期长度偏好：500 / 2000 / 5000 档；**请求篇幅不等于稳定达到目标字数**。
-  - 动态适时展示阵营套图，大结局画卷绝不触发强制 Game Over，自由开启新篇。
+## 本地运行
 
-### 4. 纯双模式引擎 (Dual-Mode Engine)
-- **本地自洽 GM 模式 (默认 0 门槛畅玩)**：
-  - 纯前端 JavaScript 状态机与内建故事树，无需注册、无需 API Key、零网络延迟即点即玩。
-- **远端实时 AI 模式 (可选启用)**：
-  - 在线 AI 使用设置里填写的个人端点和模型；也支持不需要 Key 的兼容端点。
-  - 展示部分缓存命中遥测，但**不保证 100% 命中率**或永久无损的上下文记忆。
+需要 Node.js；没有第三方 npm 生产依赖：
 
-### 5. 沉浸式 ADV / AVG 视觉小说交互
-- **返回上一段**：支持对白与套图卡片双向平滑回退与前进。
-- **血红危机特效**：危机事件震动与血红警示，安全平滑平息与终止，绝无死锁。
-- **全端自适应响应式布局**：完美兼容 PC 桌面宽屏与移动端手机竖屏/横屏。
-
----
-
-## 🚀 本地运行与开发
-
-游戏主体是无第三方 npm 生产依赖的静态前端；**在线 AI 需要玩家配置可由浏览器访问的个人 Chat Completions 接口**。根目录 Node 网关为本地/自托管替代路径，非 GitHub Pages 正式后端。
-
-### 方法 1：直接双击打开
-直接双击 `index.html` 可尝试离线剧情；`file://` 不等于线上站点，跨域和 AI 联通行为不保证一致。
-
-### 方法 2：使用 Node.js 网关（推荐）
-```bash
-# 复制配置文件模板
-cp config.example.json config.json
-# （可选）在 config.json 中填入您的 DeepSeek API Key
-
-# 启动本地服务
+```powershell
 npm start
-# 或 node server.js
-```
-然后在浏览器中打开：[http://localhost:8088](http://localhost:8088)。注意根目录 `server.js` 的配置写入接口目前没有认证，**不要直接暴露公网**。
-
----
-
-## 📁 目录结构
-
-```text
-├── index.html                  # 主界面与视觉小说 AVG 舞台
-├── styles.css                  # 视觉小说与水墨古典响应式样式表
-├── app.js                      # 核心状态机、推演引擎、ADV 渲染器
-├── skills-data.js              # 技能树与设计句柄数据
-├── config.example.json         # API 配置文件模板
-├── server.js                   # Node.js 本地开发服务与 API 网关
-├── data/
-│   ├── faction-novels.js       # 四大阵营十万字史诗小说合集
-│   ├── illustrations/          # 24 张阵营独立展示套图
-│   │   ├── illustrations-data.js
-│   │   ├── qing/
-│   │   ├── ming/
-│   │   ├── mongol/
-│   │   └── nanming/
-│   ├── qing-epic-novel.md      # 大清中枢长篇底本
-│   ├── ming-epic-novel.md      # 大明中枢长篇底本
-│   ├── mongol-epic-novel.md    # 大漠蒙古长篇底本
-│   └── nanming-epic-novel.md   # 南国海邦长篇底本
-└── docs/                       # 开发设计架构文档与演进方案
 ```
 
----
+打开 [http://localhost:8088](http://localhost:8088)。本地服务只负责静态文件；无需配置文件或服务端 Key。浏览器插件工具使用 Web Worker，建议通过 HTTP 打开，而不是双击 `file://`。
 
-## 📜 开源协议
+`npm run build` 将公开游戏资源复制到 `dist/`，可用静态 HTTP 服务托管该目录；Vercel 也仅发布此目录。旧 `api/` 代理、自动寻找本机密钥的逻辑及 `pure-local/` 副本已删除。遗留本机配置不再读取，也不会被本地服务或构建发布。
+
+## 开发与验证
+
+```powershell
+npm test
+npm run test:unit
+npm run test:content
+npm run build
+node test-personal-ai-browser.mjs
+node test-mobile-layout.mjs
+node test-exploration-ui.mjs
+```
+
+`test:unit` 使用本地夹具，覆盖个人来源、插件、演出、恢复及静态发布；`test:content` 检查预置剧情字段、指针和清阵营树结构。浏览器脚本会启动隔离的本地 HTTP 服务，需要可用的 Playwright 与 Chromium；可用 `JIUZHOU_BROWSER_EXECUTABLE` 指定浏览器路径，其他选项见各脚本。离线模拟、真实 API、生产网页和实体手机验证分别记录；模拟通过不等于真实模型或所有网络已通过。
+
+## 文档与目录
+
+| 入口 | 用途 |
+| --- | --- |
+| [当前状态与决策](docs/CURRENT-STATE-AND-DECISIONS.md) | 当前规则与证据边界 |
+| [个人 API 与 Google](docs/API-SOURCES.md) | 来源选择、配置及请求适配 |
+| [插件工具循环](harness/README.md) | 浏览器 Web Worker 插件与工具契约 |
+| [场景插画](docs/ILLUSTRATIONS.md) | 图库、兼容 ID、背景与图片弹窗工具 |
+| [手机界面](docs/MOBILE-THEATER.md) | 阅读、抉择与弹窗布局 |
+| [设置、恢复与备份](docs/EXPLORATION-RECOVERY-AND-SETTINGS.md) | 设置收纳、失败恢复、存档与收藏 |
+| [历史档案](docs/history/README.md) | 旧共享网关、早期方案和当时测试记录 |
+
+`index.html`、`app.js` 和样式文件组成静态游戏；`harness/` 是模型适配与浏览器插件；`data/` 存放剧情和本地素材；`scripts/build-illustration-catalog.cjs` 构建正式图库。
 
 本项目采用 [MIT 许可证](LICENSE)。
-
-## 🔌 GitHub Pages 共享 AI 接入
-
-截至上述冻结点，GitHub Pages **不会**运行 `api/chat.js` 或 `api/config.js`；在线 AI 通过 Cloudflare Worker 的 `/api/jiuzhou/turn` 使用服务端 DeepSeek Key。项目方**已主动取消**九州邀请码、Turnstile、站长开关、自设限流及额外输出封顶；DeepSeek/Cloudflare 自身的平台限制仍存在。[共享 AI 网关说明](docs/SHARED-AI-GATEWAY.md) 记录具体测试。
-
-**尚未完成（截至 2026-10-19 09:03:46 UTC）**：真实 5000 档曾生成 3064 正文字符（2691 汉字），没有达到 3500–4800 字目标；连续多轮稳定性未被证明。动态 `innerHTML` 渲染、私有 Key 浏览器持久化、本地 Node 配置接口无鉴权及有限历史窗口也尚未修复。**不得把这些待修项写成已修复，也不得为了修稳定性擅自重加邀请码或验证码。**

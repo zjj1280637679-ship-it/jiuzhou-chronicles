@@ -143,16 +143,6 @@
   font-size: 13px;
   line-height: 1.65;
 }
-#drawer-settings #btn-retry-shared-ai { margin-top: 10px; white-space: normal; }
-#drawer-settings .settings-cache-heading { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
-#drawer-settings .settings-cache-heading h3 { flex-basis: 100%; }
-#drawer-settings .cache-status-tag { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
-#drawer-settings .cache-metrics-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
-#drawer-settings .cache-metric-card { min-width: 0; padding: 10px 4px; }
-#drawer-settings .cache-metric-card .cm-label { overflow-wrap: anywhere; }
-#drawer-settings .cache-metric-card .cm-value { font-size: 17px; overflow-wrap: anywhere; }
-#drawer-settings .settings-cache-explainer { margin-top: 14px; }
-#drawer-settings .cache-layer-indicators { grid-template-columns: minmax(0, 1fr); }
 #drawer-settings .settings-version { margin: 0; color: var(--text-dim); font-size: 11px; line-height: 1.6; overflow-wrap: anywhere; }
 #drawer-settings .settings-actions {
   display: flex;
@@ -187,5 +177,4 @@
   #drawer-settings .settings-dialog { height: calc(100dvh - max(12px, env(safe-area-inset-top))); }
   #drawer-settings .settings-body { padding: 16px !important; }
   #drawer-settings .settings-actions { padding: 10px 16px calc(12px + env(safe-area-inset-bottom)); }
-  #drawer-settings .cache-telemetry-box { padding: 12px 10px; }
 }

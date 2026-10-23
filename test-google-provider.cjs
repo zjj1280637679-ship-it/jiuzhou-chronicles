@@ -31,7 +31,7 @@ test("Google provider registers independently and uses official defaults when on
   assert.equal(config.endpoint, ENDPOINT); assert.equal(config.model, MODEL);
   assert.equal(route.source, "google"); assert.equal(route.id, "google");
   assert.equal(route.endpoint, ENDPOINT); assert.equal(route.model, MODEL);
-  assert.equal(route.adapter, "google"); assert.equal(route.useGateway, false);
+  assert.equal(route.adapter, "google");
   assert.equal(providers.list().filter(item => item.id === "google").length, 1);
 });
 
@@ -41,7 +41,7 @@ test("Google Key is trimmed into the Bearer header and never enters the body or 
   assert.equal(output.headers["Content-Type"], "application/json");
   assert.doesNotMatch(JSON.stringify(output.body), /fixture-google-private-key/);
   assert.doesNotMatch(output.endpoint, /fixture-google-private-key|[?&]key=/);
-  assert.equal(output.useGateway, false);
+  assert.equal(output.endpoint, ENDPOINT);
 });
 
 test("Google probe and ordinary JSON completions enable JSON mode without DeepSeek settings", () => {

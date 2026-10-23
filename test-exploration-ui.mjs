@@ -160,17 +160,12 @@ try {
       const req = route.request(), url = new URL(req.url());
       if (url.origin === origin) {await route.continue(); return;}
       const cors = {"access-control-allow-origin":origin, "access-control-allow-methods":"POST, OPTIONS", "access-control-allow-headers":"content-type, authorization"};
-      if (url.pathname === "/health") {
-        await route.fulfill({status:200, headers:cors, contentType:"application/json", body:JSON.stringify({ok:true, configured:true, enabled:true,
-          jiuzhouEnabled:true, jiuzhouReady:true, model:"exploration-fixture"})}); return;
-      }
-      const shared = url.pathname === "/api/jiuzhou/turn";
       const custom = url.origin === "https://exploration.fixture" && url.pathname === "/v1/chat/completions";
-      if (shared || custom) {
+      if (custom) {
         if (req.method() === "OPTIONS") {await route.fulfill({status:204, headers:cors}); return;}
         assert.equal(req.method(), "POST");
         const body = JSON.parse(req.postData() || "{}");
-        if (custom) {customCalls++; assert.equal(req.headers().authorization, undefined, "An empty Key must not send Authorization");}
+        customCalls++; assert.equal(req.headers().authorization, undefined, "An empty Key must not send Authorization");
         const probe = body.messages.at(-1).content.includes("连接测试成功");
         if (probe) {
           probeCalls++;
@@ -187,7 +182,9 @@ try {
           finish_reason:"stop", message:{role:"assistant", content:JSON.stringify({beats:[{speaker:"粮官", sub:"模拟回复", text:replyText}],
             choices:[{text:"核对账目"}, {text:"商议运粮"}, {text:"巡查城门"}]})}}], usage:{prompt_tokens:100, completion_tokens:150}})}); return;
       }
-      if (req.method() === "POST") unexpected.push(url.origin + url.pathname);
+      if (req.method() === "POST" || url.pathname === "/health" || url.pathname === "/api/jiuzhou/turn") {
+        unexpected.push(req.method() + " " + url.origin + url.pathname);
+      }
       await route.abort("blockedbyclient");
     });
     try {

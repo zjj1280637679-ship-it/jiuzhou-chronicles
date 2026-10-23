@@ -4,7 +4,6 @@ const {test} = require("node:test");
 const {normalizeConfig, resolve, createRequest, register, list} = require("./harness/providers.js");
 const {tools} = require("./harness/protocol.js");
 
-const shared = {sharedEndpoint: "https://shared.fixture/api/jiuzhou/turn", sharedModel: "server-selected-model"};
 const transcript = [{role: "system", content: "稳定游戏规则"}, {role: "user", content: "先救百姓"}];
 function custom(overrides = {}) {
   return normalizeConfig({enabled: true, source: "custom", endpoint: "https://compatible.fixture/v1/chat/completions",
@@ -24,12 +23,12 @@ test("legacy personal keys or non-default endpoints migrate to custom, including
   }
 });
 
-test("custom HTTPS and loopback HTTP endpoints work without a Key or shared health configuration", () => {
+test("custom HTTPS and loopback HTTP endpoints work without a Key", () => {
   for (const endpoint of ["https://compatible.fixture/v1/chat/completions", "http://localhost:1234/v1/chat/completions",
     "http://127.0.0.1:8080/v1/chat/completions", "http://[::1]:8080/v1/chat/completions"]) {
-    const route = resolve(custom({endpoint}), {sharedEndpoint: "broken shared setting"});
+    const route = resolve(custom({endpoint}));
     assert.equal(route.source, "custom"); assert.equal(route.endpoint, endpoint);
-    assert.equal(route.useGateway, false); assert.equal(route.headers.Authorization, undefined);
+    assert.equal(route.headers.Authorization, undefined);
   }
 });
 
@@ -143,7 +142,7 @@ test("provider identity is stable for the same configuration and changes with en
 test("a separately registered provider uses the same transport contract and can be removed without changing built-ins", () => {
   const before = list();
   const plugin = {id: "fixture-independent-provider", label: "独立来源测试", resolve(config) {
-    return {source: this.id, id: this.id, label: this.label, identity: "fixture-plugin-route", useGateway: false,
+    return {source: this.id, id: this.id, label: this.label, identity: "fixture-plugin-route",
       endpoint: "https://independent.fixture/completions", model: config.model, headers: {"Content-Type": "application/json"}};
   }, request(route, options) {return {model: route.model, messages: structuredClone(options.messages), fixture: true};}};
   const dispose = register(plugin);
@@ -155,7 +154,7 @@ test("a separately registered provider uses the same transport contract and can 
     assert.equal(request.body.fixture, true); assert.equal(request.body.max_tokens, 1234);
     assert.equal(request.body.model, "independent-model");
     assert.equal(resolve(custom()).source, "custom");
-    assert.equal(resolve({source: "shared"}, shared).source, "custom");
+    assert.equal(resolve({source: "shared"}).source, "custom");
   } finally {dispose();}
   assert.deepEqual(list(), before);
   assert.throws(() => resolve({source: plugin.id}), /invalid_provider/);
@@ -163,7 +162,7 @@ test("a separately registered provider uses the same transport contract and can 
 
 test("a resolved route cannot be dispatched through a different plugin later registered under the same id", () => {
   const plugin = marker => ({id: "fixture-replaced-provider", resolve() {return {
-    source: this.id, id: this.id, identity: marker, useGateway: false, endpoint: "https://independent.fixture/completions", headers: {}
+    source: this.id, id: this.id, identity: marker, endpoint: "https://independent.fixture/completions", headers: {}
   };}, request() {return {marker};}});
   const removeA = register(plugin("A"));
   const oldRoute = resolve({source: "fixture-replaced-provider"});

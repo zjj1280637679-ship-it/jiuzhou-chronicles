@@ -15,7 +15,7 @@
         const selectedModel = config.model === "custom" ? config.customModel : config.model;
         if (typeof selectedModel !== "string" || !selectedModel.trim()) throw fail("invalid_model");
         if (url.hostname === "generativelanguage.googleapis.com" && !config.apiKey) throw fail("missing_api_key");
-        return {label: "Google Gemini", useGateway: false, endpoint: url.href,
+        return {label: "Google Gemini", endpoint: url.href,
           model: selectedModel.trim(), adapter: "google", tokenParameter: "max_tokens",
           headers: {"Content-Type": "application/json", ...(config.apiKey ? {Authorization: "Bearer " + config.apiKey} : {})},
           identity: identity(["google", url.href, selectedModel.trim(), config.apiKey])};

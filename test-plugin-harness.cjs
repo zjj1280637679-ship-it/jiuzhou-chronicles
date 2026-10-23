@@ -335,15 +335,14 @@ function appEngine(t) {
   const original = {window: global.window, fetch: global.fetch, WORLD_PRESETS: global.WORLD_PRESETS};
   t.after(() => Object.assign(global, original));
   global.WORLD_PRESETS = require("./skills-data.js");
-  global.window = {JIUZHOU_AI_GATEWAY: {endpoint: "https://fixture.gateway"}, JiuzhouHarnessProtocol: protocol,
+  global.window = {JiuzhouHarnessProtocol: protocol,
     JiuzhouHarness: {createGameHarness: opts => createGameHarness({...opts, baseURL, workerFactory: createNodeWorkerFactory()})}};
   return Object.assign(Object.create(WebVisualNovelEngine.prototype), {
     apiConfig: {enabled: true, source: "custom", adapter: "deepseek", apiKey: "", model: "deepseek-flash", endpoint: "https://private.fixture/chat/completions", maxTokens: 32768},
-    serverSharedConfig: {hasServerKey: true}, apiHistory: [], expectedLength: 500, currentFaction: "ming", branchDepth: 1,
+    apiHistory: [], expectedLength: 500, currentFaction: "ming", branchDepth: 1,
     ideologyVector: {authority: 0, pragmatism: 0, progress: 0, cognition: 0},
     cacheTelemetry: {lastHitTokens: 0, lastMissTokens: 0, lastHitRate: "0.0%"},
-    qmCache: element(), aiConnectionStatus: element(), cacheStatusTag: element(), aiHarnessProgressDisplay: element(),
-    aiGenerationMetricsDisplay: element(), btnCancelAIRequest: element(), executeAITools() {}
+    aiConnectionStatus: element(), btnCancelAIRequest: element(), executeAITools() {}
   });
 }
 const response = data => ({ok: true, status: 200, json: async () => data});
@@ -376,7 +375,8 @@ test("app runs native agent requests with one signal and commits only the verifi
   assert.equal(engine.aiGenerationMetrics.harness.modelCalls, 2);
   assert.equal(engine.aiGenerationMetrics.harness.toolCalls, 1);
   assert.equal(engine.activeAIRequestController, null);
-  assert.equal(engine.btnCancelAIRequest.hidden, true); assert.equal(engine.aiHarnessProgressDisplay.hidden, true);
+  assert.equal(engine.btnCancelAIRequest.hidden, true);
+  assert.equal(engine.aiConnectionStatus.textContent, "最近一轮 AI 剧情已生成");
 });
 
 test("app cancellation after a tool step aborts the active model request without committing partial history", async t => {

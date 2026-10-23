@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>暮灯星栈 · 东方奇幻文字冒险 (Visual Novel & AVG)</title>
+  <title>九州沉浮录 · 东方历史文字冒险</title>
   <link rel="stylesheet" href="styles.css?v=20261023-ui04">
-  <link rel="stylesheet" href="mobile.css?v=20261023-ui04">
-  <link rel="stylesheet" href="settings.css?v=20261024-gemini01">
+  <link rel="stylesheet" href="mobile.css?v=20261024-cleanup02">
+  <link rel="stylesheet" href="settings.css?v=20261024-cleanup02">
   <link rel="stylesheet" href="favorites.css?v=20261021-0800">
   <link rel="stylesheet" href="recovery-ui.css?v=20261022-0900">
   <link rel="stylesheet" href="input-viewport.css?v=20261021-0800">
@@ -40,7 +40,7 @@
         <div class="title-crest-icon">✦ 观星纪 ✦</div>
         <h1 class="title-main-heading">九州沉浮录</h1>
         <div class="title-eng-sub">CHRONICLES OF NINE PROVINCES : DESTINY MIRROR</div>
-        <div class="title-version-pill" id="title-version-badge">Build v2.5.0 (2026.10.19 纯双轨解耦版 · 主线0消耗冻结 · AI自由小说单向不可逆 · 500~8000字 · 3选项+开放输入)</div>
+        <div class="title-version-pill" id="title-version-badge">Build v2.5.0 (2026.10.24.0002 · 插件式推演 · 自由篇幅交付)</div>
         <div class="title-motto">“社稷天命在手，一念沧海桑田”</div>
 
         <div class="title-menu-actions">
@@ -72,7 +72,7 @@
         </div>
 
         <div class="title-footer-ver">
-          <span>版本 v2.5.0 (Build 2026.10.19) · 纯双轨解耦架构 · 主线进度0消耗严格冻结 · AI自由小说单向不可逆推演 · 500~8000字长篇 · 3大选项+开放自填</span>
+          <span>版本 v2.5.0 (Build 2026.10.24.0002) · 本地剧情 · 可选个人 API · 3选项+开放输入</span>
         </div>
       </div>
     </div>
@@ -119,7 +119,7 @@
       <button type="button" class="qm-btn" id="btn-cancel-ai-request" hidden title="取消本次等待，保留原行动供重试">取消本次生成</button>
       <button type="button" class="qm-btn" id="qm-recovery" hidden>处理未完成行动</button>
       <button class="qm-btn" id="qm-settings" title="连接、生成偏好与进度备份">⚙ 设置</button>
-      <span class="qm-version-tag" id="qm-version-tag" title="当前引擎构建版本: v2.5.0 (Build 2026.10.19)">v2.5.0</span>
+      <span class="qm-version-tag" id="qm-version-tag" title="当前引擎构建版本: v2.5.0 (Build 2026.10.24.0002)">v2.5.0</span>
       <section class="mobile-reading-tools mobile-only" id="mobile-reading-tools" aria-label="阅读设置">
         <p class="mobile-section-label">阅读设置</p>
         <div class="mobile-font-tools"><span>正文字号</span><button type="button" id="mobile-font-decrease" aria-label="缩小正文字号"><img src="data/mobile/icons/minus.svg" alt=""></button><button type="button" id="mobile-font-increase" aria-label="放大正文字号"><img src="data/mobile/icons/plus.svg" alt=""></button></div>
@@ -354,7 +354,7 @@
             <div id="settings-progress-status"></div>
           </section>
 
-          <p class="settings-version">当前版本 <span id="settings-version-display">v2.5.0 (Build 2026.10.19)</span></p>
+          <p class="settings-version">当前版本 <span id="settings-version-display">v2.5.0 (Build 2026.10.24.0002)</span></p>
         </div>
         <div class="settings-actions">
           <button type="button" class="qm-btn" id="btn-test-ai-connection">测试请求</button>
@@ -373,7 +373,7 @@
         <div class="drawer-body" style="padding: 20px; display:flex; flex-direction:column; gap:14px;">
           <div style="font-size:0.85rem; color:var(--text-dim); line-height:1.6;">
             你可以输入任意自定义行动、密谋或临场决断。
-            后台将由 <strong style="color:var(--accent-gold);">DeepSeek / AI GM</strong> 全权接住，根据你的文字即时生成一段专属的<strong style="color:#4ade80;">【野生支线场景卡】</strong>：
+            使用设置中选定的<strong style="color:var(--accent-gold);">个人 AI 服务</strong>推演后续剧情；未启用远端 AI 时使用本地剧情：
           </div>
           <textarea id="open-input-text" class="form-input" rows="4" style="width:100%; resize:vertical; font-family:inherit; padding:12px; font-size:0.95rem; line-height:1.6; border:1px solid rgba(234,179,8,0.4);" placeholder="输入你的自定义行动，例如：
 - 亲率三千白巴牙喇假扮明军夜袭镇江大营，切断南都信道...
@@ -484,8 +484,8 @@
           <div class="storytree-explanation-banner">
             <span class="st-icon">💡</span>
             <div class="st-text">
-              <strong>预设剧情树骨架 + AI 生成分支页与微调自圆其说：</strong>
-              主剧情树（1变3, 3变9）为<strong>【开发阶段预设的法定历史大纲】</strong>；AI 的核心职责是<strong>【生成全新的局外分支剧情页】</strong>并在玩家<strong>【重归预设剧情树后微调已有剧情卡，达成因果一致性与自圆其说】</strong>。
+              <strong>预设剧情与自由探索：</strong>
+              主剧情树提供预置分支。进入自由探索后，故事从当前场景继续推演，预设主线停留在离开时的节点。可通过存档或书签回溯到先前进度。
             </div>
           </div>
 
@@ -570,14 +570,14 @@
   <script src="data/illustrations/illustrations-data.js"></script>
   <script src="data/illustrations/catalog-data.js?v=20261022-2200"></script>
   <script src="illustration-system.js?v=20261022-2200"></script>
-  <script src="skills-data.js"></script>
-  <script src="harness/provider-google.js?v=20261024-gemini01"></script>
-  <script src="harness/providers.js?v=20261024-gemini01"></script>
+  <script src="skills-data.js?v=20261024-cleanup02"></script>
+  <script src="harness/provider-google.js?v=20261024-cleanup02"></script>
+  <script src="harness/providers.js?v=20261024-cleanup02"></script>
   <script src="game-recovery.js?v=20261023-ui04"></script>
   <script src="scene-favorites.js?v=20261021-0800"></script>
   <script src="harness/protocol.js?v=20261023-ui04"></script>
   <script src="harness/runtime.js?v=20261024-gemini01"></script>
-  <script src="app.js?v=20261024-gemini01"></script>
+  <script src="app.js?v=20261024-cleanup02"></script>
   <script src="recovery-ui.js?v=20261022-0900"></script>
   <script src="favorites-ui.js?v=20261021-0800"></script>
   <script src="mobile-ui.js?v=20261023-ui04"></script>

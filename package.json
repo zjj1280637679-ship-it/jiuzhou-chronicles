@@ -5,7 +5,11 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "node test-all-factions-tree.js"
+    "test": "node test-all-factions-tree.js",
+    "test:unit": "node --unhandled-rejections=strict --test test-personal-api-migration.cjs test-ai-connection-probe.cjs test-free-exploration-edges.cjs test-plugin-harness.cjs test-providers.cjs test-google-provider.cjs test-ai-provider-routing.cjs test-game-recovery.cjs test-scene-favorites.cjs test-input-viewport.cjs test-illustration-registry.cjs test-illustration-harness.cjs test-stage-effects.cjs test-static-server.cjs",
+    "test:content": "node verify-all-364-trees.js && node test-qing-243-tree.js",
+    "test:static-server": "node --test test-static-server.cjs",
+    "build": "node scripts/build-static.cjs"
   },
   "keywords": [
     "visual-novel",

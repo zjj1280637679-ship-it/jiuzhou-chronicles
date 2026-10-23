@@ -6,7 +6,7 @@
 // =============================================================================
 
 const APP_VERSION = "v2.5.0";
-const BUILD_STAMP = "2026.10.24.0001";
+const BUILD_STAMP = "2026.10.24.0002";
 const VERSION_FULL = `v2.5.0 (Build ${BUILD_STAMP} · 插件式工具循环 · 自由篇幅交付 · 3选项+开放输入)`;
 const AIProviders = typeof module === "object" && module.exports
   ? require("./harness/providers.js") : globalThis.JiuzhouProviders;
@@ -72,7 +72,7 @@ class WebVisualNovelEngine {
     // AI 生成中互斥锁 (杜绝并发请求与提早弹出伪造选项卡)
     this.isAIGenerating = false;
 
-    // AI 交付正文目标 (默认至少 2000 字，支持 500 / 2000 / 5000)
+    // 正文篇幅偏好（500 / 2000 / 5000），只影响后续提示词。
     let savedExpectedLength = 2000;
     try {
       const storedLen = parseInt(localStorage.getItem("vn_expected_length"), 10);
@@ -687,7 +687,7 @@ class WebVisualNovelEngine {
     if (this.settingMaxTokens) this.settingMaxTokens.value = this.apiConfig.maxTokens ?? "";
 
     this.updateAIProviderSettingsUI();
-    this.updateCachePillUI();
+    this.updateAIConnectionStatusUI();
 
     // 初始化交付正文目标按钮状态。
     const lengthButtons = document.querySelectorAll(".btn-length");
@@ -716,7 +716,6 @@ class WebVisualNovelEngine {
       }
     });
 
-    console.log(`[Narrative Engine] 交付正文目标设置为: 至少${len}字`);
   }
 
   // 绑定交互事件
@@ -777,7 +776,7 @@ class WebVisualNovelEngine {
     // 点击对话框推进 (严格受控：若 AI 正在推演生成中，严禁调用 nextStoryBeat 杜绝伪造早产选项卡！)
     this.dialogueBox.addEventListener("click", (e) => {
       if (this.gameState !== "PLAYING") return;
-      if (e.target.closest("#btn-branch-explainer, #ai-length-group, .btn-length, #btn-dialogue-prev, .dialogue-illustration-card")) return;
+      if (e.target.closest("#btn-branch-explainer, #ai-length-group, .btn-length, #btn-dialogue-prev")) return;
       const selection = window.getSelection();
       if (selection && selection.toString().length > 0) return;
 
@@ -958,8 +957,6 @@ class WebVisualNovelEngine {
       autoBtn.style.color = this.autoPlay ? "var(--accent-jade)" : "var(--text-dim)";
       if (this.autoPlay && !this.isTyping) this.nextStoryBeat();
     });
-
-    // 快捷菜单缓存胶囊点击直达设置抽屉
 
     // 模型选择器联动
     for (const button of this.settingPresetButtons || []) {
@@ -1318,7 +1315,7 @@ class WebVisualNovelEngine {
     try { localStorage.setItem("vn_api_config", JSON.stringify(next)); } catch (_) {}
     this.invalidateAIConnectionTest();
     this.updateAIProviderSettingsUI();
-    this.updateCacheTelemetryUI();
+    this.updateAIConnectionStatusUI();
 
   }
 
@@ -1356,7 +1353,7 @@ class WebVisualNovelEngine {
       lastHitTokens: hit, lastMissTokens: miss,
       lastHitRate: known ? (hit + miss > 0 ? ((hit / (hit + miss)) * 100).toFixed(1) + "%" : "0.0%") : "未提供",
       reasoningTokens: Number(usage.completion_tokens_details?.reasoning_tokens) || 0};
-    this.updateCacheTelemetryUI();
+    this.updateAIConnectionStatusUI();
   }
 
   // 按选定来源调用“微调已有剧情页以自圆其说”的职责。
@@ -1401,7 +1398,7 @@ ${JSON.stringify(targetNode.originalBeats)}
 
     const request = AIProviders.createRequest(route, {mode: "suture", maxTokens: config.maxTokens,
       messages});
-    const data = await this.requestAICompletion(request.endpoint, request.body, request.headers, request.useGateway, "suture", null, route);
+    const data = await this.requestAICompletion(request.endpoint, request.body, request.headers, "suture", null, route);
     this.assertAIProviderRouteCurrent(route, revision);
     const choiceObj = data.choices && data.choices[0];
     this.assertAICompletionFinished(choiceObj, "suture");
@@ -3509,7 +3506,7 @@ ${JSON.stringify(targetNode.originalBeats)}
     // 重置 DeepSeek API 前缀历史流
     this.apiHistory = [];
     this.pendingApiChoices = null;
-    this.updateCachePillUI();
+    this.updateAIConnectionStatusUI();
 
     this.choiceOverlay.classList.remove("visible");
     this.updateIncenseHUD();
@@ -3573,7 +3570,7 @@ ${JSON.stringify(targetNode.originalBeats)}
       try { currentIdentity = this.resolveAIProvider().identity; } catch (_) {}
       this.cacheTelemetry = saved.cacheTelemetry?.sourceIdentity === currentIdentity && currentIdentity ? saved.cacheTelemetry :
         {lastHitTokens: null, lastMissTokens: null, lastHitRate: "未提供", cacheUsageKnown: false, totalHits: 0};
-      this.updateCacheTelemetryUI();
+      this.updateAIConnectionStatusUI();
 
       this.updateIncenseHUD();
 
@@ -4003,7 +4000,7 @@ ${currentProfile.npcRoster}`;
       return {...result.data, harness: result.harness || result.data.harness};
     } : null;
     const data = await this.requestAICompletion(initialRequest.endpoint, initialRequest.body, initialRequest.headers,
-      initialRequest.useGateway, "story", runner, route);
+      "story", runner, route);
     this.assertAIProviderRouteCurrent(route, revision);
     const choiceObj = data.choices && data.choices[0];
     this.assertAICompletionFinished(choiceObj, "story");
@@ -4329,7 +4326,7 @@ ${currentProfile.npcRoster}`;
       upstream_rate_limited: "AI 服务繁忙，请稍后重试",
       upstream_request_rejected: "所选 AI 服务拒绝本轮请求，请检查模型及参数配置",
       upstream_unavailable: "AI 服务暂时不可用，请稍后重试",
-      upstream_network_error: "AI 网关无法连接模型服务，请稍后重试",
+      upstream_network_error: "无法连接模型服务，请稍后重试",
       upstream_timeout: "AI 服务响应超时，请稍后重试",
       invalid_mode: "AI 请求模式无效，请刷新网页后重试",
       invalid_messages: "AI 剧情上下文无效，请检查 API 配置",
@@ -4352,7 +4349,7 @@ ${currentProfile.npcRoster}`;
       plugin_error: "剧情插件执行失败，本轮尚未交付",
       invalid_tool_call: "模型调用的剧情工具无效，本轮尚未交付",
       invalid_tool_response: "模型的工具调用格式无效，本轮未提交不完整剧情",
-      invalid_tools: "剧情工具配置与网关不匹配，请刷新后重试",
+      invalid_tools: "模型不支持当前剧情工具配置，请检查接口兼容性后重试",
       invalid_tool_name: "请求了未注册的剧情工具，本轮未提交剧情",
       invalid_tool_history: "剧情工具历史不完整，本轮未提交剧情",
       agent_stalled: "模型重复了相同操作且没有进展，已结束本轮推演",
@@ -4379,7 +4376,7 @@ ${currentProfile.npcRoster}`;
       mode === "suture" ? `本轮已使用本地弥合：${this.describeAIError(error)}` : `本轮剧情尚未交付：${this.describeAIError(error)}`;
     this.aiRequestStatus = {state, mode, channel, sourceIdentity: route?.identity || null,
       revision, model: String(model || ""), message};
-    this.updateCachePillUI();
+    this.updateAIConnectionStatusUI();
   }
 
   updateAIConnectionStatusUI() {
@@ -4414,7 +4411,7 @@ ${currentProfile.npcRoster}`;
     }
   }
 
-  async requestAICompletion(endpoint, body, headers, useGateway, mode, runner = null, route = null) {
+  async requestAICompletion(endpoint, body, headers, mode, runner = null, route = null) {
     if (!route) { try { route = this.resolveAIProvider(); } catch (_) {} }
     const revision = this.aiConfigRevision || 0;
     const current = () => route ? this.isAIProviderRouteCurrent(route, revision) : revision === (this.aiConfigRevision || 0);
@@ -4424,7 +4421,7 @@ ${currentProfile.npcRoster}`;
     if (this.btnCancelAIRequest) this.btnCancelAIRequest.hidden = false;
     this.aiHarnessProgress = {mode: runner ? "agent" : "compatibility", phase: runner ? "preparing" : "model_start", sourceLabel: route ? `${route.label} · ${route.model}` : "", modelCalls: runner ? 0 : 1, toolCalls: 0, startedAt: Date.now(), phaseStartedAt: Date.now()};
     let timedOut = false;
-    const timer = useGateway || runner ? null : setTimeout(() => {
+    const timer = runner ? null : setTimeout(() => {
       timedOut = true;
       controller.abort();
     }, 75000);
@@ -4507,14 +4504,6 @@ ${currentProfile.npcRoster}`;
     }
   }
 
-  // Keep connection/error notices separate from internal generation telemetry.
-  updateCachePillUI() {
-    this.updateAIConnectionStatusUI();
-  }
-
-  updateCacheTelemetryUI() {
-    this.updateCachePillUI();
-  }
 }
 
 // 页面加载启动 (兼容 DOMContentLoaded 与 late script evaluation)

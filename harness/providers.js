@@ -66,7 +66,7 @@
       const model = config.model === "custom" ? config.customModel : config.model;
       if (typeof model !== "string" || !model.trim()) throw fail("invalid_model");
       const adapter = config.adapter === "auto" ? url.hostname === "api.deepseek.com" ? "deepseek" : "openai" : config.adapter;
-      return {source: "custom", id: "custom", label: "自定义 API", useGateway: false, endpoint: url.href, model: model.trim(), adapter,
+      return {source: "custom", id: "custom", label: "自定义 API", endpoint: url.href, model: model.trim(), adapter,
         tokenParameter: config.tokenParameter,
         headers: {"Content-Type": "application/json", ...(config.apiKey ? {Authorization: "Bearer " + config.apiKey} : {})},
         identity: identity(["custom", url.href, model.trim(), adapter, config.tokenParameter, config.apiKey])};
@@ -107,9 +107,9 @@
     if (options.maxTokens !== undefined && options.maxTokens !== null && options.maxTokens !== "") {
       const count = Number(options.maxTokens);
       if (!Number.isSafeInteger(count) || count < 1) throw fail("invalid_max_tokens");
-      body[route.useGateway ? "max_tokens" : route.tokenParameter || "max_tokens"] = count;
+      body[route.tokenParameter || "max_tokens"] = count;
     }
-    return {endpoint: route.endpoint, headers: {...route.headers}, body, useGateway: route.useGateway};
+    return {endpoint: route.endpoint, headers: {...route.headers}, body};
   }
   return {normalizeConfig, resolve, createRequest, register,
     list: () => [...plugins.values()].map(plugin => ({id: plugin.id, label: plugin.label || plugin.id})),

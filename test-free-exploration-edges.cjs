@@ -13,14 +13,13 @@ function element() {
   }};
 }
 function engine() {
-  global.window = {JIUZHOU_AI_GATEWAY: {endpoint: "https://gateway.example.com"}};
+  global.window = {};
   return Object.assign(Object.create(WebVisualNovelEngine.prototype), {
     apiConfig: {enabled: true, source: "custom", apiKey: "", model: "deepseek-flash", endpoint: "https://private.example.com/chat/completions", maxTokens: 32768},
-    serverSharedConfig: {hasServerKey: true}, apiHistory: [], expectedLength: 5000, currentFaction: "ming", branchDepth: 1,
+    apiHistory: [], expectedLength: 5000, currentFaction: "ming", branchDepth: 1,
     ideologyVector: {authority: 0, pragmatism: 0, progress: 0, cognition: 0},
     cacheTelemetry: {lastHitTokens: 0, lastMissTokens: 0, lastHitRate: "0.0%"},
-    qmCache: element(), aiConnectionStatus: element(), cacheStatusTag: element(),
-    aiGenerationMetricsDisplay: element(), btnCancelAIRequest: element(),
+    aiConnectionStatus: element(), btnCancelAIRequest: element(),
     buildDeepSeekCachePayload() { return {messages: [
       {role: "system", content: "JSON 剧情规则"}, {role: "system", content: "时代背景"}, {role: "user", content: "先救百姓，再核对军粮账册"}
     ], ephemeralTail: "先救百姓，再核对军粮账册"}; }
@@ -79,7 +78,7 @@ test("length finish reason rejects both valid and partial JSON without fake succ
     assert.equal(e.apiHistory.length, 0); assert.equal(e.aiGenerationMetrics, null);
     assert.equal(e.aiRequestStatus.state, "fallback");
     assert.match(e.aiConnectionStatus.textContent, /输出未完整结束/);
-    assert.doesNotMatch(e.qmCache.innerText, /AI 已生成/);
+    assert.doesNotMatch(e.aiConnectionStatus.textContent, /AI 已生成|Token|命中率/);
   }
 });
 
@@ -101,7 +100,7 @@ test("interrupted and other non-stop endings never count as successful story or 
       assert.equal(e.aiGenerationMetrics, null);
       assert.equal(e.aiRequestStatus.state, "fallback");
       assert.match(e.aiConnectionStatus.textContent, /生成被中断，尚未获得完整剧情/);
-      assert.doesNotMatch(e.qmCache.innerText, /AI 已生成/);
+      assert.doesNotMatch(e.aiConnectionStatus.textContent, /AI 已生成|Token|命中率/);
     }
   }
 });
@@ -211,15 +210,15 @@ test("metrics retain token, timing and story structure internally without render
   assert.equal(e.aiGenerationMetrics.finishReason, "stop");
   assert.equal(e.aiGenerationMetrics.expectedLength, undefined);
   assert.ok(e.aiGenerationMetrics.elapsedMs >= 0);
-  assert.equal(e.aiGenerationMetricsDisplay.textContent, "");
-  assert.equal(e.qmCache.innerText, "");
+  assert.equal(e.aiConnectionStatus.textContent, "最近一轮 AI 剧情已生成");
+  assert.doesNotMatch(e.aiConnectionStatus.textContent, /Token|耗时|命中率|模型\s*\d+\s*次|工具\s*\d+\s*次/);
 });
 
 test("an absent finish reason is reported as unknown, never as confirmed complete", async () => {
   const e = engine(); global.fetch = async () => response(story(), null);
   await turn(e);
   assert.equal(e.aiGenerationMetrics.finishReason, null);
-  assert.equal(e.aiGenerationMetricsDisplay.textContent, "", "An unknown finish reason must stay internal rather than create a log panel");
+  assert.equal(e.aiConnectionStatus.textContent, "最近一轮 AI 剧情已生成", "An unknown finish reason must stay internal rather than create a log panel");
 });
 
 test("changing the UI preference while waiting changes only future prompts and never blocks a short response", async () => {
@@ -251,7 +250,7 @@ test("manual cancellation exposes its cause, cleans up and permits a fresh reque
     requests++; firstSignal = options.signal;
     return new Promise((_resolve, reject) => options.signal.addEventListener("abort", () => reject(new DOMException("Aborted", "AbortError")), {once: true}));
   };
-  const pending = e.requestAICompletion("https://gateway.example.com", {}, {}, true, "story");
+  const pending = e.requestAICompletion(e.apiConfig.endpoint, {}, {}, "story");
   assert.equal(e.btnCancelAIRequest.hidden, false); assert.ok(firstSignal instanceof AbortSignal);
   e.cancelAIRequest();
   await assert.rejects(pending, {code: "request_cancelled"});
@@ -261,15 +260,51 @@ test("manual cancellation exposes its cause, cleans up and permits a fresh reque
   await turn(e); assert.equal(requests, 2); assert.equal(e.aiRequestStatus.state, "success");
 });
 
-test("shared generation has no automatic deadline; private deadline clears in finally", async () => {
-  const e = engine(); let timer, cleared;
-  global.fetch = async () => response(story());
-  global.setTimeout = () => {throw new Error("Shared generation must not create a deadline");};
-  await e.requestAICompletion("https://gateway.example.com", {}, {}, true, "story");
-  global.setTimeout = (callback, ms) => {assert.equal(ms, 75000); timer = callback; return "private-timer";};
+test("a native runner owns its lifetime without an automatic request deadline", async () => {
+  const e = engine(); let requests = 0;
+  global.setTimeout = () => {throw new Error("A native runner must not create a request deadline");};
+  global.fetch = async (_url, options) => {
+    requests++;
+    assert.ok(options.signal instanceof AbortSignal);
+    return response(story());
+  };
+  const result = await e.requestAICompletion(e.apiConfig.endpoint, {}, {}, "story", signal => {
+    assert.equal(signal.aborted, false);
+    return e.fetchAICompletion(e.apiConfig.endpoint, {}, {}, signal);
+  });
+  assert.equal(result.model, "fixture-model"); assert.equal(requests, 1);
+  assert.equal(e.activeAIRequestController, null); assert.equal(e.btnCancelAIRequest.hidden, true);
+});
+
+test("ordinary single-request deadlines are cleared after success or provider failure", async () => {
+  for (const fails of [false, true]) {
+    const e = engine(); let timer, cleared;
+    global.fetch = async () => {
+      if (fails) throw new TypeError("fixture disconnected");
+      return response(story());
+    };
+    global.setTimeout = (callback, ms) => {assert.equal(ms, 75000); timer = callback; return "request-timer";};
+    global.clearTimeout = token => {cleared = token;};
+    const pending = e.requestAICompletion(e.apiConfig.endpoint, {}, {}, "suture");
+    if (fails) await assert.rejects(pending, {name: "TypeError", message: "fixture disconnected"});
+    else assert.equal((await pending).model, "fixture-model");
+    assert.equal(typeof timer, "function"); assert.equal(cleared, "request-timer");
+    assert.equal(e.activeAIRequestController, null); assert.equal(e.btnCancelAIRequest.hidden, true);
+  }
+});
+
+test("an ordinary single-request timeout aborts once and releases its timer and cancellation state", async () => {
+  const e = engine(); let timer, cleared, signal, requests = 0;
+  global.setTimeout = (callback, ms) => {assert.equal(ms, 75000); timer = callback; return "request-timer";};
   global.clearTimeout = token => {cleared = token;};
-  await e.requestAICompletion("https://private.example.com", {}, {}, false, "suture");
-  assert.equal(typeof timer, "function"); assert.equal(cleared, "private-timer");
+  global.fetch = async (_url, options) => {
+    requests++; signal = options.signal;
+    return new Promise((_resolve, reject) => signal.addEventListener("abort", () => reject(new DOMException("Aborted", "AbortError")), {once: true}));
+  };
+  const pending = e.requestAICompletion(e.apiConfig.endpoint, {}, {}, "suture");
+  assert.equal(signal.aborted, false); timer();
+  await assert.rejects(pending, {code: "upstream_timeout"});
+  assert.equal(signal.aborted, true); assert.equal(requests, 1); assert.equal(cleared, "request-timer");
   assert.equal(e.activeAIRequestController, null); assert.equal(e.btnCancelAIRequest.hidden, true);
 });
 

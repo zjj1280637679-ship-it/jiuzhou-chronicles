@@ -16,13 +16,12 @@ afterEach(() => {
 });
 
 function engine() {
-  global.window = {JIUZHOU_AI_GATEWAY: {endpoint: "https://gateway.example.com"}};
+  global.window = {};
   return Object.assign(Object.create(WebVisualNovelEngine.prototype), {
     apiConfig: {
       enabled: false, source: "custom", apiKey: "saved-private-fixture", endpoint: "https://saved.example.com/chat/completions",
-      model: "saved-model", customModel: "", maxTokens: 32768, userDisabledShared: true
+      model: "saved-model", customModel: "", maxTokens: 32768
     },
-    serverSharedConfig: null,
     settingApiSource: {value: "custom"},
     settingApiAdapter: {value: "auto"},
     settingTokenParameter: {value: "max_tokens"},
@@ -72,7 +71,6 @@ test("probe uses the unsaved private Key, endpoint and custom model without savi
   e.settingEndpoint.value = "  https://unsaved.example.com/chat/completions  ";
   e.settingModel.value = "custom";
   e.settingCustomModel.value = "  fixture-custom-model  ";
-  e.serverSharedConfig = {hasServerKey: true};
   const before = gameState(e);
   let requests = 0;
   global.fetch = async (url, options) => {
@@ -98,9 +96,9 @@ test("probe uses the unsaved private Key, endpoint and custom model without savi
   assertRestored(e);
 });
 
-test("a private probe does not require a valid shared gateway setting", async () => {
+test("a personal probe never reads a retired shared gateway configuration", async () => {
   const e = engine();
-  window.JIUZHOU_AI_GATEWAY.endpoint = "broken shared setting";
+  Object.defineProperty(window, "JIUZHOU_AI_GATEWAY", {get() {throw new Error("Retired shared configuration must not be read");}});
   e.settingApiKey.value = "unsaved-private-fixture";
   global.fetch = async url => {
     assert.equal(url, "https://unsaved.example.com/chat/completions");
@@ -118,7 +116,6 @@ test("an explicit custom probe without a Key never falls back to shared AI", asy
   e.settingModel.value = "custom";
   e.settingCustomModel.value = "generic-fixture-model";
   e.settingTokenParameter.value = "max_completion_tokens";
-  e.serverSharedConfig = {hasServerKey: true};
   const before = gameState(e); let requests = 0;
   global.fetch = async (url, options) => {
     requests++;
@@ -137,7 +134,7 @@ test("an explicit custom probe without a Key never falls back to shared AI", asy
 
 test("a failed Keyless custom probe stays on the custom route instead of trying the shared gateway", async () => {
   const e = engine(); e.settingApiSource.value = "custom"; e.settingApiKey.value = "";
-  e.serverSharedConfig = {hasServerKey: true}; const before = gameState(e); let requests = 0;
+  const before = gameState(e); let requests = 0;
   global.fetch = async url => {requests++; assert.equal(url, "https://unsaved.example.com/chat/completions"); throw new TypeError("fixture disconnected");};
   await e.testAIConnection();
   assert.equal(requests, 1); assert.match(e.aiConnectionTestStatus.textContent, /测试失败/);
