@@ -1,0 +1,35 @@
+name: Jules AI Agent & Reviewer
+
+on:
+  pull_request:
+    types: [opened]
+  workflow_dispatch:
+    inputs:
+      prompt:
+        description: 'Task instructions for Jules'
+        required: true
+        default: 'Review the latest changes, run tests, and report or fix any issues.'
+        type: string
+      starting_branch:
+        description: 'Starting branch'
+        required: false
+        default: 'main'
+        type: string
+
+jobs:
+  jules-task:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Invoke Jules Agent
+        uses: google-labs-code/jules-invoke@v1
+        with:
+          jules_api_key: ${{ secrets.JULES_API_KEY }}
+          starting_branch: ${{ github.event.inputs.starting_branch || github.base_ref || 'main' }}
+          include_last_commit: true
+          include_commit_log: true
+          prompt: |
+            ${{ github.event.inputs.prompt || 'You are an automated code reviewer. Review the latest commit and pull request changes. Check for bugs, syntax errors, edge cases, test coverage, and security risks. If you identify clear bugs or improvements, propose a targeted fix and verify that all tests pass.' }}
