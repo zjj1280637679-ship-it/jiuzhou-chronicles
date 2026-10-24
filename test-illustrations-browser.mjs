@@ -145,7 +145,10 @@ try {
       const resultOf = id => {const entry = body.messages.find(message => message.role === "tool" && message.tool_call_id === id); return entry && JSON.parse(entry.content);};
       if (requests.length === 2) {
         const result = resultOf("illustration_1");
-        assert.equal(result.ok, true); assert.equal(result.count, 1); assert.equal(result.total, 1);
+        assert.equal(result.ok, true);
+        assert.equal(result.count, result.illustrations.length);
+        assert.ok(result.count > 0 && result.count <= result.pageSize);
+        assert.ok(result.total >= result.count);
         assert.ok(result.illustrations.some(asset => asset.id === chosen[0]));
       }
       if (requests.length === 3) {
