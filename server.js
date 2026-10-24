@@ -21,7 +21,8 @@ const PUBLIC_ROOT_FILES = new Set([
   'index.html', 'favicon.ico', 'app.js', 'illustration-system.js', 'skills-data.js',
   'game-recovery.js', 'scene-favorites.js', 'recovery-ui.js', 'favorites-ui.js',
   'mobile-ui.js', 'settings-ui.js', 'input-viewport.js', 'styles.css', 'mobile.css',
-  'settings.css', 'favorites.css', 'recovery-ui.css', 'input-viewport.css'
+  'settings.css', 'favorites.css', 'recovery-ui.css', 'input-viewport.css',
+  'gallery-ui.js', 'gallery.css'
 ]);
 
 function publicPathAllowed(relativePath) {

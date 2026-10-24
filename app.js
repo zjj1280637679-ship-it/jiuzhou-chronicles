@@ -5,9 +5,9 @@
 // 底层：4轴8向政治光谱、MBTI机能隐式测量与16历史人物镜像拟合
 // =============================================================================
 
-const APP_VERSION = "v2.5.0";
-const BUILD_STAMP = "2026.10.24.0002";
-const VERSION_FULL = `v2.5.0 (Build ${BUILD_STAMP} · 插件式工具循环 · 自由篇幅交付 · 3选项+开放输入)`;
+const APP_VERSION = "v2.6.0";
+const BUILD_STAMP = "2026.10.25.0001";
+const VERSION_FULL = `v2.6.0 (Build ${BUILD_STAMP} · 分类画库 · 短语选图 · 自由篇幅交付)`;
 const AIProviders = typeof module === "object" && module.exports
   ? require("./harness/providers.js") : globalThis.JiuzhouProviders;
 const GameRecovery = typeof module === "object" && module.exports
@@ -276,13 +276,13 @@ class WebVisualNovelEngine {
 
   setSceneBackground(params = {}) {
     if (!params || typeof params !== "object" || Array.isArray(params) ||
-        Object.keys(params).some(key => !["id", "clear"].includes(key)) ||
+        Object.keys(params).some(key => !["id", "token", "clear"].includes(key)) ||
         (params.clear !== undefined && typeof params.clear !== "boolean")) return false;
     if (params.clear === true) this.stageBackground = null;
     else {
-      const asset = this.getIllustrationRegistry()?.resolve(params.id);
-      if (!asset) return false;
-      this.stageBackground = {id: asset.id};
+      const selected = this.getIllustrationRegistry()?.reference(params);
+      if (!selected?.ok) return false;
+      this.stageBackground = {id: selected.asset.id};
     }
     this.refreshStageBackground();
     return true;
@@ -295,6 +295,7 @@ class WebVisualNovelEngine {
   illustrationSelectionsFromEffects(effects) {
     return (effects || []).filter(effect => this.isIllustrationEffect(effect)).map(effect => ({
       id: effect.params?.id || (effect.name === "show_illustration" ? undefined : effect.name),
+      token: effect.params?.token,
       afterBeat: effect.params?.afterBeat,
       caption: effect.params?.caption ?? effect.params?.description ?? ""
     }));
@@ -382,6 +383,7 @@ class WebVisualNovelEngine {
         case "nanming_wealth": {
           const result = this.getIllustrationRegistry()?.normalizeSelection({
             id: params.id || (toolName === "show_illustration" ? undefined : toolName),
+            token: params.token,
             afterBeat: params.afterBeat, caption: params.caption ?? params.description ?? ""
           });
           if (result?.ok) (this.pendingIllustrationSelections ||= []).push(result.selection);
@@ -3804,8 +3806,9 @@ ${JSON.stringify(targetNode.originalBeats)}
     const currentProfile = factionProfiles[factionKey] || factionProfiles.qing;
 
     // This stable directory is descriptive data; scene setting is independent of player allegiance.
-    const toolLines = (this.getIllustrationRegistry()?.list() || []).map(asset =>
-      `     * ${asset.id}: ${asset.title} · ${asset.categoryName}`
+    const toolLines = (this.getIllustrationRegistry()?.featured({faction: factionKey, coords: this.currentCoords,
+      backgroundId: this.getSceneIllustration()?.id, limit: 6}) || []).map(asset =>
+      `     * ${asset.token}: ${asset.description || asset.title}`
     ).join("\n");
 
     const harnessIdentityAndPersona = `你是一位沉浸感与戏剧张力兼备的明末清初历史跑团主持人（TRPG Game Master）。
@@ -3825,11 +3828,11 @@ ${JSON.stringify(targetNode.originalBeats)}
      * screen_shake: { "intensity": "light|medium|heavy", "duration": 500 }
      * weather_effect: { "type": "blizzard|rain|clear" }
    - 两种独立演出工具：set_scene_background 只设置舞台背景，不开弹窗、不插入正文段；select_illustration 只安排互动图片弹窗，不改背景。两者可选不同图，也可各自单独使用或清除，不能互相代替。
-   - 先用 list_illustrations 按场景、标签或画面设定查询准确 id。画面地域不等于玩家阵营，可按实际处境跨目录选图。背景用于交代持续环境，弹窗用于独立展示事件或特写，不要把每张背景都再弹一次。
+   - 有合适精选时可直接用token短语选图；有明确需求时用search_illustrations搜索名称、标签或内容（多个关键词空格分隔）；需要探索素材时用browse_illustrations逐层浏览分类。查询结果分页，可按nextPage继续。画面地域不等于玩家阵营，可跨目录选图。背景交代持续环境，弹窗独立展示事件或特写。
    - select_illustration 的 afterBeat=0 表示正文前、1 表示第一段正文后；按原始正文段落计数，不是阅读分页。可为不同位置选择不同图，同位置后一次覆盖，clear:true 清空本轮选图。
    - 两种演出都只在本轮正文成功交付后提交。背景持续到被更换或清除；弹窗到达指定正文位置时打开，关闭后继续阅读，可通过画卷按钮重看，不在正文框中嵌图卡。图片、说明、工具、JSON 和思考都不属于正文；无合适图时照常创作，不猜句柄、不传图片 URL。
-   - 兼容 JSON 交付：背景用 {"name":"set_scene_background","params":{"id":"qing_campaign_map"}}，clear:true 恢复静态场景背景；互动图片弹窗用 {"name":"show_illustration","params":{"id":"qing_night_raid","afterBeat":1,"caption":"营栅外的夜色"}}。画面描述不能替正文断定罪责、胜负或人物忠诚。
-   - 当前登记句柄（详细描述与匹配建议由 list_illustrations 查询）：
+   - 用准确token调用，如select_illustration({"token":"后金·骑军突击"})；旧id继续兼容，未知短语需先查找，不能根据正文猜测映射。兼容 JSON 交付：背景用 {"name":"set_scene_background","params":{"token":"后金·山川军图"}}；弹窗用 {"name":"show_illustration","params":{"token":"后金·夜袭营垒","afterBeat":1,"caption":"营栅外的夜色"}}。画面描述不能替正文断定罪责、胜负或忠诚。
+   - 本轮少量精选（其他图片通过分类或搜索按需查询；没有图片二进制进入模型上下文）：
 ${toolLines || "     当前图库不可用，正文可继续。"}
 4. 行动抉择（choices）：
    - 在结尾给出 3 个具象、充满战术张力与利益博弈的下一步跑团行动建议供玩家抉择（第4项由玩家开放自填）。
@@ -3996,7 +3999,8 @@ ${currentProfile.npcRoster}`;
           return this.fetchAICompletion(step.endpoint, step.body, step.headers, request.signal || signal);
         },
         world: worldSnapshot,
-        illustrations: this.getIllustrationRegistry()?.list({includeLegacy: true}) || [],
+        illustrationCatalog: this.getIllustrationRegistry()?.snapshot(),
+        illustrationBaseURL: typeof document !== "undefined" ? document.baseURI : undefined,
         signal,
         onEvent: event => { if (this.isAIProviderRouteCurrent(route, revision)) this.updateAIHarnessProgress(event); }
       });
