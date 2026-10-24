@@ -8,7 +8,7 @@
 
 - `plugins/world.js`：`read_world` 读取玩家可见的本轮快照。
 - `plugins/story.js`：`write_draft` 替换或追加草稿，`read_draft` 读取，`inspect_draft` 检查，`deliver_story` 交付。草稿不会直接改变玩家历史。
-- `plugins/illustrations.js`：`list_illustrations` 查询真实目录，`set_scene_background` 暂存持续舞台背景，`select_illustration` 暂存指定阅读位置的独立图片弹窗。两种演出及清除互不影响，正文成功交付后才附加各自 `stage_effects`，背景不插正文段、弹窗不改背景。
+- `plugins/illustrations.js`：`browse_illustrations` 逐层浏览分类树，`search_illustrations` 搜索并分页返回图片短语及内容摘要，`list_illustrations` 为兼容搜索入口。`set_scene_background` 暂存持续舞台背景，`select_illustration` 暂存指定阅读位置的独立图片弹窗；两种演出都可只传一个 `token` 短语，旧 `id` 仍兼容。正文成功交付后才提交各自效果。
 - `providers.js`：来源注册与模型卡预设，按选中来源构造请求；不会切换到站长通道。`provider-google.js` 独立适配 Google Gemini 官方兼容接口，默认 `gemini-flash-lite-latest`。通用接口、Google 与 DeepSeek 扩展分别适配，见 [API来源](../docs/API-SOURCES.md)。
 - `protocol.js`：宿主与独立插件共用的工具契约及纯文本规范化规则。工具按名字稳定排序；注册按配置顺序，避免启动快慢改变行为。
 - `worker-entry.js`：独立插件的消息入口。异常变为工具回执；同步卡死的插件在工具超时后被终止，其他插件保持可用。这里的本地工具超时不是模型请求、字数或调用频率上限。
@@ -19,17 +19,20 @@
 
 ## 插画工具与新增接口
 
-宿主通过 `createGameHarness({illustrations: registry.list({includeLegacy: true}), ...})` 注入本轮目录快照；插件用根模块 `illustration-system.js` 的 `createRegistry({assets})`、`list()` 和 `normalizeSelection()` 统一检索与校验。目录默认开放全部可用场景，`faction` 仅筛选画面设定，不作为玩家阵营的访问限制。
+宿主通过 `createGameHarness({illustrationCatalog: registry.snapshot(), illustrationBaseURL: document.baseURI, ...})` 注入可克隆的精简目录，包含分类、短语、旧别名及按需文字分片路径。插件和网页共用 `illustration-system.js` 的注册表。旧 `illustrations` 数组注入继续兼容。目录默认开放全部可用场景，`faction` 仅筛选画面设定，不作为玩家阵营的访问限制。
 
 ```js
-list_illustrations({query: "押解", category: "囚禁"})
-select_illustration({id: "qing_prisoner_escort", afterBeat: 2, caption: "雪路上的押解队伍。"})
+browse_illustrations({path: "事件/拘押与交涉"})
+search_illustrations({query: "押解", page: 1, pageSize: 8})
+select_illustration({token: "后金·押解途中", afterBeat: 2, caption: "雪路上的押解队伍。"})
 select_illustration({clear: true})
 ```
 
 `afterBeat` 指分页前的整稿原始正文段落；追加草稿也按整稿编号，不按本次追加片段重新编号。0 为首段前，N 为第 N 段后，默认 1；超出正文末尾的位置由渲染层放在末尾。同一个位置重新选择会覆盖旧图，不同位置可分别选图。成功返回 `result.selections` 完整快照；无效 ID、URL、段落位置或说明类型返回错误且不改变旧选择。原生调用与兼容 JSON 交付均只在正文通过检查后才附加 `show_illustration` 效果；清空、取消、失败和下一轮请求不会继承上轮待选图片。
 
 新增图片仅需增加可信目录条目和本地文件；新增场景匹配写入场景映射，工具声明、Worker 和模型循环不需要按图片数量增加分支。目录及选图回执不写入正文 `beats[].text`；图片说明、工具 JSON 和查询结果不会用于满足字数目标。
+
+模型提示词最多露出 6 幅当前精选，其余通过分类或搜索发现。分类只返回当前层，搜索默认每页 8 项，回执含 `total`、`hasMore`、`nextPage`；回执只投影图片身份、短语和内容，不含地址。文字索引与详情分片在检索时读取，已知短语可在检索失败时继续准确选择。所有图片字节仍只由网页在背景实际切换或弹窗到达时请求，AI Worker 不下载图片。
 
 ## 篇幅偏好
 

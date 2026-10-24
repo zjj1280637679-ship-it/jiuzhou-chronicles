@@ -35,7 +35,7 @@
       {id: "illustrations", url: new URL("plugins/illustrations.js", baseURL).href}
     ];
     const makeWorker = options.workerFactory || (url => new Worker(url));
-    const assetVersion = "20261023-ui04";
+    const assetVersion = "20261025-gallery01";
     const timeoutMs = options.pluginTimeoutMs ?? 10000;
     const entries = [], registry = new Map();
     let sequence = 0, disposed = false;
@@ -135,7 +135,8 @@
       try { options.onEvent?.(clone(event)); } catch (_) { /* UI listeners cannot break the turn. */ }
     };
     const host = await createPluginHost({...options, context: {world: clone(options.world || {}),
-      illustrations: clone(Array.isArray(options.illustrations) ? options.illustrations : [])}});
+      illustrations: clone(Array.isArray(options.illustrations) ? options.illustrations : []),
+      ...(options.illustrationCatalog ? {illustrationCatalog: clone(options.illustrationCatalog), illustrationBaseURL: options.illustrationBaseURL} : {})}});
     // Background and popup drafts belong to this generation only and never change each other.
     let illustrations = [];
     let backgroundChange = null;

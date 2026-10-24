@@ -30,7 +30,7 @@ const chosen = ["qing_night_raid", "qing_lamplit_questioning"];
 const story = {beats:[{speaker:"旁白", text:"文书核对完毕，营火照亮了卷宗。"}, {speaker:"随行者", text:"言辞尚有出入，明日再访证人。"}],
   choices:[{text:"核对卷宗"}, {text:"访查营地"}, {text:"照看伤者"}]};
 const steps = [
-  {name:"list_illustrations", arguments:{faction:"qing"}},
+  {name:"list_illustrations", arguments:{faction:"qing", query:"夜袭"}},
   {name:"select_illustration", arguments:{id:"qing_unknown_fixture", afterBeat:0}},
   {name:"select_illustration", arguments:{id:chosen[0], afterBeat:0, caption:"夜色中尚未分晓的行动。"}},
   {name:"write_draft", arguments:{story, mode:"replace"}},
@@ -145,7 +145,10 @@ try {
       const resultOf = id => {const entry = body.messages.find(message => message.role === "tool" && message.tool_call_id === id); return entry && JSON.parse(entry.content);};
       if (requests.length === 2) {
         const result = resultOf("illustration_1");
-        assert.equal(result.ok, true); assert.equal(result.count, 32);
+        assert.equal(result.ok, true);
+        assert.equal(result.count, result.illustrations.length);
+        assert.ok(result.count > 0 && result.count <= result.pageSize);
+        assert.ok(result.total >= result.count);
         assert.ok(result.illustrations.some(asset => asset.id === chosen[0]));
       }
       if (requests.length === 3) {

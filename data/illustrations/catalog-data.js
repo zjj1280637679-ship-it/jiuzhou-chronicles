@@ -2,7 +2,7 @@
 (function(root){
   "use strict";
   const catalog = {
-  "version": 1,
+  "version": 2,
   "title": "九州场景插画注册表",
   "assets": [
     {
@@ -19,7 +19,14 @@
       "sourcePack": "legacy-factions",
       "tags": [],
       "useWhen": [],
-      "avoidWhen": []
+      "avoidWhen": [],
+      "token": "大明·禁军斩逆",
+      "tokenAliases": [],
+      "categoryPath": [
+        "事件",
+        "军事行动",
+        "近阵交锋"
+      ]
     },
     {
       "id": "ming_captive",
@@ -35,7 +42,14 @@
       "sourcePack": "legacy-factions",
       "tags": [],
       "useWhen": [],
-      "avoidWhen": []
+      "avoidWhen": [],
+      "token": "大明·诏狱严鞫",
+      "tokenAliases": [],
+      "categoryPath": [
+        "事件",
+        "拘押与交涉",
+        "看守押解"
+      ]
     },
     {
       "id": "ming_romance",
@@ -51,7 +65,14 @@
       "sourcePack": "legacy-factions",
       "tags": [],
       "useWhen": [],
-      "avoidWhen": []
+      "avoidWhen": [],
+      "token": "大明·深宫密约",
+      "tokenAliases": [],
+      "categoryPath": [
+        "人物关系",
+        "同袍与密约",
+        "夜话盟誓"
+      ]
     },
     {
       "id": "ming_victory",
@@ -67,7 +88,14 @@
       "sourcePack": "legacy-factions",
       "tags": [],
       "useWhen": [],
-      "avoidWhen": []
+      "avoidWhen": [],
+      "token": "大明·日月重光",
+      "tokenAliases": [],
+      "categoryPath": [
+        "事件",
+        "社会与权力",
+        "庆典登位"
+      ]
     },
     {
       "id": "ming_war",
@@ -83,7 +111,14 @@
       "sourcePack": "legacy-factions",
       "tags": [],
       "useWhen": [],
-      "avoidWhen": []
+      "avoidWhen": [],
+      "token": "大明·宁远坚城",
+      "tokenAliases": [],
+      "categoryPath": [
+        "事件",
+        "军事行动",
+        "围城夜袭"
+      ]
     },
     {
       "id": "ming_wealth",
@@ -99,7 +134,14 @@
       "sourcePack": "legacy-factions",
       "tags": [],
       "useWhen": [],
-      "avoidWhen": []
+      "avoidWhen": [],
+      "token": "大明·太仓银库",
+      "tokenAliases": [],
+      "categoryPath": [
+        "物件",
+        "文书与财货",
+        "库藏商贸"
+      ]
     },
     {
       "id": "mongol_battle",
@@ -115,7 +157,14 @@
       "sourcePack": "legacy-factions",
       "tags": [],
       "useWhen": [],
-      "avoidWhen": []
+      "avoidWhen": [],
+      "token": "蒙古·骑射奔袭",
+      "tokenAliases": [],
+      "categoryPath": [
+        "事件",
+        "军事行动",
+        "骑兵突击"
+      ]
     },
     {
       "id": "mongol_captive",
@@ -131,7 +180,14 @@
       "sourcePack": "legacy-factions",
       "tags": [],
       "useWhen": [],
-      "avoidWhen": []
+      "avoidWhen": [],
+      "token": "蒙古·瀚海俘敌",
+      "tokenAliases": [],
+      "categoryPath": [
+        "事件",
+        "拘押与交涉",
+        "看守押解"
+      ]
     },
     {
       "id": "mongol_romance",
@@ -147,7 +203,14 @@
       "sourcePack": "legacy-factions",
       "tags": [],
       "useWhen": [],
-      "avoidWhen": []
+      "avoidWhen": [],
+      "token": "蒙古·穹庐同衾",
+      "tokenAliases": [],
+      "categoryPath": [
+        "人物关系",
+        "同袍与密约",
+        "夜话盟誓"
+      ]
     },
     {
       "id": "mongol_victory",
@@ -163,7 +226,14 @@
       "sourcePack": "legacy-factions",
       "tags": [],
       "useWhen": [],
-      "avoidWhen": []
+      "avoidWhen": [],
+      "token": "蒙古·黄金再起",
+      "tokenAliases": [],
+      "categoryPath": [
+        "事件",
+        "社会与权力",
+        "庆典登位"
+      ]
     },
     {
       "id": "mongol_war",
@@ -179,7 +249,14 @@
       "sourcePack": "legacy-factions",
       "tags": [],
       "useWhen": [],
-      "avoidWhen": []
+      "avoidWhen": [],
+      "token": "蒙古·长生天誓",
+      "tokenAliases": [],
+      "categoryPath": [
+        "事件",
+        "军事行动",
+        "骑兵突击"
+      ]
     },
     {
       "id": "mongol_wealth",
@@ -195,7 +272,14 @@
       "sourcePack": "legacy-factions",
       "tags": [],
       "useWhen": [],
-      "avoidWhen": []
+      "avoidWhen": [],
+      "token": "蒙古·万顷牛羊",
+      "tokenAliases": [],
+      "categoryPath": [
+        "物件",
+        "文书与财货",
+        "库藏商贸"
+      ]
     },
     {
       "id": "nanming_battle",
@@ -211,7 +295,14 @@
       "sourcePack": "legacy-factions",
       "tags": [],
       "useWhen": [],
-      "avoidWhen": []
+      "avoidWhen": [],
+      "token": "南明·接舷跳帮",
+      "tokenAliases": [],
+      "categoryPath": [
+        "事件",
+        "水陆战事",
+        "海上交锋"
+      ]
     },
     {
       "id": "nanming_captive",
@@ -227,7 +318,14 @@
       "sourcePack": "legacy-factions",
       "tags": [],
       "useWhen": [],
-      "avoidWhen": []
+      "avoidWhen": [],
+      "token": "南明·登舰受缚",
+      "tokenAliases": [],
+      "categoryPath": [
+        "事件",
+        "拘押与交涉",
+        "看守押解"
+      ]
     },
     {
       "id": "nanming_romance",
@@ -243,7 +341,14 @@
       "sourcePack": "legacy-factions",
       "tags": [],
       "useWhen": [],
-      "avoidWhen": []
+      "avoidWhen": [],
+      "token": "南明·风涛同舟",
+      "tokenAliases": [],
+      "categoryPath": [
+        "人物关系",
+        "同袍与密约",
+        "夜话盟誓"
+      ]
     },
     {
       "id": "nanming_victory",
@@ -259,7 +364,14 @@
       "sourcePack": "legacy-factions",
       "tags": [],
       "useWhen": [],
-      "avoidWhen": []
+      "avoidWhen": [],
+      "token": "南明·龙旗耀海",
+      "tokenAliases": [],
+      "categoryPath": [
+        "事件",
+        "社会与权力",
+        "庆典登位"
+      ]
     },
     {
       "id": "nanming_war",
@@ -275,7 +387,14 @@
       "sourcePack": "legacy-factions",
       "tags": [],
       "useWhen": [],
-      "avoidWhen": []
+      "avoidWhen": [],
+      "token": "南明·巨舰横江",
+      "tokenAliases": [],
+      "categoryPath": [
+        "事件",
+        "水陆战事",
+        "海上交锋"
+      ]
     },
     {
       "id": "nanming_wealth",
@@ -291,7 +410,14 @@
       "sourcePack": "legacy-factions",
       "tags": [],
       "useWhen": [],
-      "avoidWhen": []
+      "avoidWhen": [],
+      "token": "南明·万国宝船",
+      "tokenAliases": [],
+      "categoryPath": [
+        "物件",
+        "文书与财货",
+        "库藏商贸"
+      ]
     },
     {
       "id": "qing_auxiliary_drill",
@@ -337,7 +463,14 @@
         "height": 941
       },
       "webBytes": 365436,
-      "webSha256": "cc485b29921e360178f97374582ba3d90e44dd359ae492b395c6879b6ec32fdd"
+      "webSha256": "cc485b29921e360178f97374582ba3d90e44dd359ae492b395c6879b6ec32fdd",
+      "token": "后金·仆从军操练",
+      "tokenAliases": [],
+      "categoryPath": [
+        "事件",
+        "社会与权力",
+        "劳役征调"
+      ]
     },
     {
       "id": "qing_battle",
@@ -353,7 +486,14 @@
       "sourcePack": "legacy-factions",
       "tags": [],
       "useWhen": [],
-      "avoidWhen": []
+      "avoidWhen": [],
+      "token": "旧版后金·白刃肉搏",
+      "tokenAliases": [],
+      "categoryPath": [
+        "事件",
+        "军事行动",
+        "近阵交锋"
+      ]
     },
     {
       "id": "qing_battlefield_dead",
@@ -398,7 +538,14 @@
         "height": 941
       },
       "webBytes": 378458,
-      "webSha256": "0add6455a60ba2b344d2f9698a9a8c07e48b3c15155f804ba2f8b65680cd3db5"
+      "webSha256": "0add6455a60ba2b344d2f9698a9a8c07e48b3c15155f804ba2f8b65680cd3db5",
+      "token": "后金·战场遗骸",
+      "tokenAliases": [],
+      "categoryPath": [
+        "事件",
+        "社会与权力",
+        "战争后果"
+      ]
     },
     {
       "id": "qing_camp_labor",
@@ -441,7 +588,14 @@
         "height": 941
       },
       "webBytes": 387400,
-      "webSha256": "6b6abbe788b80b441a6a8b48498cf416d6da89a3aa2ea449b4e47b9904085ff6"
+      "webSha256": "6b6abbe788b80b441a6a8b48498cf416d6da89a3aa2ea449b4e47b9904085ff6",
+      "token": "后金·营中苦役",
+      "tokenAliases": [],
+      "categoryPath": [
+        "事件",
+        "社会与权力",
+        "劳役征调"
+      ]
     },
     {
       "id": "qing_campaign_map",
@@ -479,7 +633,16 @@
         "height": 941
       },
       "webBytes": 331938,
-      "webSha256": "506a073e5c33615d5f78b0e3106a4e45ec0de2a4caf65eb2771e8a2a21c37722"
+      "webSha256": "506a073e5c33615d5f78b0e3106a4e45ec0de2a4caf65eb2771e8a2a21c37722",
+      "token": "后金·山川军图",
+      "tokenAliases": [
+        "后金·军用地图"
+      ],
+      "categoryPath": [
+        "物件",
+        "文书与财货",
+        "地图书信"
+      ]
     },
     {
       "id": "qing_captive",
@@ -495,7 +658,14 @@
       "sourcePack": "legacy-factions",
       "tags": [],
       "useWhen": [],
-      "avoidWhen": []
+      "avoidWhen": [],
+      "token": "旧版后金·败将就缚",
+      "tokenAliases": [],
+      "categoryPath": [
+        "事件",
+        "拘押与交涉",
+        "看守押解"
+      ]
     },
     {
       "id": "qing_captive_audience",
@@ -534,7 +704,14 @@
         "height": 941
       },
       "webBytes": 245840,
-      "webSha256": "16413e2dadc14bebaa24cfa629fcb771e7684f5836765dad881777cc2ef69089"
+      "webSha256": "16413e2dadc14bebaa24cfa629fcb771e7684f5836765dad881777cc2ef69089",
+      "token": "后金·阶前献俘",
+      "tokenAliases": [],
+      "categoryPath": [
+        "事件",
+        "社会与权力",
+        "入城献俘"
+      ]
     },
     {
       "id": "qing_cavalry_charge",
@@ -572,7 +749,17 @@
         "height": 941
       },
       "webBytes": 317728,
-      "webSha256": "2401a0a1a6bf1487bb7eb27485c2e0ffb7f5f8aa7241137a8c4988b348bf77ff"
+      "webSha256": "2401a0a1a6bf1487bb7eb27485c2e0ffb7f5f8aa7241137a8c4988b348bf77ff",
+      "token": "后金·骑军突击",
+      "tokenAliases": [
+        "后金·骑兵冲锋",
+        "后金·骑军冲锋"
+      ],
+      "categoryPath": [
+        "事件",
+        "军事行动",
+        "骑兵突击"
+      ]
     },
     {
       "id": "qing_cell_whispers",
@@ -615,7 +802,16 @@
         "height": 941
       },
       "webBytes": 157334,
-      "webSha256": "4605c8d42cae2a8b427eec6adb3bfc2283d395c2eab4d55fff76bc87a56215a2"
+      "webSha256": "4605c8d42cae2a8b427eec6adb3bfc2283d395c2eab4d55fff76bc87a56215a2",
+      "token": "后金·囚室密谈",
+      "tokenAliases": [
+        "后金·囚室低语"
+      ],
+      "categoryPath": [
+        "人物关系",
+        "同袍与密约",
+        "夜话盟誓"
+      ]
     },
     {
       "id": "qing_city_entry",
@@ -653,7 +849,14 @@
         "height": 941
       },
       "webBytes": 294862,
-      "webSha256": "54f993ff8f157cda95e75d51fa6f562c8f68bd46bda5a9aa4ce7ead38265aa5f"
+      "webSha256": "54f993ff8f157cda95e75d51fa6f562c8f68bd46bda5a9aa4ce7ead38265aa5f",
+      "token": "后金·长街入城",
+      "tokenAliases": [],
+      "categoryPath": [
+        "事件",
+        "社会与权力",
+        "入城献俘"
+      ]
     },
     {
       "id": "qing_comrade_oath",
@@ -692,7 +895,14 @@
         "height": 941
       },
       "webBytes": 265428,
-      "webSha256": "d8a1b5c4950646ac735d0ec9c7578e150ac0e25ae5a1c1a213cf7ca0b34d1fad"
+      "webSha256": "d8a1b5c4950646ac735d0ec9c7578e150ac0e25ae5a1c1a213cf7ca0b34d1fad",
+      "token": "后金·同袍夜话",
+      "tokenAliases": [],
+      "categoryPath": [
+        "人物关系",
+        "同袍与密约",
+        "夜话盟誓"
+      ]
     },
     {
       "id": "qing_council_tent",
@@ -730,7 +940,14 @@
         "height": 941
       },
       "webBytes": 277706,
-      "webSha256": "f8d9fe0d6c291fe28301f280b86b3ad0b46c21d8bcb768e5589691cbbdc8bebd"
+      "webSha256": "f8d9fe0d6c291fe28301f280b86b3ad0b46c21d8bcb768e5589691cbbdc8bebd",
+      "token": "后金·帐中议事",
+      "tokenAliases": [],
+      "categoryPath": [
+        "环境",
+        "军营与行旅",
+        "营地日常"
+      ]
     },
     {
       "id": "qing_disarmed_captives",
@@ -775,7 +992,14 @@
         "height": 941
       },
       "webBytes": 332294,
-      "webSha256": "0b74660d9ab11e5472ea1678c7c042669c9bc2510d743b0f75514c736c9a4f3d"
+      "webSha256": "0b74660d9ab11e5472ea1678c7c042669c9bc2510d743b0f75514c736c9a4f3d",
+      "token": "后金·敌俘点验",
+      "tokenAliases": [],
+      "categoryPath": [
+        "事件",
+        "拘押与交涉",
+        "看守押解"
+      ]
     },
     {
       "id": "qing_evidence_hearing",
@@ -818,7 +1042,14 @@
         "height": 941
       },
       "webBytes": 197392,
-      "webSha256": "015035e6c4f263acdae047ea8674b5f4ba5fb44c8f473f0e19aa289518e6f9cb"
+      "webSha256": "015035e6c4f263acdae047ea8674b5f4ba5fb44c8f473f0e19aa289518e6f9cb",
+      "token": "后金·证物对质",
+      "tokenAliases": [],
+      "categoryPath": [
+        "事件",
+        "拘押与交涉",
+        "问讯谈判"
+      ]
     },
     {
       "id": "qing_frontier_pass",
@@ -857,7 +1088,14 @@
         "height": 941
       },
       "webBytes": 466784,
-      "webSha256": "b4abcc68cd71170ae07e597450fe4fdc175891cfbfdd228b6db6b9fe59abc7f0"
+      "webSha256": "b4abcc68cd71170ae07e597450fe4fdc175891cfbfdd228b6db6b9fe59abc7f0",
+      "token": "后金·关隘烽火",
+      "tokenAliases": [],
+      "categoryPath": [
+        "环境",
+        "山川与城郭",
+        "关隘与城防"
+      ]
     },
     {
       "id": "qing_garrison_courtyard",
@@ -901,7 +1139,14 @@
         "height": 941
       },
       "webBytes": 416136,
-      "webSha256": "1ab09e09471c2fd6f9732203f2ef237e7434d2e02ff258349b0ff9c4cedda60e"
+      "webSha256": "1ab09e09471c2fd6f9732203f2ef237e7434d2e02ff258349b0ff9c4cedda60e",
+      "token": "后金·定居屯寨",
+      "tokenAliases": [],
+      "categoryPath": [
+        "环境",
+        "军营与行旅",
+        "营地日常"
+      ]
     },
     {
       "id": "qing_holding_cell",
@@ -944,7 +1189,16 @@
         "height": 941
       },
       "webBytes": 146008,
-      "webSha256": "6222d96ce3dc3b7809691bfcee6fb3e574f3e45dabd79e92920dbbe2d0aead8d"
+      "webSha256": "6222d96ce3dc3b7809691bfcee6fb3e574f3e45dabd79e92920dbbe2d0aead8d",
+      "token": "后金·狱中长夜",
+      "tokenAliases": [
+        "后金·羁押牢房"
+      ],
+      "categoryPath": [
+        "事件",
+        "拘押与交涉",
+        "看守押解"
+      ]
     },
     {
       "id": "qing_household_service",
@@ -987,7 +1241,14 @@
         "height": 941
       },
       "webBytes": 238668,
-      "webSha256": "737d1ec31ad4b4150b27f6f1395fa4e3f0a33e7b1d9b67915739e17949c7a429"
+      "webSha256": "737d1ec31ad4b4150b27f6f1395fa4e3f0a33e7b1d9b67915739e17949c7a429",
+      "token": "后金·内院差役",
+      "tokenAliases": [],
+      "categoryPath": [
+        "事件",
+        "社会与权力",
+        "劳役征调"
+      ]
     },
     {
       "id": "qing_lamplit_questioning",
@@ -1031,7 +1292,14 @@
         "height": 941
       },
       "webBytes": 134228,
-      "webSha256": "d553a281076d7fd4009d5116def491ca44c93d40fd63393909f1f5a9bd9d880d"
+      "webSha256": "d553a281076d7fd4009d5116def491ca44c93d40fd63393909f1f5a9bd9d880d",
+      "token": "后金·灯下问讯",
+      "tokenAliases": [],
+      "categoryPath": [
+        "事件",
+        "拘押与交涉",
+        "问讯谈判"
+      ]
     },
     {
       "id": "qing_massacred_village",
@@ -1076,7 +1344,14 @@
         "height": 941
       },
       "webBytes": 370536,
-      "webSha256": "b00377c9954641c0f44844e0984dc9adef346d123c168fb89611a0ad8f88b65d"
+      "webSha256": "b00377c9954641c0f44844e0984dc9adef346d123c168fb89611a0ad8f88b65d",
+      "token": "后金·屠村余火",
+      "tokenAliases": [],
+      "categoryPath": [
+        "事件",
+        "社会与权力",
+        "战争后果"
+      ]
     },
     {
       "id": "qing_melee",
@@ -1114,7 +1389,14 @@
         "height": 941
       },
       "webBytes": 300152,
-      "webSha256": "625aab7231c5d44a0fb92db881520f1de27296fcd2dc31a454ad6bfb7ee55f22"
+      "webSha256": "625aab7231c5d44a0fb92db881520f1de27296fcd2dc31a454ad6bfb7ee55f22",
+      "token": "后金·近阵交锋",
+      "tokenAliases": [],
+      "categoryPath": [
+        "事件",
+        "军事行动",
+        "近阵交锋"
+      ]
     },
     {
       "id": "qing_night_envoy",
@@ -1152,7 +1434,14 @@
         "height": 941
       },
       "webBytes": 297516,
-      "webSha256": "1f9e24a98b8815c7f020b055a3c987c661e033c492177a1dce5fb2a239e54be3"
+      "webSha256": "1f9e24a98b8815c7f020b055a3c987c661e033c492177a1dce5fb2a239e54be3",
+      "token": "后金·雪夜来使",
+      "tokenAliases": [],
+      "categoryPath": [
+        "人物关系",
+        "同袍与密约",
+        "消息往来"
+      ]
     },
     {
       "id": "qing_night_raid",
@@ -1195,7 +1484,16 @@
         "height": 941
       },
       "webBytes": 246476,
-      "webSha256": "0754c9af8c79ddb3799109dcc36a681b11f90621e0767f805d450c78c2e7ca13"
+      "webSha256": "0754c9af8c79ddb3799109dcc36a681b11f90621e0767f805d450c78c2e7ca13",
+      "token": "后金·夜袭营垒",
+      "tokenAliases": [
+        "后金·营地夜袭"
+      ],
+      "categoryPath": [
+        "事件",
+        "军事行动",
+        "围城夜袭"
+      ]
     },
     {
       "id": "qing_prisoner_escort",
@@ -1238,7 +1536,14 @@
         "height": 941
       },
       "webBytes": 447386,
-      "webSha256": "2e52976606f98acb950353ae594b2bebccd78d6cf2e65aa37e2cbd7e358d0b02"
+      "webSha256": "2e52976606f98acb950353ae594b2bebccd78d6cf2e65aa37e2cbd7e358d0b02",
+      "token": "后金·押解途中",
+      "tokenAliases": [],
+      "categoryPath": [
+        "事件",
+        "拘押与交涉",
+        "看守押解"
+      ]
     },
     {
       "id": "qing_ransom_negotiation",
@@ -1281,7 +1586,14 @@
         "height": 941
       },
       "webBytes": 196444,
-      "webSha256": "f144866902306b14b7553d99db706fafbea9635cb213f07fe18a24dee6ad8eb9"
+      "webSha256": "f144866902306b14b7553d99db706fafbea9635cb213f07fe18a24dee6ad8eb9",
+      "token": "后金·赎放交涉",
+      "tokenAliases": [],
+      "categoryPath": [
+        "事件",
+        "拘押与交涉",
+        "问讯谈判"
+      ]
     },
     {
       "id": "qing_requisition_standoff",
@@ -1324,7 +1636,14 @@
         "height": 941
       },
       "webBytes": 373070,
-      "webSha256": "7674b32605ca044f28c2f7c3c927be090f017772996fb0a92ef46a92b595588b"
+      "webSha256": "7674b32605ca044f28c2f7c3c927be090f017772996fb0a92ef46a92b595588b",
+      "token": "后金·征粮对峙",
+      "tokenAliases": [],
+      "categoryPath": [
+        "事件",
+        "社会与权力",
+        "劳役征调"
+      ]
     },
     {
       "id": "qing_riverside_market",
@@ -1363,7 +1682,14 @@
         "height": 941
       },
       "webBytes": 335618,
-      "webSha256": "f7e68833d0fbb91d5eaf12466e0fdf189cef63cb017a3d0d7a196f1ec3aa64b6"
+      "webSha256": "f7e68833d0fbb91d5eaf12466e0fdf189cef63cb017a3d0d7a196f1ec3aa64b6",
+      "token": "后金·辽河集市",
+      "tokenAliases": [],
+      "categoryPath": [
+        "环境",
+        "山川与城郭",
+        "城镇与宫廷"
+      ]
     },
     {
       "id": "qing_romance",
@@ -1379,7 +1705,14 @@
       "sourcePack": "legacy-factions",
       "tags": [],
       "useWhen": [],
-      "avoidWhen": []
+      "avoidWhen": [],
+      "token": "旧版后金·塞外私誓",
+      "tokenAliases": [],
+      "categoryPath": [
+        "人物关系",
+        "同袍与密约",
+        "夜话盟誓"
+      ]
     },
     {
       "id": "qing_secret_exchange",
@@ -1422,7 +1755,14 @@
         "height": 940
       },
       "webBytes": 195700,
-      "webSha256": "eb605496faf0425d432c86abcdeedbaefacdff871b398d9683d8210dea693069"
+      "webSha256": "eb605496faf0425d432c86abcdeedbaefacdff871b398d9683d8210dea693069",
+      "token": "后金·暗递消息",
+      "tokenAliases": [],
+      "categoryPath": [
+        "人物关系",
+        "同袍与密约",
+        "消息往来"
+      ]
     },
     {
       "id": "qing_secret_letter",
@@ -1461,7 +1801,14 @@
         "height": 941
       },
       "webBytes": 241166,
-      "webSha256": "2e46d1ea7c1405747b6a4c6744b78ea8757588c86a435d7b7f4381c9f9a4822e"
+      "webSha256": "2e46d1ea7c1405747b6a4c6744b78ea8757588c86a435d7b7f4381c9f9a4822e",
+      "token": "后金·案头密信",
+      "tokenAliases": [],
+      "categoryPath": [
+        "物件",
+        "文书与财货",
+        "地图书信"
+      ]
     },
     {
       "id": "qing_shengjing_palace",
@@ -1501,7 +1848,14 @@
         "height": 941
       },
       "webBytes": 361188,
-      "webSha256": "612b79d00ba491b2a6540264a24ad787b192e41cdabb8c1d7bddd7e11bbf2b86"
+      "webSha256": "612b79d00ba491b2a6540264a24ad787b192e41cdabb8c1d7bddd7e11bbf2b86",
+      "token": "后金·盛京宫庭",
+      "tokenAliases": [],
+      "categoryPath": [
+        "环境",
+        "山川与城郭",
+        "城镇与宫廷"
+      ]
     },
     {
       "id": "qing_siege",
@@ -1539,7 +1893,14 @@
         "height": 941
       },
       "webBytes": 298092,
-      "webSha256": "c9ba6c13f8a2448331f3988cd4b38022029559d63316bc229b79b8966fc19a52"
+      "webSha256": "c9ba6c13f8a2448331f3988cd4b38022029559d63316bc229b79b8966fc19a52",
+      "token": "后金·城下攻守",
+      "tokenAliases": [],
+      "categoryPath": [
+        "事件",
+        "军事行动",
+        "围城夜袭"
+      ]
     },
     {
       "id": "qing_treasury",
@@ -1577,7 +1938,14 @@
         "height": 941
       },
       "webBytes": 269604,
-      "webSha256": "5454198ad8f01280bd61bef87c52844c185c6204e9cebe6773f0144ade8c860c"
+      "webSha256": "5454198ad8f01280bd61bef87c52844c185c6204e9cebe6773f0144ade8c860c",
+      "token": "后金·府库钱粮",
+      "tokenAliases": [],
+      "categoryPath": [
+        "物件",
+        "文书与财货",
+        "库藏商贸"
+      ]
     },
     {
       "id": "qing_victory",
@@ -1593,7 +1961,14 @@
       "sourcePack": "legacy-factions",
       "tags": [],
       "useWhen": [],
-      "avoidWhen": []
+      "avoidWhen": [],
+      "token": "旧版后金·问鼎燕京",
+      "tokenAliases": [],
+      "categoryPath": [
+        "事件",
+        "社会与权力",
+        "庆典登位"
+      ]
     },
     {
       "id": "qing_war",
@@ -1609,7 +1984,14 @@
       "sourcePack": "legacy-factions",
       "tags": [],
       "useWhen": [],
-      "avoidWhen": []
+      "avoidWhen": [],
+      "token": "旧版后金·一片石狂飚",
+      "tokenAliases": [],
+      "categoryPath": [
+        "事件",
+        "军事行动",
+        "围城夜袭"
+      ]
     },
     {
       "id": "qing_war_aftermath",
@@ -1652,7 +2034,14 @@
         "height": 941
       },
       "webBytes": 430580,
-      "webSha256": "caa9376edf70e249bea77b149c6d2eb5837a123219af2cedd46aa421f5f25812"
+      "webSha256": "caa9376edf70e249bea77b149c6d2eb5837a123219af2cedd46aa421f5f25812",
+      "token": "后金·战后余烬",
+      "tokenAliases": [],
+      "categoryPath": [
+        "事件",
+        "社会与权力",
+        "战争后果"
+      ]
     },
     {
       "id": "qing_wealth",
@@ -1668,7 +2057,14 @@
       "sourcePack": "legacy-factions",
       "tags": [],
       "useWhen": [],
-      "avoidWhen": []
+      "avoidWhen": [],
+      "token": "旧版后金·盛京府库",
+      "tokenAliases": [],
+      "categoryPath": [
+        "物件",
+        "文书与财货",
+        "库藏商贸"
+      ]
     },
     {
       "id": "qing_winter_march",
@@ -1706,7 +2102,14 @@
         "height": 941
       },
       "webBytes": 350138,
-      "webSha256": "29084a374bb8da99e2cc688b56aaaa1b5e3439836f797cf68e90f371e2049b83"
+      "webSha256": "29084a374bb8da99e2cc688b56aaaa1b5e3439836f797cf68e90f371e2049b83",
+      "token": "后金·雪林行军",
+      "tokenAliases": [],
+      "categoryPath": [
+        "环境",
+        "军营与行旅",
+        "行军途中"
+      ]
     }
   ],
   "aliases": {},
@@ -2136,6 +2539,143 @@
       "shanhaiguan:pass": "qing_frontier_pass"
     },
     "notes": "Exact node bindings use conservative chapter illustrations rather than claims of a reconstructed place or event. Only selected current prose scenes have event illustrations; all qing_act5_* and ambiguous scenes use a neutral campaign map. Violent or captivity scenes are never inferred from titles or faction. Node-level null explicitly suppresses location fallback."
+  },
+  "taxonomy": {
+    "事件": {
+      "description": "军事行动、交涉和社会事件的画面。"
+    },
+    "事件/军事行动": {
+      "description": "骑兵突击、近阵交锋、围城与夜袭。"
+    },
+    "事件/军事行动/近阵交锋": {
+      "description": "近阵交锋相关的已登记画卷。"
+    },
+    "事件/拘押与交涉": {
+      "description": "看守押解、证物核对、问讯和谈判。"
+    },
+    "事件/拘押与交涉/看守押解": {
+      "description": "看守押解相关的已登记画卷。"
+    },
+    "人物关系": {
+      "description": "同袍交谈、盟誓和消息往来。"
+    },
+    "人物关系/同袍与密约": {
+      "description": "人物交谈、私誓、使者与暗递消息。"
+    },
+    "人物关系/同袍与密约/夜话盟誓": {
+      "description": "夜话盟誓相关的已登记画卷。"
+    },
+    "事件/社会与权力": {
+      "description": "劳役征调、入城献俘、庆典和战争后果。"
+    },
+    "事件/社会与权力/庆典登位": {
+      "description": "庆典登位相关的已登记画卷。"
+    },
+    "事件/军事行动/围城夜袭": {
+      "description": "围城夜袭相关的已登记画卷。"
+    },
+    "物件": {
+      "description": "可供特写展示的文书、地图和财货。"
+    },
+    "物件/文书与财货": {
+      "description": "地图书信、府库、商贸和军需物资。"
+    },
+    "物件/文书与财货/库藏商贸": {
+      "description": "库藏商贸相关的已登记画卷。"
+    },
+    "事件/军事行动/骑兵突击": {
+      "description": "骑兵突击相关的已登记画卷。"
+    },
+    "事件/水陆战事": {
+      "description": "水师、舰船、海上交战。"
+    },
+    "事件/水陆战事/海上交锋": {
+      "description": "海上交锋相关的已登记画卷。"
+    },
+    "事件/社会与权力/劳役征调": {
+      "description": "劳役征调相关的已登记画卷。"
+    },
+    "事件/社会与权力/战争后果": {
+      "description": "战争后果相关的已登记画卷。"
+    },
+    "物件/文书与财货/地图书信": {
+      "description": "地图书信相关的已登记画卷。"
+    },
+    "事件/社会与权力/入城献俘": {
+      "description": "入城献俘相关的已登记画卷。"
+    },
+    "环境": {
+      "description": "先交代地点、空间和持续环境。"
+    },
+    "环境/军营与行旅": {
+      "description": "军帐、屯寨、营地日常和行军。"
+    },
+    "环境/军营与行旅/营地日常": {
+      "description": "营地日常相关的已登记画卷。"
+    },
+    "事件/拘押与交涉/问讯谈判": {
+      "description": "问讯谈判相关的已登记画卷。"
+    },
+    "环境/山川与城郭": {
+      "description": "关隘、城镇、宫庭与街市。"
+    },
+    "环境/山川与城郭/关隘与城防": {
+      "description": "关隘与城防相关的已登记画卷。"
+    },
+    "人物关系/同袍与密约/消息往来": {
+      "description": "消息往来相关的已登记画卷。"
+    },
+    "环境/山川与城郭/城镇与宫廷": {
+      "description": "城镇与宫廷相关的已登记画卷。"
+    },
+    "环境/军营与行旅/行军途中": {
+      "description": "行军途中相关的已登记画卷。"
+    }
+  },
+  "featured": {
+    "global": [
+      "qing_campaign_map",
+      "qing_cavalry_charge",
+      "qing_night_raid",
+      "ming_war",
+      "mongol_war",
+      "nanming_war"
+    ],
+    "factions": {
+      "qing": [
+        "qing_council_tent",
+        "qing_frontier_pass",
+        "qing_riverside_market",
+        "qing_secret_letter"
+      ],
+      "ming": [
+        "ming_war",
+        "ming_battle",
+        "ming_wealth"
+      ],
+      "mongol": [
+        "mongol_war",
+        "mongol_battle",
+        "mongol_wealth"
+      ],
+      "nanming": [
+        "nanming_war",
+        "nanming_battle",
+        "nanming_wealth"
+      ]
+    },
+    "locations": {
+      "qing:mukden": [
+        "qing_shengjing_palace",
+        "qing_riverside_market",
+        "qing_council_tent"
+      ],
+      "shanhaiguan:pass": [
+        "qing_frontier_pass",
+        "qing_siege",
+        "qing_cavalry_charge"
+      ]
+    }
   }
 };
   if (typeof module === "object" && module.exports) module.exports = catalog;

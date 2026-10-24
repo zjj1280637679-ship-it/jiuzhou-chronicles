@@ -5,10 +5,13 @@
 ## 唯一清单与文件
 
 - `data/illustrations/catalog.json`：可编辑的唯一正式清单，含 `assets`、`aliases`、`scenes`。
-- `data/illustrations/catalog-data.js`：由构建脚本生成，内容与 JSON 相同；网页和 Worker 不需要网络查询图库。
+- `data/illustrations/catalog-data.js`：完整清单的兼容输出，用于旧集成与一致性检查，生产页面不再加载它。
+- `data/illustrations/catalog-index.js`：网页启动所需的精简身份、短语、分类和场景索引；不包含完整检索标签、适用/避用说明及图片二进制。
+- `data/illustrations/library/search-<hash>.json` 与 `details-<faction>-<hash>.json`：首次检索才读取搜索文字，只为当前结果页或预览读取详情分片；内容哈希避免新旧目录缓存混用。成功读取在当前注册表内复用，失败可重试。
 - `data/illustrations/qing/scenes/*.webp`：32 张实际图片。导入只复制，不裁切、缩放或拉伸。
 - `illustration-system.js`：UMD 模块；网页 / Worker 全局 `JiuzhouIllustrations`，Node 为 `require("./illustration-system.js")`。
 - `harness/plugins/illustrations.js`：独立 AI 插画工具插件。工具执行和查图不会立即打开弹窗或修改存档。
+- `gallery-ui.js` / `gallery.css`：首页和游戏菜单共用的只读画库面板；精选、分类与搜索只创建文字卡，只有明确点击预览才赋值图片地址，不修改游戏进度。
 
 `faction` 表示画面的人物服饰、地域或设定来源，不表示玩家的权限。明方角色进入后金营地，可以查询后金营地图；工具不强制按玩家阵营隔离。画面中的囚犯身份、罪名、胜负和效忠不由图片 ID 推定。
 
@@ -20,6 +23,9 @@
 ```json
 {
   "id": "qing_new_scene",
+  "token": "后金·新场景",
+  "tokenAliases": ["后金·新场景的等价叫法"],
+  "categoryPath": ["环境", "军营与行旅", "营地日常"],
   "relativePath": "data/illustrations/qing/scenes/qing_new_scene.webp",
   "faction": "qing",
   "factionName": "后金女真",
@@ -34,7 +40,7 @@
 }
 ```
 
-3. 执行 `node scripts/build-illustration-catalog.cjs`。脚本核验全部 ID、文件、别名、场景引用并重新生成浏览器清单。已有 SHA-256 的资源会核验内容；有意修改该图时同步更新其 `webSha256` 和 `webBytes`，新图片可先不提供这两个可选字段。
+3. 为新分类路径的每一层在 `taxonomy` 登记简介；需要露出的图片加入 `featured.global`、`featured.factions` 或 `featured.locations`。执行 `node scripts/build-illustration-catalog.cjs`（`npm run build` 也会执行）。脚本核验全部 ID、短语冲突、文件、别名、分类、精选及场景引用，重新生成启动索引、检索索引和详情分片。已有 SHA-256 的资源会核验内容；有意修改该图时同步更新其 `webSha256` 和 `webBytes`，新图片可先不提供这两个可选字段。
 4. 执行 `node test-illustration-registry.cjs` 和相关浏览器检查。测试中的当前包数量是发布验收数；增图时同步更新验收期望。
 
 已有素材包可一次导入，当前适配器接收后金包中的 `web/<id>.webp`：
@@ -46,6 +52,10 @@ node scripts/build-illustration-catalog.cjs --import-pack "绝对路径/pack.jso
 它逐文件核验源包 SHA-256、复制到 `qing/scenes/`、核验复制后字节并更新同 ID 元数据，不依赖本机输出目录的固定位置。日常构建不读取源包、不需要原始 PNG。
 
 不要为新语义重用已有 ID。旧图弃用时标记 `legacy: true`，仍保留资源以便旧存档和收藏继续显示。`aliases` 只能登记真正等价的明确更名，例如 `{ "old_equivalent_id": "new_id" }`；不按标题、词语或类别猜图。目前别名表为空，旧 `qing_war` 等仍指向其原图。
+
+`token` 是图片的准确调用短语，`tokenAliases` 是显式登记的同义短语。短语进行 NFC 规范化和首尾空白清理，同一短语不得指向不同图片，也不得冒用其他图片的旧 ID。图片内部 ID、旧 ID 别名与短语在同一个注册表内解析。调用时 `token` 与 `id` 任选一个，同时提供且指向不同图片会报错。存档与交付统一写入稳定 ID；这里的短语是资源键，不是模型分词器中的单个 token。
+
+分类是按用途策展的主路径，例如“事件 → 军事行动 → 骑兵突击”，阵营是独立筛选维度。每幅图有一个主路径，标签和同义短语提供其他入口，不复制图片。精选优先当前背景、当前地点和设定的已编选条目，再补全局精选；最多 6 幅进入 AI 提示词，手动面板最多露出 8 幅精选。
 
 ## 绑定静态剧情和地点
 
@@ -71,6 +81,11 @@ node scripts/build-illustration-catalog.cjs --import-pack "绝对路径/pack.jso
 const registry = JiuzhouIllustrations;
 registry.list({ query: "囚室", category: "囚禁", faction: "qing" });
 registry.resolve("qing_cell_whispers"); // 元数据副本或 null；不猜图
+registry.resolve("后金·囚室密谈"); // 同一个稳定 ID
+registry.featured({ faction: "qing", coords: "qing:mukden", limit: 6 });
+registry.browse({ path: "事件/军事行动" }); // 只返回下一层类目及数量
+await registry.search({ query: "骑兵 冲锋", page: 1, pageSize: 8 });
+await registry.details("后金·骑军突击"); // 仅取文字详情，不取图片
 registry.normalizeSelection({ id: "qing_cell_whispers", afterBeat: 2, caption: "隔壁传来低语。" });
 registry.compose(story.beats, [{ id: "qing_cell_whispers", afterBeat: 2 }]); // { beats, warnings }
 registry.sceneFor({ faction: "qing", nodeId: "qing_act1", coords: "qing:mukden" });
@@ -78,13 +93,13 @@ registry.sceneFor({ faction: "qing", nodeId: "qing_act1", coords: "qing:mukden" 
 
 `list()` 默认包含全部设定，按 ASCII ID 稳定排序；`includeLegacy: true` 可列弃用图。所有返回值均可克隆，修改调用方拿到的元数据不会改变注册表。模型给出的 URL、文件路径不会替换正式资源；渲染只使用清单中验证过的 `data/illustrations/` 路径。
 
-独立 Worker 可用 `createRegistry({ assets, aliases, scenes })` 创建注册表。最小资产字段只有 `id` 与合法 `relativePath`，其他字段可缺省；无需 DOM 或浏览器默认图库。正常插件从本轮 `context.illustrations` 的可克隆资产数组构造自己的注册表。
+独立 Worker 可用 `createRegistry({ assets, aliases, scenes })` 创建注册表。最小资产字段只有 `id` 与合法 `relativePath`，其他字段可缺省；无需 DOM 或浏览器默认图库。正常插件从本轮 `context.illustrationCatalog` 的可克隆快照构造注册表，包含短语、旧别名和分类；宿主额外提供页面基址，使 GitHub Pages 子路径内的文字分片可准确加载。旧的 `context.illustrations` 资产数组继续兼容。
 
 ## AI 选图
 
-1. `list_illustrations({ query, category, faction })` 返回准确 ID 和图像语义，供模型挑选。筛选均可省略。
-2. `set_scene_background({ id })` 暂存持续的舞台背景，只替换桌面背景层及手机上方场景画面，不弹窗、不插入正文段。`{ clear: true }` 恢复当前场景默认背景，不清除弹窗。背景 ID 独立保存在进度、备份和回溯节点中；切换地图、新章节或新篇会恢复相应静态背景。
-3. `select_illustration({ id, afterBeat, caption })` 暂存图片互动弹窗。可以重复调用修订同一位置，`clear:true` 只清空本轮弹窗草稿。弹窗不改变舞台背景，背景也不会自动生成弹窗。
+1. 精选已经匹配时直接按短语调用；需要探索时用 `browse_illustrations({ path })` 逐层浏览；有明确需求时用 `search_illustrations({ query, faction, path, page, pageSize })`。搜索按名称、短语、同义短语、标签、适用说明及描述加权，多关键词以空格分隔并共同匹配。默认每页 8 项，返回 `total`、`hasMore`、`nextPage`，不把 URL、路径或图片二进制返回给模型。`list_illustrations` 保留为同样分页的搜索兼容入口。
+2. `set_scene_background({ token: "后金·关隘烽火" })` 暂存持续的舞台背景，只替换桌面背景层及手机上方场景画面，不弹窗、不插入正文段。旧 `{ id }` 继续兼容。`{ clear: true }` 恢复当前场景默认背景，不清除弹窗。背景 ID 独立保存在进度、备份和回溯节点中；切换地图、新章节或新篇会恢复相应静态背景。
+3. `select_illustration({ token: "后金·骑军突击", afterBeat, caption })` 暂存图片互动弹窗，位置和说明可省略。旧 `{ id }` 继续兼容。可以重复调用修订同一位置，`clear:true` 只清空本轮弹窗草稿。弹窗不改变舞台背景，背景也不会自动生成弹窗。
 4. 成功交付时，背景操作由宿主附加为 `stage_effects` 的 `set_scene_background`，弹窗操作附加为 `show_illustration`。两者独立提交，取消或失败均不提交草稿。不支持顶层 `illustrations` 字段。使用 JSON 兼容通路时，可直接提交以下效果；准确旧 ID 仍然有效，所有通路都由同一个注册表解析。
 
 ```json
@@ -92,10 +107,10 @@ registry.sceneFor({ faction: "qing", nodeId: "qing_act1", coords: "qing:mukden" 
   "beats": [{ "type": "narrator", "text": "你在门外停步，屋内的问讯仍在继续。" }],
   "stage_effects": [{
     "name": "set_scene_background",
-    "params": { "id": "qing_holding_cell" }
+    "params": { "token": "后金·狱中长夜" }
   }, {
     "name": "show_illustration",
-    "params": { "id": "qing_lamplit_questioning", "afterBeat": 1, "caption": "灯下的问讯尚无结论。" }
+    "params": { "token": "后金·灯下问讯", "afterBeat": 1, "caption": "灯下的问讯尚无结论。" }
   }]
 }
 ```
@@ -116,8 +131,13 @@ registry.sceneFor({ faction: "qing", nodeId: "qing_act1", coords: "qing:mukden" 
 node scripts/build-illustration-catalog.cjs
 node test-illustration-registry.cjs
 node test-illustration-harness.cjs
+node --test test-illustration-library.cjs
 ```
 
 注册表测试覆盖真实资源完整性、全部 56 个兼容 ID、32 个新图柄、弃用隐藏、准确查找、跨设定查询、替换与插入位置、未知图错误、原正文不变、白名单字段、Node / 浏览器 / Worker 一致性及 364 个后金静态节点绑定。浏览器测试还需验证实际取图、阅读翻页、移动布局、手动放大与存档恢复；单元测试成功不代表线上已经发布。
+
+2026-10-25 本轮验证：`npm run test:unit` 的 187 项检查、四阵营回归、剧情数据检查及静态构建通过。新增测试通过真实 Node Worker 执行搜索、短语选图、背景设置和交付，模型为本地夹具，不是收费 API。浏览器手动检查通过桌面 1363×936，以及 iframe 中的 390×844、320×740 视口；覆盖首页打开画库、逐级分类、多关键词搜索、真实 WebP 解码、短语显示、关闭与窄屏无横向溢出。窄屏检查不等于实体 iPhone 或输入法实测。完整 Playwright 脚本由 GitHub Actions 执行，以对应提交的检查结果为准。
+
+![画库关键词搜索与按需预览](preview/gallery-desktop.jpg)
 
 旧的 `generate-faction-illustrations.js` 和 `.github/workflows/install-nanming-cinema.yml` 只维护旧 `illustrations-data.*`，不是正式新增图片接口，也不会自动同步当前图库。需要迁移这些流程产生的资源时，应同时更新 `catalog.json` 中准确 ID 的元数据和路径，再执行 `build-illustration-catalog.cjs`；仅修改旧清单不会改变新注册表使用的图片。
