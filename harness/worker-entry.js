@@ -1,5 +1,5 @@
 "use strict";
-importScripts("protocol.js?v=20261025-gallery01");
+importScripts("protocol.js?v=20261025-api02");
 // Each plugin gets its own Worker and structured-cloned data. It receives no DOM or engine reference.
 let plugin, context;
 self.onmessage = async event => {

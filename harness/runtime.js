@@ -35,7 +35,7 @@
       {id: "illustrations", url: new URL("plugins/illustrations.js", baseURL).href}
     ];
     const makeWorker = options.workerFactory || (url => new Worker(url));
-    const assetVersion = "20261025-gallery01";
+    const assetVersion = "20261025-api02";
     const timeoutMs = options.pluginTimeoutMs ?? 10000;
     const entries = [], registry = new Map();
     let sequence = 0, disposed = false;
@@ -137,6 +137,7 @@
     const host = await createPluginHost({...options, context: {world: clone(options.world || {}),
       illustrations: clone(Array.isArray(options.illustrations) ? options.illustrations : []),
       ...(options.illustrationCatalog ? {illustrationCatalog: clone(options.illustrationCatalog), illustrationBaseURL: options.illustrationBaseURL} : {})}});
+    const modelTools = protocol.forModel(host.tools);
     // Background and popup drafts belong to this generation only and never change each other.
     let illustrations = [];
     let backgroundChange = null;
@@ -166,7 +167,7 @@
         stats.modelCalls++;
         emit("model_start");
         checkSignal(signal);
-        const data = await awaitWithSignal(options.model({messages: clone(messages), tools: clone(host.tools), signal}), signal);
+        const data = await awaitWithSignal(options.model({messages: clone(messages), tools: clone(modelTools), signal}), signal);
         checkSignal(signal);
         lastModel = typeof data?.model === "string" ? data.model : lastModel;
         const usage = data?.usage || {};
@@ -213,8 +214,8 @@
               if (signal?.aborted) throw cancelled();
               output = failure("invalid_tool_arguments", "工具参数不是有效JSON对象，请修正参数。");
             }
-            messages.push({role: "tool", tool_call_id: call.id, content: JSON.stringify(output.result)});
-            if (call.function.name === "select_illustration" && output.result?.ok === true && Array.isArray(output.result.selections)) {
+            messages.push({role: "tool", tool_call_id: call.id, content: JSON.stringify(protocol.modelResult(call.function.name, output.result))});
+            if (["select_illustration", "show_illustration"].includes(call.function.name) && output.result?.ok === true && Array.isArray(output.result.selections)) {
               illustrations = clone(output.result.selections);
             }
             if (call.function.name === "set_scene_background" && output.result?.ok === true) {

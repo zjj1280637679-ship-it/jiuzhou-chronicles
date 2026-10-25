@@ -97,9 +97,9 @@ registry.sceneFor({ faction: "qing", nodeId: "qing_act1", coords: "qing:mukden" 
 
 ## AI 选图
 
-1. 精选已经匹配时直接按短语调用；需要探索时用 `browse_illustrations({ path })` 逐层浏览；有明确需求时用 `search_illustrations({ query, faction, path, page, pageSize })`。搜索按名称、短语、同义短语、标签、适用说明及描述加权，多关键词以空格分隔并共同匹配。默认每页 8 项，返回 `total`、`hasMore`、`nextPage`，不把 URL、路径或图片二进制返回给模型。`list_illustrations` 保留为同样分页的搜索兼容入口。
+1. 精选匹配时直接调用；需要探索时用 `browse_illustrations({ path })` 逐层浏览，有明确需求时用 `search_illustrations({ query, path, page })`。画面设定可直接写进关键词，如“后金 骑兵 冲锋”。模型每页收到最多 8 项 `images`，有后续页时带 `nextPage`；不接收内部 ID、URL 或重复规则。适用与避用说明继续保留，旧 `list_illustrations` 仅在执行层兼容。接口分层见 [AI 工具接口](AI-TOOL-API.md)。
 2. `set_scene_background({ token: "后金·关隘烽火" })` 暂存持续的舞台背景，只替换桌面背景层及手机上方场景画面，不弹窗、不插入正文段。旧 `{ id }` 继续兼容。`{ clear: true }` 恢复当前场景默认背景，不清除弹窗。背景 ID 独立保存在进度、备份和回溯节点中；切换地图、新章节或新篇会恢复相应静态背景。
-3. `select_illustration({ token: "后金·骑军突击", afterBeat, caption })` 暂存图片互动弹窗，位置和说明可省略。旧 `{ id }` 继续兼容。可以重复调用修订同一位置，`clear:true` 只清空本轮弹窗草稿。弹窗不改变舞台背景，背景也不会自动生成弹窗。
+3. `show_illustration({ token: "后金·骑军突击", afterBeat, caption })` 暂存图片弹窗，位置和说明可省略。旧 `select_illustration` 与 `{ id }` 留在执行层兼容。相同位置后一次有效选图替换前一次；只传 `{ clear:true }` 清空本轮弹窗草稿，不能与图片参数混用。背景与弹窗互不改变，成功回执为 `{"ok":true}`。
 4. 成功交付时，背景操作由宿主附加为 `stage_effects` 的 `set_scene_background`，弹窗操作附加为 `show_illustration`。两者独立提交，取消或失败均不提交草稿。不支持顶层 `illustrations` 字段。使用 JSON 兼容通路时，可直接提交以下效果；准确旧 ID 仍然有效，所有通路都由同一个注册表解析。
 
 ```json
