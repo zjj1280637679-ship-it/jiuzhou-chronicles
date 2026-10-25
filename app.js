@@ -5,9 +5,9 @@
 // 底层：4轴8向政治光谱、MBTI机能隐式测量与16历史人物镜像拟合
 // =============================================================================
 
-const APP_VERSION = "v2.6.0";
-const BUILD_STAMP = "2026.10.25.0001";
-const VERSION_FULL = `v2.6.0 (Build ${BUILD_STAMP} · 分类画库 · 短语选图 · 自由篇幅交付)`;
+const APP_VERSION = "v2.6.1";
+const BUILD_STAMP = "2026.10.25.0002";
+const VERSION_FULL = `v2.6.1 (Build ${BUILD_STAMP} · 分类画库 · 短语选图 · 自由篇幅交付)`;
 const AIProviders = typeof module === "object" && module.exports
   ? require("./harness/providers.js") : globalThis.JiuzhouProviders;
 const GameRecovery = typeof module === "object" && module.exports
@@ -278,6 +278,7 @@ class WebVisualNovelEngine {
     if (!params || typeof params !== "object" || Array.isArray(params) ||
         Object.keys(params).some(key => !["id", "token", "clear"].includes(key)) ||
         (params.clear !== undefined && typeof params.clear !== "boolean")) return false;
+    if (params.clear === true && (params.id !== undefined || params.token !== undefined)) return false;
     if (params.clear === true) this.stageBackground = null;
     else {
       const selected = this.getIllustrationRegistry()?.reference(params);
@@ -293,12 +294,17 @@ class WebVisualNovelEngine {
   }
 
   illustrationSelectionsFromEffects(effects) {
-    return (effects || []).filter(effect => this.isIllustrationEffect(effect)).map(effect => ({
-      id: effect.params?.id || (effect.name === "show_illustration" ? undefined : effect.name),
-      token: effect.params?.token,
-      afterBeat: effect.params?.afterBeat,
-      caption: effect.params?.caption ?? effect.params?.description ?? ""
-    }));
+    const selections = [];
+    for (const effect of (effects || []).filter(effect => this.isIllustrationEffect(effect))) {
+      const params = effect.params || {};
+      if (params.clear === true) {
+        if (Object.keys(params).length === 1) selections.length = 0;
+        continue;
+      }
+      selections.push({id: params.id || (effect.name === "show_illustration" ? undefined : effect.name),
+        token: params.token, afterBeat: params.afterBeat, caption: params.caption ?? params.description ?? ""});
+    }
+    return selections;
   }
 
   executeAITools(tools) {
@@ -381,6 +387,10 @@ class WebVisualNovelEngine {
         case "nanming_romance":
         case "nanming_victory":
         case "nanming_wealth": {
+          if (params.clear === true) {
+            if (Object.keys(params).length === 1) this.pendingIllustrationSelections = [];
+            break;
+          }
           const result = this.getIllustrationRegistry()?.normalizeSelection({
             id: params.id || (toolName === "show_illustration" ? undefined : toolName),
             token: params.token,
@@ -3827,12 +3837,11 @@ ${JSON.stringify(targetNode.originalBeats)}
      * screen_flash: { "color": "white|red|gold" }
      * screen_shake: { "intensity": "light|medium|heavy", "duration": 500 }
      * weather_effect: { "type": "blizzard|rain|clear" }
-   - 两种独立演出工具：set_scene_background 只设置舞台背景，不开弹窗、不插入正文段；select_illustration 只安排互动图片弹窗，不改背景。两者可选不同图，也可各自单独使用或清除，不能互相代替。
-   - 有合适精选时可直接用token短语选图；有明确需求时用search_illustrations搜索名称、标签或内容（多个关键词空格分隔）；需要探索素材时用browse_illustrations逐层浏览分类。查询结果分页，可按nextPage继续。画面地域不等于玩家阵营，可跨目录选图。背景交代持续环境，弹窗独立展示事件或特写。
-   - select_illustration 的 afterBeat=0 表示正文前、1 表示第一段正文后；按原始正文段落计数，不是阅读分页。可为不同位置选择不同图，同位置后一次覆盖，clear:true 清空本轮选图。
-   - 两种演出都只在本轮正文成功交付后提交。背景持续到被更换或清除；弹窗到达指定正文位置时打开，关闭后继续阅读，可通过画卷按钮重看，不在正文框中嵌图卡。图片、说明、工具、JSON 和思考都不属于正文；无合适图时照常创作，不猜句柄、不传图片 URL。
-   - 用准确token调用，如select_illustration({"token":"后金·骑军突击"})；旧id继续兼容，未知短语需先查找，不能根据正文猜测映射。兼容 JSON 交付：背景用 {"name":"set_scene_background","params":{"token":"后金·山川军图"}}；弹窗用 {"name":"show_illustration","params":{"token":"后金·夜袭营垒","afterBeat":1,"caption":"营栅外的夜色"}}。画面描述不能替正文断定罪责、胜负或忠诚。
-   - 本轮少量精选（其他图片通过分类或搜索按需查询；没有图片二进制进入模型上下文）：
+   - 已知短语直接用show_illustration({"token":"后金·骑军突击"})安排图片弹窗；换背景用set_scene_background({"token":"后金·山川军图"})。两者独立，正文成功交付后生效。
+   - 找图用search_illustrations({"query":"后金 骑兵 冲锋"})；探索分类从browse_illustrations({})开始，复制children[].path逐层进入。查询只返回文字，有nextPage时沿用原查询翻页；画面设定不限制玩家阵营。
+   - 弹窗默认在第一段正文后出现；可选afterBeat按分页前整稿段落计数，0为正文前，同位置后一次替换。清空本轮弹窗或恢复默认背景时，分别向对应工具只传{"clear":true}。
+   - 不猜短语、不传URL；没有合适图片仍可正常写正文。图片不替正文决定罪责、胜负或忠诚。有原生工具时图片只用工具安排；JSON兼容通路使用同名show_illustration/set_scene_background效果，参数相同。
+   - 本轮少量精选（其余图片按需查询）：
 ${toolLines || "     当前图库不可用，正文可继续。"}
 4. 行动抉择（choices）：
    - 在结尾给出 3 个具象、充满战术张力与利益博弈的下一步跑团行动建议供玩家抉择（第4项由玩家开放自填）。
@@ -3841,20 +3850,13 @@ ${toolLines || "     当前图库不可用，正文可继续。"}
 
 【输出格式铁律】：
 篇幅要求只针对最终交付的叙述和对白 beats[].text，不针对 JSON 总长度或 Token 数；思考、工具调用及回执、角色名、sub、选项、插画说明和旧草稿都不属于正文。程序不统计或验收字数。
-若接口提供 write_draft、inspect_draft 和 deliver_story 工具：可用 write_draft 暂存下述剧情对象，用 inspect_draft 查看草稿概况；有叙事需要时可用 append 追加新段落或 replace 修订，自然完成后用 deliver_story 交付。工具参数中的正文只是草稿，不代表已经交付；不必每步重发完整 JSON。
-若接口未提供上述原生工具：只返回下述严格合法的 JSON 对象，严禁前后闲聊。剧情对象格式如下：
+有原生工具时，通常直接deliver_story({"story":剧情对象})一次交付；长篇需要分步写作时，才用write_draft暂存或追加，最后deliver_story({})交付已有草稿，无需额外检查步骤。需要回看已写内容时可用read_draft。
+没有原生工具时，直接返回剧情JSON。最小结构如下；speaker、sub、type、stageChar和stage_effects均按需要填写，不必补空字段：
 {
   "beats": [
     {
-      "speaker": "角色名或跑团GM",
-      "sub": "动作、神态或掷骰判定细节",
-      "type": "npc|narrator",
-      "stageChar": "left|center|right",
-      "text": "直接面向【你】的第二人称对白或跑团场景描摹"
+      "text": "直接面向【你】的场景叙述或对白"
     }
-  ],
-  "stage_effects": [
-    { "name": "screen_flash", "params": { "color": "white" } }
   ],
   "choices": [
     { "text": "具象行动建议 1", "tag": "风格标签" },

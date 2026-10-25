@@ -154,7 +154,7 @@ test("a generic Keyless custom provider runs native tools while keeping missing 
     const body = JSON.parse(init.body);
     assert.equal(body.mode, undefined); assert.equal(body.enabledTools, undefined); assert.equal(body.expectedLength, undefined);
     assert.equal(body.thinking, undefined); assert.equal(body.reasoning_effort, undefined);
-    assert.deepEqual(body.tools, protocol.tools);
+    assert.deepEqual(body.tools, protocol.modelTools);
     if (requests === 1) return response(toolCall());
     assert.equal(body.messages.at(-1).role, "tool"); assert.equal(body.messages.at(-1).tool_call_id, "generic_world_call");
     return response(final());

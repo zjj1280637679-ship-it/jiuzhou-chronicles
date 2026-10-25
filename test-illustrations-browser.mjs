@@ -30,12 +30,12 @@ const chosen = ["qing_night_raid", "qing_lamplit_questioning"];
 const story = {beats:[{speaker:"旁白", text:"文书核对完毕，营火照亮了卷宗。"}, {speaker:"随行者", text:"言辞尚有出入，明日再访证人。"}],
   choices:[{text:"核对卷宗"}, {text:"访查营地"}, {text:"照看伤者"}]};
 const steps = [
-  {name:"list_illustrations", arguments:{faction:"qing", query:"夜袭"}},
-  {name:"select_illustration", arguments:{id:"qing_unknown_fixture", afterBeat:0}},
-  {name:"select_illustration", arguments:{id:chosen[0], afterBeat:0, caption:"夜色中尚未分晓的行动。"}},
+  {name:"search_illustrations", arguments:{query:"后金 夜袭"}},
+  {name:"show_illustration", arguments:{token:"未登记的测试画面", afterBeat:0}},
+  {name:"show_illustration", arguments:{token:"后金·夜袭营垒", afterBeat:0, caption:"夜色中尚未分晓的行动。"}},
   {name:"write_draft", arguments:{story, mode:"replace"}},
-  {name:"select_illustration", arguments:{id:chosen[1], afterBeat:2, caption:"案头的纸页仍待核查。"}},
-  {name:"inspect_draft", arguments:{}},
+  {name:"show_illustration", arguments:{token:"后金·灯下问讯", afterBeat:2, caption:"案头的纸页仍待核查。"}},
+  {name:"read_draft", arguments:{}},
   {name:"deliver_story", arguments:{}}
 ];
 async function noOverflow(page, label) {
@@ -136,8 +136,9 @@ try {
       assert.equal(request.headers().authorization, "Bearer " + fixtureKey);
       const body = request.postDataJSON(); requests.push(body);
       assert.equal(body.model, "illustrations-fixture");
-      assert.ok(body.tools.some(tool => tool.function.name === "list_illustrations"));
-      assert.ok(body.tools.some(tool => tool.function.name === "select_illustration"));
+      assert.ok(body.tools.some(tool => tool.function.name === "search_illustrations"));
+      assert.ok(body.tools.some(tool => tool.function.name === "show_illustration"));
+      assert.equal(body.tools.some(tool => ["list_illustrations", "select_illustration", "inspect_draft"].includes(tool.function.name)), false);
       if (requests.length === 1) assert.match(body.messages.at(-1).content, /1000/,
         "The selected 500 tier sends its 500-character drafting allowance in the first prompt");
       if (requests.length > 1) assert.deepEqual(body.messages.slice(0, requests[0].messages.length), requests[0].messages,
@@ -146,10 +147,9 @@ try {
       if (requests.length === 2) {
         const result = resultOf("illustration_1");
         assert.equal(result.ok, true);
-        assert.equal(result.count, result.illustrations.length);
-        assert.ok(result.count > 0 && result.count <= result.pageSize);
-        assert.ok(result.total >= result.count);
-        assert.ok(result.illustrations.some(asset => asset.id === chosen[0]));
+        assert.ok(result.images.length > 0 && result.images.length <= 8);
+        assert.ok(result.images.some(asset => asset.token === "后金·夜袭营垒"));
+        assert.equal(result.selectionRule, undefined);
       }
       if (requests.length === 3) {
         const result = resultOf("illustration_2");
@@ -160,7 +160,7 @@ try {
         assert.equal(result.ok, true); assert.equal(result.hasDraft, true);
         assert.equal(result.beatCount, 2); assert.equal(result.choiceCount, 3);
         assert.deepEqual(Object.keys(result).filter(key => /characters|remaining|target/i.test(key)), [],
-          "Draft inspection reports structure without a character target or deficit");
+          "Draft reading reports structure without a character target or deficit");
       }
       assert.ok(requests.length <= steps.length, "Unexpected additional model request");
       const step = steps[requests.length - 1];

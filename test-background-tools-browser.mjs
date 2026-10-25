@@ -67,7 +67,7 @@ try {
       assert.ok(active); requests++; active.step++;
       const body = request.postDataJSON();
       assert.ok(body.tools.some(tool => tool.function.name === "set_scene_background"));
-      assert.ok(body.tools.some(tool => tool.function.name === "select_illustration"));
+      assert.ok(body.tools.some(tool => tool.function.name === "show_illustration"));
       if (active.step > 1) {
         assert.ok(["failure", "cancel"].includes(active.mode));
         if (active.mode === "cancel") {waitStarted(); await new Promise(done => {releaseWait = done;});}
