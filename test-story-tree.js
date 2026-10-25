@@ -4,6 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
 global.JiuzhouProviders = require("./harness/providers.js");
+global.JiuzhouEffects = require("./harness/effects.js");
 global.JiuzhouGameRecovery = require("./game-recovery.js");
 
 // 1. 模拟浏览器环境
