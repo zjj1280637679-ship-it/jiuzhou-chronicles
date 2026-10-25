@@ -1,0 +1,61 @@
+name: Jiuzhou real Gemini smoke test
+on:
+  push:
+    branches: [codex/gemini-live-smoke-20261026]
+    paths:
+      - '.github/workflows/gemini-live-smoke.yml'
+      - 'scripts/gemini-live-smoke.cjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  gemini:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check the saved Gemini key through the production provider
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          node - <<'NODE'
+          const providers = require("./harness/providers.js");
+          (async () => {
+            const key = (process.env.GEMINI_API_KEY || "").trim();
+            if (!key) {
+              console.log("GEMINI_API_KEY is not available to this repository workflow.");
+              process.exitCode = 2;
+              return;
+            }
+            console.log("GEMINI_API_KEY is available; value stays inside GitHub Actions.");
+            const route = providers.resolve(providers.normalizeConfig({source:"google", enabled:true, apiKey:key}));
+            const request = providers.createRequest(route, {
+              messages:[{role:"user", content:'Reply with the JSON object {"ok":true}.'}], maxTokens:256
+            });
+            try {
+              const response = await fetch(request.endpoint, {method:"POST", headers:request.headers,
+                body:JSON.stringify(request.body), redirect:"error", signal:AbortSignal.timeout(45000)});
+              let data;
+              try {data = JSON.parse(await response.text());} catch {data = {};}
+              if (!response.ok) {
+                const error = Array.isArray(data) ? data[0]?.error : data.error;
+                console.log(JSON.stringify({http_status:response.status, code:error?.status || error?.code,
+                  message:String(error?.message || "No JSON error detail").replaceAll(key,"[redacted]").slice(0,1000)}));
+                process.exitCode = 3;
+                return;
+              }
+              console.log(JSON.stringify({http_status:response.status, model:data.model,
+                has_reply:Boolean(data.choices?.[0]?.message?.content), finish_reason:data.choices?.[0]?.finish_reason,
+                usage:data.usage || {}}));
+              if (!data.choices?.length) process.exitCode = 4;
+            } catch (error) {
+              console.log("Connection check failed: " + error.name);
+              process.exitCode = 5;
+            }
+          })();
+          NODE
