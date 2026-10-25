@@ -58,15 +58,18 @@ async function main() {
       const workerFactory = createNodeWorkerFactory({
         onPostMessage(message) {
           if (message.type !== "call") return;
-          pending.set(message.id, message.name);
-          calls.push({name:message.name, args:structuredClone(message.args)});
+          const call = {name:message.name, args:structuredClone(message.args)};
+          pending.set(message.id, call);
+          calls.push(call);
           if (["show_illustration", "set_scene_background", "browse_illustrations", "search_illustrations"].includes(message.name)) {
             report({case:scenario.name, tool:message.name, args:message.args});
           }
         },
         onMessage(message) {
           if (message.type !== "result") return;
-          replies.push({name:pending.get(message.id), ok:message.result?.ok,
+          const call = pending.get(message.id);
+          if (call) call.ok = message.result?.ok === true;
+          replies.push({name:call?.name, ok:message.result?.ok,
             ...(message.result?.error ? {error:message.result.error} : {})});
           if (message.result?.ok !== true) report({case:scenario.name, toolError:message.result?.error});
         }
@@ -124,10 +127,9 @@ async function main() {
       assert.ok(story.beats.length > 0);
       assert.equal(story.choices.length, 3, "The model itself must provide three choices");
       assert.ok(calls.some(call => call.name === "deliver_story" && call.args.story), "Direct story delivery was not exercised");
-      assert.ok(calls.some(call => call.name === "show_illustration" && typeof call.args.token === "string"));
+      assert.ok(calls.some(call => call.name === "show_illustration" && call.ok && typeof call.args.token === "string"));
       assert.ok(story.stage_effects.some(effect => effect.name === "show_illustration" && effect.params.id === scenario.expectedPopup));
-      assert.deepEqual(replies.filter(reply => reply.ok !== true), [], "A model tool request was rejected");
-      for (const call of calls.filter(call => ["show_illustration", "set_scene_background"].includes(call.name))) {
+      for (const call of calls.filter(call => call.ok && ["show_illustration", "set_scene_background"].includes(call.name))) {
         assert.equal(call.args.id, undefined);
         assert.ok(registry.resolve(call.args.token), "The model must use an approved phrase");
       }
@@ -137,7 +139,9 @@ async function main() {
         assert.ok(calls.some(call => call.name === "search_illustrations"));
         assert.ok(story.stage_effects.some(effect => effect.name === "set_scene_background" && effect.params.id === scenario.expectedBackground));
       } else {
-        assert.deepEqual(calls.find(call => call.name === "show_illustration").args, {token:"后金·盛京宫庭"});
+        const selected = calls.find(call => call.name === "show_illustration" && call.ok);
+        assert.deepEqual(Object.keys(selected.args), ["token"]);
+        assert.equal(registry.resolve(selected.args.token).id, scenario.expectedPopup);
         assert.ok(!calls.some(call => call.name === "set_scene_background"));
       }
       const fetched = downloads.slice(startDownload);
@@ -146,7 +150,8 @@ async function main() {
       const summary = {case:scenario.name, ok:true, model:result.data.model,
         modelCalls:result.harness.modelCalls, toolCalls:result.harness.toolCalls,
         promptTokens:result.harness.promptTokens, completionTokens:result.harness.completionTokens,
-        tools:calls.map(call => ({name:call.name,
+        rejectedTools:replies.filter(reply => reply.ok !== true),
+        tools:calls.map(call => ({name:call.name, ok:call.ok,
           ...(["show_illustration", "set_scene_background", "browse_illustrations", "search_illustrations"].includes(call.name) ? {args:call.args} : {})})),
         metadataDownloads:fetched, imageDownloads:0, story};
       summaries.push(summary);

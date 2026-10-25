@@ -1,6 +1,6 @@
 {
   "name": "jiuzhou-chronicles",
-  "version": "2.6.2",
+  "version": "2.6.3",
   "description": "九州沉浮录 (Chronicles of Nine Provinces) - 东方史诗文字冒险与自适应 AI GM 引擎 (Visual Novel & AVG Engine)",
   "main": "server.js",
   "scripts": {
