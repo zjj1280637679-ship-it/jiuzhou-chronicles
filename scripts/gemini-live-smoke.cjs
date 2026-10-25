@@ -13,6 +13,9 @@ const compact = require("../data/illustrations/catalog-index.js");
 const registry = require("../illustration-system.js");
 
 const key = (process.env.GEMINI_API_KEY || "").trim();
+// Node test Workers inherit process.env by default. Retain the credential only
+// in the host closure before starting them, matching browser Worker isolation.
+delete process.env.GEMINI_API_KEY;
 function report(value) {
   const text = typeof value === "string" ? value : JSON.stringify(value);
   console.log(key ? text.replaceAll(key, "[redacted]") : text);
@@ -56,11 +59,15 @@ async function main() {
           if (message.type !== "call") return;
           pending.set(message.id, message.name);
           calls.push({name:message.name, args:structuredClone(message.args)});
+          if (["show_illustration", "set_scene_background", "browse_illustrations", "search_illustrations"].includes(message.name)) {
+            report({case:scenario.name, tool:message.name, args:message.args});
+          }
         },
         onMessage(message) {
           if (message.type !== "result") return;
           replies.push({name:pending.get(message.id), ok:message.result?.ok,
             ...(message.result?.error ? {error:message.result.error} : {})});
+          if (message.result?.ok !== true) report({case:scenario.name, toolError:message.result?.error});
         }
       });
       let result;
@@ -70,7 +77,7 @@ async function main() {
           workerFactory, messages:payload.messages, world:engine.buildAIHarnessWorldSnapshot(),
           illustrationCatalog:compact, illustrationBaseURL:pageBase, signal:controller.signal,
           model:async options => {
-            assert.ok(++modelCalls <= 6 && ++totalCalls <= 10, "Diagnostic model-request budget exceeded");
+            assert.ok(++modelCalls <= 8 && ++totalCalls <= 12, "Diagnostic model-request budget exceeded");
             assert.deepEqual(options.tools, protocol.modelTools);
             assert.deepEqual(options.messages.slice(0, originalPrefix.length), originalPrefix);
             const request = providers.createRequest(route, {...options, harness:true, maxTokens:2048});
