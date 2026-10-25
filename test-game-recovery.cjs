@@ -373,6 +373,23 @@ test("rewind restores independent choice and background snapshots while old knot
   assert.equal(e.stageBackground, null, "legacy knots must not inherit later background overrides");
 });
 
+test("long-running history keeps stable rewind positions beyond the old 200-message boundary", async t => {
+  const {e} = fixture(t);
+  e.drawerRibbon = {classList: {remove() {}}};
+  e.apiHistory = Array.from({length: 100}, (_, i) => [
+    {role: "user", content: `旧行动${i}`}, {role: "assistant", content: `旧正文${i}`}
+  ]).flat();
+  const before = structuredClone(e.apiHistory);
+  e.recordFateKnot("第一百轮", "回溯位置不能随历史窗口移动");
+  global.fetch = async () => completed();
+  await e.callDeepSeekLiveAPI(action, 3, 4, 9, true);
+  assert.equal(e.apiHistory.length, 202);
+  assert.deepEqual(e.apiHistory.slice(0, 200), before);
+  e.rewindToKnot(0);
+  assert.deepEqual(e.apiHistory, before, "rewind must remove the new turn and retain the old prefix");
+  assert.deepEqual(recovery.parseBackup(recovery.backup(e)).apiHistory, before);
+});
+
 test("explicit scene navigation and canonical loading clear the previous scene's choices", async t => {
   const {e} = fixture(t);
   e.pendingApiChoices = [{text: "离开场景前的行动"}];

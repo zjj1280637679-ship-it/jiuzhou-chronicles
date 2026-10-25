@@ -1,10 +1,10 @@
 "use strict";
 // importScripts resolves against the Worker entry URL, not this imported plugin's URL.
-importScripts(new URL("../illustration-system.js?v=20261025-api02", self.location.href).href);
+importScripts(new URL("../illustration-system.js?v=20261025-contract03", self.location.href).href);
 
 let registry = null;
-let selections = [];
-let backgroundChange = null;
+const effects = self.JiuzhouEffects;
+let media = effects.emptyMedia();
 const invalid = message => ({result: {ok: false, error: {code: "invalid_illustration_arguments", message}}});
 function getRegistry(context) {
   if (!registry) registry = self.JiuzhouIllustrations.createRegistry(context.illustrationCatalog ?
@@ -39,35 +39,16 @@ self.JiuzhouPlugin = {
       }
     }
     if (name === "set_scene_background") {
-      if (!hasOnly(args, ["id", "token", "clear"]) || (args.clear !== undefined && typeof args.clear !== "boolean")) {
-        return invalid("舞台背景只接受token短语或旧id及clear，不接受URL、图片路径或弹窗参数。");
-      }
-      if (args.clear === true && (args.id !== undefined || args.token !== undefined)) return invalid("恢复默认背景只传clear:true；更换背景只传token。");
-      if (args.clear === true) {
-        backgroundChange = {clear: true};
-      } else {
-        const selected = getRegistry(context).reference(args);
-        if (!selected.ok) return {result: selected};
-        backgroundChange = {id: selected.asset.id};
-      }
-      return {result: {ok: true, backgroundChange: {...backgroundChange}, pending: true}};
+      const result = effects.normalize({name, params: args}, getRegistry(context));
+      if (!result.ok) return result.error.code === "invalid_stage_effect" ? invalid(result.error.message) : {result};
+      media = effects.reduceMedia(media, result.effect);
+      return {result: {ok: true, backgroundChange: {...media.background}, pending: true}};
     }
     if (name === "select_illustration" || name === "show_illustration") {
-      if (!hasOnly(args, ["id", "token", "afterBeat", "caption", "clear"]) || (args.clear !== undefined && typeof args.clear !== "boolean")) {
-        return invalid("选图接受token短语或旧id、afterBeat、caption及clear，不接受URL或图片路径。");
-      }
-      if (args.clear === true && (args.id !== undefined || args.token !== undefined || args.afterBeat !== undefined || args.caption !== undefined)) return invalid("清空弹窗只传clear:true；展示图片则传token及可选位置或说明。");
-      if (args.clear === true) {
-        selections = [];
-        return {result: {ok: true, selections: [], pending: true}};
-      }
-      const normalized = getRegistry(context).normalizeSelection({id: args.id, token: args.token, afterBeat: args.afterBeat, caption: args.caption});
-      if (!normalized.ok) return {result: {ok: false, error: normalized.error || {code: "invalid_illustration_selection", message: "请使用目录中的有效插画ID与非负整数段落位置。"}}};
-      const selection = normalized.selection;
-      selections = selections.filter(previous => previous.afterBeat !== selection.afterBeat);
-      selections.push(selection);
-      selections.sort((left, right) => left.afterBeat - right.afterBeat);
-      return {result: {ok: true, selection, selections, pending: true}};
+      const result = effects.normalize({name: "show_illustration", params: args}, getRegistry(context));
+      if (!result.ok) return result.error.code === "invalid_stage_effect" ? invalid(result.error.message) : {result};
+      media = effects.reduceMedia(media, result.effect);
+      return {result: {ok: true, ...(result.effect.params.clear ? {} : {selection: result.effect.params}), selections: media.popups, pending: true}};
     }
     throw new Error("unknown_tool");
   }

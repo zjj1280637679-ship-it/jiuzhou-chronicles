@@ -58,6 +58,7 @@ const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
 global.JiuzhouProviders = require("./harness/providers.js");
+global.JiuzhouEffects = require("./harness/effects.js");
 global.JiuzhouGameRecovery = require("./game-recovery.js");
 
 const skillsDataCode = fs.readFileSync(path.join(__dirname, "skills-data.js"), "utf8");

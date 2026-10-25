@@ -48,7 +48,7 @@ test("bad optional choices and effects do not discard valid long-form prose", as
   assert.equal(result.choices.length, 3);
   assert.equal(result.choices[0].bias.authority, 0);
   assert.equal(result.choices[0].tag, "抉择");
-  assert.deepEqual(effects, [{tool: "screen_flash", params: {}}]);
+  assert.deepEqual(effects, [], "malformed optional effects are skipped instead of becoming a default flash");
   assert.equal(e.apiHistory.length, 2); assert.equal(e.aiRequestStatus.state, "success");
   assert.equal(e.aiGenerationMetrics.beatCount, 1); assert.equal(e.aiGenerationMetrics.choiceCount, 2);
 });

@@ -5,15 +5,17 @@
 // 底层：4轴8向政治光谱、MBTI机能隐式测量与16历史人物镜像拟合
 // =============================================================================
 
-const APP_VERSION = "v2.6.1";
-const BUILD_STAMP = "2026.10.25.0002";
-const VERSION_FULL = `v2.6.1 (Build ${BUILD_STAMP} · 分类画库 · 短语选图 · 自由篇幅交付)`;
+const APP_VERSION = "v2.6.2";
+const BUILD_STAMP = "2026.10.25.0003";
+const VERSION_FULL = `v2.6.2 (Build ${BUILD_STAMP} · 分类画库 · 短语选图 · 自由篇幅交付)`;
 const AIProviders = typeof module === "object" && module.exports
   ? require("./harness/providers.js") : globalThis.JiuzhouProviders;
 const GameRecovery = typeof module === "object" && module.exports
   ? require("./game-recovery.js") : globalThis.JiuzhouGameRecovery;
 const Illustrations = typeof module === "object" && module.exports
   ? require("./illustration-system.js") : globalThis.JiuzhouIllustrations;
+const StageEffects = typeof module === "object" && module.exports
+  ? require("./harness/effects.js") : globalThis.JiuzhouEffects;
 const escapeHTML = value => String(value ?? "").replace(/[&<>"']/g, char => ({
   "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
 })[char]);
@@ -52,6 +54,7 @@ class WebVisualNovelEngine {
     this.autoTimer = null;
     this.dangerPulseTimer = null;
     this.flashTimer = null;
+    this.shakeTimer = null;
 
     // 剧情流队列
     this.storyQueue = [];
@@ -275,46 +278,29 @@ class WebVisualNovelEngine {
   }
 
   setSceneBackground(params = {}) {
-    if (!params || typeof params !== "object" || Array.isArray(params) ||
-        Object.keys(params).some(key => !["id", "token", "clear"].includes(key)) ||
-        (params.clear !== undefined && typeof params.clear !== "boolean")) return false;
-    if (params.clear === true && (params.id !== undefined || params.token !== undefined)) return false;
-    if (params.clear === true) this.stageBackground = null;
-    else {
-      const selected = this.getIllustrationRegistry()?.reference(params);
-      if (!selected?.ok) return false;
-      this.stageBackground = {id: selected.asset.id};
-    }
+    const registry = this.getIllustrationRegistry();
+    if (!registry && params?.clear !== true) return false;
+    const result = StageEffects.normalize({name: "set_scene_background", params}, registry);
+    if (!result.ok) return false;
+    this.stageBackground = result.effect.params.clear === true ? null : {id: result.effect.params.id};
     this.refreshStageBackground();
     return true;
   }
 
   isIllustrationEffect(effect) {
-    return effect?.name === "show_illustration" || /^(qing|ming|mongol|nanming)_/.test(effect?.name || "");
+    return StageEffects.mediaChannel(effect?.name) === "popups";
   }
 
   illustrationSelectionsFromEffects(effects) {
-    const selections = [];
-    for (const effect of (effects || []).filter(effect => this.isIllustrationEffect(effect))) {
-      const params = effect.params || {};
-      if (params.clear === true) {
-        if (Object.keys(params).length === 1) selections.length = 0;
-        continue;
-      }
-      selections.push({id: params.id || (effect.name === "show_illustration" ? undefined : effect.name),
-        token: params.token, afterBeat: params.afterBeat, caption: params.caption ?? params.description ?? ""});
-    }
-    return selections;
+    return StageEffects.planMedia(effects, this.getIllustrationRegistry()).popups;
   }
 
   executeAITools(tools) {
     if (!tools || !Array.isArray(tools) || tools.length === 0) return;
 
-    tools.forEach(t => {
-      if (!t) return;
-      const toolName = t.tool || t.name;
-      if (!toolName) return;
-      const params = t.params || {};
+    StageEffects.normalizeAll(tools, this.getIllustrationRegistry()).effects.forEach(t => {
+      const toolName = t.name;
+      const params = t.params;
 
       switch (toolName) {
         case "set_scene_background": {
@@ -325,12 +311,12 @@ class WebVisualNovelEngine {
           const intensity = params.intensity || "medium";
           const duration = params.duration || 600;
           if (this.gameViewport) {
+            if (this.shakeTimer) clearTimeout(this.shakeTimer);
             this.gameViewport.classList.remove("shake-light", "shake-medium", "shake-heavy", "shake-earthquake");
             this.gameViewport.classList.add(`shake-${intensity}`);
-            setTimeout(() => {
-              if (this.gameViewport) {
-                this.gameViewport.classList.remove(`shake-${intensity}`);
-              }
+            this.shakeTimer = setTimeout(() => {
+              this.gameViewport?.classList.remove(`shake-${intensity}`);
+              this.shakeTimer = null;
             }, duration);
           }
           break;
@@ -362,41 +348,9 @@ class WebVisualNovelEngine {
           break;
         }
 
-        case "show_illustration":
-        case "qing_captive":
-        case "qing_battle":
-        case "qing_war":
-        case "qing_romance":
-        case "qing_victory":
-        case "qing_wealth":
-        case "ming_captive":
-        case "ming_battle":
-        case "ming_war":
-        case "ming_romance":
-        case "ming_victory":
-        case "ming_wealth":
-        case "mongol_captive":
-        case "mongol_battle":
-        case "mongol_war":
-        case "mongol_romance":
-        case "mongol_victory":
-        case "mongol_wealth":
-        case "nanming_captive":
-        case "nanming_battle":
-        case "nanming_war":
-        case "nanming_romance":
-        case "nanming_victory":
-        case "nanming_wealth": {
-          if (params.clear === true) {
-            if (Object.keys(params).length === 1) this.pendingIllustrationSelections = [];
-            break;
-          }
-          const result = this.getIllustrationRegistry()?.normalizeSelection({
-            id: params.id || (toolName === "show_illustration" ? undefined : toolName),
-            token: params.token,
-            afterBeat: params.afterBeat, caption: params.caption ?? params.description ?? ""
-          });
-          if (result?.ok) (this.pendingIllustrationSelections ||= []).push(result.selection);
+        case "show_illustration": {
+          const state = {...StageEffects.emptyMedia(), popups: this.pendingIllustrationSelections || []};
+          this.pendingIllustrationSelections = StageEffects.reduceMedia(state, t).popups;
           break;
         }
 
@@ -3053,6 +3007,9 @@ ${JSON.stringify(targetNode.originalBeats)}
 
   // 彻底清除所有全屏特效 (血红暗角脉冲、全屏闪光等)
   clearAllScreenEffects() {
+    if (this.shakeTimer) clearTimeout(this.shakeTimer);
+    this.shakeTimer = null;
+    this.gameViewport?.classList.remove("shake-light", "shake-medium", "shake-heavy", "shake-earthquake");
     if (this.dangerPulseTimer) {
       clearTimeout(this.dangerPulseTimer);
       this.dangerPulseTimer = null;
@@ -4177,11 +4134,8 @@ ${currentProfile.npcRoster}`;
 
     // 调度视听与舞台效果 (对账：无缝统一 stage_effects 与 legacy tools 格式)
     const effectSource = Array.isArray(parsed.stage_effects) ? parsed.stage_effects : parsed.tools;
-    const effects = (Array.isArray(effectSource) ? effectSource : []).filter(e => e && typeof e === "object" && !Array.isArray(e)).map(e => ({
-      name: typeof e.name === "string" && e.name.trim() ? e.name : (typeof e.tool === "string" ? e.tool : ""),
-      params: e.params && typeof e.params === "object" && !Array.isArray(e.params) ? e.params : {}
-    })).filter(e => e.name.trim());
     const registry = this.getIllustrationRegistry();
+    const effects = StageEffects.normalizeAll(effectSource, registry).effects;
     if (registry) {
       const composition = registry.compose(beats, this.illustrationSelectionsFromEffects(effects));
       beats = composition.beats;
@@ -4277,7 +4231,8 @@ ${currentProfile.npcRoster}`;
     this.assertAIProviderRouteCurrent(route, revision);
     const assistantHistMsg = {role: "assistant", content: contentStr};
     this.apiHistory.push({role: "user", content: ephemeralTail}, assistantHistMsg);
-    if (this.apiHistory.length > 200) this.apiHistory = this.apiHistory.slice(-200);
+    // Rewind knots use positions in this append-only history. Dropping its head silently
+    // changes those positions and can carry a later turn into an earlier scene.
     for (const effect of effects.filter(effect => !this.isIllustrationEffect(effect))) {
       try { this.executeAITools([{tool: effect.name, params: effect.params}]); }
       catch (_) { console.warn("[Narrative Engine] 已忽略无效的 AI 舞台效果，正文继续。"); }
