@@ -14,6 +14,10 @@
   const error = (code, message) => ({ok: false, error: {code, message}});
   const strings = value => Array.isArray(value) ? value.filter(item => typeof item === "string") : [];
   const phrase = value => typeof value === "string" ? value.normalize("NFC").trim() : "";
+  // Models may render the same authored phrase with a space or a middle dot.
+  // Register and resolve through one collision-checked typography key while
+  // retaining the authored token for results, prompts and saved identities.
+  const tokenKey = value => phrase(value).replace(/[·・•]/gu, " ").replace(/\s+/gu, " ").trim();
   const fold = value => phrase(value).toLocaleLowerCase("zh-CN");
   const order = (a, b) => a < b ? -1 : a > b ? 1 : 0;
   const validJSONPath = value => typeof value === "string" && /^data\/illustrations\/[a-zA-Z0-9_/-]+\.json$/.test(value) && !value.includes("..");
@@ -41,11 +45,12 @@
       aliases.set(id, target);
     }
     // Phrases, old IDs and renamed IDs share one collision-checked namespace.
-    const tokens = new Map([...assets.keys()].map(id => [id, id]));
-    for (const [alias, target] of aliases) tokens.set(alias, target);
+    const tokens = new Map([...assets.keys()].map(id => [tokenKey(id), id]));
+    for (const [alias, target] of aliases) tokens.set(tokenKey(alias), target);
     for (const asset of assets.values()) for (const token of [asset.token, ...asset.tokenAliases]) {
-      if (!token || /[\u0000-\u001f]/.test(token) || (tokens.has(token) && tokens.get(token) !== asset.id)) throw new Error("invalid_illustration_token");
-      tokens.set(token, asset.id);
+      const key = tokenKey(token);
+      if (!key || /[\u0000-\u001f]/.test(token) || (tokens.has(key) && tokens.get(key) !== asset.id)) throw new Error("invalid_illustration_token");
+      tokens.set(key, asset.id);
     }
     const scenes = clone(object(input.scenes) ? input.scenes : {});
     const taxonomy = clone(object(input.taxonomy) ? input.taxonomy : {});
@@ -68,7 +73,7 @@
       return loads.get(relativePath);
     }
     function find(id) {
-      return assets.get(tokens.get(phrase(id))) || null;
+      return assets.get(tokens.get(tokenKey(id))) || null;
     }
     function resolve(id) { const asset = find(id); return asset ? clone(asset) : null; }
     function reference(value) {

@@ -5,9 +5,9 @@
 // 底层：4轴8向政治光谱、MBTI机能隐式测量与16历史人物镜像拟合
 // =============================================================================
 
-const APP_VERSION = "v2.6.2";
-const BUILD_STAMP = "2026.10.25.0003";
-const VERSION_FULL = `v2.6.2 (Build ${BUILD_STAMP} · 分类画库 · 短语选图 · 自由篇幅交付)`;
+const APP_VERSION = "v2.6.3";
+const BUILD_STAMP = "2026.10.26.0001";
+const VERSION_FULL = `v2.6.3 (Build ${BUILD_STAMP} · 分类画库 · 短语选图 · 自由篇幅交付)`;
 const AIProviders = typeof module === "object" && module.exports
   ? require("./harness/providers.js") : globalThis.JiuzhouProviders;
 const GameRecovery = typeof module === "object" && module.exports

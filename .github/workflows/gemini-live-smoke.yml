@@ -1,0 +1,25 @@
+name: Jiuzhou real Gemini smoke test
+on:
+  push:
+    branches: [codex/gemini-live-smoke-20261026]
+    paths:
+      - '.github/workflows/gemini-live-smoke.yml'
+      - 'scripts/gemini-live-smoke.cjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  gemini:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test real Gemini phrase selection, discovery and direct delivery
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: node scripts/gemini-live-smoke.cjs

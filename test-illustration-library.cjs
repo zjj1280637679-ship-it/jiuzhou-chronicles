@@ -46,6 +46,22 @@ test("classification exposes one level, accurate subtree counts and exact leaf i
   assert.equal(registry.browse({includeLegacy: true}).total, 56);
 });
 
+test("phrase separators share one identity and ambiguous normalized tokens fail registration", () => {
+  for (const token of ["后金 盛京宫庭", "后金　盛京宫庭", "后金 ・ 盛京宫庭", "后金•盛京宫庭", "  后金  盛京宫庭  "]) {
+    assert.equal(registry.resolve(token).id, "qing_shengjing_palace", token);
+    assert.equal(registry.normalizeSelection({token}).selection.id, "qing_shengjing_palace");
+    assert.equal(registry.resolve(token).token, "后金·盛京宫庭", "Results retain the authored canonical phrase");
+  }
+  assert.equal(registry.resolve("盛京宫庭"), null, "The faction remains part of the identity");
+  assert.equal(registry.resolve("后金·盛京宫殿"), null, "Different wording needs search or an authored synonym");
+  const assets = catalog.assets.slice(0, 2).map((asset, index) => ({...asset,
+    token:index ? "同一 图片" : "同一·图片", tokenAliases:[]}));
+  assert.throws(() => registry.createRegistry({assets}), /invalid_illustration_token/);
+  assets[1].token = "另一张图";
+  assets[1].tokenAliases = ["同一・图片"];
+  assert.throws(() => registry.createRegistry({assets}), /invalid_illustration_token/);
+});
+
 test("the model sees a small contextual selection instead of the entire image directory", () => {
   const engine = Object.assign(Object.create(WebVisualNovelEngine.prototype), {
     currentFaction: "qing", currentCoords: "qing:mukden", expectedLength: 500, apiHistory: [],
@@ -135,6 +151,8 @@ test("real AI Worker resolves phrases and preserves aliases across the host boun
     assert.equal((await host.invoke("set_scene_background", {id: "compatible_map"})).result.backgroundChange.id, "qing_campaign_map");
     const selected = (await host.invoke("select_illustration", {token: "后金·骑兵冲锋"})).result;
     assert.equal(selected.selection.id, "qing_cavalry_charge");
+    const spaced = (await host.invoke("show_illustration", {token: "后金 盛京宫庭"})).result;
+    assert.equal(spaced.selection.id, "qing_shengjing_palace");
     const conflict = (await host.invoke("select_illustration", {token: "后金·夜袭营垒", id: "qing_campaign_map"})).result;
     assert.equal(conflict.ok, false);
     const reset = (await host.invoke("set_scene_background", {clear: true})).result;
