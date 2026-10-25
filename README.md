@@ -56,6 +56,7 @@ node test-exploration-ui.mjs
 | [当前状态与决策](docs/CURRENT-STATE-AND-DECISIONS.md) | 当前规则与证据边界 |
 | [个人 API 与 Google](docs/API-SOURCES.md) | 来源选择、配置及请求适配 |
 | [插件工具循环](harness/README.md) | 浏览器 Web Worker 插件与工具契约 |
+| [程序结构检查](docs/ARCHITECTURE-AUDIT.md) | 状态组合、参数约束、交付边界和分阶段拆分 |
 | [场景插画](docs/ILLUSTRATIONS.md) | 图库、兼容 ID、背景与图片弹窗工具 |
 | [手机界面](docs/MOBILE-THEATER.md) | 阅读、抉择与弹窗布局 |
 | [设置、恢复与备份](docs/EXPLORATION-RECOVERY-AND-SETTINGS.md) | 设置收纳、失败恢复、存档与收藏 |

@@ -166,3 +166,34 @@ test("missing or detached overlays allow effect completion and cleanup without t
   assert.equal(e.flashTimer, null);
   assert.doesNotThrow(() => e.clearAllScreenEffects());
 });
+
+test("repeated shakes replace the old timer and cleanup prevents callbacks crossing scenes", t => {
+  const e = engine(t);
+  e.gameViewport = element("webvn-viewport");
+  const shake = () => e.executeAITools([{name: "screen_shake", params: {intensity: "heavy", duration: 600}}]);
+  shake();
+  t.mock.timers.tick(400);
+  shake();
+  t.mock.timers.tick(200);
+  assert.equal(e.gameViewport.classList.contains("shake-heavy"), true);
+  t.mock.timers.tick(400);
+  assert.equal(e.gameViewport.classList.contains("shake-heavy"), false);
+  assert.equal(e.shakeTimer, null);
+  shake();
+  e.clearAllScreenEffects();
+  e.gameViewport.classList.add("shake-heavy");
+  t.mock.timers.tick(600);
+  assert.equal(e.gameViewport.classList.contains("shake-heavy"), true);
+});
+
+test("invalid effect primitives cannot modify game state or start display timers", t => {
+  const e = engine(t);
+  e.gameViewport = element("webvn-viewport");
+  e.inventory = []; e.dangerTicks = 2; e.maxDangerTicks = 4;
+  e.executeAITools([{name: "screen_flash", params: {color: "red extra-class"}},
+    {name: "screen_shake", params: {duration: "600"}}, {name: "danger_tick", params: {delta: NaN}},
+    {name: "grant_item", params: {name: "军报", power: Infinity}}]);
+  assert.equal(e.flashTimer, null); assert.equal(e.shakeTimer, undefined);
+  assert.equal(e.gameViewport.className, "webvn-viewport");
+  assert.equal(e.dangerTicks, 2); assert.deepEqual(e.inventory, []);
+});
