@@ -1,6 +1,6 @@
 "use strict";
 // importScripts resolves against the Worker entry URL, not this imported plugin's URL.
-importScripts(new URL("../illustration-system.js?v=20261025-gallery01", self.location.href).href);
+importScripts(new URL("../illustration-system.js?v=20261025-api02", self.location.href).href);
 
 let registry = null;
 let selections = [];
@@ -16,7 +16,7 @@ function hasOnly(args, names) {
 }
 self.JiuzhouPlugin = {
   name: "illustrations",
-  tools: self.JiuzhouHarnessProtocol.tools.filter(tool => ["list_illustrations", "browse_illustrations", "search_illustrations", "select_illustration", "set_scene_background"].includes(tool.function.name)),
+  tools: self.JiuzhouHarnessProtocol.tools.filter(tool => ["list_illustrations", "browse_illustrations", "search_illustrations", "select_illustration", "show_illustration", "set_scene_background"].includes(tool.function.name)),
   async execute(name, args, context) {
     if (["list_illustrations", "search_illustrations", "browse_illustrations"].includes(name)) {
       const fields = name === "browse_illustrations" ? ["faction", "includeLegacy", "path", "page", "pageSize"] :
@@ -28,6 +28,7 @@ self.JiuzhouPlugin = {
           (args.pageSize !== undefined && (!Number.isSafeInteger(args.pageSize) || args.pageSize < 1 || args.pageSize > 50))) {
         return invalid("查询接受文字筛选、includeLegacy，以及正整数page与1至50的pageSize。");
       }
+      if (name === "search_illustrations" && !args.query?.trim()) return invalid("请传query关键词；浏览全图库请用browse_illustrations({})。");
       const currentRegistry = getRegistry(context);
       try {
         const result = name === "browse_illustrations" ? currentRegistry.browse(args) : await currentRegistry.search(args);
@@ -41,6 +42,7 @@ self.JiuzhouPlugin = {
       if (!hasOnly(args, ["id", "token", "clear"]) || (args.clear !== undefined && typeof args.clear !== "boolean")) {
         return invalid("舞台背景只接受token短语或旧id及clear，不接受URL、图片路径或弹窗参数。");
       }
+      if (args.clear === true && (args.id !== undefined || args.token !== undefined)) return invalid("恢复默认背景只传clear:true；更换背景只传token。");
       if (args.clear === true) {
         backgroundChange = {clear: true};
       } else {
@@ -50,10 +52,11 @@ self.JiuzhouPlugin = {
       }
       return {result: {ok: true, backgroundChange: {...backgroundChange}, pending: true}};
     }
-    if (name === "select_illustration") {
+    if (name === "select_illustration" || name === "show_illustration") {
       if (!hasOnly(args, ["id", "token", "afterBeat", "caption", "clear"]) || (args.clear !== undefined && typeof args.clear !== "boolean")) {
         return invalid("选图接受token短语或旧id、afterBeat、caption及clear，不接受URL或图片路径。");
       }
+      if (args.clear === true && (args.id !== undefined || args.token !== undefined || args.afterBeat !== undefined || args.caption !== undefined)) return invalid("清空弹窗只传clear:true；展示图片则传token及可选位置或说明。");
       if (args.clear === true) {
         selections = [];
         return {result: {ok: true, selections: [], pending: true}};

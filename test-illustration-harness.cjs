@@ -87,7 +87,7 @@ test("native selection is appended only to a successful final story after all ca
     step++;
     if (step === 1) return calls([{name: "write_draft", args: {story: original}}]);
     assert.equal(step, 2);
-    assert.deepEqual(request.tools, protocol.tools);
+    assert.deepEqual(request.tools, protocol.modelTools);
     return calls([{name: "deliver_story"}, {name: "select_illustration", args: {id: "qing_holding_cell", afterBeat: 0, caption: "门闩未动。"}},
       {name: "select_illustration", args: {id: "qing_prisoner_escort", afterBeat: 99}}]);
   }}));

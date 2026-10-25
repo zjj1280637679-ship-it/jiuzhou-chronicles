@@ -354,7 +354,7 @@ test("app runs native agent requests with one signal and commits only the verifi
     const body = JSON.parse(init.body); requests.push(body); signals.push(init.signal);
     assert.equal(body.mode, undefined); assert.equal(body.response_format, undefined);
     assert.deepEqual(body.thinking, {type: "disabled"});
-    assert.deepEqual(body.tools, protocol.tools);
+    assert.deepEqual(body.tools, protocol.modelTools);
     assert.equal(body.enabledTools, undefined);
     assert.equal(engine.apiHistory.length, 0);
     assert.equal(engine.btnCancelAIRequest.hidden, false);
