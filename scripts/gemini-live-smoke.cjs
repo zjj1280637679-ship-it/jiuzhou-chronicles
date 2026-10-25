@@ -36,9 +36,9 @@ async function main() {
   let httpRequests = 0, quotaRetries = 0;
   const cases = [
     {name:"curated_phrase", expectedPopup:"qing_shengjing_palace", action:
-      "你在盛京宫庭等候召见。把本轮少量精选中的“后金·盛京宫庭”直接作为独立图片弹窗，然后完成这一幕。"},
+      "你在盛京宫庭等候召见。本次验证最短调用：已知准确短语是“后金·盛京宫庭”，请直接调用show_illustration，参数只传这个token，使用默认位置和说明，不必再搜索。背景保持现状。然后用deliver_story直接交付这一幕。"},
     {name:"browse_search_select", expectedPopup:"qing_cavalry_charge", expectedBackground:"qing_frontier_pass", action:
-      "你走近关隘观察后金骑兵集结。先查看图库根分类，再进入一个返回的军事相关分类；随后搜索后金骑兵冲锋的画面，从搜索结果中选中骑军突击作为独立弹窗，用“后金·关隘烽火”作为持续背景，然后完成这一幕。"}
+      "你走近关隘观察后金骑兵集结。先查看图库根分类，再进入一个返回的军事相关分类；随后搜索后金骑兵冲锋的画面。取得准确token后，必须实际调用show_illustration安排骑军突击弹窗，并调用set_scene_background把“后金·关隘烽火”设为背景；两项安排完成后，再调用deliver_story交付这一幕。选图调用只传token即可，使用默认位置和说明。"}
   ];
   try {
     for (const scenario of cases) {
@@ -118,6 +118,9 @@ async function main() {
         });
       } finally {clearTimeout(deadline);}
       const story = JSON.parse(result.data.choices[0].message.content);
+      report({case:scenario.name, delivery:{beats:story.beats.length,
+        choices:story.choices.length, stage_effects:story.stage_effects},
+        executedTools:calls.map(call => call.name)});
       assert.ok(story.beats.length > 0);
       assert.equal(story.choices.length, 3, "The model itself must provide three choices");
       assert.ok(calls.some(call => call.name === "deliver_story" && call.args.story), "Direct story delivery was not exercised");
@@ -133,6 +136,9 @@ async function main() {
         assert.ok(calls.some(call => call.name === "browse_illustrations" && call.args.path));
         assert.ok(calls.some(call => call.name === "search_illustrations"));
         assert.ok(story.stage_effects.some(effect => effect.name === "set_scene_background" && effect.params.id === scenario.expectedBackground));
+      } else {
+        assert.deepEqual(calls.find(call => call.name === "show_illustration").args, {token:"后金·盛京宫庭"});
+        assert.ok(!calls.some(call => call.name === "set_scene_background"));
       }
       const fetched = downloads.slice(startDownload);
       assert.ok(fetched.every(url => /^\/data\/illustrations\/library\/[\w.-]+\.json$/.test(url)),
