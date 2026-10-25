@@ -26,4 +26,10 @@
 
 官方依据：[OpenAI 兼容接口](https://ai.google.dev/gemini-api/docs/openai)、[工具调用签名](https://ai.google.dev/gemini-api/docs/generate-content/thought-signatures#signatures-for-openai-compatibility)、[latest 别名](https://ai.google.dev/gemini-api/docs/models#latest)、[原生响应 modelVersion](https://ai.google.dev/api/generate-content#GenerateContentResponse)。
 
-离线回归：`node --test test-google-provider.cjs`（包含来源隔离、模型卡、未保存配置及工具签名往返）。真实 Key 仅由本机人工授权测试提供，不加入 CI。
+离线回归：`node --test test-google-provider.cjs`（包含来源隔离、模型卡、未保存配置及工具签名往返）。普通回归继续使用模拟回复。
+
+## GitHub Actions 真实验收（2026-10-26）
+
+仓库 Actions Secret `GEMINI_API_KEY` 已通过官方兼容接口验证。[真实工具链记录](https://github.com/zjj1280637679-ship-it/jiuzhou-chronicles/actions/runs/40218051867) 使用默认 `gemini-flash-lite-latest`、游戏提示词、正式提供方适配器与隔离 Node Workers；短语直选、分类搜索、弹窗、背景及剧情交付两条用例通过，共 6 次请求，无工具错误或额度重试。选图只传 `token`，检索期间只请求文字 JSON。
+
+该诊断通过独立工作流运行，使用 GitHub Secret 的值，脚本读取后从子 Worker 可继承的环境中移除。密钥不进入公开源码、静态构建或模型消息。验收专用的篇幅偏好、请求预算及按服务端提示等待分钟额度的重试仅作用于该脚本；游戏请求设置保持原样。此次记录不等同于浏览器跨域或实体手机网络验证。

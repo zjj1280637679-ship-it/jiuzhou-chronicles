@@ -49,6 +49,8 @@ node test-exploration-ui.mjs
 
 `test:unit` 使用本地夹具，覆盖个人来源、插件、演出、恢复及静态发布；`test:content` 检查预置剧情字段、指针和清阵营树结构。浏览器脚本会启动隔离的本地 HTTP 服务，需要可用的 Playwright 与 Chromium；可用 `JIUZHOU_BROWSER_EXECUTABLE` 指定浏览器路径，其他选项见各脚本。离线模拟、真实 API、生产网页和实体手机验证分别记录；模拟通过不等于真实模型或所有网络已通过。
 
+`Jiuzhou real Gemini smoke test` 是单独的真实 API 验收。使用仓库 Actions Secret `GEMINI_API_KEY`，默认模型为 `gemini-flash-lite-latest`；通过正式请求适配器、实际提示词、隔离 Node Worker 和按需文字分片验证图库工具。它不加入日常单元测试，密钥和测试脚本也不会进入公开静态资源。验收专用的短篇偏好、请求预算及分钟额度等待重试不修改游戏设置；此测试不验证浏览器跨域或实体手机网络。
+
 ## 文档与目录
 
 | 入口 | 用途 |

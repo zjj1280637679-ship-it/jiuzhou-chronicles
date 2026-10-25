@@ -29,10 +29,11 @@
     checkSignal(signal);
     const baseURL = options.baseURL || defaultBaseURL;
     if (!baseURL) throw new Error("plugin_base_url_missing");
+    const assetVersion = "20261026-token04";
     const manifests = options.plugins || [
-      {id: "world", url: new URL("plugins/world.js", baseURL).href},
-      {id: "story", url: new URL("plugins/story.js", baseURL).href},
-      {id: "illustrations", url: new URL("plugins/illustrations.js", baseURL).href}
+      {id: "world", url: new URL("plugins/world.js?v=" + assetVersion, baseURL).href},
+      {id: "story", url: new URL("plugins/story.js?v=" + assetVersion, baseURL).href},
+      {id: "illustrations", url: new URL("plugins/illustrations.js?v=" + assetVersion, baseURL).href}
     ];
     const builtInContext = {world: ["world"], story: [], illustrations: ["illustrations", "illustrationCatalog", "illustrationBaseURL"]};
     function contextFor(manifest) {
@@ -41,7 +42,6 @@
       return clone(Array.isArray(keys) ? Object.fromEntries(keys.filter(key => Object.hasOwn(context, key)).map(key => [key, context[key]])) : context);
     }
     const makeWorker = options.workerFactory || (url => new Worker(url));
-    const assetVersion = "20261025-contract03";
     const timeoutMs = options.pluginTimeoutMs ?? 10000;
     const entries = [], registry = new Map();
     let sequence = 0, disposed = false;

@@ -1,6 +1,6 @@
 "use strict";
 // importScripts resolves against the Worker entry URL, not this imported plugin's URL.
-importScripts(new URL("../illustration-system.js?v=20261025-contract03", self.location.href).href);
+importScripts(new URL("../illustration-system.js?v=20261026-token04", self.location.href).href);
 
 let registry = null;
 const effects = self.JiuzhouEffects;
