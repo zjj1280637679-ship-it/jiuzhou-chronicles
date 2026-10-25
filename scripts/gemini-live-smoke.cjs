@@ -33,6 +33,7 @@ async function main() {
   const pageBase = `http://127.0.0.1:${server.address().port}/`;
   const summaries = [];
   let totalCalls = 0;
+  let httpRequests = 0, quotaRetries = 0;
   const cases = [
     {name:"curated_phrase", expectedPopup:"qing_shengjing_palace", action:
       "你在盛京宫庭等候召见。把本轮少量精选中的“后金·盛京宫庭”直接作为独立图片弹窗，然后完成这一幕。"},
@@ -84,14 +85,29 @@ async function main() {
             assert.equal(request.body.response_format, undefined);
             assert.equal(request.body.tool_choice, undefined, "Tool choice must be the model's own decision");
             assert.equal(JSON.stringify(request.body).includes(key), false);
-            const response = await fetch(request.endpoint, {method:"POST", headers:request.headers,
-              body:JSON.stringify(request.body), redirect:"error", signal:options.signal});
-            let data;
-            try {data = JSON.parse(await response.text());} catch {throw new Error("non_json_model_response");}
-            if (!response.ok) {
+            let response, data;
+            while (true) {
+              httpRequests++;
+              response = await fetch(request.endpoint, {method:"POST", headers:request.headers,
+                body:JSON.stringify(request.body), redirect:"error", signal:options.signal});
+              try {data = JSON.parse(await response.text());} catch {throw new Error("non_json_model_response");}
+              if (response.ok) break;
               const error = Array.isArray(data) ? data[0]?.error : data.error;
+              const message = String(error?.message || "No API error detail");
+              const retry = error?.details?.find(item => item["@type"] === "type.googleapis.com/google.rpc.RetryInfo");
+              const seconds = Number(String(retry?.retryDelay || message.match(/Please retry in ([\d.]+)s/)?.[1] || "").replace(/s$/, ""));
+              const waitMs = Math.ceil(seconds * 1000) + 1000;
+              // Retry only the transient minute quota, never auth, daily quota,
+              // or a tool execution. The exact message prefix remains intact.
+              if (response.status === 429 && /per minute/i.test(message) &&
+                  seconds > 0 && waitMs <= 60000 && quotaRetries < 2) {
+                quotaRetries++;
+                report({case:scenario.name, http_status:429, retryAfterMs:waitMs, reason:"google_minute_quota"});
+                await require("node:timers/promises").setTimeout(waitMs, undefined, {signal:options.signal});
+                continue;
+              }
               report({case:scenario.name, http_status:response.status, code:error?.status || error?.code,
-                message:String(error?.message || "No API error detail").slice(0,1000)});
+                message:message.slice(0,1000)});
               throw Object.assign(new Error("model_http_error"), {code:`http_${response.status}`});
             }
             report({case:scenario.name, request:modelCalls, http_status:response.status,
@@ -131,7 +147,7 @@ async function main() {
       report(summary);
     }
     report({ok:true, realAPI:true, fixtures:false, isolatedWorkers:true,
-      cases:summaries.length, totalModelCalls:totalCalls});
+      cases:summaries.length, totalModelCalls:totalCalls, httpRequests, quotaRetries});
   } finally {
     server.closeAllConnections();
     await new Promise(done => server.close(done));
