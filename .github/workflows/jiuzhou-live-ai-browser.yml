@@ -72,7 +72,7 @@ jobs:
         with:
           node-version: '22'
       - run: npm install --no-save playwright@1.62.1
-      - run: "$JIUZHOU_BROWSER_EXECUTABLE" --version
+      - run: /usr/bin/google-chrome --version
       - name: Test personal API migration and native tools with simulated model responses
         run: node test-personal-ai-browser.mjs
       - name: Test registered illustrations and isolated native tools
