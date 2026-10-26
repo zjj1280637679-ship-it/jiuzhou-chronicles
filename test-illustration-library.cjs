@@ -32,9 +32,9 @@ test("exact phrases, authored synonyms and old IDs resolve to one immutable iden
 
 test("classification exposes one level, accurate subtree counts and exact leaf images", () => {
   const root = registry.browse();
-  assert.equal(root.total, 50); assert.equal(root.illustrations.length, 0);
+  assert.equal(root.total, 158); assert.equal(root.illustrations.length, 0);
   assert.equal(root.children.reduce((sum, child) => sum + child.count, 0), root.total);
-  assert.deepEqual(new Set(root.children.map(child => child.name)), new Set(["环境", "事件", "人物关系", "物件"]));
+  assert.deepEqual(new Set(root.children.map(child => child.name)), new Set(["环境", "事件", "人物关系", "物件", "场景"]));
   assert.ok(registry.browse({path: "事件"}).children.some(child => child.path === "事件/军事行动"));
   const leaf = registry.browse({path: "事件/军事行动/骑兵突击"});
   assert.deepEqual(leaf.children, []);
@@ -43,7 +43,7 @@ test("classification exposes one level, accurate subtree counts and exact leaf i
   const filtered = registry.browse({path: leaf.path, faction: "qing"});
   assert.equal(filtered.total, 1); assert.equal(filtered.illustrations[0].id, "qing_cavalry_charge");
   assert.equal(registry.browse({path: "未登记的分类"}).total, 0);
-  assert.equal(registry.browse({includeLegacy: true}).total, 56);
+  assert.equal(registry.browse({includeLegacy: true}).total, 164);
 });
 
 test("phrase separators share one identity and ambiguous normalized tokens fail registration", () => {
@@ -91,7 +91,7 @@ test("ranked multi-keyword search paginates without dropping candidates or leaki
   const ids = [], seen = new Set(); let page = 1;
   while (page) {
     const result = await registry.search({page, pageSize: 7});
-    assert.equal(result.total, 50); assert.ok(result.count <= 7);
+    assert.equal(result.total, 158); assert.ok(result.count <= 7);
     for (const asset of result.illustrations) {assert.ok(!seen.has(asset.id)); seen.add(asset.id); ids.push(asset.id);}
     page = result.nextPage;
   }
@@ -139,13 +139,60 @@ test("failed metadata can retry and lazy content cannot rewrite approved paths o
   assert.equal(lazy.resolve("偷偷改名"), null);
 });
 
+test("all 108 new phrases are searchable and families retain distinct originals, clothes and backgrounds", async () => {
+  const added = catalog.assets.filter(asset => asset.sourcePack === "后金背景母图与互动变体108图");
+  assert.equal(added.length, 108);
+  assert.equal(added.filter(asset => asset.variantKind === "background_mother").length, 12);
+  assert.equal(added.filter(asset => asset.variantKind === "character_scene").length, 48);
+  assert.equal(added.filter(asset => asset.variantKind === "clothing_variant").length, 48);
+  const byID = new Map(added.map(asset => [asset.id, asset]));
+  for (const asset of added) {
+    assert.equal((await registry.search({query: asset.token})).illustrations[0].id, asset.id, asset.token);
+    assert.equal(registry.resolve(asset.sourceId).id, asset.id, "source sheet codes are also exact references");
+    assert.ok(byID.has(asset.backgroundId));
+    assert.equal(byID.get(asset.backgroundId).variantKind, "background_mother");
+    assert.equal(byID.get(asset.backgroundId).familyId, asset.familyId);
+    if (asset.parentId) assert.equal(byID.get(asset.parentId).familyId, asset.familyId);
+    if (asset.variantKind === "clothing_variant") {
+      assert.equal(byID.get(asset.parentId).variantKind, "character_scene");
+      assert.notEqual(asset.relativePath, byID.get(asset.parentId).relativePath);
+    }
+  }
+  const families = registry.browse({path: "场景/后金"});
+  assert.equal(families.total, 108); assert.equal(families.children.length, 12);
+  for (const family of families.children) {
+    const page = registry.browse({path: family.path, pageSize: 12});
+    assert.equal(page.total, 9); assert.equal(page.count, 9); assert.equal(page.hasMore, false);
+  }
+  assert.equal((await registry.search({query: "衣装变体"})).total, 48);
+  assert.equal((await registry.search({query: "兜档布"})).total, 48);
+  assert.equal((await registry.search({query: "长围布"})).total, 18);
+  assert.equal((await registry.search({query: "背景 母图", path: "场景"})).total, 12);
+  for (const query of ["后金・渡口核名・兜档布", "后金　渡口核名　兜裆布", "JH07-01-L01"]) {
+    assert.equal((await registry.search({query})).illustrations[0].id, "qing_jh07_01_l01", query);
+  }
+  const requests = [];
+  const lazy = registry.createRegistry({...compact, loadJSON: async filename => {
+    requests.push(filename); return JSON.parse(await fs.readFile(path.join(__dirname, filename), "utf8"));
+  }});
+  lazy.browse({path: "场景/后金/牢狱"});
+  lazy.normalizeSelection({token: "后金·栏间递水·兜裆布"});
+  assert.deepEqual(requests, [], "family navigation and selected phrases do not download metadata or images");
+  const details = await lazy.details("后金·栏间递水·兜裆布");
+  assert.match(details.description, /长围布/);
+  assert.equal(requests.length, 1);
+  const shard = JSON.parse(await fs.readFile(path.join(__dirname, requests[0]), "utf8"));
+  assert.equal(shard.assets.length, 9, "preview reads one family's details, not all 140 Later Jin descriptions");
+  assert.ok(shard.assets.every(asset => asset.id.startsWith("qing_jh04_")));
+});
+
 test("real AI Worker resolves phrases and preserves aliases across the host boundary", async () => {
   const snapshot = registry.snapshot(); snapshot.aliases.compatible_map = "qing_campaign_map";
   const host = await createPluginHost({baseURL: pathToFileURL(path.join(__dirname, "harness", path.sep)).href,
     workerFactory: createNodeWorkerFactory(), context: {illustrationCatalog: snapshot}});
   try {
     const root = (await host.invoke("browse_illustrations", {})).result;
-    assert.equal(root.ok, true); assert.equal(root.total, 50);
+    assert.equal(root.ok, true); assert.equal(root.total, 158);
     const search = (await host.invoke("search_illustrations", {query: "骑兵 冲锋"})).result;
     assert.ok(search.illustrations.some(asset => asset.token === "后金·骑军突击"));
     assert.equal((await host.invoke("set_scene_background", {id: "compatible_map"})).result.backgroundChange.id, "qing_campaign_map");
@@ -174,22 +221,22 @@ test("native model tool loop fetches metadata under a Pages subpath and commits 
   const toolReply = specs => ({choices: [{finish_reason: "tool_calls", message: {role: "assistant", content: null,
     tool_calls: specs.map((spec, i) => ({id: `${step}_${i}`, type: "function", function: {name: spec.name, arguments: JSON.stringify(spec.args)}}))}}]});
   const result = await createGameHarness({baseURL: pathToFileURL(path.join(__dirname, "harness", path.sep)).href,
-    workerFactory: createNodeWorkerFactory(), messages: [{role: "user", content: "骑兵冲锋，给这一段配图。"}],
+    workerFactory: createNodeWorkerFactory(), messages: [{role: "user", content: "在渡口核名，给这一段配图。"}],
     illustrationCatalog: compact, illustrationBaseURL: `http://127.0.0.1:${server.address().port}/game/`,
     model: async request => {
       step++;
-      if (step === 1) return toolReply([{name: "search_illustrations", args: {query: "骑兵 冲锋", faction: "qing"}}]);
-      assert.ok(request.messages.some(message => message.role === "tool" && message.content.includes("后金·骑军突击")));
+      if (step === 1) return toolReply([{name: "search_illustrations", args: {query: "渡口 核名", faction: "qing"}}]);
+      assert.ok(request.messages.some(message => message.role === "tool" && message.content.includes("后金·渡口核名·兜裆布")));
       if (step === 2) return toolReply([
-        {name: "select_illustration", args: {token: "后金·骑军突击", afterBeat: 1}},
-        {name: "set_scene_background", args: {token: "后金·关隘烽火"}},
-        {name: "write_draft", args: {story: {beats: [{text: "骑兵向城下突进，胜负仍未分明。"}], choices: [{text: "观察城门"}]}}}
+        {name: "show_illustration", args: {token: "后金 渡口核名 兜档布", afterBeat: 1}},
+        {name: "set_scene_background", args: {token: "背景·后金河岸渡口·常态"}},
+        {name: "write_draft", args: {story: {beats: [{text: "船夫仍在等候，名册上的人尚待核对。"}], choices: [{text: "核对名册"}]}}}
       ]);
       assert.equal(step, 3); return toolReply([{name: "deliver_story", args: {}}]);
     }});
   const story = JSON.parse(result.data.choices[0].message.content);
-  assert.ok(story.stage_effects.some(effect => effect.name === "show_illustration" && effect.params.id === "qing_cavalry_charge"));
-  assert.ok(story.stage_effects.some(effect => effect.name === "set_scene_background" && effect.params.id === "qing_frontier_pass"));
+  assert.ok(story.stage_effects.some(effect => effect.name === "show_illustration" && effect.params.id === "qing_jh07_01_l01"));
+  assert.ok(story.stage_effects.some(effect => effect.name === "set_scene_background" && effect.params.id === "qing_jh07_00"));
   assert.equal(requests.filter(url => /\/search-[a-f0-9]+\.json$/.test(url)).length, 1);
   assert.ok(requests.every(url => url.endsWith(".json")), "AI selection never downloads image files");
 });

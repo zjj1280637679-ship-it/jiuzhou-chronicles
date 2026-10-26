@@ -1,5 +1,5 @@
 "use strict";
-importScripts("contracts.js?v=20261026-token04", "effects.js?v=20261026-token04", "protocol.js?v=20261026-token04");
+importScripts("contracts.js?v=20261027-jh10801", "effects.js?v=20261027-jh10801", "protocol.js?v=20261027-jh10801");
 // Each plugin gets its own Worker and structured-cloned data. It receives no DOM or engine reference.
 let plugin, context;
 self.onmessage = async event => {

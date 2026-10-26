@@ -29,8 +29,8 @@
         </div>
         <div class="gallery-filter-row"><p id="gallery-overview"></p><label>画面设定 <select id="gallery-faction"><option value="">全部设定</option><option value="qing">后金</option><option value="ming">大明</option><option value="mongol">蒙古</option><option value="nanming">南明</option></select></label></div>
         <form id="gallery-search-form" class="gallery-search" hidden>
-          <label class="gallery-search-label" for="gallery-query">描述你要找的画面</label>
-          <div><input id="gallery-query" type="search" placeholder="如：骑兵 冲锋、密信、囚室" autocomplete="off"><button type="submit">寻画</button></div>
+          <label class="gallery-search-label" for="gallery-query">搜索画面、调用短语或编号</label>
+          <div><input id="gallery-query" type="search" placeholder="如：渡口 核名、兜裆布、JH01-01" autocomplete="off"><button type="submit">寻画</button></div>
         </form>
         <nav id="gallery-breadcrumb" class="gallery-breadcrumb" aria-label="图库分类路径" hidden></nav>
       </div>
@@ -132,7 +132,7 @@
         });
       } else if (!state.query) {
         output = {illustrations: []}; status.textContent = "输入画面内容或关键词，以空格组合多个条件。";
-        ["骑兵 冲锋", "密信", "囚室"].forEach(query => categories.append(button(query, "gallery-query-example", () => {
+        ["背景 母图", "渡口 核名", "兜裆布", "骑兵 冲锋"].forEach(query => categories.append(button(query, "gallery-query-example", () => {
           byId("gallery-query").value = query; state.query = query; state.page = 1; render();
         })));
       } else {

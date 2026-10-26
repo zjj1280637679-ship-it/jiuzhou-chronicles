@@ -1,14 +1,14 @@
 # 场景插画与 AI 工具
 
-此目录接入后金形象修订版 16 张、暗黑场景扩展 16 张，游戏使用原尺寸 WebP。旧 24 个图柄及旧图片保留；其中旧后金 6 图标记 `legacy: true`，默认查询隐藏，准确 ID 仍可解析。其余三阵营各 6 图继续可用。
+此目录含原有56张及新增后金108张，共164个图片身份，默认显示158张。新增包为12组共享背景：12张无人母图、48张原版互动、48张汉人围布衣装变体，使用保留原尺寸的WebP，合计33,472,952字节。原有24个旧图柄保留；其中旧后金6图标记 `legacy: true`，默认查询隐藏，准确ID仍可解析。其余三阵营各6图继续可用。新图调用见[108图句柄表](JH-GALLERY.md)。
 
 ## 唯一清单与文件
 
 - `data/illustrations/catalog.json`：可编辑的唯一正式清单，含 `assets`、`aliases`、`scenes`。
 - `data/illustrations/catalog-data.js`：完整清单的兼容输出，用于旧集成与一致性检查，生产页面不再加载它。
 - `data/illustrations/catalog-index.js`：网页启动所需的精简身份、短语、分类和场景索引；不包含完整检索标签、适用/避用说明及图片二进制。
-- `data/illustrations/library/search-<hash>.json` 与 `details-<faction>-<hash>.json`：首次检索才读取搜索文字，只为当前结果页或预览读取详情分片；内容哈希避免新旧目录缓存混用。成功读取在当前注册表内复用，失败可重试。
-- `data/illustrations/qing/scenes/*.webp`：32 张实际图片。导入只复制，不裁切、缩放或拉伸。
+- `data/illustrations/library/search-<hash>.json` 与 `details-<group>-<hash>.json`：首次检索才读取搜索文字，只为当前结果页或预览读取详情分片；旧图按阵营分片，新108图按每组9张分片，预览一组不下载其他组详情。内容哈希避免新旧目录缓存混用。成功读取在当前注册表内复用，失败可重试。
+- `data/illustrations/qing/scenes/*.webp`：140张实际图片，其中108张来自新场景组。保留原尺寸，不裁切或拉伸；PNG原图不随网页首屏下载。
 - `illustration-system.js`：UMD 模块；网页 / Worker 全局 `JiuzhouIllustrations`，Node 为 `require("./illustration-system.js")`。
 - `harness/plugins/illustrations.js`：独立 AI 插画工具插件。工具执行和查图不会立即打开弹窗或修改存档。
 - `gallery-ui.js` / `gallery.css`：首页和游戏菜单共用的只读画库面板；精选、分类与搜索只创建文字卡，只有明确点击预览才赋值图片地址，不修改游戏进度。
@@ -134,7 +134,7 @@ node test-illustration-harness.cjs
 node --test test-illustration-library.cjs
 ```
 
-注册表测试覆盖真实资源完整性、全部 56 个兼容 ID、32 个新图柄、弃用隐藏、准确查找、跨设定查询、替换与插入位置、未知图错误、原正文不变、白名单字段、Node / 浏览器 / Worker 一致性及 364 个后金静态节点绑定。浏览器测试还需验证实际取图、阅读翻页、移动布局、手动放大与存档恢复；单元测试成功不代表线上已经发布。
+注册表测试覆盖164个ID、全部108个新增短语、12组母图关系、衣装区分、短语及编号检索、每组9张详情分片、兼容旧图、准确查找、跨设定查询、替换与插入位置、未知图错误、正文不变、白名单字段、Node / 浏览器 / Worker一致性及364个后金静态节点绑定。`node test-gallery-browser.mjs` 检查桌面和手机视口中首页、精选、分类、翻页和搜索均不取新图，明确预览后只下载所选图片。单元测试成功不代表线上已经发布。
 
 2026-10-25 本轮验证：`npm run test:unit` 的 187 项检查、四阵营回归、剧情数据检查及静态构建通过。新增测试通过真实 Node Worker 执行搜索、短语选图、背景设置和交付，模型为本地夹具，不是收费 API。浏览器手动检查通过桌面 1363×936，以及 iframe 中的 390×844、320×740 视口；覆盖首页打开画库、逐级分类、多关键词搜索、真实 WebP 解码、短语显示、关闭与窄屏无横向溢出。窄屏检查不等于实体 iPhone 或输入法实测。完整 Playwright 脚本由 GitHub Actions 执行，以对应提交的检查结果为准。
 
