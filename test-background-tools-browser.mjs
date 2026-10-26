@@ -25,7 +25,7 @@ const output = process.env.JIUZHOU_BACKGROUND_SCREENSHOTS;
 if (output) await mkdir(output, {recursive:true});
 const config = {source:"custom", enabled:true, endpoint:"https://background.fixture/v1", apiKey:"fixture-only-background-key",
   model:"custom", customModel:"background-fixture", adapter:"openai", tokenParameter:"max_tokens", maxTokens:32768};
-const backgroundA = "qing_holding_cell", backgroundB = "qing_secret_letter", popupA = "qing_night_raid", popupB = "qing_lamplit_questioning";
+const backgroundA = "qing_holding_cell", backgroundB = "qing_jh07_00", popupA = "qing_night_raid", popupB = "qing_lamplit_questioning";
 const story = label => ({beats:[{speaker:"旁白", text:label + "：场景中的灯火未曾熄灭。"},
   {speaker:"随行者", text:"继续核对旧案，不因展示画卷而改变现场。"}], choices:[{text:"继续"},{text:"查阅"},{text:"等候"}]});
 async function closePopup(page) {

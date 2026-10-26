@@ -18,7 +18,7 @@
   // Register and resolve through one collision-checked typography key while
   // retaining the authored token for results, prompts and saved identities.
   const tokenKey = value => phrase(value).replace(/[·・•]/gu, " ").replace(/\s+/gu, " ").trim();
-  const fold = value => phrase(value).toLocaleLowerCase("zh-CN");
+  const fold = value => tokenKey(value).toLocaleLowerCase("zh-CN");
   const order = (a, b) => a < b ? -1 : a > b ? 1 : 0;
   const validJSONPath = value => typeof value === "string" && /^data\/illustrations\/[a-zA-Z0-9_/-]+\.json$/.test(value) && !value.includes("..");
   const textFields = ["faction", "factionName", "category", "categoryName", "title", "description", "symbol", "sourcePack"];

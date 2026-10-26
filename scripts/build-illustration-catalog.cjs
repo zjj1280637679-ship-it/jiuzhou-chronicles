@@ -88,7 +88,9 @@ const write = (prefix, data) => {
 };
 const shards = new Map(), detailPaths = {};
 for (const asset of catalog.assets) {
-  const group = asset.faction;
+  // A shared-background family is a small detail shard. Previewing one of the
+  // new scenes must not fetch the descriptions of every Later Jin image.
+  const group = asset.familyId || asset.faction;
   if (!/^[a-z][a-z0-9_]*$/.test(group)) throw new Error("Invalid metadata shard");
   if (!shards.has(group)) shards.set(group, []);
   const fields = ["id", "description", "tags", "useWhen", "avoidWhen", "possibleContinuations", "sourcePack"];

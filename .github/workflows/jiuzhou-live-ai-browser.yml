@@ -24,6 +24,7 @@ on:
       - 'test-illustration-*'
       - 'test-illustrations-browser.mjs'
       - 'test-background-tools-browser.mjs'
+      - 'test-gallery-browser.mjs'
       - 'data/mobile/**'
       - 'harness/**'
       - '.github/workflows/jiuzhou-live-ai-browser.yml'
@@ -51,6 +52,7 @@ on:
       - 'test-illustration-*'
       - 'test-illustrations-browser.mjs'
       - 'test-background-tools-browser.mjs'
+      - 'test-gallery-browser.mjs'
       - 'data/mobile/**'
       - 'harness/**'
       - '.github/workflows/jiuzhou-live-ai-browser.yml'
@@ -59,21 +61,26 @@ permissions:
   contents: read
 jobs:
   browser:
-    runs-on: ubuntu-latest
+    # Pin the runner and use its installed Chrome for the browser tests.
+    runs-on: ubuntu-24.04
     timeout-minutes: 8
+    env:
+      JIUZHOU_BROWSER_EXECUTABLE: /usr/bin/google-chrome
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: npm install --no-save playwright@1.56.1
-      - run: npx playwright install --with-deps chromium
+      - run: npm install --no-save playwright@1.62.1
+      - run: /usr/bin/google-chrome --version
       - name: Test personal API migration and native tools with simulated model responses
         run: node test-personal-ai-browser.mjs
       - name: Test registered illustrations and isolated native tools
         run: node --test test-illustration-registry.cjs test-illustration-harness.cjs test-plugin-harness.cjs
       - name: Test scene art and multi-image story delivery through the browser
         run: node test-illustrations-browser.mjs
+      - name: Test 108-image gallery search and on-demand image requests
+        run: node test-gallery-browser.mjs
       - name: Test independent stage backgrounds and interactive image popups
         run: node test-background-tools-browser.mjs
       - name: Test mobile and desktop layout through real UI without model calls

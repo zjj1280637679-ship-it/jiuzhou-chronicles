@@ -29,7 +29,7 @@
     checkSignal(signal);
     const baseURL = options.baseURL || defaultBaseURL;
     if (!baseURL) throw new Error("plugin_base_url_missing");
-    const assetVersion = "20261026-token04";
+    const assetVersion = "20261027-jh10801";
     const manifests = options.plugins || [
       {id: "world", url: new URL("plugins/world.js?v=" + assetVersion, baseURL).href},
       {id: "story", url: new URL("plugins/story.js?v=" + assetVersion, baseURL).href},

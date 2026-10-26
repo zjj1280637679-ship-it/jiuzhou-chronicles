@@ -26,7 +26,7 @@ const evidence = {testedAt:new Date().toISOString(), fixtureAPI:true, viewports:
 const fixtureKey = "fixture-illustrations-only-key";
 const config = {source:"custom", enabled:false, endpoint:"https://illustrations.fixture/v1", apiKey:fixtureKey,
   model:"custom", customModel:"illustrations-fixture", adapter:"openai", tokenParameter:"max_tokens", maxTokens:32768};
-const chosen = ["qing_night_raid", "qing_lamplit_questioning"];
+const chosen = ["qing_night_raid", "qing_jh04_02_l01"];
 const story = {beats:[{speaker:"旁白", text:"文书核对完毕，营火照亮了卷宗。"}, {speaker:"随行者", text:"言辞尚有出入，明日再访证人。"}],
   choices:[{text:"核对卷宗"}, {text:"访查营地"}, {text:"照看伤者"}]};
 const steps = [
@@ -34,7 +34,7 @@ const steps = [
   {name:"show_illustration", arguments:{token:"未登记的测试画面", afterBeat:0}},
   {name:"show_illustration", arguments:{token:"后金·夜袭营垒", afterBeat:0, caption:"夜色中尚未分晓的行动。"}},
   {name:"write_draft", arguments:{story, mode:"replace"}},
-  {name:"show_illustration", arguments:{token:"后金·灯下问讯", afterBeat:2, caption:"案头的纸页仍待核查。"}},
+  {name:"show_illustration", arguments:{token:"后金·栏间递水·兜裆布", afterBeat:2, caption:"隔栏递来的水尚未接过。"}},
   {name:"read_draft", arguments:{}},
   {name:"deliver_story", arguments:{}}
 ];
@@ -172,7 +172,7 @@ try {
     await page.goto(origin, {waitUntil:"domcontentloaded"});
     await page.waitForFunction(() => Boolean(window.__vnEngine && window.JiuzhouIllustrations));
     const assets = await page.evaluate(() => window.JiuzhouIllustrations.list({faction:"qing"}));
-    assert.equal(assets.length, 32); assert.equal(new Set(assets.map(asset => asset.id)).size, 32);
+    assert.equal(assets.length, 140); assert.equal(new Set(assets.map(asset => asset.id)).size, 140);
     assert.ok(await page.evaluate(() => window.JiuzhouIllustrations.resolve("qing_captive")), "Old stored handles still resolve");
     if (!size.mobile) {
       const decoded = await page.evaluate(async assets => {
@@ -186,7 +186,7 @@ try {
         }
         return results;
       }, assets);
-      assert.equal(decoded.length, 32);
+      assert.equal(decoded.length, 140);
       assert.deepEqual(decoded.filter(asset => asset.status !== 200 || !asset.width || !asset.height), [],
         "Every new registered image must return HTTP 200 and decode in Chrome");
       evidence.decodedImages = decoded;
@@ -297,7 +297,7 @@ try {
       automaticIllustrationModal:true, noInlineIllustration:true, independentViewportModal:true, keyboardActivation:true,
       escapeAndBackdropClose:true, previousPageRestoresModal:true, saveAndResume:true, missingImageContinuation:true, diagnosticUINodes:0});
     await context.close();
-    console.log(`PASS ${size.name}: 32 assets, canonical and native tool images open independent viewport modals; no prose cards or diagnostic UI; afterBeat placement, exact prose, close/reopen/previous/save/resume and missing-image continuation`);
+    console.log(`PASS ${size.name}: 140 assets, canonical and native tool images open independent viewport modals; no prose cards or diagnostic UI; afterBeat placement, exact prose, close/reopen/previous/save/resume and missing-image continuation`);
   }
   if (screenshots) await writeFile(join(screenshots, "browser-verification.json"), JSON.stringify(evidence, null, 2) + "\n");
 } finally {await browser.close(); await new Promise(done => server.close(done));}
