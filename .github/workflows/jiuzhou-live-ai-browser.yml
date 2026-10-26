@@ -61,16 +61,18 @@ permissions:
   contents: read
 jobs:
   browser:
-    # Playwright 1.56.1 supports 24.04; keep the runner stable as latest changes.
+    # Pin the runner and use its installed Chrome for the browser tests.
     runs-on: ubuntu-24.04
     timeout-minutes: 8
+    env:
+      JIUZHOU_BROWSER_EXECUTABLE: /usr/bin/google-chrome
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: npm install --no-save playwright@1.56.1
-      - run: npx playwright install --with-deps chromium
+      - run: npm install --no-save playwright@1.62.1
+      - run: "$JIUZHOU_BROWSER_EXECUTABLE" --version
       - name: Test personal API migration and native tools with simulated model responses
         run: node test-personal-ai-browser.mjs
       - name: Test registered illustrations and isolated native tools
