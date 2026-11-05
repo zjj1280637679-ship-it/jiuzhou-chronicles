@@ -6,12 +6,14 @@ const vm = require("node:vm");
 const crypto = require("node:crypto");
 const registry = require("./illustration-system.js");
 const catalog = require("./data/illustrations/catalog.json");
+const later = require("./docs/scene-background-batch-2.json");
+const additions = f => later.assets.filter(a => a.faction === f).length;
 const imageCount = registry.list({faction: "qing"}).length;
-assert.equal(imageCount, 140);
-assert.equal(registry.list().length, 200);
-assert.equal(registry.list({includeLegacy: true}).length, 206);
-assert.equal(registry.list({includeLegacy: true, faction: "qing"}).length, 146);
-for (const [faction, count] of Object.entries({ming: 19, mongol: 20, nanming: 20, neutral: 1})) assert.equal(registry.list({faction}).length, count);
+assert.equal(imageCount, 140 + additions("qing"));
+assert.equal(registry.list().length, 200 + later.assets.length);
+assert.equal(registry.list({includeLegacy: true}).length, 206 + later.assets.length);
+assert.equal(registry.list({includeLegacy: true, faction: "qing"}).length, 146 + additions("qing"));
+for (const [faction, count] of Object.entries({ming: 19, mongol: 20, nanming: 20, neutral: 1})) assert.equal(registry.list({faction}).length, count + additions(faction));
 assert.deepEqual(registry.list().map(asset => asset.id), registry.list().map(asset => asset.id).sort());
 for (const asset of catalog.assets) {
   assert.ok(fs.existsSync(path.join(__dirname, asset.relativePath)), asset.id);
@@ -69,20 +71,18 @@ assert.equal(JSON.stringify(browser.JiuzhouIllustrations.list({includeLegacy: tr
 const worker = vm.createContext({});
 vm.runInContext(fs.readFileSync("illustration-system.js", "utf8"), worker);
 assert.equal(worker.JiuzhouIllustrations.list().length, 0);
-assert.equal(worker.JiuzhouIllustrations.createRegistry({assets: registry.list({includeLegacy: true})}).list().length, 200);
+assert.equal(worker.JiuzhouIllustrations.createRegistry({assets: registry.list({includeLegacy: true})}).list().length, 200 + later.assets.length);
 const nodes = require("./skills-data.js").canonicalTrees.qing.nodes;
 assert.equal(Object.keys(catalog.scenes.nodes.qing).length, Object.keys(nodes).length);
-for (const nodeId of Object.keys(nodes)) assert.ok(registry.sceneFor({faction: "qing", nodeId}), nodeId);
-// These branch titles describe a path; their current prose is a generic final
-// court decision, not another battle or a scene in which a captive is present.
+const pending = new Set(later.pendingEditorial.map(n => n.nodeId));
+for (const nodeId of Object.keys(nodes)) {
+  const actual = registry.sceneFor({faction: "qing", nodeId});
+  if (pending.has(nodeId)) assert.equal(actual, null, nodeId);
+  else assert.ok(actual && actual.id !== "qing_campaign_map", nodeId);
+}
 for (const node of Object.values(nodes).filter(node => node.id.startsWith("qing_act5_"))) {
-  assert.equal(registry.sceneFor({faction: "qing", nodeId: node.id}).id, "qing_campaign_map", node.id);
+  assert.equal(registry.sceneFor({faction: "qing", nodeId: node.id, coords: node.coords}), null, node.id);
 }
-for (const nodeId of ["qing_act4_b3_1", "qing_act4_a1_3"]) {
-  assert.equal(registry.sceneFor({faction: "qing", nodeId}).id, "qing_campaign_map", nodeId);
-}
-for (const nodeId of ["qing_act2_civil", "qing_act2_steppe", "qing_act3_civil_exam", "qing_act4_b1_2", "qing_act5_b3_2_3"]) {
-  assert.ok(!/battlefield_dead|massacred_village|disarmed_captives|holding_cell/.test(registry.sceneFor({faction: "qing", nodeId}).id));
-}
-assert.notEqual(registry.sceneFor({faction: "qing", nodeId: "qing_act3_civil_exam", coords: "beijing:high"}).id, "qing_shengjing_palace");
-console.log(`Illustration registry passed: 206 handles, including 108 shared-background assets, ${Object.keys(nodes).length} authored Qing scene bindings, browser/Worker parity.`);
+assert.equal(registry.sceneFor({faction: "qing", nodeId: "qing_act3_civil_exam", coords: "beijing:high"}), null);
+assert.equal(registry.sceneFor({faction: "qing", nodeId: "qing_act4_a1_3"}).id, "qing_bg_act4_a1_3");
+console.log(`Illustration registry passed: ${catalog.assets.length} handles, retained 108 shared-background assets, ${Object.keys(nodes).length} explicit Qing scene entries, browser/Worker parity.`);

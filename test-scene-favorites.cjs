@@ -79,7 +79,7 @@ test("map visits use their own background without advancing the old story node o
       currentFaction:"qing", currentStoryNodeId:"qing_act3_civil_backlash", currentCoords:"beijing:high",
       stageBackground:null, currentStep:1, storyQueue:[{type:"illustration", illustrationData:{id:"qing_night_raid"}}]
     });
-    assert.equal(engine.getSceneIllustration().id, "qing_secret_letter");
+    assert.equal(engine.getSceneIllustration().id, "qing_bg_wuying_edict_hall");
     engine.currentCoords = "qing:mukden";
     assert.equal(engine.getSceneIllustration().id, "qing_campaign_map");
     assert.equal(engine.currentStoryNodeId, "qing_act3_civil_backlash");

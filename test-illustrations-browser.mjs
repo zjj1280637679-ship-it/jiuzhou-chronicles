@@ -7,6 +7,7 @@ import {resolve, extname, sep, join} from "node:path";
 import {fileURLToPath} from "node:url";
 import {createRequire} from "node:module";
 const {chromium} = createRequire(import.meta.url)("playwright");
+const qingAssetCount = createRequire(import.meta.url)("./data/illustrations/catalog.json").assets.filter(a => a.faction === "qing" && !a.legacy).length;
 const root = fileURLToPath(new URL(".", import.meta.url));
 const mime = {".html":"text/html; charset=utf-8", ".js":"text/javascript; charset=utf-8", ".css":"text/css; charset=utf-8", ".svg":"image/svg+xml", ".json":"application/json", ".jpg":"image/jpeg", ".png":"image/png", ".webp":"image/webp"};
 const server = createServer(async (req, res) => {
@@ -172,7 +173,7 @@ try {
     await page.goto(origin, {waitUntil:"domcontentloaded"});
     await page.waitForFunction(() => Boolean(window.__vnEngine && window.JiuzhouIllustrations));
     const assets = await page.evaluate(() => window.JiuzhouIllustrations.list({faction:"qing"}));
-    assert.equal(assets.length, 140); assert.equal(new Set(assets.map(asset => asset.id)).size, 140);
+    assert.equal(assets.length, qingAssetCount); assert.equal(new Set(assets.map(asset => asset.id)).size, qingAssetCount);
     assert.ok(await page.evaluate(() => window.JiuzhouIllustrations.resolve("qing_captive")), "Old stored handles still resolve");
     if (!size.mobile) {
       const decoded = await page.evaluate(async assets => {
@@ -186,7 +187,7 @@ try {
         }
         return results;
       }, assets);
-      assert.equal(decoded.length, 140);
+      assert.equal(decoded.length, qingAssetCount);
       assert.deepEqual(decoded.filter(asset => asset.status !== 200 || !asset.width || !asset.height), [],
         "Every new registered image must return HTTP 200 and decode in Chrome");
       evidence.decodedImages = decoded;
@@ -297,7 +298,7 @@ try {
       automaticIllustrationModal:true, noInlineIllustration:true, independentViewportModal:true, keyboardActivation:true,
       escapeAndBackdropClose:true, previousPageRestoresModal:true, saveAndResume:true, missingImageContinuation:true, diagnosticUINodes:0});
     await context.close();
-    console.log(`PASS ${size.name}: 140 assets, canonical and native tool images open independent viewport modals; no prose cards or diagnostic UI; afterBeat placement, exact prose, close/reopen/previous/save/resume and missing-image continuation`);
+    console.log(`PASS ${size.name}: ${qingAssetCount} assets, canonical and native tool images open independent viewport modals; no prose cards or diagnostic UI; afterBeat placement, exact prose, close/reopen/previous/save/resume and missing-image continuation`);
   }
   if (screenshots) await writeFile(join(screenshots, "browser-verification.json"), JSON.stringify(evidence, null, 2) + "\n");
 } finally {await browser.close(); await new Promise(done => server.close(done));}
