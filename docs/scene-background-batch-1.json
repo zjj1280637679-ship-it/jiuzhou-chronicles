@@ -1180,8 +1180,8 @@
         "width": 1672,
         "height": 941
       },
-      "webBytes": 336504,
-      "webSha256": "7065e7ece50ae1a090ca9b4db1911e8a0feca08b810eb0baa26a9de93f8566c6",
+      "webBytes": 248336,
+      "webSha256": "d1137e1f7cb23563d75c4bff7b437be94fbff796d6e33be4f65b979245b01410",
       "prompt": "Use case: historical-scene. ONE finished real raster environment background for the historical visual novel 九州沉浮录. Extremely detailed cinematic photorealistic environment concept painting with believable 17th-century materials, natural lighting, restrained earthy colors. Wide landscape 16:9, 1672x941 or equivalent. Eye-level establishing composition, empty central/lower foreground suited to dialogue UI and character overlays, architecture and scenery as subject. Late-Ming Anping naval merchant command hall in Fujian. Rich but practical wooden hall with carved beams, empty commander's chair behind a long table holding rolled nautical charts and blank folded correspondence, a muted woven rug, nautical chests and brass oil lamps. Wide door opens onto a harbor full of Chinese ocean-going sailing junks and a distant sea horizon. Cool sea daylight, warm lamplight, calm empty floor foreground. No people, no readable text, no modern objects. NO people anywhere, no readable text, no watermark, no title, no modern elements, no UI; not a collage or mockup. Preserve a coherent single scene with believable scale.",
       "sceneNodeIds": [
         "ming_act3_a3"
@@ -1189,12 +1189,37 @@
       "visualQA": {
         "passed": true,
         "checks": [
-          "逐图目视核对场所、季节与光线",
-          "无人、无可读文字或水印",
-          "1672×940/941原尺寸，未裁切拉伸",
-          "与既有后金无人母图统一电影写实环境风格"
-        ]
-      }
+          "替换全部玻璃烟囱煤油灯为敞口油盏或蜡烛",
+          "逐图目视检查，无可辨识人物、无可读文字与水印",
+          "保留原构图、场所、光线与电影写实风格",
+          "WebP quality 88，1672×941"
+        ],
+        "normalization": "原生1670×941，仅复制最右边缘像素列两次补至1672×941；主体不裁切、不缩放。",
+        "limitations": "本次聚焦照明器物与无人背景要求，不作为历史建筑或武器精确复原资料。"
+      },
+      "revisions": [
+        {
+          "date": "2026-11-05",
+          "type": "period-lighting-and-empty-environment-repair",
+          "changes": [
+            "将桌左和画面右端两盏玻璃烟囱煤油灯替换为素蜡烛与烛台。",
+            "近海小舟的疑似划船人影替换为空船，清理港湾人形。"
+          ],
+          "before": {
+            "webBytes": 336504,
+            "webSha256": "7065e7ece50ae1a090ca9b4db1911e8a0feca08b810eb0baa26a9de93f8566c6"
+          },
+          "after": {
+            "webBytes": 248336,
+            "webSha256": "d1137e1f7cb23563d75c4bff7b437be94fbff796d6e33be4f65b979245b01410"
+          },
+          "prompts": [
+            "Use case: precise-object-edit. Input image 1 is the edit target. Single full-bleed widescreen historical visual novel background, output same 1672x941 composition. Replace ONLY BOTH glass-chimney kerosene lamps: the one on the LEFT end of the command desk and the one at the FAR RIGHT edge. Each becomes a simple seventeenth-century bronze candlestick holding one short unadorned ivory wax candle with a small warm flame and no glass. Remove the entire glass chimney from both locations and naturally restore the background. Keep existing overhead traditional opaque paper/silk hanging lanterns unchanged. Preserve all architecture, chair, desk, maps, rug, scrolls, harbor boats, perspective, wood textures and natural lighting. Keep the original frame and entire composition, no crop, no camera or scene rearrangement. Restrained cinematic photorealistic painting matching the input. This is a minimal historical-accuracy correction, not a redesign. NO people anywhere, no readable text, no watermark, no modern objects, no new props except the replacement lighting specified.",
+            "Use case: precise-object-edit. Input image 1 is the edit target. Make one tiny correction to this image, preserving all other pixels and design as closely as possible: the small rowboat in the harbor just to the RIGHT of the large closest junk and just ABOVE the horizontal quay railing (approximately x=495,y=463 in this 1671x941 image) appears to have a rower. Replace it with a clearly EMPTY wooden rowboat, low open hull only, no person, no torso/head shape, no raised oar. Remove any other person-like shapes on the harbor boats and quay. Keep all boats, sails, buildings, harbor water, desk, two new ivory candles in their plain bronze holders, hanging lanterns, tapestry, furniture and exact perspective unchanged. Do not restore any glass-chimney lamp. No human anywhere, no text, no watermark, no crop, same framing. Final full-bleed landscape 1672x941 target."
+          ],
+          "normalization": "原生1670×941，仅复制最右边缘像素列两次补至1672×941；主体不裁切、不缩放。"
+        }
+      ]
     },
     {
       "id": "ming_bg_desheng_battlement",
@@ -1388,19 +1413,42 @@
         "width": 1672,
         "height": 941
       },
-      "webBytes": 313134,
-      "webSha256": "b72f881c5bd9b4d8d6b6fa7338916df5ff966fe7917bb6138eafdd2497a8aa5e",
+      "webBytes": 292428,
+      "webSha256": "b597b866dc4b22b4940f230ca1fa58ebb40ed8e69b147729e46997463a880859",
       "prompt": "Use case: historical-scene. ONE finished real raster environment background for the historical visual novel 九州沉浮录. Extremely detailed cinematic photorealistic environment concept painting with believable 17th-century materials, natural lighting, restrained earthy colors. Wide landscape 16:9, 1672x941 or equivalent. Eye-level establishing composition, empty central/lower foreground suited to dialogue UI and character overlays, architecture and scenery as subject. A neutral historical chronicle epilogue environment for a 17th-century Chinese and Inner Asian history visual novel. A quiet old scholar's timber study opens onto distant misty mountains and a broad winding river at dawn. In the lower side foreground, a wooden desk holds a rolled blank silk scroll, a partially unrolled parchment map with ONLY unlabeled mountains and rivers, brush and dark inkstone, modest oil lamp. The open view and atmospheric mountain landscape fill most of frame. No humans, no political flags, no readable writing, no symbols declaring victory or defeat, no modern objects, no collage. NO people anywhere, no readable text, no watermark, no title, no modern elements, no UI; not a collage or mockup. Preserve a coherent single scene with believable scale.",
       "sceneNodeIds": [],
       "visualQA": {
         "passed": true,
         "checks": [
-          "逐图目视核对场所、季节与光线",
-          "无人、无可读文字或水印",
-          "1672×940/941原尺寸，未裁切拉伸",
-          "与既有后金无人母图统一电影写实环境风格"
-        ]
-      }
+          "替换全部玻璃烟囱煤油灯为敞口油盏或蜡烛",
+          "逐图目视检查，无可辨识人物、无可读文字与水印",
+          "保留原构图、场所、光线与电影写实风格",
+          "WebP quality 88，1672×941"
+        ],
+        "normalization": "原生1672×941，不裁切、不缩放。",
+        "limitations": "本次聚焦照明器物与无人背景要求，不作为历史建筑或武器精确复原资料。"
+      },
+      "revisions": [
+        {
+          "date": "2026-11-05",
+          "type": "period-lighting-and-empty-environment-repair",
+          "changes": [
+            "将右前景玻璃烟囱煤油灯替换为棉芯敞口油盏，补全后方栏杆与山河。"
+          ],
+          "before": {
+            "webBytes": 313134,
+            "webSha256": "b72f881c5bd9b4d8d6b6fa7338916df5ff966fe7917bb6138eafdd2497a8aa5e"
+          },
+          "after": {
+            "webBytes": 292428,
+            "webSha256": "b597b866dc4b22b4940f230ca1fa58ebb40ed8e69b147729e46997463a880859"
+          },
+          "prompts": [
+            "Use case: precise-object-edit. Input image 1 is the edit target. Single full-bleed widescreen historical visual novel background, output same 1672x941 composition. Replace ONLY the modern glass-chimney oil/kerosene lamp in the right foreground with an historically suitable seventeenth-century Chinese small dark bronze open shallow oil bowl on a modest low foot, with a visible cotton wick laid over the rim and a small warm exposed flame. No glass chimney, transparent cover, modern metal burner, or kerosene reservoir. Naturally restore the river scenery and railing behind the removed tall glass chimney. Preserve all other elements: inkstone, brush, bowls, mountains-and-rivers map, scroll, table, wooden study, blinds, panoramic misty river, dawn sun, composition and detailed realistic textures. Keep the original frame and entire composition, no crop, no camera or scene rearrangement. Restrained cinematic photorealistic painting matching the input. This is a minimal historical-accuracy correction, not a redesign. NO people anywhere, no readable text, no watermark, no modern objects, no new props except the replacement lighting specified."
+          ],
+          "normalization": "原生1672×941，不裁切、不缩放。"
+        }
+      ]
     },
     {
       "id": "mongol_chahar_camp",
@@ -1466,8 +1514,8 @@
         "width": 1672,
         "height": 941
       },
-      "webBytes": 324300,
-      "webSha256": "5ddfb58c02940166ad66c633e0271ff20456c26c80f52e9ea4dd7f0f185a81f4",
+      "webBytes": 256198,
+      "webSha256": "404c1b74da02ab70e9dbad173ded00a0cf65d64dd2d59429436fd78428d6bdd0",
       "prompt": "Historical-scene. Single cinematic photorealistic 16:9 widescreen environment, 1672x941 ideally, for a seventeenth century historical visual novel. Tangible weathered historical materials, natural warm light/cold shadows, high detail without fantasy effects. Wide eye-level framing, scene subject upper middle and relatively uncluttered lower third for dialogue overlay. No people, animals, corpses, gore, lettering, inscriptions, readable writing, watermark, logos, modern objects. Full-bleed image, no collage. Scene: Secret merchant stone cellar at Zhangjiakou in winter. Heavy timber table with unlettered account books and abacus, closed tea brick bundles and old iron-bound crates, seventeenth century matchlock guns and powder flasks on wall racks. Small charcoal brazier, amber oil lamp, cold blue snowy air through high narrow vent. Earth floor, intimate clandestine trading room.",
       "sceneNodeIds": [
         "mongol_act2_b"
@@ -1475,14 +1523,35 @@
       "visualQA": {
         "passed": true,
         "checks": [
-          "逐图目视检查，无人物、无文字水印",
-          "环境与正文场所匹配",
-          "自然冷暖光与材质细节",
-          "下方可用作阅读区",
-          "保持生成原尺寸，WebP quality 88，无裁切拉伸"
+          "替换全部玻璃烟囱煤油灯为敞口油盏或蜡烛",
+          "逐图目视检查，无可辨识人物、无可读文字与水印",
+          "保留原构图、场所、光线与电影写实风格",
+          "WebP quality 88，1672×941"
         ],
-        "notes": "场景通过；玻璃灯罩与枪械细节为生成式历史氛围表现，不作为器物考据图。"
-      }
+        "normalization": "原生1672×941，不裁切、不缩放。",
+        "limitations": "本次聚焦照明器物与无人背景要求，不作为历史建筑或武器精确复原资料。"
+      },
+      "revisions": [
+        {
+          "date": "2026-11-05",
+          "type": "period-lighting-and-empty-environment-repair",
+          "changes": [
+            "将桌上玻璃烟囱煤油灯替换为无玻璃罩的敞口油盏。"
+          ],
+          "before": {
+            "webBytes": 324300,
+            "webSha256": "5ddfb58c02940166ad66c633e0271ff20456c26c80f52e9ea4dd7f0f185a81f4"
+          },
+          "after": {
+            "webBytes": 256198,
+            "webSha256": "404c1b74da02ab70e9dbad173ded00a0cf65d64dd2d59429436fd78428d6bdd0"
+          },
+          "prompts": [
+            "Use case: precise-object-edit. Input image 1 is the edit target. Single full-bleed widescreen historical visual novel background, output same 1672x941 composition. Replace ONLY the modern glass-chimney kerosene lamp on the middle-right table with a small seventeenth-century Chinese dark bronze or brown ceramic open shallow oil bowl on a modest low pedestal, with a visible exposed cotton wick and small warm flame. It has absolutely no glass cover, chimney, transparent enclosure, manufactured kerosene reservoir, or modern burner. Preserve the books, abacus, tea bundles, guns, flasks, brazier, table, stools, stone walls, snowy vent, empty foreground, camera and lighting. Repair the wall and bundles naturally where the old chimney stood. Keep the original frame and entire composition, no crop, no camera or scene rearrangement. Restrained cinematic photorealistic painting matching the input. This is a minimal historical-accuracy correction, not a redesign. NO people anywhere, no readable text, no watermark, no modern objects, no new props except the replacement lighting specified."
+          ],
+          "normalization": "原生1672×941，不裁切、不缩放。"
+        }
+      ]
     },
     {
       "id": "mongol_dazhao_temple",
@@ -1816,24 +1885,45 @@
         "width": 1672,
         "height": 941
       },
-      "webBytes": 336656,
-      "webSha256": "8de47e2560a37f50deef3299842c591cdb88bdd6cfeff384e0fce8717b772f3b",
+      "webBytes": 273276,
+      "webSha256": "bf6e4cad3aabbc09dfda1175bdad96edcf4218cb6b8b4e4654a4b0ded4825d3f",
       "prompt": "Use case: historical-scene. Create one 16:9 widescreen cinematic photorealistic game environment background, no people anywhere, no text, no lettering, no watermark. Mid-17th century Fujian Anping Zheng naval headquarters: spacious open-sided dark timber command hall with worn stone flagstones and timber pillars, a commanding wooden desk with rolled charts and sealed papers midground, bronze oil lamp, through the large open doors a coastal bay crowded with distant wooden Chinese armed sailing junks and masts, small unlettered red banners in sea wind. Natural cool misty daylight contrasts warm lamp light. Detailed real wood, stone, rope, oxidized bronze, restrained realistic colors and photographic depth. Wide eye-level composition with uncluttered lower quarter floor for dialogue overlay, important architecture and harbor in upper two-thirds. Historically grounded material reality, no modern items, no fantasy ornament, no rendered UI. Output single landscape image 1536x864 or equivalent 16:9.",
       "sceneNodeIds": [
         "nanming_act1"
       ],
       "visualQA": {
-        "status": "pass",
-        "method": "逐张查看内置生成原图，读取PNG与WebP像素验证",
-        "noPeople": true,
-        "noReadableText": true,
-        "noWatermark": true,
-        "locationMatch": true,
-        "dialogueSpace": "下方保留地面、水面或甲板阅读空间",
-        "aspectNote": "原生1672×941，近16:9，不裁切、不拉伸",
-        "conversion": "WebP quality 88，保留原尺寸",
-        "limitations": "架空历史游戏环境意象，不作为历史建筑精确复原资料"
-      }
+        "passed": true,
+        "checks": [
+          "替换全部玻璃烟囱煤油灯为敞口油盏或蜡烛",
+          "逐图目视检查，无可辨识人物、无可读文字与水印",
+          "保留原构图、场所、光线与电影写实风格",
+          "WebP quality 88，1672×941"
+        ],
+        "normalization": "原生1672×941，不裁切、不缩放。",
+        "limitations": "本次聚焦照明器物与无人背景要求，不作为历史建筑或武器精确复原资料。"
+      },
+      "revisions": [
+        {
+          "date": "2026-11-05",
+          "type": "period-lighting-and-empty-environment-repair",
+          "changes": [
+            "将桌右玻璃烟囱煤油灯替换为素蜡烛与烛台。",
+            "清除舰船甲板、远景舟船及岸边人形，保留空船、栏杆、帆索和旗帜。"
+          ],
+          "before": {
+            "webBytes": 336656,
+            "webSha256": "8de47e2560a37f50deef3299842c591cdb88bdd6cfeff384e0fce8717b772f3b"
+          },
+          "after": {
+            "webBytes": 273276,
+            "webSha256": "bf6e4cad3aabbc09dfda1175bdad96edcf4218cb6b8b4e4654a4b0ded4825d3f"
+          },
+          "prompts": [
+            "Use case: precise-object-edit. Input image 1 is the edit target. Single full-bleed widescreen historical visual novel background, output same 1672x941 composition. Make exactly TWO corrections to this historical game environment. 1. Replace the glass-chimney kerosene lamp on the RIGHT of the desk with a plain seventeenth-century bronze candle holder and short ivory wax candle, small warm flame, no glass at all, no modern burner. 2. Remove ALL tiny human figures, silhouettes and person-like crew marks on EVERY distant ship, small boat, harbor quay and fort. The wooden ships must have entirely empty decks with wooden railings, rigging, cabins and flags only. Carefully clean the red standing crew-like figure on the largest ship's right deck and all repeated head-and-body shapes along its rails. Preserve empty ships rather than removing ships. Preserve the room, desk, flag, spears, cannon, mountains, mist, naval sails, perspective and cinematic realistic style. Keep the original frame and entire composition, no crop, no camera or scene rearrangement. Restrained cinematic photorealistic painting matching the input. This is a minimal historical-accuracy correction, not a redesign. NO people anywhere, no readable text, no watermark, no modern objects, no new props except the replacement lighting specified."
+          ],
+          "normalization": "原生1672×941，不裁切、不缩放。"
+        }
+      ]
     },
     {
       "id": "nanming_bg_yuegang_shipyard",

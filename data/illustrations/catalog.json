@@ -64,8 +64,8 @@
         "width": 1672,
         "height": 941
       },
-      "webBytes": 336504,
-      "webSha256": "7065e7ece50ae1a090ca9b4db1911e8a0feca08b810eb0baa26a9de93f8566c6"
+      "webBytes": 248336,
+      "webSha256": "d1137e1f7cb23563d75c4bff7b437be94fbff796d6e33be4f65b979245b01410"
     },
     {
       "id": "ming_bg_artillery_yard",
@@ -1452,8 +1452,8 @@
         "width": 1672,
         "height": 941
       },
-      "webBytes": 324300,
-      "webSha256": "5ddfb58c02940166ad66c633e0271ff20456c26c80f52e9ea4dd7f0f185a81f4"
+      "webBytes": 256198,
+      "webSha256": "404c1b74da02ab70e9dbad173ded00a0cf65d64dd2d59429436fd78428d6bdd0"
     },
     {
       "id": "nanming_battle",
@@ -1519,8 +1519,8 @@
         "width": 1672,
         "height": 941
       },
-      "webBytes": 336656,
-      "webSha256": "8de47e2560a37f50deef3299842c591cdb88bdd6cfeff384e0fce8717b772f3b"
+      "webBytes": 273276,
+      "webSha256": "bf6e4cad3aabbc09dfda1175bdad96edcf4218cb6b8b4e4654a4b0ded4825d3f"
     },
     {
       "id": "nanming_bg_chengtian_fields",
@@ -11225,8 +11225,8 @@
         "width": 1672,
         "height": 941
       },
-      "webBytes": 313134,
-      "webSha256": "b72f881c5bd9b4d8d6b6fa7338916df5ff966fe7917bb6138eafdd2497a8aa5e"
+      "webBytes": 292428,
+      "webSha256": "b597b866dc4b22b4940f230ca1fa58ebb40ed8e69b147729e46997463a880859"
     }
   ],
   "aliases": {},
