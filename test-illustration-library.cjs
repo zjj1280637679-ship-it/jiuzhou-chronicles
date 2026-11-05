@@ -32,7 +32,7 @@ test("exact phrases, authored synonyms and old IDs resolve to one immutable iden
 
 test("classification exposes one level, accurate subtree counts and exact leaf images", () => {
   const root = registry.browse();
-  assert.equal(root.total, 158); assert.equal(root.illustrations.length, 0);
+  assert.equal(root.total, 200); assert.equal(root.illustrations.length, 0);
   assert.equal(root.children.reduce((sum, child) => sum + child.count, 0), root.total);
   assert.deepEqual(new Set(root.children.map(child => child.name)), new Set(["环境", "事件", "人物关系", "物件", "场景"]));
   assert.ok(registry.browse({path: "事件"}).children.some(child => child.path === "事件/军事行动"));
@@ -43,7 +43,7 @@ test("classification exposes one level, accurate subtree counts and exact leaf i
   const filtered = registry.browse({path: leaf.path, faction: "qing"});
   assert.equal(filtered.total, 1); assert.equal(filtered.illustrations[0].id, "qing_cavalry_charge");
   assert.equal(registry.browse({path: "未登记的分类"}).total, 0);
-  assert.equal(registry.browse({includeLegacy: true}).total, 164);
+  assert.equal(registry.browse({includeLegacy: true}).total, 206);
 });
 
 test("phrase separators share one identity and ambiguous normalized tokens fail registration", () => {
@@ -91,7 +91,7 @@ test("ranked multi-keyword search paginates without dropping candidates or leaki
   const ids = [], seen = new Set(); let page = 1;
   while (page) {
     const result = await registry.search({page, pageSize: 7});
-    assert.equal(result.total, 158); assert.ok(result.count <= 7);
+    assert.equal(result.total, 200); assert.ok(result.count <= 7);
     for (const asset of result.illustrations) {assert.ok(!seen.has(asset.id)); seen.add(asset.id); ids.push(asset.id);}
     page = result.nextPage;
   }
@@ -192,7 +192,7 @@ test("real AI Worker resolves phrases and preserves aliases across the host boun
     workerFactory: createNodeWorkerFactory(), context: {illustrationCatalog: snapshot}});
   try {
     const root = (await host.invoke("browse_illustrations", {})).result;
-    assert.equal(root.ok, true); assert.equal(root.total, 158);
+    assert.equal(root.ok, true); assert.equal(root.total, 200);
     const search = (await host.invoke("search_illustrations", {query: "骑兵 冲锋"})).result;
     assert.ok(search.illustrations.some(asset => asset.token === "后金·骑军突击"));
     assert.equal((await host.invoke("set_scene_background", {id: "compatible_map"})).result.backgroundChange.id, "qing_campaign_map");

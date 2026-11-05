@@ -25,6 +25,7 @@ on:
       - 'test-illustrations-browser.mjs'
       - 'test-background-tools-browser.mjs'
       - 'test-gallery-browser.mjs'
+      - 'test-scene-backgrounds-browser.mjs'
       - 'data/mobile/**'
       - 'harness/**'
       - '.github/workflows/jiuzhou-live-ai-browser.yml'
@@ -53,6 +54,7 @@ on:
       - 'test-illustrations-browser.mjs'
       - 'test-background-tools-browser.mjs'
       - 'test-gallery-browser.mjs'
+      - 'test-scene-backgrounds-browser.mjs'
       - 'data/mobile/**'
       - 'harness/**'
       - '.github/workflows/jiuzhou-live-ai-browser.yml'
@@ -81,6 +83,8 @@ jobs:
         run: node test-illustrations-browser.mjs
       - name: Test 108-image gallery search and on-demand image requests
         run: node test-gallery-browser.mjs
+      - name: Test generated story backgrounds, exact mappings and real image decoding
+        run: node test-scene-backgrounds-browser.mjs
       - name: Test independent stage backgrounds and interactive image popups
         run: node test-background-tools-browser.mjs
       - name: Test mobile and desktop layout through real UI without model calls
