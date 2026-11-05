@@ -25,7 +25,7 @@ try {
       assert.deepEqual(imageRequests, [], "the title screen does not preload the new pack");
       await page.click("#title-btn-gallery");
       await page.locator(".gallery-card").first().waitFor();
-      assert.match(await page.locator("#gallery-overview").textContent(), /158/);
+      assert.match(await page.locator("#gallery-overview").textContent(), /200/);
       assert.deepEqual(imageRequests, [], "featured cards do not load thumbnails or originals");
       await page.click("#gallery-tab-browse");
       await page.getByRole("button", {name: /^场景\s*108 幅/}).click();

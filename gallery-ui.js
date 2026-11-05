@@ -27,7 +27,7 @@
           <button type="button" role="tab" id="gallery-tab-browse" data-view="browse" aria-controls="gallery-results" aria-selected="false" tabindex="-1">分类寻画</button>
           <button type="button" role="tab" id="gallery-tab-search" data-view="search" aria-controls="gallery-results" aria-selected="false" tabindex="-1">关键词搜索</button>
         </div>
-        <div class="gallery-filter-row"><p id="gallery-overview"></p><label>画面设定 <select id="gallery-faction"><option value="">全部设定</option><option value="qing">后金</option><option value="ming">大明</option><option value="mongol">蒙古</option><option value="nanming">南明</option></select></label></div>
+        <div class="gallery-filter-row"><p id="gallery-overview"></p><label>画面设定 <select id="gallery-faction"><option value="">全部设定</option><option value="qing">后金</option><option value="ming">大明</option><option value="mongol">蒙古</option><option value="nanming">南明</option><option value="neutral">通用</option></select></label></div>
         <form id="gallery-search-form" class="gallery-search" hidden>
           <label class="gallery-search-label" for="gallery-query">搜索画面、调用短语或编号</label>
           <div><input id="gallery-query" type="search" placeholder="如：渡口 核名、兜裆布、JH01-01" autocomplete="off"><button type="submit">寻画</button></div>
