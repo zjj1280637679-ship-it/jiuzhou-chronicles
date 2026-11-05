@@ -1,4 +1,4 @@
-// First-batch backgrounds in disposable browsers. No external model calls.
+// Reviewed scene backgrounds in disposable browsers. No external model calls.
 import assert from "node:assert/strict";
 import {createRequire} from "node:module";
 import {fileURLToPath} from "node:url";
@@ -7,7 +7,8 @@ import {join} from "node:path";
 import {createStaticServer} from "./server.js";
 const require = createRequire(import.meta.url);
 const {chromium} = require("playwright");
-const batch = require("./docs/scene-background-batch-1.json");
+const batches = [require("./docs/scene-background-batch-1.json"), require("./docs/scene-background-batch-2.json")];
+const batch = {assets: batches.flatMap(b => b.assets)};
 const catalog = require("./data/illustrations/catalog.json");
 const world = require("./skills-data.js");
 const root = fileURLToPath(new URL(".", import.meta.url));
@@ -47,12 +48,12 @@ try {
         return results;
       }, batch.assets);
       assert.deepEqual(decoded, batch.assets.map(a => ({id: a.id, status: 200, ...a.dimensions})),
-        "all 42 images return HTTP 200 and decode at their recorded, uncropped dimensions");
+        "all generated images return HTTP 200 and decode at their recorded, uncropped dimensions");
       // Reload closes the gallery and clears transient UI without modifying user data.
       await page.reload({waitUntil: "networkidle"});
-      for (const faction of ["ming", "mongol", "nanming"]) {
+      for (const faction of ["ming", "mongol", "nanming", "qing"]) {
         await page.evaluate(faction => window.__vnEngine.startNewGame(faction), faction);
-        const nodes = Object.values(world.canonicalTrees[faction].nodes).filter(n => n.actNumber < 5);
+        const nodes = Object.values(world.canonicalTrees[faction].nodes).filter(n => catalog.scenes.nodes[faction][n.id]);
         for (const node of nodes) {
           const expected = catalog.scenes.nodes[faction][node.id];
           await page.evaluate(node => {
@@ -64,13 +65,26 @@ try {
             document.querySelector("#bg-active").dataset.backgroundId === id &&
             document.querySelector("#mobile-scene-art").getAttribute("src")?.includes(id), expected);
         }
+        if (faction === "qing") {
+          for (const {nodeId} of batches[1].pendingEditorial) {
+            const node = world.canonicalTrees.qing.nodes[nodeId];
+            await page.evaluate(node => {
+              const e = window.__vnEngine;
+              e.currentStoryNodeId = node.id; e.currentCoords = node.coords; e.stageBackground = null;
+              e.refreshStageBackground();
+            }, node);
+            await page.waitForFunction(() => window.__vnEngine.currentSceneIllustration === null &&
+              document.querySelector("#bg-active").dataset.backgroundId === "" &&
+              document.querySelector("#mobile-scene-art").getAttribute("src") === "data/mobile/palace-night.webp");
+          }
+        }
         await page.evaluate(faction => window.__vnEngine.startNewGame(faction), faction);
         await page.waitForFunction(() => document.querySelector("#mobile-scene-art")?.complete);
         if (output) await page.screenshot({path: join(output, `${faction}-${viewport.width}.png`)});
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);
       }
       assert.deepEqual(errors, []);
-      console.log(`PASS ${viewport.width}×${viewport.height}: 42 decoded backgrounds, 120 exact scene bindings, both display surfaces, no eager gallery image loads.`);
+      console.log(`PASS ${viewport.width}×${viewport.height}: ${batch.assets.length} decoded backgrounds, all 1371 reviewed scene bindings, both display surfaces, no eager gallery image loads.`);
     } finally {await context.close();}
   }
 } finally {

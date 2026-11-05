@@ -4,6 +4,7 @@ import {createRequire} from "node:module";
 import {fileURLToPath} from "node:url";
 import {createStaticServer} from "./server.js";
 const {chromium} = createRequire(import.meta.url)("playwright");
+const listedCount = createRequire(import.meta.url)("./data/illustrations/catalog.json").assets.filter(a => !a.legacy).length;
 const root = fileURLToPath(new URL(".", import.meta.url));
 const server = createStaticServer({root});
 await new Promise(done => server.listen(0, "127.0.0.1", done));
@@ -25,7 +26,7 @@ try {
       assert.deepEqual(imageRequests, [], "the title screen does not preload the new pack");
       await page.click("#title-btn-gallery");
       await page.locator(".gallery-card").first().waitFor();
-      assert.match(await page.locator("#gallery-overview").textContent(), /200/);
+      assert.match(await page.locator("#gallery-overview").textContent(), new RegExp(String(listedCount)));
       assert.deepEqual(imageRequests, [], "featured cards do not load thumbnails or originals");
       await page.click("#gallery-tab-browse");
       await page.getByRole("button", {name: /^场景\s*108 幅/}).click();
