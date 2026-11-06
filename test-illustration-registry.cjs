@@ -7,11 +7,13 @@ const crypto = require("node:crypto");
 const registry = require("./illustration-system.js");
 const catalog = require("./data/illustrations/catalog.json");
 const later = require("./docs/scene-background-batch-2.json");
-const additions = f => later.assets.filter(a => a.faction === f).length;
+const latest = require("./docs/scene-background-batch-3.json");
+const addedAssets = [...later.assets, ...latest.assets];
+const additions = f => addedAssets.filter(a => a.faction === f).length;
 const imageCount = registry.list({faction: "qing"}).length;
 assert.equal(imageCount, 140 + additions("qing"));
-assert.equal(registry.list().length, 200 + later.assets.length);
-assert.equal(registry.list({includeLegacy: true}).length, 206 + later.assets.length);
+assert.equal(registry.list().length, 200 + addedAssets.length);
+assert.equal(registry.list({includeLegacy: true}).length, 206 + addedAssets.length);
 assert.equal(registry.list({includeLegacy: true, faction: "qing"}).length, 146 + additions("qing"));
 for (const [faction, count] of Object.entries({ming: 19, mongol: 20, nanming: 20, neutral: 1})) assert.equal(registry.list({faction}).length, count + additions(faction));
 assert.deepEqual(registry.list().map(asset => asset.id), registry.list().map(asset => asset.id).sort());
@@ -71,18 +73,20 @@ assert.equal(JSON.stringify(browser.JiuzhouIllustrations.list({includeLegacy: tr
 const worker = vm.createContext({});
 vm.runInContext(fs.readFileSync("illustration-system.js", "utf8"), worker);
 assert.equal(worker.JiuzhouIllustrations.list().length, 0);
-assert.equal(worker.JiuzhouIllustrations.createRegistry({assets: registry.list({includeLegacy: true})}).list().length, 200 + later.assets.length);
+assert.equal(worker.JiuzhouIllustrations.createRegistry({assets: registry.list({includeLegacy: true})}).list().length, 200 + addedAssets.length);
 const nodes = require("./skills-data.js").canonicalTrees.qing.nodes;
 assert.equal(Object.keys(catalog.scenes.nodes.qing).length, Object.keys(nodes).length);
-const pending = new Set(later.pendingEditorial.map(n => n.nodeId));
+const pending = new Set(latest.pendingEditorial.map(n => n.nodeId));
 for (const nodeId of Object.keys(nodes)) {
   const actual = registry.sceneFor({faction: "qing", nodeId});
   if (pending.has(nodeId)) assert.equal(actual, null, nodeId);
   else assert.ok(actual && actual.id !== "qing_campaign_map", nodeId);
 }
 for (const node of Object.values(nodes).filter(node => node.id.startsWith("qing_act5_"))) {
-  assert.equal(registry.sceneFor({faction: "qing", nodeId: node.id, coords: node.coords}), null, node.id);
+  const art = registry.sceneFor({faction: "qing", nodeId: node.id, coords: node.coords});
+  if (node.id.startsWith("qing_act5_b")) assert.equal(art.id, "qing_bg_taihe_final_forecourt", node.id);
+  else assert.equal(art, null, node.id);
 }
-assert.equal(registry.sceneFor({faction: "qing", nodeId: "qing_act3_civil_exam", coords: "beijing:high"}), null);
+assert.equal(registry.sceneFor({faction: "qing", nodeId: "qing_act3_civil_exam", coords: "beijing:high"}).id, "qing_bg_confucius_dawn_court");
 assert.equal(registry.sceneFor({faction: "qing", nodeId: "qing_act4_a1_3"}).id, "qing_bg_act4_a1_3");
 console.log(`Illustration registry passed: ${catalog.assets.length} handles, retained 108 shared-background assets, ${Object.keys(nodes).length} explicit Qing scene entries, browser/Worker parity.`);
