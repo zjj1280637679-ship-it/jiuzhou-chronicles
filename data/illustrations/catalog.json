@@ -4689,6 +4689,48 @@
       "webSha256": "c57974206344c5fa368fa15ef38988064afe08e91f33aeba181ac6f3cfaa4662"
     },
     {
+      "id": "qing_bg_confucius_dawn_court",
+      "token": "背景·后金文庙破晓祭孔",
+      "tokenAliases": [],
+      "categoryPath": [
+        "环境",
+        "文字冒险背景",
+        "后金"
+      ],
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_confucius_dawn_court.webp",
+      "faction": "qing",
+      "factionName": "后金",
+      "category": "地点",
+      "categoryName": "无人环境",
+      "title": "文庙破晓祭孔",
+      "description": "文庙大成殿阶前的古柏、编钟与御炉晨烟，按祭孔正文制作的无人环境。省略混写的辟雍及后世重修匾额，不宣称精确古建复原。",
+      "tags": [
+        "后金",
+        "文庙破晓祭孔",
+        "背景",
+        "无人环境",
+        "文字冒险",
+        "第三批"
+      ],
+      "useWhen": [
+        "文庙大成殿阶前的古柏、编钟与御炉晨烟，按祭孔正文制作的无人环境。省略混写的辟雍及后世重修匾额，不宣称精确古建复原。"
+      ],
+      "avoidWhen": [
+        "不得作为精确古建考证、人物身份或未选结局的证据。",
+        "建筑取保守局部视角，不宣称复原当年大成殿的全部建筑细节。"
+      ],
+      "legacy": false,
+      "symbol": "🏞️",
+      "sourcePack": "文字冒险环境补全·第三批（2026-11-06 重建）",
+      "familyId": "qing_backgrounds_batch3",
+      "dimensions": {
+        "width": 1672,
+        "height": 941
+      },
+      "webBytes": 388230,
+      "webSha256": "377c2a1d0624bb9d7480a2c295bf0f89cca2b2d43c15a76a57f8b420ad597f48"
+    },
+    {
       "id": "qing_bg_ending_civil_fracture",
       "token": "背景·后金紫禁重檐·文治回望·山河裂变",
       "tokenAliases": [],
@@ -5240,6 +5282,48 @@
       "webSha256": "4f9657ce3aadc0b0e5ee7afe3006d48d18373971dea4db218aab2f13e3ca2b7e"
     },
     {
+      "id": "qing_bg_mainhall_joint_court",
+      "token": "背景·后金紫禁主殿满汉朝会",
+      "tokenAliases": [],
+      "categoryPath": [
+        "环境",
+        "文字冒险背景",
+        "后金"
+      ],
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_mainhall_joint_court.webp",
+      "faction": "qing",
+      "factionName": "后金",
+      "category": "地点",
+      "categoryName": "无人环境",
+      "title": "紫禁主殿满汉朝会",
+      "description": "紫禁城主殿内红柱御座、双列朝班空位与香烟，无匾额处理兼容皇极殿、太和殿名称沿革。不包含大明日月旗或已选结局象征。",
+      "tags": [
+        "后金",
+        "紫禁主殿满汉朝会",
+        "背景",
+        "无人环境",
+        "文字冒险",
+        "第三批"
+      ],
+      "useWhen": [
+        "紫禁城主殿内红柱御座、双列朝班空位与香烟，无匾额处理兼容皇极殿、太和殿名称沿革。不包含大明日月旗或已选结局象征。"
+      ],
+      "avoidWhen": [
+        "不得作为精确古建考证、人物身份或未选结局的证据。",
+        "不宣称与现存后世重建殿内装饰完全一致。"
+      ],
+      "legacy": false,
+      "symbol": "🏞️",
+      "sourcePack": "文字冒险环境补全·第三批（2026-11-06 重建）",
+      "familyId": "qing_backgrounds_batch3",
+      "dimensions": {
+        "width": 1672,
+        "height": 941
+      },
+      "webBytes": 356088,
+      "webSha256": "fde23f13e7bfec7656feaa6aa456481acc18d6bf0117c37daeea341f8079efbb"
+    },
+    {
       "id": "qing_bg_neisanyuan_office",
       "token": "背景·后金内三院公署初设",
       "tokenAliases": [],
@@ -5322,6 +5406,49 @@
       "webSha256": "6e78dc96ff51bd7cf945eb5998cba4d499e68fe546620bdc899f5628ad3b69ec"
     },
     {
+      "id": "qing_bg_rehe_golden_roof_terrace",
+      "token": "背景·后金热河金顶法台受封",
+      "tokenAliases": [],
+      "categoryPath": [
+        "环境",
+        "文字冒险背景",
+        "后金"
+      ],
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_rehe_golden_roof_terrace.webp",
+      "faction": "qing",
+      "factionName": "后金",
+      "category": "地点",
+      "categoryName": "无人环境",
+      "title": "热河金顶法台受封",
+      "description": "遵循架空原文的热河普陀宗乘之庙金顶法台：红白藏式院墙、鎏金重檐与受封法台。原文人物为五世达赖法使；画面无人，不宣称同一历史年代或史实建筑复原。",
+      "tags": [
+        "后金",
+        "热河金顶法台受封",
+        "背景",
+        "无人环境",
+        "文字冒险",
+        "第三批"
+      ],
+      "useWhen": [
+        "遵循架空原文的热河普陀宗乘之庙金顶法台：红白藏式院墙、鎏金重檐与受封法台。原文人物为五世达赖法使；画面无人，不宣称同一历史年代或史实建筑复原。"
+      ],
+      "avoidWhen": [
+        "不得作为精确古建考证、人物身份或未选结局的证据。",
+        "普陀宗乘之庙建成年代与五世达赖时代不一致，保留原作跨代架空，并非历史准确性验收。",
+        "寺院布局与法台为美术诠释，不是现址测绘复原。"
+      ],
+      "legacy": false,
+      "symbol": "🏞️",
+      "sourcePack": "文字冒险环境补全·第三批（2026-11-06 重建）",
+      "familyId": "qing_backgrounds_batch3",
+      "dimensions": {
+        "width": 1672,
+        "height": 941
+      },
+      "webBytes": 392106,
+      "webSha256": "e12dcc586c2c6e934ccdd49dee7ab1d791548682559a138699cfbea9e3cec82b"
+    },
+    {
       "id": "qing_bg_shanhaiguan_cannon_slope",
       "token": "背景·后金山海关缓坡重炮阵",
       "tokenAliases": [],
@@ -5361,6 +5488,48 @@
       },
       "webBytes": 376118,
       "webSha256": "56f624c3fe8f086f0c9fa9274146f88ebc2c46386743bd5a19ecda851a0a5d4c"
+    },
+    {
+      "id": "qing_bg_taihe_final_forecourt",
+      "token": "背景·后金太和殿前终局抉择",
+      "tokenAliases": [],
+      "categoryPath": [
+        "环境",
+        "文字冒险背景",
+        "后金"
+      ],
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_taihe_final_forecourt.webp",
+      "faction": "qing",
+      "factionName": "后金",
+      "category": "地点",
+      "categoryName": "无人环境",
+      "title": "太和殿前终局抉择",
+      "description": "太和殿前广场、重檐黄瓦与白石台基，云下日光烘托终局尚未选择的紧张。只绑定对白与北京坐标一致的文治B线27节点，不暗示任何结局已发生。",
+      "tags": [
+        "后金",
+        "太和殿前终局抉择",
+        "背景",
+        "无人环境",
+        "文字冒险",
+        "第三批"
+      ],
+      "useWhen": [
+        "太和殿前广场、重檐黄瓦与白石台基，云下日光烘托终局尚未选择的紧张。只绑定对白与北京坐标一致的文治B线27节点，不暗示任何结局已发生。"
+      ],
+      "avoidWhen": [
+        "不得作为精确古建考证、人物身份或未选结局的证据。",
+        "不据此推定A/C两线地图也在北京，54个冲突节点保持null。"
+      ],
+      "legacy": false,
+      "symbol": "🏞️",
+      "sourcePack": "文字冒险环境补全·第三批（2026-11-06 重建）",
+      "familyId": "qing_backgrounds_batch3",
+      "dimensions": {
+        "width": 1672,
+        "height": 941
+      },
+      "webBytes": 365394,
+      "webSha256": "f5fe4085c7525d54e41d5db83edeb98d3c361a6c84999aa3c39bbf91fc612397"
     },
     {
       "id": "qing_bg_tongzhou_mourning_camp",
@@ -14476,7 +14645,7 @@
         "qing_act3_iron_slaughter": "qing_bg_yangzhou_meihualing_ruins",
         "qing_act3_iron_cannon": "qing_bg_shanhaiguan_cannon_slope",
         "qing_act3_iron_exhaustion": "qing_bg_liaoxi_starved_camp",
-        "qing_act3_civil_exam": null,
+        "qing_act3_civil_exam": "qing_bg_confucius_dawn_court",
         "qing_act3_civil_mourn": "qing_bg_tongzhou_mourning_camp",
         "qing_act3_civil_backlash": "qing_bg_wuying_edict_hall",
         "qing_act3_steppe_charge": "qing_bg_lengkou_breached_pass",
@@ -14491,7 +14660,7 @@
         "qing_act4_a3_1": "qing_bg_act4_a3_1",
         "qing_act4_a3_2": "qing_bg_act4_a3_2",
         "qing_act4_a3_3": "qing_bg_act4_a3_3",
-        "qing_act4_b1_1": null,
+        "qing_act4_b1_1": "qing_bg_mainhall_joint_court",
         "qing_act4_b1_2": "qing_bg_act4_b1_2",
         "qing_act4_b1_3": "qing_bg_act4_b1_3",
         "qing_act4_b2_1": "qing_bg_act4_b2_1",
@@ -14503,7 +14672,7 @@
         "qing_act4_c1_1": "qing_bg_act4_c1_1",
         "qing_act4_c1_2": "qing_bg_act4_c1_2",
         "qing_act4_c1_3": "qing_bg_act4_c1_3",
-        "qing_act4_c2_1": null,
+        "qing_act4_c2_1": "qing_bg_rehe_golden_roof_terrace",
         "qing_act4_c2_2": "qing_bg_act4_c2_2",
         "qing_act4_c2_3": "qing_bg_act4_c2_3",
         "qing_act4_c3_1": "qing_bg_act4_c3_1",
@@ -14536,33 +14705,33 @@
         "qing_act5_a3_3_1": null,
         "qing_act5_a3_3_2": null,
         "qing_act5_a3_3_3": null,
-        "qing_act5_b1_1_1": null,
-        "qing_act5_b1_1_2": null,
-        "qing_act5_b1_1_3": null,
-        "qing_act5_b1_2_1": null,
-        "qing_act5_b1_2_2": null,
-        "qing_act5_b1_2_3": null,
-        "qing_act5_b1_3_1": null,
-        "qing_act5_b1_3_2": null,
-        "qing_act5_b1_3_3": null,
-        "qing_act5_b2_1_1": null,
-        "qing_act5_b2_1_2": null,
-        "qing_act5_b2_1_3": null,
-        "qing_act5_b2_2_1": null,
-        "qing_act5_b2_2_2": null,
-        "qing_act5_b2_2_3": null,
-        "qing_act5_b2_3_1": null,
-        "qing_act5_b2_3_2": null,
-        "qing_act5_b2_3_3": null,
-        "qing_act5_b3_1_1": null,
-        "qing_act5_b3_1_2": null,
-        "qing_act5_b3_1_3": null,
-        "qing_act5_b3_2_1": null,
-        "qing_act5_b3_2_2": null,
-        "qing_act5_b3_2_3": null,
-        "qing_act5_b3_3_1": null,
-        "qing_act5_b3_3_2": null,
-        "qing_act5_b3_3_3": null,
+        "qing_act5_b1_1_1": "qing_bg_taihe_final_forecourt",
+        "qing_act5_b1_1_2": "qing_bg_taihe_final_forecourt",
+        "qing_act5_b1_1_3": "qing_bg_taihe_final_forecourt",
+        "qing_act5_b1_2_1": "qing_bg_taihe_final_forecourt",
+        "qing_act5_b1_2_2": "qing_bg_taihe_final_forecourt",
+        "qing_act5_b1_2_3": "qing_bg_taihe_final_forecourt",
+        "qing_act5_b1_3_1": "qing_bg_taihe_final_forecourt",
+        "qing_act5_b1_3_2": "qing_bg_taihe_final_forecourt",
+        "qing_act5_b1_3_3": "qing_bg_taihe_final_forecourt",
+        "qing_act5_b2_1_1": "qing_bg_taihe_final_forecourt",
+        "qing_act5_b2_1_2": "qing_bg_taihe_final_forecourt",
+        "qing_act5_b2_1_3": "qing_bg_taihe_final_forecourt",
+        "qing_act5_b2_2_1": "qing_bg_taihe_final_forecourt",
+        "qing_act5_b2_2_2": "qing_bg_taihe_final_forecourt",
+        "qing_act5_b2_2_3": "qing_bg_taihe_final_forecourt",
+        "qing_act5_b2_3_1": "qing_bg_taihe_final_forecourt",
+        "qing_act5_b2_3_2": "qing_bg_taihe_final_forecourt",
+        "qing_act5_b2_3_3": "qing_bg_taihe_final_forecourt",
+        "qing_act5_b3_1_1": "qing_bg_taihe_final_forecourt",
+        "qing_act5_b3_1_2": "qing_bg_taihe_final_forecourt",
+        "qing_act5_b3_1_3": "qing_bg_taihe_final_forecourt",
+        "qing_act5_b3_2_1": "qing_bg_taihe_final_forecourt",
+        "qing_act5_b3_2_2": "qing_bg_taihe_final_forecourt",
+        "qing_act5_b3_2_3": "qing_bg_taihe_final_forecourt",
+        "qing_act5_b3_3_1": "qing_bg_taihe_final_forecourt",
+        "qing_act5_b3_3_2": "qing_bg_taihe_final_forecourt",
+        "qing_act5_b3_3_3": "qing_bg_taihe_final_forecourt",
         "qing_act5_c1_1_1": null,
         "qing_act5_c1_1_2": null,
         "qing_act5_c1_1_3": null,

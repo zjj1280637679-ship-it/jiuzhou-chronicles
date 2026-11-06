@@ -7,7 +7,8 @@ const {pathToFileURL} = require("node:url");
 const {createServer} = require("node:http");
 const registry = require("./illustration-system.js");
 const catalog = require("./data/illustrations/catalog.json");
-const addedCount = require("./docs/scene-background-batch-2.json").assets.length;
+const addedCount = require("./docs/scene-background-batch-2.json").assets.length +
+  require("./docs/scene-background-batch-3.json").assets.length;
 const compact = require("./data/illustrations/catalog-index.js");
 const {createPluginHost, createGameHarness} = require("./harness/runtime.js");
 const {createNodeWorkerFactory} = require("./harness/test-worker.cjs");

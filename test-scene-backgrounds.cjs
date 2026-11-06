@@ -8,6 +8,7 @@ const catalog = require("./data/illustrations/catalog.json");
 const world = require("./skills-data.js");
 const batch = require("./docs/scene-background-batch-1.json");
 const later = require("./docs/scene-background-batch-2.json");
+const latest = require("./docs/scene-background-batch-3.json");
 const compact = require("./data/illustrations/catalog-index.js");
 const {WebVisualNovelEngine} = require("./app.js");
 const sha = data => crypto.createHash("sha256").update(data).digest("hex");
@@ -86,10 +87,10 @@ test("reviewed later scenes have evidence-backed bindings and preserve all old a
   assert.ok(!Object.values(catalog.scenes.nodes).some(nodes => Object.values(nodes).includes("shared_bg_history_epilogue")));
 });
 
-test("85 unresolved Qing locations stay explicitly unbound, even when a map background exists", () => {
-  assert.equal(later.pendingEditorial.length, 85);
-  assert.equal(new Set(later.pendingEditorial.map(n => n.nodeId)).size, 85);
-  for (const {nodeId, reason} of later.pendingEditorial) {
+test("55 unresolved Qing locations stay explicitly unbound, even when a map background exists", () => {
+  assert.equal(latest.pendingEditorial.length, 55);
+  assert.equal(new Set(latest.pendingEditorial.map(n => n.nodeId)).size, 55);
+  for (const {nodeId, reason} of latest.pendingEditorial) {
     assert.ok(reason.length > 10, nodeId);
     const node = world.canonicalTrees.qing.nodes[nodeId];
     assert.equal(catalog.scenes.nodes.qing[nodeId], null, nodeId);
@@ -137,4 +138,79 @@ test("compact browser and Worker scene bindings match the source catalog", () =>
   for (const faction of ["ming", "mongol", "nanming", "qing"]) for (const [nodeId, id] of Object.entries(catalog.scenes.nodes[faction])) {
     assert.equal(compactRegistry.sceneFor({faction, nodeId})?.id || null, id, nodeId);
   }
+});
+
+test("four third-batch environments resolve exactly 30 prior pending nodes and preserve original PNGs", () => {
+  assert.equal(latest.assets.length, 4);
+  assert.equal(latest.reviewedBindingChanges, 30);
+  assert.equal(latest.totalExplicitlyBoundNodes, 1401);
+  assert.equal(sha(fs.readFileSync("skills-data.js")), latest.sourceStorySha256);
+  assert.equal(latest.sourceStorySha256, later.sourceStorySha256);
+  assert.deepEqual(catalog.scenes.locations, latest.unchangedMapBindings);
+  assert.equal(new Set([...batch.assets, ...later.assets, ...latest.assets].map(a => a.webSha256)).size, 122);
+  const {publicPathAllowed} = require("./server.js");
+  for (const asset of latest.assets) {
+    const bytes = fs.readFileSync(asset.relativePath);
+    assert.equal(bytes.toString("ascii", 0, 4), "RIFF", asset.id);
+    assert.equal(bytes.toString("ascii", 8, 12), "WEBP", asset.id);
+    assert.equal(sha(bytes), asset.webSha256, asset.id);
+    assert.equal(bytes.length, asset.webBytes, asset.id);
+    assert.deepEqual(asset.dimensions, {width: 1672, height: 941});
+    assert.ok(asset.visualQA.passed && asset.prompt.length > 100, asset.id);
+    assert.equal(registry.resolve(asset.token).id, asset.id);
+    const original = fs.readFileSync(asset.originalRelativePath);
+    assert.equal(original.subarray(0, 8).toString("hex"), "89504e470d0a1a0a");
+    assert.equal(sha(original), asset.originalSha256, asset.id);
+    assert.equal(original.length, asset.originalBytes, asset.id);
+    assert.equal(publicPathAllowed(asset.originalRelativePath), false, "production source is not a public game asset");
+    for (const nodeId of asset.sceneNodeIds) assert.equal(registry.sceneFor({faction: "qing", nodeId}).id, asset.id, nodeId);
+  }
+  assert.equal(latest.retainedExistingAssets.length, 282);
+  for (const old of latest.retainedExistingAssets) {
+    assert.equal(registry.resolve(old.id).relativePath, old.relativePath, old.id);
+    assert.equal(sha(fs.readFileSync(old.relativePath)), old.webSha256, old.id);
+  }
+  const changed = latest.bindingChanges.map(change => change.nodeId);
+  assert.equal(new Set(changed).size, 30);
+  for (const change of latest.bindingChanges) {
+    assert.equal(change.previousAssetId, null);
+    assert.equal(catalog.scenes.nodes[change.faction][change.nodeId], change.assetId);
+  }
+  assert.deepEqual(new Set([...changed, ...latest.pendingEditorial.map(n => n.nodeId)]),
+    new Set(later.pendingEditorial.map(n => n.nodeId)), "the previous 85 nodes are partitioned, never dropped");
+  assert.equal(Object.values(catalog.scenes.nodes).flatMap(nodes => Object.values(nodes)).filter(Boolean).length, 1401);
+});
+
+test("only 27 Qing B-line final acts have matching Beijing coordinates and Taihe forecourt art", () => {
+  const fifth = Object.values(world.canonicalTrees.qing.nodes).filter(n => /^qing_act5_[abc][1-3]_[1-3]_[1-3]$/.test(n.id));
+  assert.equal(fifth.length, 81);
+  const resolved = latest.assets.find(a => a.id === "qing_bg_taihe_final_forecourt");
+  assert.equal(resolved.sceneNodeIds.length, 27);
+  for (const node of fifth) {
+    assert.ok(node.beats.some(b => b.text.includes("才走到这金銮太和殿前")), node.id);
+    const isCivil = node.id.startsWith("qing_act5_b");
+    assert.equal(resolved.sceneNodeIds.includes(node.id), isCivil, node.id);
+    if (isCivil) {
+      assert.equal(node.coords, "beijing:high", node.id);
+      assert.equal(registry.sceneFor({faction: "qing", nodeId: node.id, coords: node.coords}).id, resolved.id, node.id);
+    } else {
+      assert.ok(["jiangnan:mid", "mongol:steppe"].includes(node.coords), node.id);
+      assert.equal(registry.sceneFor({faction: "qing", nodeId: node.id, coords: node.coords}), null, node.id);
+    }
+  }
+});
+
+test("resolved early Qing scenes preserve exact evidence while the disputed court remains unbound", () => {
+  const nodes = world.canonicalTrees.qing.nodes;
+  assert.match(nodes.qing_act3_civil_exam.beats[0].text, /大成殿前/);
+  assert.equal(registry.sceneFor({faction: "qing", nodeId: "qing_act3_civil_exam"}).id, "qing_bg_confucius_dawn_court");
+  assert.match(nodes.qing_act4_b1_1.title, /皇极殿/);
+  assert.match(nodes.qing_act4_b1_1.desc, /太和殿/);
+  assert.equal(registry.sceneFor({faction: "qing", nodeId: "qing_act4_b1_1"}).id, "qing_bg_mainhall_joint_court");
+  assert.match(nodes.qing_act4_c2_1.beats[0].sub, /普陀宗乘之庙金顶法台/);
+  assert.ok(nodes.qing_act4_c2_1.beats.some(b => b.speaker === "五世达赖法使"));
+  assert.equal(registry.sceneFor({faction: "qing", nodeId: "qing_act4_c2_1"}).id, "qing_bg_rehe_golden_roof_terrace");
+  assert.match(nodes.qing_act4_b3_1.desc, /皇极殿/);
+  assert.match(nodes.qing_act4_b3_1.beats[0].sub, /乾清门/);
+  assert.equal(registry.sceneFor({faction: "qing", nodeId: "qing_act4_b3_1", coords: "beijing:high"}), null);
 });
