@@ -1,0 +1,62 @@
+[
+  {
+    "key": "confucius",
+    "id": "qing_bg_confucius_dawn_court",
+    "relativePath": "data/illustrations/qing/backgrounds/qing_bg_confucius_dawn_court.webp",
+    "dimensions": {
+      "width": 1672,
+      "height": 941
+    },
+    "webBytes": 388230,
+    "webSha256": "377c2a1d0624bb9d7480a2c295bf0f89cca2b2d43c15a76a57f8b420ad597f48",
+    "originalRelativePath": "asset-inbox/scene-background-batch-3/originals/qing_bg_confucius_dawn_court.png",
+    "originalBytes": 3028098,
+    "originalSha256": "bfe481112ba89bf6d9de4ba294a74c4a0dbfcf9d08e72aa53f58f80b5afe806b",
+    "generatedFilename": "exec-e1908c4d-cea9-4518-8d8e-5085d7ec0cf7.png"
+  },
+  {
+    "key": "mainhall",
+    "id": "qing_bg_mainhall_joint_court",
+    "relativePath": "data/illustrations/qing/backgrounds/qing_bg_mainhall_joint_court.webp",
+    "dimensions": {
+      "width": 1672,
+      "height": 941
+    },
+    "webBytes": 356088,
+    "webSha256": "fde23f13e7bfec7656feaa6aa456481acc18d6bf0117c37daeea341f8079efbb",
+    "originalRelativePath": "asset-inbox/scene-background-batch-3/originals/qing_bg_mainhall_joint_court.png",
+    "originalBytes": 2760137,
+    "originalSha256": "009286f57e83dfc962e6582933103acf3484e277e42ecdc6f41f466c09c77ba1",
+    "generatedFilename": "exec-f7b3d5ec-b7da-484b-bff0-201d2b1887c2.png"
+  },
+  {
+    "key": "forecourt",
+    "id": "qing_bg_taihe_final_forecourt",
+    "relativePath": "data/illustrations/qing/backgrounds/qing_bg_taihe_final_forecourt.webp",
+    "dimensions": {
+      "width": 1672,
+      "height": 941
+    },
+    "webBytes": 365394,
+    "webSha256": "f5fe4085c7525d54e41d5db83edeb98d3c361a6c84999aa3c39bbf91fc612397",
+    "originalRelativePath": "asset-inbox/scene-background-batch-3/originals/qing_bg_taihe_final_forecourt.png",
+    "originalBytes": 2926087,
+    "originalSha256": "18a1b8a6f86ff890270b816f03e9179fd459e424a6676a5dc43187e31b47b374",
+    "generatedFilename": "exec-3a15c279-7ca9-4835-b6fb-10ed8c000eab.png"
+  },
+  {
+    "key": "rehe",
+    "id": "qing_bg_rehe_golden_roof_terrace",
+    "relativePath": "data/illustrations/qing/backgrounds/qing_bg_rehe_golden_roof_terrace.webp",
+    "dimensions": {
+      "width": 1672,
+      "height": 941
+    },
+    "webBytes": 392106,
+    "webSha256": "e12dcc586c2c6e934ccdd49dee7ab1d791548682559a138699cfbea9e3cec82b",
+    "originalRelativePath": "asset-inbox/scene-background-batch-3/originals/qing_bg_rehe_golden_roof_terrace.png",
+    "originalBytes": 3066575,
+    "originalSha256": "5d0fc6e55ff3483e7f351dcc732f2511f37ad4aa29619ea6a14105d0df334bc3",
+    "generatedFilename": "exec-26d393f7-3f24-48f0-bd43-7a04318363ab.png"
+  }
+]

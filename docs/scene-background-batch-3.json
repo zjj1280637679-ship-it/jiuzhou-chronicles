@@ -1,0 +1,2445 @@
+{
+  "version": 2,
+  "date": "2026-11-06",
+  "status": "working_branch_review_not_merged",
+  "baseCommit": "f49f18421db3864ac8c87c611fd69f793070aecf",
+  "supersedesPendingFrom": "scene-background-batch-2.json",
+  "rebuild": {
+    "reason": "2026-11-05 local-only original images became unavailable after environment reset; the same four scene specifications were regenerated on 2026-11-06. These are new bytes, not recovered originals.",
+    "lostLocalCommit": "4c7c3e020e145840ae5fbee7f54a3cf6fe0474b8",
+    "preservation": "Original PNGs and prompt set are committed under asset-inbox/scene-background-batch-3; production WebP files and audit manifest are committed together. The source package is excluded from static publication."
+  },
+  "sourceStorySha256": "73e03f1c04e6291e8f7c602c6573afe2f5348a6b7e342ad0a77ff9bc809e02ab",
+  "generationMethod": "OpenAI built-in image generation",
+  "generatedCount": 4,
+  "reviewedBindingChanges": 30,
+  "previousExplicitlyBoundNodes": 1371,
+  "totalExplicitlyBoundNodes": 1401,
+  "pendingEditorialCount": 55,
+  "assets": [
+    {
+      "id": "qing_bg_confucius_dawn_court",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_confucius_dawn_court.webp",
+      "dimensions": {
+        "width": 1672,
+        "height": 941
+      },
+      "webBytes": 388230,
+      "webSha256": "377c2a1d0624bb9d7480a2c295bf0f89cca2b2d43c15a76a57f8b420ad597f48",
+      "originalRelativePath": "asset-inbox/scene-background-batch-3/originals/qing_bg_confucius_dawn_court.png",
+      "originalBytes": 3028098,
+      "originalSha256": "bfe481112ba89bf6d9de4ba294a74c4a0dbfcf9d08e72aa53f58f80b5afe806b",
+      "generatedFilename": "exec-e1908c4d-cea9-4518-8d8e-5085d7ec0cf7.png",
+      "faction": "qing",
+      "title": "文庙破晓祭孔",
+      "token": "背景·后金文庙破晓祭孔",
+      "description": "文庙大成殿阶前的古柏、编钟与御炉晨烟，按祭孔正文制作的无人环境。省略混写的辟雍及后世重修匾额，不宣称精确古建复原。",
+      "sceneNodeIds": [
+        "qing_act3_civil_exam"
+      ],
+      "prompt": "Use case: historical-scene. Create ONE finished raster background for the alternate-history visual novel 九州沉浮录. Cinematic photorealistic environment painting, finely detailed weathered timber and stone, natural atmospheric depth and restrained earthy film color grading, wide 16:9 landscape, target 1672x941. Scene: a solemn Confucian temple courtyard in early Qing Beijing at dawn in autumn, during preparation for the young Shunzhi emperor's Confucius sacrifice. Camera at the foot of the modest stone steps outside the Dacheng Hall, an open temple forecourt with ancient dark green cypress trees, red wooden pillars, closed lattice doors and part of the eaves of a modest early-seventeenth-century Confucian ritual hall. Keep architecture conservative: no monumental modern restored nine-bay facade, no grand palace throne, no Biyong pavilion, no circular pool. Two low bronze ritual incense vessels stand beside the stone steps with fine pale aromatic smoke; a traditional wooden frame of bronze ritual chime bells sits quietly at the far side, integrated naturally, not central. Crisp cool dawn with a soft pale-gold shaft of light through cypress, sparse autumn leaves on old stone slabs. Entire setting empty; retain a broad visually quiet lower foreground for character portraits and dialogue UI. No people, figures, silhouettes, statues, bodies, weapons, text, readable plaques, writing, watermark, modern objects, electric lights, glass-chimney oil lamps, collage, borders. A historically informed alternate-fiction environment, not archaeological reconstruction.",
+      "generationMethod": "OpenAI built-in image generation",
+      "conversion": "WebP quality 88, method 6, original dimensions; no crop, resize or stretch",
+      "visualQA": {
+        "passed": true,
+        "method": "生成返回原尺寸逐图目视检查；独立审校完整WebP复核",
+        "checks": [
+          "古柏、石阶、低檐祭殿、编钟及御炉晨烟清楚；未画环水辟雍或宫廷御座。",
+          "破晓秋光与肃静前庭呼应正文，画面无人，前景可叠角色。",
+          "1672×941 原尺寸 WebP，无裁切或拉伸。"
+        ]
+      },
+      "evidence": {
+        "source": "skills-data.js canonicalTrees.qing",
+        "decision": "desc明确亲临文庙，旁白正文明确大成殿前祭孔；sub中的辟雍混写不改变祭孔现场的直接证据。",
+        "nodes": [
+          {
+            "nodeId": "qing_act3_civil_exam",
+            "title": "第三幕B1：燕京定鼎 · 恩科取士与顺治祭孔",
+            "coords": "beijing:high",
+            "desc": "定都燕京，顺治帝以天子之仪入主紫禁城。为消弭鼎革离乱之痛、定中原士人之心，摄政王多尔衮与大学士范文程力促开首届恩科、延揽海内遗贤；幼冲天子亲临国子监文庙，向大成至圣先师行三跪九叩大礼，加封衍圣公，以周孔周礼重铸华夏正统文德。此举令海内名儒震动、天下寒士咸服，新朝法统基石自此铸就，然满洲宗王宿怨暗生、南明残局未定，死生决胜的大争之世正临风云分野。",
+            "sceneSubtitle": "北京国子监 · 辟雍大殿文庙阶前",
+            "narration": "金风肃杀，古柏森森。国子监大成殿前御炉沉香弥漫，中和韶乐九成大作。三千名来自北直、山东、河南的新科贡士与前朝宿儒衣冠齐整，屏息肃立于丹墀之下。两侧满洲镶黄旗巴牙喇按刀分列，收敛了塞外铁骑的嗜血锋芒。当幼帝銮驾破晓而至，整座幽燕古都的士林心防，在沉浑庄严的青铜编钟轰鸣中，悄然融化冰消。",
+            "locationDialogue": null
+          }
+        ]
+      },
+      "assumptions": [],
+      "limitations": [
+        "建筑取保守局部视角，不宣称复原当年大成殿的全部建筑细节。"
+      ]
+    },
+    {
+      "id": "qing_bg_mainhall_joint_court",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_mainhall_joint_court.webp",
+      "dimensions": {
+        "width": 1672,
+        "height": 941
+      },
+      "webBytes": 356088,
+      "webSha256": "fde23f13e7bfec7656feaa6aa456481acc18d6bf0117c37daeea341f8079efbb",
+      "originalRelativePath": "asset-inbox/scene-background-batch-3/originals/qing_bg_mainhall_joint_court.png",
+      "originalBytes": 2760137,
+      "originalSha256": "009286f57e83dfc962e6582933103acf3484e277e42ecdc6f41f466c09c77ba1",
+      "generatedFilename": "exec-f7b3d5ec-b7da-484b-bff0-201d2b1887c2.png",
+      "faction": "qing",
+      "title": "紫禁主殿满汉朝会",
+      "token": "背景·后金紫禁主殿满汉朝会",
+      "description": "紫禁城主殿内红柱御座、双列朝班空位与香烟，无匾额处理兼容皇极殿、太和殿名称沿革。不包含大明日月旗或已选结局象征。",
+      "sceneNodeIds": [
+        "qing_act4_b1_1"
+      ],
+      "prompt": "Use case: historical-scene. Create ONE finished raster background for the alternate-history visual novel 九州沉浮录, cinematic photorealistic environment painting, detailed believable seventeenth-century Chinese timber and stone, restrained natural lighting and earthy film color grading. Wide 16:9 landscape, target 1672x941. Scene: inside the great main imperial audience hall of the Forbidden City in early Qing Beijing, during a solemn court assembly of the young Shunzhi emperor and the two parallel Manchu and Han official ranks. Depict only the empty environment, no people. A grand formal red-pillared timber hall, immense coffered painted-beam ceiling, a distant raised but not absurdly tall carved gilded dragon throne dais with imperial yellow silk, large dark stone floor, two balanced empty aisles for officials on the left and right. Bronze incense vessels beside the dais releasing subtle soft smoke. Daylight enters through high lattice windows and partly open wooden doors, formal dignified quiet tension, not celebratory victory and no battlefield damage. One modest blank document stand at the side may suggest administration without obstructing the two aisles. Broad lower center kept empty for portraits and dialogue UI. Do not include any plaque, motto, written banner or lettering, since the story uses Huangji Hall and Taihe Hall as names of the same main hall across the dynastic transition. No sun/moon banners, no Ming heraldry, no modern national flags, no candles floating unsupported, no modern glass-chimney lamps, no electric lighting, no people, silhouettes, human statues, bodies, readable text, watermark, montage or borders. Historically informed alternate-fiction environment, not a claimed reconstruction of the surviving later rebuilt hall.",
+      "generationMethod": "OpenAI built-in image generation",
+      "conversion": "WebP quality 88, method 6, original dimensions; no crop, resize or stretch",
+      "visualQA": {
+        "passed": true,
+        "method": "生成返回原尺寸逐图目视检查；独立审校完整WebP复核",
+        "checks": [
+          "红柱、主殿御座、两侧朝班空位与香烟符合朝会；不是乾清门或盛京崇政殿。",
+          "无可读匾额、日月旗、人物及现代灯具，保留空前景。",
+          "1672×941 原尺寸 WebP，无裁切或拉伸。"
+        ]
+      },
+      "evidence": {
+        "source": "skills-data.js canonicalTrees.qing",
+        "decision": "皇极殿和太和殿是同一主殿名沿革；desc与正文都指向主殿内满汉朝会。无匾额构图不替剧情改名或定年。",
+        "nodes": [
+          {
+            "nodeId": "qing_act4_b1_1",
+            "title": "第四幕B1-1：金銮受禅 · 皇极殿满汉双轨制帝国诞生",
+            "coords": "beijing:high",
+            "desc": "顺治帝御太和殿，首开满汉并列六部双尚书、科举分榜定额之制。盛京旧俗与华夏官僚制在此完成旷古未有的制度合流。",
+            "sceneSubtitle": "紫禁城 · 皇极殿大朝会",
+            "narration": "香炉烟云缭绕，丹墀阶下千官拜伏。身披黄袍的年轻天子正襟危坐，左班满洲八旗勋贵，右班汉臣士大夫文官，首度同殿称臣。",
+            "locationDialogue": null
+          }
+        ]
+      },
+      "assumptions": [],
+      "limitations": [
+        "不宣称与现存后世重建殿内装饰完全一致。"
+      ]
+    },
+    {
+      "id": "qing_bg_taihe_final_forecourt",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_taihe_final_forecourt.webp",
+      "dimensions": {
+        "width": 1672,
+        "height": 941
+      },
+      "webBytes": 365394,
+      "webSha256": "f5fe4085c7525d54e41d5db83edeb98d3c361a6c84999aa3c39bbf91fc612397",
+      "originalRelativePath": "asset-inbox/scene-background-batch-3/originals/qing_bg_taihe_final_forecourt.png",
+      "originalBytes": 2926087,
+      "originalSha256": "18a1b8a6f86ff890270b816f03e9179fd459e424a6676a5dc43187e31b47b374",
+      "generatedFilename": "exec-3a15c279-7ca9-4835-b6fb-10ed8c000eab.png",
+      "faction": "qing",
+      "title": "太和殿前终局抉择",
+      "token": "背景·后金太和殿前终局抉择",
+      "description": "太和殿前广场、重檐黄瓦与白石台基，云下日光烘托终局尚未选择的紧张。只绑定对白与北京坐标一致的文治B线27节点，不暗示任何结局已发生。",
+      "sceneNodeIds": [
+        "qing_act5_b1_1_1",
+        "qing_act5_b1_1_2",
+        "qing_act5_b1_1_3",
+        "qing_act5_b1_2_1",
+        "qing_act5_b1_2_2",
+        "qing_act5_b1_2_3",
+        "qing_act5_b1_3_1",
+        "qing_act5_b1_3_2",
+        "qing_act5_b1_3_3",
+        "qing_act5_b2_1_1",
+        "qing_act5_b2_1_2",
+        "qing_act5_b2_1_3",
+        "qing_act5_b2_2_1",
+        "qing_act5_b2_2_2",
+        "qing_act5_b2_2_3",
+        "qing_act5_b2_3_1",
+        "qing_act5_b2_3_2",
+        "qing_act5_b2_3_3",
+        "qing_act5_b3_1_1",
+        "qing_act5_b3_1_2",
+        "qing_act5_b3_1_3",
+        "qing_act5_b3_2_1",
+        "qing_act5_b3_2_2",
+        "qing_act5_b3_2_3",
+        "qing_act5_b3_3_1",
+        "qing_act5_b3_3_2",
+        "qing_act5_b3_3_3"
+      ],
+      "prompt": "Use case: historical-scene. Create ONE finished raster background for the alternate-history visual novel 九州沉浮录. Cinematic photorealistic environment painting with detailed weathered historical Chinese stone and timber, restrained natural film grading. Wide 16:9 landscape, target 1672x941. Scene: the EMPTY forecourt directly in front of Taihe Hall in Beijing's Forbidden City in a historically inspired Qing-era fictional timeline, immediately before the final moral and political decision. NOT an interior throne room, NOT an outcome or victory scene. View from the broad grey stone courtyard toward the formal main audience hall on its three-tier pale marble terrace, red pillars and doors, wide sweeping double-eaved yellow glazed hipped roof, clear central ramp and stair axes. The hall sits firmly in the upper half of the composition, with spacious empty court in the lower half for game characters and dialogue. Some dark gathering clouds above the roof and a narrow restrained shaft of cool daylight suggest unresolved tension, but no supernatural effects, destruction, siege, blood, bodies, prisoners or outcome-specific props. Weathered understated realism, coherent architectural perspective, no excessive fantasy roof tiers. Entire environment unoccupied. No people, silhouettes, statues of people, readable plaques, text, writing, modern flags, sun-and-moon banners, advertising, modern objects, electric lights, glass-chimney lamps, UI, watermark, borders or collage. Do not include a signboard with the hall name, and do not claim an archaeologically exact reconstruction.",
+      "generationMethod": "OpenAI built-in image generation",
+      "conversion": "WebP quality 88, method 6, original dimensions; no crop, resize or stretch",
+      "visualQA": {
+        "passed": true,
+        "method": "生成返回原尺寸逐图目视检查；独立审校完整WebP复核",
+        "checks": [
+          "明确是殿前外景广场，黄瓦重檐和白石台基；不串用殿内朝会图。",
+          "无胜利、破败、刑罚等结局特定陈设；无人物、文字或现代物件。",
+          "1672×941 原尺寸 WebP，无裁切或拉伸。"
+        ]
+      },
+      "evidence": {
+        "source": "skills-data.js canonicalTrees.qing",
+        "decision": "27个B线节点对白均明确“才走到这金銮太和殿前”，coords均为beijing:high；desc仅说承接前幕而没有声明仍在前幕现场。相同实际舞台共享一图。",
+        "nodes": [
+          {
+            "nodeId": "qing_act5_b1_1_1",
+            "title": "第五幕【巅峰决胜 #28】：彻底汉化 · 天命归所大终局前夕",
+            "coords": "beijing:high",
+            "desc": "承接第四幕B1-1：金銮受禅 · 皇极殿满汉双轨制帝国诞生。战局在此进入不可逆的最终定鼎时刻，各方势力的生死、国运的终极走向，全在此最后一念决断。",
+            "sceneSubtitle": "神州乾坤交汇之所",
+            "narration": "风云咆哮，山河倒悬。数百年的血与火、满汉蒙藏数千万生民的期盼与仇恨，在这最后的决战舞台上凝聚成实质。九洲神鼎之重，正待最后的铸型！",
+            "locationDialogue": "“天命从来不是垂青懦夫！我们付出了十万孤魂、三十年血雨腥风，才走到这金銮太和殿前！今日哪怕天崩地裂，也要为大清定下万古不移之规！”"
+          },
+          {
+            "nodeId": "qing_act5_b1_1_2",
+            "title": "第五幕【巅峰决胜 #29】：强化旗权 · 天命归所大终局前夕",
+            "coords": "beijing:high",
+            "desc": "承接第四幕B1-1：金銮受禅 · 皇极殿满汉双轨制帝国诞生。战局在此进入不可逆的最终定鼎时刻，各方势力的生死、国运的终极走向，全在此最后一念决断。",
+            "sceneSubtitle": "神州乾坤交汇之所",
+            "narration": "风云咆哮，山河倒悬。数百年的血与火、满汉蒙藏数千万生民的期盼与仇恨，在这最后的决战舞台上凝聚成实质。九洲神鼎之重，正待最后的铸型！",
+            "locationDialogue": "“天命从来不是垂青懦夫！我们付出了十万孤魂、三十年血雨腥风，才走到这金銮太和殿前！今日哪怕天崩地裂，也要为大清定下万古不移之规！”"
+          },
+          {
+            "nodeId": "qing_act5_b1_1_3",
+            "title": "第五幕【巅峰决胜 #30】：御前极权 · 天命归所大终局前夕",
+            "coords": "beijing:high",
+            "desc": "承接第四幕B1-1：金銮受禅 · 皇极殿满汉双轨制帝国诞生。战局在此进入不可逆的最终定鼎时刻，各方势力的生死、国运的终极走向，全在此最后一念决断。",
+            "sceneSubtitle": "神州乾坤交汇之所",
+            "narration": "风云咆哮，山河倒悬。数百年的血与火、满汉蒙藏数千万生民的期盼与仇恨，在这最后的决战舞台上凝聚成实质。九洲神鼎之重，正待最后的铸型！",
+            "locationDialogue": "“天命从来不是垂青懦夫！我们付出了十万孤魂、三十年血雨腥风，才走到这金銮太和殿前！今日哪怕天崩地裂，也要为大清定下万古不移之规！”"
+          },
+          {
+            "nodeId": "qing_act5_b1_2_1",
+            "title": "第五幕【巅峰决胜 #31】：均分南北 · 天命归所大终局前夕",
+            "coords": "beijing:high",
+            "desc": "承接第四幕B1-2：文衡重塑 · 顺天乡试南北卷与江南文心收抚。战局在此进入不可逆的最终定鼎时刻，各方势力的生死、国运的终极走向，全在此最后一念决断。",
+            "sceneSubtitle": "神州乾坤交汇之所",
+            "narration": "风云咆哮，山河倒悬。数百年的血与火、满汉蒙藏数千万生民的期盼与仇恨，在这最后的决战舞台上凝聚成实质。九洲神鼎之重，正待最后的铸型！",
+            "locationDialogue": "“天命从来不是垂青懦夫！我们付出了十万孤魂、三十年血雨腥风，才走到这金銮太和殿前！今日哪怕天崩地裂，也要为大清定下万古不移之规！”"
+          },
+          {
+            "nodeId": "qing_act5_b1_2_2",
+            "title": "第五幕【巅峰决胜 #32】：优抚江南 · 天命归所大终局前夕",
+            "coords": "beijing:high",
+            "desc": "承接第四幕B1-2：文衡重塑 · 顺天乡试南北卷与江南文心收抚。战局在此进入不可逆的最终定鼎时刻，各方势力的生死、国运的终极走向，全在此最后一念决断。",
+            "sceneSubtitle": "神州乾坤交汇之所",
+            "narration": "风云咆哮，山河倒悬。数百年的血与火、满汉蒙藏数千万生民的期盼与仇恨，在这最后的决战舞台上凝聚成实质。九洲神鼎之重，正待最后的铸型！",
+            "locationDialogue": "“天命从来不是垂青懦夫！我们付出了十万孤魂、三十年血雨腥风，才走到这金銮太和殿前！今日哪怕天崩地裂，也要为大清定下万古不移之规！”"
+          },
+          {
+            "nodeId": "qing_act5_b1_2_3",
+            "title": "第五幕【巅峰决胜 #33】：程朱考据 · 天命归所大终局前夕",
+            "coords": "beijing:high",
+            "desc": "承接第四幕B1-2：文衡重塑 · 顺天乡试南北卷与江南文心收抚。战局在此进入不可逆的最终定鼎时刻，各方势力的生死、国运的终极走向，全在此最后一念决断。",
+            "sceneSubtitle": "神州乾坤交汇之所",
+            "narration": "风云咆哮，山河倒悬。数百年的血与火、满汉蒙藏数千万生民的期盼与仇恨，在这最后的决战舞台上凝聚成实质。九洲神鼎之重，正待最后的铸型！",
+            "locationDialogue": "“天命从来不是垂青懦夫！我们付出了十万孤魂、三十年血雨腥风，才走到这金銮太和殿前！今日哪怕天崩地裂，也要为大清定下万古不移之规！”"
+          },
+          {
+            "nodeId": "qing_act5_b1_3_1",
+            "title": "第五幕【巅峰决胜 #34】：从严株连 · 天命归所大终局前夕",
+            "coords": "beijing:high",
+            "desc": "承接第四幕B1-3：深文周纳 · 庄氏明史案与江表文网大清查。战局在此进入不可逆的最终定鼎时刻，各方势力的生死、国运的终极走向，全在此最后一念决断。",
+            "sceneSubtitle": "神州乾坤交汇之所",
+            "narration": "风云咆哮，山河倒悬。数百年的血与火、满汉蒙藏数千万生民的期盼与仇恨，在这最后的决战舞台上凝聚成实质。九洲神鼎之重，正待最后的铸型！",
+            "locationDialogue": "“天命从来不是垂青懦夫！我们付出了十万孤魂、三十年血雨腥风，才走到这金銮太和殿前！今日哪怕天崩地裂，也要为大清定下万古不移之规！”"
+          },
+          {
+            "nodeId": "qing_act5_b1_3_2",
+            "title": "第五幕【巅峰决胜 #35】：宽宥羁縻 · 天命归所大终局前夕",
+            "coords": "beijing:high",
+            "desc": "承接第四幕B1-3：深文周纳 · 庄氏明史案与江表文网大清查。战局在此进入不可逆的最终定鼎时刻，各方势力的生死、国运的终极走向，全在此最后一念决断。",
+            "sceneSubtitle": "神州乾坤交汇之所",
+            "narration": "风云咆哮，山河倒悬。数百年的血与火、满汉蒙藏数千万生民的期盼与仇恨，在这最后的决战舞台上凝聚成实质。九洲神鼎之重，正待最后的铸型！",
+            "locationDialogue": "“天命从来不是垂青懦夫！我们付出了十万孤魂、三十年血雨腥风，才走到这金銮太和殿前！今日哪怕天崩地裂，也要为大清定下万古不移之规！”"
+          },
+          {
+            "nodeId": "qing_act5_b1_3_3",
+            "title": "第五幕【巅峰决胜 #36】：官修国史 · 天命归所大终局前夕",
+            "coords": "beijing:high",
+            "desc": "承接第四幕B1-3：深文周纳 · 庄氏明史案与江表文网大清查。战局在此进入不可逆的最终定鼎时刻，各方势力的生死、国运的终极走向，全在此最后一念决断。",
+            "sceneSubtitle": "神州乾坤交汇之所",
+            "narration": "风云咆哮，山河倒悬。数百年的血与火、满汉蒙藏数千万生民的期盼与仇恨，在这最后的决战舞台上凝聚成实质。九洲神鼎之重，正待最后的铸型！",
+            "locationDialogue": "“天命从来不是垂青懦夫！我们付出了十万孤魂、三十年血雨腥风，才走到这金銮太和殿前！今日哪怕天崩地裂，也要为大清定下万古不移之规！”"
+          },
+          {
+            "nodeId": "qing_act5_b2_1_1",
+            "title": "第五幕【巅峰决胜 #37】：盛世宽政 · 天命归所大终局前夕",
+            "coords": "beijing:high",
+            "desc": "承接第四幕B2-1：孝陵三跪 · 顺治南巡亲奠朱元璋奠定法统。战局在此进入不可逆的最终定鼎时刻，各方势力的生死、国运的终极走向，全在此最后一念决断。",
+            "sceneSubtitle": "神州乾坤交汇之所",
+            "narration": "风云咆哮，山河倒悬。数百年的血与火、满汉蒙藏数千万生民的期盼与仇恨，在这最后的决战舞台上凝聚成实质。九洲神鼎之重，正待最后的铸型！",
+            "locationDialogue": "“天命从来不是垂青懦夫！我们付出了十万孤魂、三十年血雨腥风，才走到这金銮太和殿前！今日哪怕天崩地裂，也要为大清定下万古不移之规！”"
+          },
+          {
+            "nodeId": "qing_act5_b2_1_2",
+            "title": "第五幕【巅峰决胜 #38】：礼封前明 · 天命归所大终局前夕",
+            "coords": "beijing:high",
+            "desc": "承接第四幕B2-1：孝陵三跪 · 顺治南巡亲奠朱元璋奠定法统。战局在此进入不可逆的最终定鼎时刻，各方势力的生死、国运的终极走向，全在此最后一念决断。",
+            "sceneSubtitle": "神州乾坤交汇之所",
+            "narration": "风云咆哮，山河倒悬。数百年的血与火、满汉蒙藏数千万生民的期盼与仇恨，在这最后的决战舞台上凝聚成实质。九洲神鼎之重，正待最后的铸型！",
+            "locationDialogue": "“天命从来不是垂青懦夫！我们付出了十万孤魂、三十年血雨腥风，才走到这金銮太和殿前！今日哪怕天崩地裂，也要为大清定下万古不移之规！”"
+          },
+          {
+            "nodeId": "qing_act5_b2_1_3",
+            "title": "第五幕【巅峰决胜 #39】：整饬军纪 · 天命归所大终局前夕",
+            "coords": "beijing:high",
+            "desc": "承接第四幕B2-1：孝陵三跪 · 顺治南巡亲奠朱元璋奠定法统。战局在此进入不可逆的最终定鼎时刻，各方势力的生死、国运的终极走向，全在此最后一念决断。",
+            "sceneSubtitle": "神州乾坤交汇之所",
+            "narration": "风云咆哮，山河倒悬。数百年的血与火、满汉蒙藏数千万生民的期盼与仇恨，在这最后的决战舞台上凝聚成实质。九洲神鼎之重，正待最后的铸型！",
+            "locationDialogue": "“天命从来不是垂青懦夫！我们付出了十万孤魂、三十年血雨腥风，才走到这金銮太和殿前！今日哪怕天崩地裂，也要为大清定下万古不移之规！”"
+          },
+          {
+            "nodeId": "qing_act5_b2_2_1",
+            "title": "第五幕【巅峰决胜 #40】：铁骑强攻 · 天命归所大终局前夕",
+            "coords": "beijing:high",
+            "desc": "承接第四幕B2-2：潼关总决 · 奉天讨逆旗号歼灭李自成大顺主力。战局在此进入不可逆的最终定鼎时刻，各方势力的生死、国运的终极走向，全在此最后一念决断。",
+            "sceneSubtitle": "神州乾坤交汇之所",
+            "narration": "风云咆哮，山河倒悬。数百年的血与火、满汉蒙藏数千万生民的期盼与仇恨，在这最后的决战舞台上凝聚成实质。九洲神鼎之重，正待最后的铸型！",
+            "locationDialogue": "“天命从来不是垂青懦夫！我们付出了十万孤魂、三十年血雨腥风，才走到这金銮太和殿前！今日哪怕天崩地裂，也要为大清定下万古不移之规！”"
+          },
+          {
+            "nodeId": "qing_act5_b2_2_2",
+            "title": "第五幕【巅峰决胜 #41】：迂回断后 · 天命归所大终局前夕",
+            "coords": "beijing:high",
+            "desc": "承接第四幕B2-2：潼关总决 · 奉天讨逆旗号歼灭李自成大顺主力。战局在此进入不可逆的最终定鼎时刻，各方势力的生死、国运的终极走向，全在此最后一念决断。",
+            "sceneSubtitle": "神州乾坤交汇之所",
+            "narration": "风云咆哮，山河倒悬。数百年的血与火、满汉蒙藏数千万生民的期盼与仇恨，在这最后的决战舞台上凝聚成实质。九洲神鼎之重，正待最后的铸型！",
+            "locationDialogue": "“天命从来不是垂青懦夫！我们付出了十万孤魂、三十年血雨腥风，才走到这金銮太和殿前！今日哪怕天崩地裂，也要为大清定下万古不移之规！”"
+          },
+          {
+            "nodeId": "qing_act5_b2_2_3",
+            "title": "第五幕【巅峰决胜 #42】：招降残逆 · 天命归所大终局前夕",
+            "coords": "beijing:high",
+            "desc": "承接第四幕B2-2：潼关总决 · 奉天讨逆旗号歼灭李自成大顺主力。战局在此进入不可逆的最终定鼎时刻，各方势力的生死、国运的终极走向，全在此最后一念决断。",
+            "sceneSubtitle": "神州乾坤交汇之所",
+            "narration": "风云咆哮，山河倒悬。数百年的血与火、满汉蒙藏数千万生民的期盼与仇恨，在这最后的决战舞台上凝聚成实质。九洲神鼎之重，正待最后的铸型！",
+            "locationDialogue": "“天命从来不是垂青懦夫！我们付出了十万孤魂、三十年血雨腥风，才走到这金銮太和殿前！今日哪怕天崩地裂，也要为大清定下万古不移之规！”"
+          },
+          {
+            "nodeId": "qing_act5_b2_3_1",
+            "title": "第五幕【巅峰决胜 #43】：离间攻心 · 天命归所大终局前夕",
+            "coords": "beijing:high",
+            "desc": "承接第四幕B2-3：金陵伪储 · 南明弘光正统之辩与秦淮惊变。战局在此进入不可逆的最终定鼎时刻，各方势力的生死、国运的终极走向，全在此最后一念决断。",
+            "sceneSubtitle": "神州乾坤交汇之所",
+            "narration": "风云咆哮，山河倒悬。数百年的血与火、满汉蒙藏数千万生民的期盼与仇恨，在这最后的决战舞台上凝聚成实质。九洲神鼎之重，正待最后的铸型！",
+            "locationDialogue": "“天命从来不是垂青懦夫！我们付出了十万孤魂、三十年血雨腥风，才走到这金銮太和殿前！今日哪怕天崩地裂，也要为大清定下万古不移之规！”"
+          },
+          {
+            "nodeId": "qing_act5_b2_3_2",
+            "title": "第五幕【巅峰决胜 #44】：策反降将 · 天命归所大终局前夕",
+            "coords": "beijing:high",
+            "desc": "承接第四幕B2-3：金陵伪储 · 南明弘光正统之辩与秦淮惊变。战局在此进入不可逆的最终定鼎时刻，各方势力的生死、国运的终极走向，全在此最后一念决断。",
+            "sceneSubtitle": "神州乾坤交汇之所",
+            "narration": "风云咆哮，山河倒悬。数百年的血与火、满汉蒙藏数千万生民的期盼与仇恨，在这最后的决战舞台上凝聚成实质。九洲神鼎之重，正待最后的铸型！",
+            "locationDialogue": "“天命从来不是垂青懦夫！我们付出了十万孤魂、三十年血雨腥风，才走到这金銮太和殿前！今日哪怕天崩地裂，也要为大清定下万古不移之规！”"
+          },
+          {
+            "nodeId": "qing_act5_b2_3_3",
+            "title": "第五幕【巅峰决胜 #45】：兵临城下 · 天命归所大终局前夕",
+            "coords": "beijing:high",
+            "desc": "承接第四幕B2-3：金陵伪储 · 南明弘光正统之辩与秦淮惊变。战局在此进入不可逆的最终定鼎时刻，各方势力的生死、国运的终极走向，全在此最后一念决断。",
+            "sceneSubtitle": "神州乾坤交汇之所",
+            "narration": "风云咆哮，山河倒悬。数百年的血与火、满汉蒙藏数千万生民的期盼与仇恨，在这最后的决战舞台上凝聚成实质。九洲神鼎之重，正待最后的铸型！",
+            "locationDialogue": "“天命从来不是垂青懦夫！我们付出了十万孤魂、三十年血雨腥风，才走到这金銮太和殿前！今日哪怕天崩地裂，也要为大清定下万古不移之规！”"
+          },
+          {
+            "nodeId": "qing_act5_b3_1_1",
+            "title": "第五幕【巅峰决胜 #46】：尽收兵权 · 天命归所大终局前夕",
+            "coords": "beijing:high",
+            "desc": "承接第四幕B3-1：雷霆乾纲 · 皇极殿廷杖圈禁八旗守旧宗室。战局在此进入不可逆的最终定鼎时刻，各方势力的生死、国运的终极走向，全在此最后一念决断。",
+            "sceneSubtitle": "神州乾坤交汇之所",
+            "narration": "风云咆哮，山河倒悬。数百年的血与火、满汉蒙藏数千万生民的期盼与仇恨，在这最后的决战舞台上凝聚成实质。九洲神鼎之重，正待最后的铸型！",
+            "locationDialogue": "“天命从来不是垂青懦夫！我们付出了十万孤魂、三十年血雨腥风，才走到这金銮太和殿前！今日哪怕天崩地裂，也要为大清定下万古不移之规！”"
+          },
+          {
+            "nodeId": "qing_act5_b3_1_2",
+            "title": "第五幕【巅峰决胜 #47】：诛除首恶 · 天命归所大终局前夕",
+            "coords": "beijing:high",
+            "desc": "承接第四幕B3-1：雷霆乾纲 · 皇极殿廷杖圈禁八旗守旧宗室。战局在此进入不可逆的最终定鼎时刻，各方势力的生死、国运的终极走向，全在此最后一念决断。",
+            "sceneSubtitle": "神州乾坤交汇之所",
+            "narration": "风云咆哮，山河倒悬。数百年的血与火、满汉蒙藏数千万生民的期盼与仇恨，在这最后的决战舞台上凝聚成实质。九洲神鼎之重，正待最后的铸型！",
+            "locationDialogue": "“天命从来不是垂青懦夫！我们付出了十万孤魂、三十年血雨腥风，才走到这金銮太和殿前！今日哪怕天崩地裂，也要为大清定下万古不移之规！”"
+          },
+          {
+            "nodeId": "qing_act5_b3_1_3",
+            "title": "第五幕【巅峰决胜 #48】：有限妥协 · 天命归所大终局前夕",
+            "coords": "beijing:high",
+            "desc": "承接第四幕B3-1：雷霆乾纲 · 皇极殿廷杖圈禁八旗守旧宗室。战局在此进入不可逆的最终定鼎时刻，各方势力的生死、国运的终极走向，全在此最后一念决断。",
+            "sceneSubtitle": "神州乾坤交汇之所",
+            "narration": "风云咆哮，山河倒悬。数百年的血与火、满汉蒙藏数千万生民的期盼与仇恨，在这最后的决战舞台上凝聚成实质。九洲神鼎之重，正待最后的铸型！",
+            "locationDialogue": "“天命从来不是垂青懦夫！我们付出了十万孤魂、三十年血雨腥风，才走到这金銮太和殿前！今日哪怕天崩地裂，也要为大清定下万古不移之规！”"
+          },
+          {
+            "nodeId": "qing_act5_b3_2_1",
+            "title": "第五幕【巅峰决胜 #49】：永定旗饷 · 天命归所大终局前夕",
+            "coords": "beijing:high",
+            "desc": "承接第四幕B3-2：退田安民 · 废止跑马圈地归还江南畿辅流民。战局在此进入不可逆的最终定鼎时刻，各方势力的生死、国运的终极走向，全在此最后一念决断。",
+            "sceneSubtitle": "神州乾坤交汇之所",
+            "narration": "风云咆哮，山河倒悬。数百年的血与火、满汉蒙藏数千万生民的期盼与仇恨，在这最后的决战舞台上凝聚成实质。九洲神鼎之重，正待最后的铸型！",
+            "locationDialogue": "“天命从来不是垂青懦夫！我们付出了十万孤魂、三十年血雨腥风，才走到这金銮太和殿前！今日哪怕天崩地裂，也要为大清定下万古不移之规！”"
+          },
+          {
+            "nodeId": "qing_act5_b3_2_2",
+            "title": "第五幕【巅峰决胜 #50】：移驻边塞 · 天命归所大终局前夕",
+            "coords": "beijing:high",
+            "desc": "承接第四幕B3-2：退田安民 · 废止跑马圈地归还江南畿辅流民。战局在此进入不可逆的最终定鼎时刻，各方势力的生死、国运的终极走向，全在此最后一念决断。",
+            "sceneSubtitle": "神州乾坤交汇之所",
+            "narration": "风云咆哮，山河倒悬。数百年的血与火、满汉蒙藏数千万生民的期盼与仇恨，在这最后的决战舞台上凝聚成实质。九洲神鼎之重，正待最后的铸型！",
+            "locationDialogue": "“天命从来不是垂青懦夫！我们付出了十万孤魂、三十年血雨腥风，才走到这金銮太和殿前！今日哪怕天崩地裂，也要为大清定下万古不移之规！”"
+          },
+          {
+            "nodeId": "qing_act5_b3_2_3",
+            "title": "第五幕【巅峰决胜 #51】：准其经商 · 天命归所大终局前夕",
+            "coords": "beijing:high",
+            "desc": "承接第四幕B3-2：退田安民 · 废止跑马圈地归还江南畿辅流民。战局在此进入不可逆的最终定鼎时刻，各方势力的生死、国运的终极走向，全在此最后一念决断。",
+            "sceneSubtitle": "神州乾坤交汇之所",
+            "narration": "风云咆哮，山河倒悬。数百年的血与火、满汉蒙藏数千万生民的期盼与仇恨，在这最后的决战舞台上凝聚成实质。九洲神鼎之重，正待最后的铸型！",
+            "locationDialogue": "“天命从来不是垂青懦夫！我们付出了十万孤魂、三十年血雨腥风，才走到这金銮太和殿前！今日哪怕天崩地裂，也要为大清定下万古不移之规！”"
+          },
+          {
+            "nodeId": "qing_act5_b3_3_1",
+            "title": "第五幕【巅峰决胜 #52】：整编近卫 · 天命归所大终局前夕",
+            "coords": "beijing:high",
+            "desc": "承接第四幕B3-3：绿营定畿 · 引汉军三营驻守京畿弹压宗室内乱。战局在此进入不可逆的最终定鼎时刻，各方势力的生死、国运的终极走向，全在此最后一念决断。",
+            "sceneSubtitle": "神州乾坤交汇之所",
+            "narration": "风云咆哮，山河倒悬。数百年的血与火、满汉蒙藏数千万生民的期盼与仇恨，在这最后的决战舞台上凝聚成实质。九洲神鼎之重，正待最后的铸型！",
+            "locationDialogue": "“天命从来不是垂青懦夫！我们付出了十万孤魂、三十年血雨腥风，才走到这金銮太和殿前！今日哪怕天崩地裂，也要为大清定下万古不移之规！”"
+          },
+          {
+            "nodeId": "qing_act5_b3_3_2",
+            "title": "第五幕【巅峰决胜 #53】：两派制衡 · 天命归所大终局前夕",
+            "coords": "beijing:high",
+            "desc": "承接第四幕B3-3：绿营定畿 · 引汉军三营驻守京畿弹压宗室内乱。战局在此进入不可逆的最终定鼎时刻，各方势力的生死、国运的终极走向，全在此最后一念决断。",
+            "sceneSubtitle": "神州乾坤交汇之所",
+            "narration": "风云咆哮，山河倒悬。数百年的血与火、满汉蒙藏数千万生民的期盼与仇恨，在这最后的决战舞台上凝聚成实质。九洲神鼎之重，正待最后的铸型！",
+            "locationDialogue": "“天命从来不是垂青懦夫！我们付出了十万孤魂、三十年血雨腥风，才走到这金銮太和殿前！今日哪怕天崩地裂，也要为大清定下万古不移之规！”"
+          },
+          {
+            "nodeId": "qing_act5_b3_3_3",
+            "title": "第五幕【巅峰决胜 #54】：皇帝亲统 · 天命归所大终局前夕",
+            "coords": "beijing:high",
+            "desc": "承接第四幕B3-3：绿营定畿 · 引汉军三营驻守京畿弹压宗室内乱。战局在此进入不可逆的最终定鼎时刻，各方势力的生死、国运的终极走向，全在此最后一念决断。",
+            "sceneSubtitle": "神州乾坤交汇之所",
+            "narration": "风云咆哮，山河倒悬。数百年的血与火、满汉蒙藏数千万生民的期盼与仇恨，在这最后的决战舞台上凝聚成实质。九洲神鼎之重，正待最后的铸型！",
+            "locationDialogue": "“天命从来不是垂青懦夫！我们付出了十万孤魂、三十年血雨腥风，才走到这金銮太和殿前！今日哪怕天崩地裂，也要为大清定下万古不移之规！”"
+          }
+        ]
+      },
+      "assumptions": [
+        "云层和自然光是未定终局的美术气氛，不替正文新增天气事件。"
+      ],
+      "limitations": [
+        "不据此推定A/C两线地图也在北京，54个冲突节点保持null。"
+      ]
+    },
+    {
+      "id": "qing_bg_rehe_golden_roof_terrace",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_rehe_golden_roof_terrace.webp",
+      "dimensions": {
+        "width": 1672,
+        "height": 941
+      },
+      "webBytes": 392106,
+      "webSha256": "e12dcc586c2c6e934ccdd49dee7ab1d791548682559a138699cfbea9e3cec82b",
+      "originalRelativePath": "asset-inbox/scene-background-batch-3/originals/qing_bg_rehe_golden_roof_terrace.png",
+      "originalBytes": 3066575,
+      "originalSha256": "5d0fc6e55ff3483e7f351dcc732f2511f37ad4aa29619ea6a14105d0df334bc3",
+      "generatedFilename": "exec-26d393f7-3f24-48f0-bd43-7a04318363ab.png",
+      "faction": "qing",
+      "title": "热河金顶法台受封",
+      "token": "背景·后金热河金顶法台受封",
+      "description": "遵循架空原文的热河普陀宗乘之庙金顶法台：红白藏式院墙、鎏金重檐与受封法台。原文人物为五世达赖法使；画面无人，不宣称同一历史年代或史实建筑复原。",
+      "sceneNodeIds": [
+        "qing_act4_c2_1"
+      ],
+      "prompt": "Use case: historical-scene. Create ONE finished raster background for the alternate-history visual novel 九州沉浮录. Cinematic photorealistic environment painting, detailed aged stone, vermilion plaster and gilded copper, restrained natural film grading. Wide 16:9 landscape, target 1672x941. The text deliberately mixes Qing reigns: depict its fictional Rehe Putuo Zongcheng Temple golden-roof ritual terrace without claiming a seventeenth-century historical reconstruction. Show an EMPTY elevated ceremonial stone terrace enclosed by tall red Tibetan-style walls on the upper great-red-platform of this Chengde-inspired temple complex, with a magnificent compact square Chinese pavilion of gilded copper double-eaved pyramidal roof rising beyond the terrace, white stone balustrades and shallow steps, red and white Tibetan block architecture seen to the sides, distant Rehe mountain ridges just visible above the enclosing architecture. Distinct from an ordinary open grassland temple or Beijing palace. On one side a modest raised ritual altar under a simple yellow silk canopy; sparse bronze ritual vessels and faint coils of incense smoke suggesting a coronation blessing, without any human-shaped figure or portrait. A small unlettered Buddhist wheel ornament may decorate the altar, not dominate it. Daylight glints naturally on old golden roof plates, dignified solemn atmosphere. Broad quiet lower-center stone paving for character portraits and dialogue UI. No crowds, no people, no silhouettes, no human statues, no readable writing, no prayer text, no plaques, no modern national flags, no modern objects, no electric lighting, no glass-chimney lanterns, no watermark, no borders, no collage. Do not depict the Dalai Lama or any other person; this is environment only. Do not substitute the Potala palace of Lhasa.",
+      "generationMethod": "OpenAI built-in image generation",
+      "conversion": "WebP quality 88, method 6, original dimensions; no crop, resize or stretch",
+      "visualQA": {
+        "passed": true,
+        "method": "生成返回原尺寸逐图目视检查；独立审校完整WebP复核",
+        "checks": [
+          "红白藏式围墙、金顶、石阶法台与寺院露台有别于旧秋日草原法坛图。",
+          "没有喇嘛或皇帝形象、可读文字、现代旗帜；空场景适合对白叠加。",
+          "1672×941 原尺寸 WebP，无裁切或拉伸。"
+        ]
+      },
+      "evidence": {
+        "source": "skills-data.js canonicalTrees.qing",
+        "decision": "sub明确普陀宗乘之庙金顶法台，desc明确热河金顶寺院，无竞争地点；人物为五世达赖法使。跨清代年代沿用原文架空设定，不改成黄寺或伪称史实。",
+        "nodes": [
+          {
+            "nodeId": "qing_act4_c2_1",
+            "title": "第四幕C2-1：外八庙敕 · 避暑山庄迎奉班禅达赖受封圣王",
+            "coords": "mongol:steppe",
+            "desc": "热河草原拔地而起巍峨金顶寺院，五世达赖法使奉上“文殊大皇帝”金册，清帝兼任藏蒙最高世俗与神权保护者，北疆神权定于一尊。",
+            "sceneSubtitle": "热河 · 普陀宗乘之庙金顶法台",
+            "narration": "铜钟法螺齐鸣，紫烟漫卷坛城。藏传佛教各大活佛、蒙古四十九旗札萨克齐聚金阶，将象征转轮圣王的千辐金轮高高献给大清皇帝。",
+            "locationDialogue": null
+          }
+        ]
+      },
+      "assumptions": [],
+      "limitations": [
+        "普陀宗乘之庙建成年代与五世达赖时代不一致，保留原作跨代架空，并非历史准确性验收。",
+        "寺院布局与法台为美术诠释，不是现址测绘复原。"
+      ]
+    }
+  ],
+  "bindingChanges": [
+    {
+      "faction": "qing",
+      "nodeId": "qing_act3_civil_exam",
+      "previousAssetId": null,
+      "assetId": "qing_bg_confucius_dawn_court"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act4_b1_1",
+      "previousAssetId": null,
+      "assetId": "qing_bg_mainhall_joint_court"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act4_c2_1",
+      "previousAssetId": null,
+      "assetId": "qing_bg_rehe_golden_roof_terrace"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_b1_1_1",
+      "previousAssetId": null,
+      "assetId": "qing_bg_taihe_final_forecourt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_b1_1_2",
+      "previousAssetId": null,
+      "assetId": "qing_bg_taihe_final_forecourt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_b1_1_3",
+      "previousAssetId": null,
+      "assetId": "qing_bg_taihe_final_forecourt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_b1_2_1",
+      "previousAssetId": null,
+      "assetId": "qing_bg_taihe_final_forecourt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_b1_2_2",
+      "previousAssetId": null,
+      "assetId": "qing_bg_taihe_final_forecourt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_b1_2_3",
+      "previousAssetId": null,
+      "assetId": "qing_bg_taihe_final_forecourt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_b1_3_1",
+      "previousAssetId": null,
+      "assetId": "qing_bg_taihe_final_forecourt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_b1_3_2",
+      "previousAssetId": null,
+      "assetId": "qing_bg_taihe_final_forecourt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_b1_3_3",
+      "previousAssetId": null,
+      "assetId": "qing_bg_taihe_final_forecourt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_b2_1_1",
+      "previousAssetId": null,
+      "assetId": "qing_bg_taihe_final_forecourt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_b2_1_2",
+      "previousAssetId": null,
+      "assetId": "qing_bg_taihe_final_forecourt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_b2_1_3",
+      "previousAssetId": null,
+      "assetId": "qing_bg_taihe_final_forecourt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_b2_2_1",
+      "previousAssetId": null,
+      "assetId": "qing_bg_taihe_final_forecourt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_b2_2_2",
+      "previousAssetId": null,
+      "assetId": "qing_bg_taihe_final_forecourt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_b2_2_3",
+      "previousAssetId": null,
+      "assetId": "qing_bg_taihe_final_forecourt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_b2_3_1",
+      "previousAssetId": null,
+      "assetId": "qing_bg_taihe_final_forecourt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_b2_3_2",
+      "previousAssetId": null,
+      "assetId": "qing_bg_taihe_final_forecourt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_b2_3_3",
+      "previousAssetId": null,
+      "assetId": "qing_bg_taihe_final_forecourt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_b3_1_1",
+      "previousAssetId": null,
+      "assetId": "qing_bg_taihe_final_forecourt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_b3_1_2",
+      "previousAssetId": null,
+      "assetId": "qing_bg_taihe_final_forecourt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_b3_1_3",
+      "previousAssetId": null,
+      "assetId": "qing_bg_taihe_final_forecourt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_b3_2_1",
+      "previousAssetId": null,
+      "assetId": "qing_bg_taihe_final_forecourt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_b3_2_2",
+      "previousAssetId": null,
+      "assetId": "qing_bg_taihe_final_forecourt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_b3_2_3",
+      "previousAssetId": null,
+      "assetId": "qing_bg_taihe_final_forecourt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_b3_3_1",
+      "previousAssetId": null,
+      "assetId": "qing_bg_taihe_final_forecourt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_b3_3_2",
+      "previousAssetId": null,
+      "assetId": "qing_bg_taihe_final_forecourt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_b3_3_3",
+      "previousAssetId": null,
+      "assetId": "qing_bg_taihe_final_forecourt"
+    }
+  ],
+  "pendingEditorial": [
+    {
+      "nodeId": "qing_act4_b3_1",
+      "reason": "title和desc明确皇极殿，旁白sub为乾清门；正文又说殿内、声震梁栋，无法把两地视作同一地点。",
+      "question": "圈禁宗室这幕应画皇极殿内，还是乾清门御前？"
+    },
+    {
+      "nodeId": "qing_act5_a1_1_1",
+      "reason": "对白明确太和殿前，但coords为jiangnan:mid，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_a1_1_2",
+      "reason": "对白明确太和殿前，但coords为jiangnan:mid，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_a1_1_3",
+      "reason": "对白明确太和殿前，但coords为jiangnan:mid，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_a1_2_1",
+      "reason": "对白明确太和殿前，但coords为jiangnan:mid，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_a1_2_2",
+      "reason": "对白明确太和殿前，但coords为jiangnan:mid，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_a1_2_3",
+      "reason": "对白明确太和殿前，但coords为jiangnan:mid，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_a1_3_1",
+      "reason": "对白明确太和殿前，但coords为jiangnan:mid，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_a1_3_2",
+      "reason": "对白明确太和殿前，但coords为jiangnan:mid，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_a1_3_3",
+      "reason": "对白明确太和殿前，但coords为jiangnan:mid，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_a2_1_1",
+      "reason": "对白明确太和殿前，但coords为jiangnan:mid，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_a2_1_2",
+      "reason": "对白明确太和殿前，但coords为jiangnan:mid，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_a2_1_3",
+      "reason": "对白明确太和殿前，但coords为jiangnan:mid，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_a2_2_1",
+      "reason": "对白明确太和殿前，但coords为jiangnan:mid，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_a2_2_2",
+      "reason": "对白明确太和殿前，但coords为jiangnan:mid，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_a2_2_3",
+      "reason": "对白明确太和殿前，但coords为jiangnan:mid，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_a2_3_1",
+      "reason": "对白明确太和殿前，但coords为jiangnan:mid，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_a2_3_2",
+      "reason": "对白明确太和殿前，但coords为jiangnan:mid，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_a2_3_3",
+      "reason": "对白明确太和殿前，但coords为jiangnan:mid，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_a3_1_1",
+      "reason": "对白明确太和殿前，但coords为jiangnan:mid，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_a3_1_2",
+      "reason": "对白明确太和殿前，但coords为jiangnan:mid，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_a3_1_3",
+      "reason": "对白明确太和殿前，但coords为jiangnan:mid，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_a3_2_1",
+      "reason": "对白明确太和殿前，但coords为jiangnan:mid，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_a3_2_2",
+      "reason": "对白明确太和殿前，但coords为jiangnan:mid，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_a3_2_3",
+      "reason": "对白明确太和殿前，但coords为jiangnan:mid，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_a3_3_1",
+      "reason": "对白明确太和殿前，但coords为jiangnan:mid，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_a3_3_2",
+      "reason": "对白明确太和殿前，但coords为jiangnan:mid，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_a3_3_3",
+      "reason": "对白明确太和殿前，但coords为jiangnan:mid，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_c1_1_1",
+      "reason": "对白明确太和殿前，但coords为mongol:steppe，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_c1_1_2",
+      "reason": "对白明确太和殿前，但coords为mongol:steppe，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_c1_1_3",
+      "reason": "对白明确太和殿前，但coords为mongol:steppe，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_c1_2_1",
+      "reason": "对白明确太和殿前，但coords为mongol:steppe，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_c1_2_2",
+      "reason": "对白明确太和殿前，但coords为mongol:steppe，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_c1_2_3",
+      "reason": "对白明确太和殿前，但coords为mongol:steppe，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_c1_3_1",
+      "reason": "对白明确太和殿前，但coords为mongol:steppe，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_c1_3_2",
+      "reason": "对白明确太和殿前，但coords为mongol:steppe，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_c1_3_3",
+      "reason": "对白明确太和殿前，但coords为mongol:steppe，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_c2_1_1",
+      "reason": "对白明确太和殿前，但coords为mongol:steppe，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_c2_1_2",
+      "reason": "对白明确太和殿前，但coords为mongol:steppe，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_c2_1_3",
+      "reason": "对白明确太和殿前，但coords为mongol:steppe，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_c2_2_1",
+      "reason": "对白明确太和殿前，但coords为mongol:steppe，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_c2_2_2",
+      "reason": "对白明确太和殿前，但coords为mongol:steppe，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_c2_2_3",
+      "reason": "对白明确太和殿前，但coords为mongol:steppe，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_c2_3_1",
+      "reason": "对白明确太和殿前，但coords为mongol:steppe，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_c2_3_2",
+      "reason": "对白明确太和殿前，但coords为mongol:steppe，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_c2_3_3",
+      "reason": "对白明确太和殿前，但coords为mongol:steppe，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_c3_1_1",
+      "reason": "对白明确太和殿前，但coords为mongol:steppe，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_c3_1_2",
+      "reason": "对白明确太和殿前，但coords为mongol:steppe，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_c3_1_3",
+      "reason": "对白明确太和殿前，但coords为mongol:steppe，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_c3_2_1",
+      "reason": "对白明确太和殿前，但coords为mongol:steppe，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_c3_2_2",
+      "reason": "对白明确太和殿前，但coords为mongol:steppe，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_c3_2_3",
+      "reason": "对白明确太和殿前，但coords为mongol:steppe，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_c3_3_1",
+      "reason": "对白明确太和殿前，但coords为mongol:steppe，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_c3_3_2",
+      "reason": "对白明确太和殿前，但coords为mongol:steppe，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    },
+    {
+      "nodeId": "qing_act5_c3_3_3",
+      "reason": "对白明确太和殿前，但coords为mongol:steppe，与北京殿前不一致。",
+      "question": "以太和殿前对白为准配图，还是保留地图所示区域并另明确各分支现场？不在美术接入中擅改剧情或坐标。"
+    }
+  ],
+  "retainedExistingAssets": [
+    {
+      "id": "ming_battle",
+      "relativePath": "data/illustrations/ming/battle.jpg",
+      "webSha256": "d06b623829a611bc74ea8fd8e80b11bcfafd1c7358cc15f3eb38a2313d99006e"
+    },
+    {
+      "id": "ming_bg_anping_command",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_anping_command.webp",
+      "webSha256": "d1137e1f7cb23563d75c4bff7b437be94fbff796d6e33be4f65b979245b01410"
+    },
+    {
+      "id": "ming_bg_artillery_yard",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_artillery_yard.webp",
+      "webSha256": "a9501d3317f3f3c692aa3c5356237fd180dd54db050777b2582ac92ed16b3c69"
+    },
+    {
+      "id": "ming_bg_beijing_snow_gate",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_beijing_snow_gate.webp",
+      "webSha256": "5f6c92d7197be9a1dfea297ac8940a0452e3a03973c9e34441599b6f36bfd50a"
+    },
+    {
+      "id": "ming_bg_cabinet_winter",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_cabinet_winter.webp",
+      "webSha256": "166b9169224439bb807ce6f4c40d1028978031dff819e2b22b8449feb0430fa9"
+    },
+    {
+      "id": "ming_bg_desheng_battlement",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_desheng_battlement.webp",
+      "webSha256": "09a230c8e63de8cd5ebe2a85ce08d1fba6310fb5efcf3783f07c10b2abc266e0"
+    },
+    {
+      "id": "ming_bg_ending_central_restoration",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_ending_central_restoration.webp",
+      "webSha256": "8859cdaf20a61c152e3803d43ff7c9834295e13463ea79344b3f3b509c460b69"
+    },
+    {
+      "id": "ming_bg_ending_divided_river",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_ending_divided_river.webp",
+      "webSha256": "1bec19d8cf6d3f97a9c557fbb36c2f9770628aadb770d6b95c2222b64572dee2"
+    },
+    {
+      "id": "ming_bg_ending_maritime_reform",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_ending_maritime_reform.webp",
+      "webSha256": "91db21294fa0120cf0f45375cc1206191521d910f6d531086a2a41859b07d7b9"
+    },
+    {
+      "id": "ming_bg_fengqiao_canal",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_fengqiao_canal.webp",
+      "webSha256": "556ea5e39af5c9b4ce0f970b48442861e543f6ea8e5f52e55e130e9b63bb9280"
+    },
+    {
+      "id": "ming_bg_later_andingmen_night",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_later_andingmen_night.webp",
+      "webSha256": "b928216dd85ea9df046828d96596b8cce1fb22361da77c72daa4161c2303f408"
+    },
+    {
+      "id": "ming_bg_later_gongyuan_council",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_later_gongyuan_council.webp",
+      "webSha256": "627219ad4720ee8c61f28b3863b209f77e29bd23774b6b0e9680ee4e021d2997"
+    },
+    {
+      "id": "ming_bg_later_huaian_sluice",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_later_huaian_sluice.webp",
+      "webSha256": "39481242b38d74fac1aec6fc0df231fd860c778a444c9d761dd437f614bdb6c1"
+    },
+    {
+      "id": "ming_bg_later_qihua_gate",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_later_qihua_gate.webp",
+      "webSha256": "ad3d1d2be13dcb0aed6dbc2b3321f15cf49ff59efd741e1f4c87167cab0b390f"
+    },
+    {
+      "id": "ming_bg_later_river_blockade",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_later_river_blockade.webp",
+      "webSha256": "e85298ef35ffb3844f0494596285a81e9e626864b5ec8b21fe64778fc878cac5"
+    },
+    {
+      "id": "ming_bg_later_taihe_hall",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_later_taihe_hall.webp",
+      "webSha256": "2c3b44ecb5c3ef45aaba8aea544996672aec39b2a1bca1a5176011f2d676e731"
+    },
+    {
+      "id": "ming_bg_later_yangtze_battery",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_later_yangtze_battery.webp",
+      "webSha256": "98b30eaf8305df0d93e7ff821d82bd335f717096090021773a0de94dc0c1273b"
+    },
+    {
+      "id": "ming_bg_later_yipianshi_council",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_later_yipianshi_council.webp",
+      "webSha256": "34a0aae8645ac0a11db4053068847a548a6b1ae53b12d20a47ed8d06bd5e3c9d"
+    },
+    {
+      "id": "ming_bg_nanjing_thronehall",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_nanjing_thronehall.webp",
+      "webSha256": "d028b4876dfb91c42819de8a6090c77910a30517f4b3d7bfbb6f210f1568bc07"
+    },
+    {
+      "id": "ming_bg_qinhuai_guesthall",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_qinhuai_guesthall.webp",
+      "webSha256": "d6fe21a7cbb90bef3de9ef729469fdb5831065c1c63c7ce343cdfa68409fa26e"
+    },
+    {
+      "id": "ming_bg_snow_postroad",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_snow_postroad.webp",
+      "webSha256": "c229e5efa3c7f800d1b7c9d25b9316f381167db8a3057ced676f73be77f54b8e"
+    },
+    {
+      "id": "ming_bg_storm_battlements",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_storm_battlements.webp",
+      "webSha256": "5b7bc2149d65fd873377ec42c7cbca047690015c4f86c0a780e7aee7169725eb"
+    },
+    {
+      "id": "ming_bg_xiaoling_path",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_xiaoling_path.webp",
+      "webSha256": "177db2294b5b2bc31f9103519f43fa6cff8db1fd1002155aefbd030dfc7176aa"
+    },
+    {
+      "id": "ming_bg_yangzhou_defenses",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_yangzhou_defenses.webp",
+      "webSha256": "0f0cf28079b8867ed1ba81b2737cd14d8292b4ffc4ed6e8df95edd459358c98d"
+    },
+    {
+      "id": "ming_bg_yuegang_customs",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_yuegang_customs.webp",
+      "webSha256": "a7a80cd150839f70795da6c987ed1e8fd9e881337839f29ba400c1a823ddc7a8"
+    },
+    {
+      "id": "ming_captive",
+      "relativePath": "data/illustrations/ming/captive.svg",
+      "webSha256": "bbc2ad49f681344b81410dac100f408229ccfc2ed0ea0cf78ea3bf57298d0013"
+    },
+    {
+      "id": "ming_romance",
+      "relativePath": "data/illustrations/ming/romance.jpg",
+      "webSha256": "e4ffc9462004e46cc94aec930e7f79b5d64b27d968b45fd31700098d7b2c99c5"
+    },
+    {
+      "id": "ming_victory",
+      "relativePath": "data/illustrations/ming/victory.svg",
+      "webSha256": "3916aaa5ab0bbd4169785bef9ac6ca03f6bf8ff38ee685c7bdea720f6cc4b519"
+    },
+    {
+      "id": "ming_war",
+      "relativePath": "data/illustrations/ming/war.svg",
+      "webSha256": "6073c7cb1b3a3a9332a9104c5edcfa3bfce1d9be245aa335c607987c1a04a08a"
+    },
+    {
+      "id": "ming_wealth",
+      "relativePath": "data/illustrations/ming/wealth.svg",
+      "webSha256": "d0f5d205cefad015452afe74ff62aa401ce3aa06454be4ac8b92d38689205a07"
+    },
+    {
+      "id": "mongol_battle",
+      "relativePath": "data/illustrations/mongol/battle.svg",
+      "webSha256": "50f2f641106174e7170400f0ca9537ec4d279f96edc2ed9e21065615e1dbc5b2"
+    },
+    {
+      "id": "mongol_bg_act5_2",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_bg_act5_2.webp",
+      "webSha256": "2d5bcc4956c96b76b2d6cdbbf7479a05b6a09605f0dd725fac1fb3fcd6bd38e2"
+    },
+    {
+      "id": "mongol_bg_act5_3",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_bg_act5_3.webp",
+      "webSha256": "3deba252e5349979135cd99df3035075e5edf4288cd63a7bf22247453fffe927"
+    },
+    {
+      "id": "mongol_bg_act5_4",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_bg_act5_4.webp",
+      "webSha256": "c07816cfd1c2043c3dae846994e76e52311c639926af49b1bbef4d502530f85f"
+    },
+    {
+      "id": "mongol_bg_act5_5",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_bg_act5_5.webp",
+      "webSha256": "73f86cd5360dd791972c561fe1f2c00eb80ceea0c5501b853706768464398393"
+    },
+    {
+      "id": "mongol_bg_act5_6",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_bg_act5_6.webp",
+      "webSha256": "f2d1ec52adb152f4a6f241a91e8f415a7914b60477f6e759f1486a5d6992d87a"
+    },
+    {
+      "id": "mongol_bg_act5_8",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_bg_act5_8.webp",
+      "webSha256": "2095e1c2db548874eaccecedd503578f789747381ef1b0c6bf039f9b2fecf91b"
+    },
+    {
+      "id": "mongol_bg_ending_1",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_bg_ending_1.webp",
+      "webSha256": "932b9726783ee89f4ecb6b418fe2f9f46e0b6f61e4363118a59f5e3ef3f97bf8"
+    },
+    {
+      "id": "mongol_bg_ending_2",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_bg_ending_2.webp",
+      "webSha256": "10a74a66ba6b1cf1d69753c991f12c33450ab9d6394f73b7f33ae805ab4cfadd"
+    },
+    {
+      "id": "mongol_bg_ending_3",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_bg_ending_3.webp",
+      "webSha256": "6e5692b62a74045dd7e69957b01842c5c9811109c590b6fa7dc223dc4c5587a3"
+    },
+    {
+      "id": "mongol_captive",
+      "relativePath": "data/illustrations/mongol/captive.svg",
+      "webSha256": "9218f4a06633239fe29c5a98e6a7c2b423df5afe1b9cf66b8299501f3a8b5f3e"
+    },
+    {
+      "id": "mongol_chahar_camp",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_chahar_camp.webp",
+      "webSha256": "644cc5c71e79a760bc3816a34c4a6ea2fd27502840748cb2826f0efa27b6e24e"
+    },
+    {
+      "id": "mongol_datong_aftermath",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_datong_aftermath.webp",
+      "webSha256": "7da73e117aec62fbc8fb7d3c7d82acf39281858db5146537446ecc8decc73253"
+    },
+    {
+      "id": "mongol_dazhao_temple",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_dazhao_temple.webp",
+      "webSha256": "75557a981e3d2bd62716e77eff8320e4d808e4a5f2b79ed73c2ae5e24a7027d6"
+    },
+    {
+      "id": "mongol_desert_battlefield",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_desert_battlefield.webp",
+      "webSha256": "b071a3dfc420cc6d69b1b9503db81a42eeaa101efd4032bfe01707ce641b26f0"
+    },
+    {
+      "id": "mongol_eight_white_shrine",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_eight_white_shrine.webp",
+      "webSha256": "fb6c51f3e889b8c535c82c0527213243ca213c882f84f44ab85526d20bfab7b0"
+    },
+    {
+      "id": "mongol_khan_council_tent",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_khan_council_tent.webp",
+      "webSha256": "d10ccad834562ecdc0a9232296092cf92ef0fb556ad60c449ad6b6a6d64d3b5f"
+    },
+    {
+      "id": "mongol_khorchin_ruins",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_khorchin_ruins.webp",
+      "webSha256": "339cc738950ba71061cb0137391e4f41809896118b462edda074b7e139639128"
+    },
+    {
+      "id": "mongol_liaoyang_granary",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_liaoyang_granary.webp",
+      "webSha256": "2c4a6e46dfc9544c40f7c92f7d90bee0d50dda4d44c1cd52c8d7d79d356ad7c5"
+    },
+    {
+      "id": "mongol_onon_assembly",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_onon_assembly.webp",
+      "webSha256": "11b4f5253755601b239cf82f449ba7494a08724dc9c2cda70c7a6231661809bb"
+    },
+    {
+      "id": "mongol_qinghai_goldtent",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_qinghai_goldtent.webp",
+      "webSha256": "a9e86833e9a0111be39a6c1ded2049c6988056b2edba6c2cacdbbb5a88b039d9"
+    },
+    {
+      "id": "mongol_redsalt_camp",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_redsalt_camp.webp",
+      "webSha256": "566a0d96d73f25093f4a991c484db9d691a5fced56f6c69f477e8e6f23139f2b"
+    },
+    {
+      "id": "mongol_romance",
+      "relativePath": "data/illustrations/mongol/romance.svg",
+      "webSha256": "849ad50ef033c5bb5c0952b553098b6aaf84b85c5540f4793f997bcac8c9a6ec"
+    },
+    {
+      "id": "mongol_victory",
+      "relativePath": "data/illustrations/mongol/victory.svg",
+      "webSha256": "a7c795515e02ceb75e3616b7df25096ed78922b85b523320fa2c6200db04c922"
+    },
+    {
+      "id": "mongol_war",
+      "relativePath": "data/illustrations/mongol/war.svg",
+      "webSha256": "594666be6808520957aeb17181a24faf90b68815f429a4a73aa7e210dfeded63"
+    },
+    {
+      "id": "mongol_wealth",
+      "relativePath": "data/illustrations/mongol/wealth.svg",
+      "webSha256": "8036df36d2fe2b2fa8f4441703b644824a956754a30ceea11308beb21e5a05fe"
+    },
+    {
+      "id": "mongol_xifeng_pass",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_xifeng_pass.webp",
+      "webSha256": "ebc9d112ec3a4a1f24efd9aae08f214350f5015ddb8e18aa5a95aeb2bb883b16"
+    },
+    {
+      "id": "mongol_yinshan_range",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_yinshan_range.webp",
+      "webSha256": "1bc9f7fda2ed03b3f4baf989033f26242247b09677898be4df907bd0779150e3"
+    },
+    {
+      "id": "mongol_zhangjiakou_cellar",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_zhangjiakou_cellar.webp",
+      "webSha256": "404c1b74da02ab70e9dbad173ded00a0cf65d64dd2d59429436fd78428d6bdd0"
+    },
+    {
+      "id": "nanming_battle",
+      "relativePath": "data/illustrations/nanming/battle.svg",
+      "webSha256": "24a456d65f21b265bb288f7f9b93e37d1467d9d42701b6418c1400bc510f45f9"
+    },
+    {
+      "id": "nanming_bg_act5_1",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_act5_1.webp",
+      "webSha256": "ffdc53473c4c3168b0b071d03ba3b4eaf451041148214600193c9119c915ec81"
+    },
+    {
+      "id": "nanming_bg_act5_2",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_act5_2.webp",
+      "webSha256": "9cdb6dd63467fb6c304fe59b2a7502138841c493c208a3f027ee48406e10f78a"
+    },
+    {
+      "id": "nanming_bg_act5_3",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_act5_3.webp",
+      "webSha256": "c835b60b93df6d4815fa422943b060b48a345b05b506f47105033f7f4484bf85"
+    },
+    {
+      "id": "nanming_bg_act5_4",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_act5_4.webp",
+      "webSha256": "40385e7a96eae23f700e5374ab86ebb9e1f276bc2945cd104af126011cbf902f"
+    },
+    {
+      "id": "nanming_bg_act5_5",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_act5_5.webp",
+      "webSha256": "155f9dc0f0f7d457ab1633fe71a2b5eea19bf159ff4849a0e32f6d041c0c9085"
+    },
+    {
+      "id": "nanming_bg_anping_headquarters",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_anping_headquarters.webp",
+      "webSha256": "bf6e4cad3aabbc09dfda1175bdad96edcf4218cb6b8b4e4654a4b0ded4825d3f"
+    },
+    {
+      "id": "nanming_bg_chengtian_fields",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_chengtian_fields.webp",
+      "webSha256": "e320f72b22c65bbc0a920738131688372a4591705c70b5bef50fbf9e38e9c652"
+    },
+    {
+      "id": "nanming_bg_chongming_mudflat",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_chongming_mudflat.webp",
+      "webSha256": "b77500994830c19f32560f81b1fd0e0bd6dfa69e3bb6dbf0bf15e78e72bbc733"
+    },
+    {
+      "id": "nanming_bg_ending_dongning_civilization",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_ending_dongning_civilization.webp",
+      "webSha256": "6f8598e1448e6c0a72bf48ca9bad480f3c90ce072544f6c5fd78c6e2243067cc"
+    },
+    {
+      "id": "nanming_bg_ending_longwu_restoration",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_ending_longwu_restoration.webp",
+      "webSha256": "0711784ad65a7b4ffed463ef1de3e27118f42afc360bec82cd1d66e08ff51071"
+    },
+    {
+      "id": "nanming_bg_ending_ocean_empire",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_ending_ocean_empire.webp",
+      "webSha256": "8330cdf6fcefacbbd8ba5e06b00ace3c741a9fd26a9907df739901674d0dff71"
+    },
+    {
+      "id": "nanming_bg_fuzhou_palace",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_fuzhou_palace.webp",
+      "webSha256": "ef9d65f22af4c8354616b5439a72963421808c29cbd66a7b792e087334edd80b"
+    },
+    {
+      "id": "nanming_bg_guangdong_rendezvous",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_guangdong_rendezvous.webp",
+      "webSha256": "ffe7a7901ae70dd9b687daf62cefdda8514408706a966525bbca150b075a03c9"
+    },
+    {
+      "id": "nanming_bg_later_guangzhou_port",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_later_guangzhou_port.webp",
+      "webSha256": "830a481895233e9291097f050cf21e7fdc4c26cc6812615077f97113d7c545f1"
+    },
+    {
+      "id": "nanming_bg_later_malacca_decree",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_later_malacca_decree.webp",
+      "webSha256": "d1ec48569f73550675b2c6529081a129bb62cd36a2ce5953be6d02388b6c0255"
+    },
+    {
+      "id": "nanming_bg_later_taiwan_strait",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_later_taiwan_strait.webp",
+      "webSha256": "2a30205e97ec12807e7bdb067672b72c8036836c3b8a49af87e109d999995abb"
+    },
+    {
+      "id": "nanming_bg_liaoluo_firesea",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_liaoluo_firesea.webp",
+      "webSha256": "5dfc180098c41756c68f32b31ec9d696e4f23deba18a2ad49c5689ae8717bb0c"
+    },
+    {
+      "id": "nanming_bg_luermen_channel",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_luermen_channel.webp",
+      "webSha256": "005fbe3b352af8529d35030203bf9cb173dd39311e7933aa22673ad24abdbfa2"
+    },
+    {
+      "id": "nanming_bg_manila_bay",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_manila_bay.webp",
+      "webSha256": "d0ff405dd391ec00bcda10aeece8af1bfd3ffabd2fac6f9bec730b10a1cd6f37"
+    },
+    {
+      "id": "nanming_bg_parrot_island",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_parrot_island.webp",
+      "webSha256": "e967d3e2ffa85209d8d371fc87dae05589f1fba61cdf0561aff49a2c14a68a5e"
+    },
+    {
+      "id": "nanming_bg_storm_cannons",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_storm_cannons.webp",
+      "webSha256": "cf8132c8e93243e30652ffb80152e80f05714f03c9522617df1e3eeeeb062040"
+    },
+    {
+      "id": "nanming_bg_wanghai_negotiation",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_wanghai_negotiation.webp",
+      "webSha256": "5517395f1381f17786a0b127ece22f60b3375aa5cc0611f23e5994b46259d237"
+    },
+    {
+      "id": "nanming_bg_wanshou_oath",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_wanshou_oath.webp",
+      "webSha256": "03975de3072b7a4d6057f00887e53f7f32f0fc7b91c8bb2cee0fab8d7ad5b32f"
+    },
+    {
+      "id": "nanming_bg_xiamen_court",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_xiamen_court.webp",
+      "webSha256": "300feb1af04befb23278a918c66d608aaedfe9b879cd03c127938305092d89b9"
+    },
+    {
+      "id": "nanming_bg_yuegang_shipyard",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_yuegang_shipyard.webp",
+      "webSha256": "7adde3d44e4c4fe444738579c84c10724aa8cbd0d0c6a83b3d95a94fd8162987"
+    },
+    {
+      "id": "nanming_captive",
+      "relativePath": "data/illustrations/nanming/captive.svg",
+      "webSha256": "a867fca135043530d17533e984cd819df90e4da8f353cbf025a53a2dc6dbf3bd"
+    },
+    {
+      "id": "nanming_romance",
+      "relativePath": "data/illustrations/nanming/romance.svg",
+      "webSha256": "7ce86eeefaa51048951755fa4ca8b4b733cccdc97c0d5f510db201944f91e8cb"
+    },
+    {
+      "id": "nanming_victory",
+      "relativePath": "data/illustrations/nanming/victory.svg",
+      "webSha256": "4d2bdfc45d77e4618db0d3f689c5f636f49197d3917376fd3aab1931194e3f59"
+    },
+    {
+      "id": "nanming_war",
+      "relativePath": "data/illustrations/nanming/war.svg",
+      "webSha256": "a04b88e5ec5be4d7c146e58bf3fb6b6aaf473ca230a5999e23abe408cf726f60"
+    },
+    {
+      "id": "nanming_wealth",
+      "relativePath": "data/illustrations/nanming/wealth.svg",
+      "webSha256": "f635819dca071bfd4b8c4fdb4415506c8c2b34d035f5f4e4246435588e13d808"
+    },
+    {
+      "id": "qing_auxiliary_drill",
+      "relativePath": "data/illustrations/qing/scenes/qing_auxiliary_drill.webp",
+      "webSha256": "cc485b29921e360178f97374582ba3d90e44dd359ae492b395c6879b6ec32fdd"
+    },
+    {
+      "id": "qing_battle",
+      "relativePath": "data/illustrations/qing/battle.svg",
+      "webSha256": "de73e52c7e4a3d093a950702eb39fc9e652bb6cec1168fb32d3f56063577a16e"
+    },
+    {
+      "id": "qing_battlefield_dead",
+      "relativePath": "data/illustrations/qing/scenes/qing_battlefield_dead.webp",
+      "webSha256": "0add6455a60ba2b344d2f9698a9a8c07e48b3c15155f804ba2f8b65680cd3db5"
+    },
+    {
+      "id": "qing_bg_act4_a1_1",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_a1_1.webp",
+      "webSha256": "4800c58071c0935524b6c3d4afb0608d9a7cfab452fcdf599353a5c047bdca81"
+    },
+    {
+      "id": "qing_bg_act4_a1_2",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_a1_2.webp",
+      "webSha256": "0bb18e295665b0a928cef79455b63ed90b3d12e37ff6f78cee0492152fc06a1f"
+    },
+    {
+      "id": "qing_bg_act4_a1_3",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_a1_3.webp",
+      "webSha256": "7334f7686f9f21c02a5fe0413c1d48da62585eee18a76d9d0a938a5bab7e9fd9"
+    },
+    {
+      "id": "qing_bg_act4_a2_1",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_a2_1.webp",
+      "webSha256": "1cc3c1c7b8d020186683bd26817f040caa7b7a369e1facf594c621b9e589d333"
+    },
+    {
+      "id": "qing_bg_act4_a2_2",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_a2_2.webp",
+      "webSha256": "b939892504a2537e09ef687dc127a74b62dfd06834475f80fd31ff82e3c36fea"
+    },
+    {
+      "id": "qing_bg_act4_a2_3",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_a2_3.webp",
+      "webSha256": "d52ba95a2787357979d3fd7e051faa94175d10f9a41856041fc43ba926475db9"
+    },
+    {
+      "id": "qing_bg_act4_a3_1",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_a3_1.webp",
+      "webSha256": "c4580f59e2b7102be8b2e2d1a4293421626436cbfa5d68497cf9d0305594fb3e"
+    },
+    {
+      "id": "qing_bg_act4_a3_2",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_a3_2.webp",
+      "webSha256": "92759c7b0be19da962a5c5ad2596f3f18ccd8fad12c7ee65dd53afa703a02e53"
+    },
+    {
+      "id": "qing_bg_act4_a3_3",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_a3_3.webp",
+      "webSha256": "30c7e0bdc23a3b3f17137f10732dea832b007338d33a89a9b3afd735abddaaf7"
+    },
+    {
+      "id": "qing_bg_act4_b1_2",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_b1_2.webp",
+      "webSha256": "36b9dce8e0ec2f8bf9e0e5fb9ea99585ec5832af7a3cdcbd53ed565f08983a8b"
+    },
+    {
+      "id": "qing_bg_act4_b1_3",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_b1_3.webp",
+      "webSha256": "555b94dd33fe50ef215524b3e78ed4319d367eecd59b0fa7e2d804944d80564a"
+    },
+    {
+      "id": "qing_bg_act4_b2_1",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_b2_1.webp",
+      "webSha256": "6ec06e42b7df8aeb5dc5a87ead02e6fc4cdbacbd9a7e0bfe19f0600108e7229b"
+    },
+    {
+      "id": "qing_bg_act4_b2_2",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_b2_2.webp",
+      "webSha256": "4377bfac4e554a8a1e3da5d1dd5a0e975a8b0c5b7eefc1938daf6bb85e91a7e8"
+    },
+    {
+      "id": "qing_bg_act4_b2_3",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_b2_3.webp",
+      "webSha256": "e77fd0a3bf822044d6ad4b64ae460f94c8b62e7e615fedcae48a8a75a4c24101"
+    },
+    {
+      "id": "qing_bg_act4_b3_2",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_b3_2.webp",
+      "webSha256": "97b9f7922424e7a99cda239bd8a6ca9b1682ca3ad39cbdf8a24c65a149dc271c"
+    },
+    {
+      "id": "qing_bg_act4_b3_3",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_b3_3.webp",
+      "webSha256": "a494f69f58aa7d8c082a799f3c7a1349117065dfb72f62b08aae1bb63d97509e"
+    },
+    {
+      "id": "qing_bg_act4_c1_1",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_c1_1.webp",
+      "webSha256": "8eee596a7c2f2755a8e4dd4def737c7c86d3c297df0c372c12ecb0c2b87950e0"
+    },
+    {
+      "id": "qing_bg_act4_c1_2",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_c1_2.webp",
+      "webSha256": "6fb6210ae6c542a57d13155543e000127bc30c80abb3b7814526428a23c37210"
+    },
+    {
+      "id": "qing_bg_act4_c1_3",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_c1_3.webp",
+      "webSha256": "97d252612d2149595e806c3f024b4d2c2ec8b1f0705718a1331ea47522954ba7"
+    },
+    {
+      "id": "qing_bg_act4_c2_2",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_c2_2.webp",
+      "webSha256": "379d7b87f41c8a9f4cd25f23ef433f2b3ddeff2acece3fae445501a9ada94d2c"
+    },
+    {
+      "id": "qing_bg_act4_c2_3",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_c2_3.webp",
+      "webSha256": "fd5fcc5ab4a6033f4095dd6cc0ea833c5516881ee56f81e1a6bb25f62c181621"
+    },
+    {
+      "id": "qing_bg_act4_c3_1",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_c3_1.webp",
+      "webSha256": "47bdc0012fe82c73a1bd8f44e4592a206c2fa943675ce5b26b69589fea378e64"
+    },
+    {
+      "id": "qing_bg_act4_c3_2",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_c3_2.webp",
+      "webSha256": "4658fe91b8bac5ec96ecb6d33ec341da6d1854488d5ff5ce1af9bd7ea91a0bc8"
+    },
+    {
+      "id": "qing_bg_act4_c3_3",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_c3_3.webp",
+      "webSha256": "6bc645e383c16a8fb5934912ba11071480868b857e1a5e323bf02cce72fa84ea"
+    },
+    {
+      "id": "qing_bg_chongzheng_snow_council",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_chongzheng_snow_council.webp",
+      "webSha256": "c57974206344c5fa368fa15ef38988064afe08e91f33aeba181ac6f3cfaa4662"
+    },
+    {
+      "id": "qing_bg_ending_civil_fracture",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_ending_civil_fracture.webp",
+      "webSha256": "0f4fef7c9fe9c3460c7e1723c708703a55ca9a476a22db01756cf57a7c1a67e0"
+    },
+    {
+      "id": "qing_bg_ending_civil_order",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_ending_civil_order.webp",
+      "webSha256": "8757b6d578cd5a14210ab266cc5220acc367c336e4c0b93e9c8069d2e265b66d"
+    },
+    {
+      "id": "qing_bg_ending_civil_union",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_ending_civil_union.webp",
+      "webSha256": "d11f054b5d049d86ec90e7e40e571fe2a7dc3abd49b9e52a509ce211d71cbad9"
+    },
+    {
+      "id": "qing_bg_ending_iron_fracture",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_ending_iron_fracture.webp",
+      "webSha256": "be4a2e1acc9a9ddd47c0f8118aa461b57016d083f154e6f232f6b626f240a664"
+    },
+    {
+      "id": "qing_bg_ending_iron_order",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_ending_iron_order.webp",
+      "webSha256": "49209c76f796cb739c393f999d98c68798fbb83c21435fe1251fe3b3c415e541"
+    },
+    {
+      "id": "qing_bg_ending_iron_union",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_ending_iron_union.webp",
+      "webSha256": "6a1e99b1795b1501e974c689ad601c90ae5742366cd05c9509be356445b1a76d"
+    },
+    {
+      "id": "qing_bg_ending_steppe_fracture",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_ending_steppe_fracture.webp",
+      "webSha256": "da814bae614269c11c919c09dac240c9a8df0d01319a3552d1495decdec4fd30"
+    },
+    {
+      "id": "qing_bg_ending_steppe_order",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_ending_steppe_order.webp",
+      "webSha256": "2de4550c9b69d32abee49ed6274c1e23a365039b6c7e982c3d70017434b699ef"
+    },
+    {
+      "id": "qing_bg_ending_steppe_union",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_ending_steppe_union.webp",
+      "webSha256": "763268efedeb6a95cb9a00800d4e272e0ecd3bd34ea14614919e344a54f50173"
+    },
+    {
+      "id": "qing_bg_guihua_burning_snowcamp",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_guihua_burning_snowcamp.webp",
+      "webSha256": "e0861fe4f228d33eee84b7083d27ce9e0cd58a786022323c213dd45eba0d52c8"
+    },
+    {
+      "id": "qing_bg_guihua_golden_tent",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_guihua_golden_tent.webp",
+      "webSha256": "f6abf747ed86cfd3fa53c9040d89d0b2be82c0fbac70fc1c716774b503e7ca39"
+    },
+    {
+      "id": "qing_bg_lengkou_breached_pass",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_lengkou_breached_pass.webp",
+      "webSha256": "9330d813548a4c3ec2de0b6e00cc44d486667bd5e2a02736289008d9dc86cab8"
+    },
+    {
+      "id": "qing_bg_liaoxi_starved_camp",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_liaoxi_starved_camp.webp",
+      "webSha256": "4f9657ce3aadc0b0e5ee7afe3006d48d18373971dea4db218aab2f13e3ca2b7e"
+    },
+    {
+      "id": "qing_bg_neisanyuan_office",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_neisanyuan_office.webp",
+      "webSha256": "3dd334a85e3460fd96fc1ddae0728ba4029dbc202f8d4a619676bee628688465"
+    },
+    {
+      "id": "qing_bg_rehe_autumn_altar",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_rehe_autumn_altar.webp",
+      "webSha256": "6e78dc96ff51bd7cf945eb5998cba4d499e68fe546620bdc899f5628ad3b69ec"
+    },
+    {
+      "id": "qing_bg_shanhaiguan_cannon_slope",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_shanhaiguan_cannon_slope.webp",
+      "webSha256": "56f624c3fe8f086f0c9fa9274146f88ebc2c46386743bd5a19ecda851a0a5d4c"
+    },
+    {
+      "id": "qing_bg_tongzhou_mourning_camp",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_tongzhou_mourning_camp.webp",
+      "webSha256": "d918a6f2429bfa8031b6cc76aca1d4bf0bc9626c2e55b5d813ed35664bb07175"
+    },
+    {
+      "id": "qing_bg_wuying_edict_hall",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_wuying_edict_hall.webp",
+      "webSha256": "be9bfcdf05a17860f72f9dc358ded9e3f289b731122d142ea643abf5933469bb"
+    },
+    {
+      "id": "qing_bg_yangzhou_meihualing_ruins",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_yangzhou_meihualing_ruins.webp",
+      "webSha256": "1ce68af5ba2a007ebcab0ebf014f4894bf3465bfd7f1b8548064775196f12509"
+    },
+    {
+      "id": "qing_bg_yipianshi_blizzard_front",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_yipianshi_blizzard_front.webp",
+      "webSha256": "8acf2498e2d8f8730c8da911b0ca6befacf97e27e46c9a4f683ab0da14a1e7f9"
+    },
+    {
+      "id": "qing_camp_labor",
+      "relativePath": "data/illustrations/qing/scenes/qing_camp_labor.webp",
+      "webSha256": "6b6abbe788b80b441a6a8b48498cf416d6da89a3aa2ea449b4e47b9904085ff6"
+    },
+    {
+      "id": "qing_campaign_map",
+      "relativePath": "data/illustrations/qing/scenes/qing_campaign_map.webp",
+      "webSha256": "506a073e5c33615d5f78b0e3106a4e45ec0de2a4caf65eb2771e8a2a21c37722"
+    },
+    {
+      "id": "qing_captive",
+      "relativePath": "data/illustrations/qing/captive.svg",
+      "webSha256": "aa81c9f17d4ffe963b6bae0d82e82ea76cb2c7143fa0651b9a5d7ae368d706d6"
+    },
+    {
+      "id": "qing_captive_audience",
+      "relativePath": "data/illustrations/qing/scenes/qing_captive_audience.webp",
+      "webSha256": "16413e2dadc14bebaa24cfa629fcb771e7684f5836765dad881777cc2ef69089"
+    },
+    {
+      "id": "qing_cavalry_charge",
+      "relativePath": "data/illustrations/qing/scenes/qing_cavalry_charge.webp",
+      "webSha256": "2401a0a1a6bf1487bb7eb27485c2e0ffb7f5f8aa7241137a8c4988b348bf77ff"
+    },
+    {
+      "id": "qing_cell_whispers",
+      "relativePath": "data/illustrations/qing/scenes/qing_cell_whispers.webp",
+      "webSha256": "4605c8d42cae2a8b427eec6adb3bfc2283d395c2eab4d55fff76bc87a56215a2"
+    },
+    {
+      "id": "qing_city_entry",
+      "relativePath": "data/illustrations/qing/scenes/qing_city_entry.webp",
+      "webSha256": "54f993ff8f157cda95e75d51fa6f562c8f68bd46bda5a9aa4ce7ead38265aa5f"
+    },
+    {
+      "id": "qing_comrade_oath",
+      "relativePath": "data/illustrations/qing/scenes/qing_comrade_oath.webp",
+      "webSha256": "d8a1b5c4950646ac735d0ec9c7578e150ac0e25ae5a1c1a213cf7ca0b34d1fad"
+    },
+    {
+      "id": "qing_council_tent",
+      "relativePath": "data/illustrations/qing/scenes/qing_council_tent.webp",
+      "webSha256": "f8d9fe0d6c291fe28301f280b86b3ad0b46c21d8bcb768e5589691cbbdc8bebd"
+    },
+    {
+      "id": "qing_disarmed_captives",
+      "relativePath": "data/illustrations/qing/scenes/qing_disarmed_captives.webp",
+      "webSha256": "0b74660d9ab11e5472ea1678c7c042669c9bc2510d743b0f75514c736c9a4f3d"
+    },
+    {
+      "id": "qing_evidence_hearing",
+      "relativePath": "data/illustrations/qing/scenes/qing_evidence_hearing.webp",
+      "webSha256": "015035e6c4f263acdae047ea8674b5f4ba5fb44c8f473f0e19aa289518e6f9cb"
+    },
+    {
+      "id": "qing_frontier_pass",
+      "relativePath": "data/illustrations/qing/scenes/qing_frontier_pass.webp",
+      "webSha256": "b4abcc68cd71170ae07e597450fe4fdc175891cfbfdd228b6db6b9fe59abc7f0"
+    },
+    {
+      "id": "qing_garrison_courtyard",
+      "relativePath": "data/illustrations/qing/scenes/qing_garrison_courtyard.webp",
+      "webSha256": "1ab09e09471c2fd6f9732203f2ef237e7434d2e02ff258349b0ff9c4cedda60e"
+    },
+    {
+      "id": "qing_holding_cell",
+      "relativePath": "data/illustrations/qing/scenes/qing_holding_cell.webp",
+      "webSha256": "6222d96ce3dc3b7809691bfcee6fb3e574f3e45dabd79e92920dbbe2d0aead8d"
+    },
+    {
+      "id": "qing_household_service",
+      "relativePath": "data/illustrations/qing/scenes/qing_household_service.webp",
+      "webSha256": "737d1ec31ad4b4150b27f6f1395fa4e3f0a33e7b1d9b67915739e17949c7a429"
+    },
+    {
+      "id": "qing_jh01_00",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh01_00.webp",
+      "webSha256": "7ee5dca92785cfb33a06b27d03b3326c302fc78879f3abd025779cc68b2aa00e"
+    },
+    {
+      "id": "qing_jh01_01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh01_01.webp",
+      "webSha256": "5eb21a709cbc4afcc31bda27ec1e20045c161656e6b2c8d07abb66dc5efb4db4"
+    },
+    {
+      "id": "qing_jh01_01_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh01_01_l01.webp",
+      "webSha256": "991ab7b90a80c2bff9b8e009cfbde91f2e79802eaa49a2f6a9f68eaf47d477da"
+    },
+    {
+      "id": "qing_jh01_02",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh01_02.webp",
+      "webSha256": "2bc4591e042d6bcea819017ec6e064d3a014b07c35e954dcdb9e81238e0c8315"
+    },
+    {
+      "id": "qing_jh01_02_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh01_02_l01.webp",
+      "webSha256": "5933d6d60d3bebf6fc33d2abfabdc0f07044880cba2a4615a8cea78cc1b71c5a"
+    },
+    {
+      "id": "qing_jh01_03",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh01_03.webp",
+      "webSha256": "ed2d7412d0f2d1376e5c55bef29e5ebf9f84bdcc000a5aca6f3be5bbc25819fc"
+    },
+    {
+      "id": "qing_jh01_03_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh01_03_l01.webp",
+      "webSha256": "b614af6cbd88ae35a7b310f8130457b0e65b5f9c57135f23bf45ccfd39591492"
+    },
+    {
+      "id": "qing_jh01_04",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh01_04.webp",
+      "webSha256": "bac88a4d615bccded9f2dd8ff98f24e136a2e66c01df03116d1702aaa81abfff"
+    },
+    {
+      "id": "qing_jh01_04_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh01_04_l01.webp",
+      "webSha256": "2d918fa84e0b27333ccbdeddea07e2f91befd04378008d4bc96b2eeeb163262b"
+    },
+    {
+      "id": "qing_jh02_00",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh02_00.webp",
+      "webSha256": "2d7fbfbbcebb0fd673fb8b85b0dce427a3431fe6030071f088ecd225b67fe5b2"
+    },
+    {
+      "id": "qing_jh02_01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh02_01.webp",
+      "webSha256": "0ba75b0609f61684ef3cf4b99a9353f65b13eeffd110da249ed39424967525c2"
+    },
+    {
+      "id": "qing_jh02_01_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh02_01_l01.webp",
+      "webSha256": "d8201b8ba3a0dd9f38778726a10a81066aaa41d78eabd2f2e20835d577fbad59"
+    },
+    {
+      "id": "qing_jh02_02",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh02_02.webp",
+      "webSha256": "d2d3c8b41c79826f4c611c993c4a68c180136f7637dcbcbbf59355eede54bbbe"
+    },
+    {
+      "id": "qing_jh02_02_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh02_02_l01.webp",
+      "webSha256": "36c5db1ebc20a5df6e4396288d79aeff966e90a1abeb5aed4a41a9fd79e47608"
+    },
+    {
+      "id": "qing_jh02_03",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh02_03.webp",
+      "webSha256": "fa479adcf34e6ed2431eb90aed98effd68306cde5e236153e22576fcb2a5eee9"
+    },
+    {
+      "id": "qing_jh02_03_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh02_03_l01.webp",
+      "webSha256": "174819252b177da5a041b45340009cba8c9c1280e73947e659c27e28395b4b6f"
+    },
+    {
+      "id": "qing_jh02_04",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh02_04.webp",
+      "webSha256": "07248a0e3dc4caea0cb126005dcc3ef74205b59b575406dd899b9a5b29cc9fb4"
+    },
+    {
+      "id": "qing_jh02_04_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh02_04_l01.webp",
+      "webSha256": "b15bf4b4674f8846b663f44571ae0ac1e28af0e6245604ca565e93d83245569a"
+    },
+    {
+      "id": "qing_jh03_00",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh03_00.webp",
+      "webSha256": "239f02f0eb7d098089c6bf1357c4b01ff954b3765afdca001c61682e26994721"
+    },
+    {
+      "id": "qing_jh03_01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh03_01.webp",
+      "webSha256": "deb39010e841bc8a5c0f59c51f768b5d6feb3a3ed7564e731dcd6796afdce2ed"
+    },
+    {
+      "id": "qing_jh03_01_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh03_01_l01.webp",
+      "webSha256": "57919f7cd4e289dae0b044f4cb0af01dad464a12db446ebdb13f6132897b3bca"
+    },
+    {
+      "id": "qing_jh03_02",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh03_02.webp",
+      "webSha256": "fbdbc34aab0ed444177cd37cfa3a30c80b36bb78b2982eb118513ba8fd5e7a80"
+    },
+    {
+      "id": "qing_jh03_02_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh03_02_l01.webp",
+      "webSha256": "09137f266fcc0af214d0645ed999df171ed7e95d10322e78a28ba4a045047b5e"
+    },
+    {
+      "id": "qing_jh03_03",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh03_03.webp",
+      "webSha256": "c4c5e3591060ff6431ea6e28e5f5888d6ac633f3f57107d94fa2695af83a348b"
+    },
+    {
+      "id": "qing_jh03_03_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh03_03_l01.webp",
+      "webSha256": "6729457c20cbb1e7b723beb80f3ae4792eddb075e7eaa5131e4829b15da4de49"
+    },
+    {
+      "id": "qing_jh03_04",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh03_04.webp",
+      "webSha256": "7c2ffcb2078c1890dce58e5f2c20e5c08bd7008bfe7df7b00d0830d7132fbb5f"
+    },
+    {
+      "id": "qing_jh03_04_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh03_04_l01.webp",
+      "webSha256": "723e77567ae02f5a9ddcef73ca60bba060961a5112b23c6335ad937c95228015"
+    },
+    {
+      "id": "qing_jh04_00",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh04_00.webp",
+      "webSha256": "8bc035d6effcdc334315e500e36ad23b4ae7969e0cf96cbea9ee22819da2076f"
+    },
+    {
+      "id": "qing_jh04_01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh04_01.webp",
+      "webSha256": "e071925efca84c0fd459a948995b05a5b542ce1b9a51b657462b3753467d5447"
+    },
+    {
+      "id": "qing_jh04_01_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh04_01_l01.webp",
+      "webSha256": "6c988c8099fea1c42060017e262a67b5adeabd5512b12d0bb371e687707d2863"
+    },
+    {
+      "id": "qing_jh04_02",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh04_02.webp",
+      "webSha256": "cfb51c4fd616d6f96252c67329d969eacff83ecbf7630ba0bb16bc8e7e5aa9dc"
+    },
+    {
+      "id": "qing_jh04_02_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh04_02_l01.webp",
+      "webSha256": "e55185cecd5cc9f9a901730a03cea0cafe60bb3f4718a90bcfdfe0ef4f4d133e"
+    },
+    {
+      "id": "qing_jh04_03",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh04_03.webp",
+      "webSha256": "7af1a7a25fdbcb14f0a4f9446b36d16eae360c31366635ff80fd46a3a841eac5"
+    },
+    {
+      "id": "qing_jh04_03_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh04_03_l01.webp",
+      "webSha256": "6f7704d3dbaafce74dfb1978343cafaf718473cc69b08462c2dd901450a7b96a"
+    },
+    {
+      "id": "qing_jh04_04",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh04_04.webp",
+      "webSha256": "d29ae4235caaa792200f04643fa60409a490dcfe4e1a0a66d082aa8bfedf3884"
+    },
+    {
+      "id": "qing_jh04_04_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh04_04_l01.webp",
+      "webSha256": "2d3a8488c4df410eef54f89712607019a6cbbd2a9a8389be3026aacc91cb467a"
+    },
+    {
+      "id": "qing_jh05_00",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh05_00.webp",
+      "webSha256": "39be0453f259e717ed5faf28a2ccd5cd24f8b1a2e81a5c0bef057c3228c6707e"
+    },
+    {
+      "id": "qing_jh05_01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh05_01.webp",
+      "webSha256": "50aea55b586322c254eb21d0fa073d52caae5cea588764c2ea8db1d84f817cb6"
+    },
+    {
+      "id": "qing_jh05_01_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh05_01_l01.webp",
+      "webSha256": "ea2f32cf9cd5902938510a817bbbeb0e28c8dda5fc310d5e175abf113393d462"
+    },
+    {
+      "id": "qing_jh05_02",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh05_02.webp",
+      "webSha256": "a59d793d4d35115ad24712720cf912a8c8e79419c2bb91da2b54822e7c131e5d"
+    },
+    {
+      "id": "qing_jh05_02_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh05_02_l01.webp",
+      "webSha256": "fd6ddcde4b234407dda6d0afc325f4649b4b1eed71dd76047af4757bbad2dbcf"
+    },
+    {
+      "id": "qing_jh05_03",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh05_03.webp",
+      "webSha256": "06cf1969d00b1f52b7084272d2daa5193d1214d9dbd61a2bc2266e8d005faa52"
+    },
+    {
+      "id": "qing_jh05_03_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh05_03_l01.webp",
+      "webSha256": "725f415965fd0fded8b2d68ce6fc5f9efd191d66bcce838e7704a067585c1737"
+    },
+    {
+      "id": "qing_jh05_04",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh05_04.webp",
+      "webSha256": "5745babda30097b7c6631df517537dfa1178c354b8f3eaac854d8ec4074f6a90"
+    },
+    {
+      "id": "qing_jh05_04_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh05_04_l01.webp",
+      "webSha256": "e79d2a54170c19bf932af384ccd90da0c29fbc5239390252c16ea76221c8f67a"
+    },
+    {
+      "id": "qing_jh06_00",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh06_00.webp",
+      "webSha256": "5ce97c8001075ce3dad0d7988982c61f5278d793e577af6c3aee892161b0d5e0"
+    },
+    {
+      "id": "qing_jh06_01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh06_01.webp",
+      "webSha256": "2533cbcd16c964453ad3453ce07ec3149c6a92a0d81b3f6e6e7802860e7005cf"
+    },
+    {
+      "id": "qing_jh06_01_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh06_01_l01.webp",
+      "webSha256": "c45217b6cf502bd40ffa855e14087450e56f8b28b69b78419b67ec3cc2b450f9"
+    },
+    {
+      "id": "qing_jh06_02",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh06_02.webp",
+      "webSha256": "f3c2fdd3e8310d44131171746e609a3668550ab60a9d90e2792da13aa66b4390"
+    },
+    {
+      "id": "qing_jh06_02_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh06_02_l01.webp",
+      "webSha256": "a21639189c5a355b3796006f1d4e5d93a843e90a51564237eaf2915b2b465ed2"
+    },
+    {
+      "id": "qing_jh06_03",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh06_03.webp",
+      "webSha256": "966b374b7c12c124a3254f17d00c21a103d7be013e1b0784f93acd9d7604b4b6"
+    },
+    {
+      "id": "qing_jh06_03_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh06_03_l01.webp",
+      "webSha256": "c2bf780611f959e6aaa7eba40e7753892ed026dfcf0c359dfa2b864ce50a1fbb"
+    },
+    {
+      "id": "qing_jh06_04",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh06_04.webp",
+      "webSha256": "83d4f23706718eb2ab61a0b63dda0aaf40031b47ec1e10a083b460e04efa51fc"
+    },
+    {
+      "id": "qing_jh06_04_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh06_04_l01.webp",
+      "webSha256": "f8c054e1eae2a1b08e1dfc26ce829ba615f86ab15ac0840a99addd078f649bcd"
+    },
+    {
+      "id": "qing_jh07_00",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh07_00.webp",
+      "webSha256": "bcca4d812c86730c7c59d252d4a15b0a64e5c9ba086141cc0fc0e1dd9a664ef0"
+    },
+    {
+      "id": "qing_jh07_01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh07_01.webp",
+      "webSha256": "6f070dc1e3f5c6b0dba1cc6ea2e487d676b807e73f7f3e5a07056b2551957069"
+    },
+    {
+      "id": "qing_jh07_01_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh07_01_l01.webp",
+      "webSha256": "9c2e44e925e75d0e548604668cf40c1d5d008032df50e0ab31d7abbf5e7858db"
+    },
+    {
+      "id": "qing_jh07_02",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh07_02.webp",
+      "webSha256": "eb92c7a1c009feb2fa76c500fd58045987b5b8f44a82af5aad92d784bfde9039"
+    },
+    {
+      "id": "qing_jh07_02_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh07_02_l01.webp",
+      "webSha256": "8b9cae9c2884e818337d0a646b040a473bb440f29448c37f5dc1ca1b2aecfbdb"
+    },
+    {
+      "id": "qing_jh07_03",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh07_03.webp",
+      "webSha256": "eefb1f90544fa972e0ee79194fa8e16ffcc6fb99161729f02db7fac14837d417"
+    },
+    {
+      "id": "qing_jh07_03_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh07_03_l01.webp",
+      "webSha256": "90c04d62f4758c8628b2943e2c602bdea49e3c2c80f3d99dfb7331069802fdfa"
+    },
+    {
+      "id": "qing_jh07_04",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh07_04.webp",
+      "webSha256": "0c814ebf7a32c77436437262a474ff7280b1d91f8cedcf6257fa4dba9a2ad84e"
+    },
+    {
+      "id": "qing_jh07_04_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh07_04_l01.webp",
+      "webSha256": "389992cfa64c45d4bc1593d0c78b3f9859ee9d3b67d89b7050cb0f4f85e371b5"
+    },
+    {
+      "id": "qing_jh08_00",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh08_00.webp",
+      "webSha256": "8442b6eb60e7ecac77600276cef5bc3e3381f13f23bed0077c6b651d1b63000d"
+    },
+    {
+      "id": "qing_jh08_01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh08_01.webp",
+      "webSha256": "e081cdc5476396eedb2cf0e98ae9636ccee0212d1f3f627ca58019bfe08bdc15"
+    },
+    {
+      "id": "qing_jh08_01_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh08_01_l01.webp",
+      "webSha256": "a6d78298cbe04bae3b167a324b6840b3a6195990ec65553e1dc11f4b53a2da61"
+    },
+    {
+      "id": "qing_jh08_02",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh08_02.webp",
+      "webSha256": "5930a736d20f246bc42c7d6048789a7f58fb0fbb0f52efa562a5fdb67d6edc45"
+    },
+    {
+      "id": "qing_jh08_02_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh08_02_l01.webp",
+      "webSha256": "8c1a0b860c342d10c80fbcc3a617c58afd7d43ee3cdb8e55fd4d7727ec442a7d"
+    },
+    {
+      "id": "qing_jh08_03",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh08_03.webp",
+      "webSha256": "aa29d463ef7c409aaf80b898a769379ee9bd249ebde4d933f696177c50436e5c"
+    },
+    {
+      "id": "qing_jh08_03_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh08_03_l01.webp",
+      "webSha256": "8557a302cb59da99589de0a8bc5f5ee0a2f30bc45a017e0e9d3ad57da94e355a"
+    },
+    {
+      "id": "qing_jh08_04",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh08_04.webp",
+      "webSha256": "14c7b7473aabe2867b5b7aa0c26680d2ccf2150c816c189058d6dd6fcb616ec7"
+    },
+    {
+      "id": "qing_jh08_04_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh08_04_l01.webp",
+      "webSha256": "a7304e9b3c50c7b2c3d0de94d3880dace521acc525fac054fe681ac500b0941c"
+    },
+    {
+      "id": "qing_jh09_00",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh09_00.webp",
+      "webSha256": "262477d7c0d5cf4abc3af51f60028470f5d8a95b94c56606c22cbc12facdbad4"
+    },
+    {
+      "id": "qing_jh09_01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh09_01.webp",
+      "webSha256": "c24cbd858428a6023ab2fe19832bdd97903351fe9a797cda7c760acf15177bd4"
+    },
+    {
+      "id": "qing_jh09_01_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh09_01_l01.webp",
+      "webSha256": "ccd6feb793745cd9cc8ef2add35d004b678ad8aad2add18a8403d69516d3934f"
+    },
+    {
+      "id": "qing_jh09_02",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh09_02.webp",
+      "webSha256": "587a5ab97a58975b40ccb9b16bfbc69e22a3a1b703e1fd66d399544155a6251f"
+    },
+    {
+      "id": "qing_jh09_02_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh09_02_l01.webp",
+      "webSha256": "0f435d0757c604f17bd0c273433b99c6f98fa4307724bc6dd142039829e396da"
+    },
+    {
+      "id": "qing_jh09_03",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh09_03.webp",
+      "webSha256": "5170c147165b8bab960c73795f082eeddc387b0e6c124ff5921f5a06f25648d4"
+    },
+    {
+      "id": "qing_jh09_03_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh09_03_l01.webp",
+      "webSha256": "78e9c7061fc05347db21a75ac0293c27debe98f4c9891cfdba5da185b175df58"
+    },
+    {
+      "id": "qing_jh09_04",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh09_04.webp",
+      "webSha256": "1679dd17182f02b06660687e1739211ab470a5d7763d2b8f9a2be36e7364bf01"
+    },
+    {
+      "id": "qing_jh09_04_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh09_04_l01.webp",
+      "webSha256": "1c4b5f73eb69b1dded97136d0c42ea26a03154d742b01b52960a045f82c2119a"
+    },
+    {
+      "id": "qing_jh10_00",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh10_00.webp",
+      "webSha256": "38135bc820992c7fe3d1b07964f79b35bcd8163e4e9f1b9831064d96b3d25a1e"
+    },
+    {
+      "id": "qing_jh10_01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh10_01.webp",
+      "webSha256": "d35e13e5363a7ddc7cf0a5556b67819c4f7798282b2a438258215f4ce76b7f05"
+    },
+    {
+      "id": "qing_jh10_01_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh10_01_l01.webp",
+      "webSha256": "74031065b0de5ce82aad09ea5cb4358eff2181966895540da0471f9fc9a2bf5b"
+    },
+    {
+      "id": "qing_jh10_02",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh10_02.webp",
+      "webSha256": "8c5464e360f1f774d46f05b87ee2c4447d752f8f5cd8ba1421d9dd99776e8a87"
+    },
+    {
+      "id": "qing_jh10_02_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh10_02_l01.webp",
+      "webSha256": "106a38259c3a2d0a1ae2bc1b122183b7be8716910537034d0d00908fb811bd49"
+    },
+    {
+      "id": "qing_jh10_03",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh10_03.webp",
+      "webSha256": "83de9484c152f2518d1f35f5674f107a7a9e180216356195a0fde87def478b06"
+    },
+    {
+      "id": "qing_jh10_03_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh10_03_l01.webp",
+      "webSha256": "8e89b04971be2a1da5cbbb1ede7e75196e62ab833bb88635601156df86e4219b"
+    },
+    {
+      "id": "qing_jh10_04",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh10_04.webp",
+      "webSha256": "583a169aaac0d84274bdc7564eb6e45de7ee5332dc5d6220b5a98ca481c012a1"
+    },
+    {
+      "id": "qing_jh10_04_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh10_04_l01.webp",
+      "webSha256": "d1b73be06edb87c3939dd4a80482a509ae47637e401e9aa0b3f4061fa8b04e3c"
+    },
+    {
+      "id": "qing_jh11_00",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh11_00.webp",
+      "webSha256": "cc4a890313983015826c2d9ddab141b1a058008347f885f2efe91b7408f4d160"
+    },
+    {
+      "id": "qing_jh11_01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh11_01.webp",
+      "webSha256": "691aa9eaa802d595144b6aac432d2604274a8c685cdca6885df0a9f3c2b685d8"
+    },
+    {
+      "id": "qing_jh11_01_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh11_01_l01.webp",
+      "webSha256": "090357de59469dba116130598004afd3fa2f944819431dc6ea3fc8012cfb7041"
+    },
+    {
+      "id": "qing_jh11_02",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh11_02.webp",
+      "webSha256": "1d0df8473c09ee7e5aa5357209bd0fb99162b11d31ca28f0ab7308065df5e0fa"
+    },
+    {
+      "id": "qing_jh11_02_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh11_02_l01.webp",
+      "webSha256": "5a9863b6c5d4844ecd20126d5f848b1658702b64fa6dfced9411045b1d056936"
+    },
+    {
+      "id": "qing_jh11_03",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh11_03.webp",
+      "webSha256": "feef424541113baa71cf0104aa05ee914a2b820e9d50544ea617f051838d3aaf"
+    },
+    {
+      "id": "qing_jh11_03_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh11_03_l01.webp",
+      "webSha256": "7023baafc41478cf94ed0317d59bd252eeb19c9daaa811209f4d09e9cbe95a28"
+    },
+    {
+      "id": "qing_jh11_04",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh11_04.webp",
+      "webSha256": "8bb2b789a88f5b93b78db24d3689be2c20123f01c1e436ee02310a8d247cb43e"
+    },
+    {
+      "id": "qing_jh11_04_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh11_04_l01.webp",
+      "webSha256": "0de1e8e0d90bff39be78b79f62d03336f2deb614e3b6a4cec21da5ceaef9b6b7"
+    },
+    {
+      "id": "qing_jh12_00",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh12_00.webp",
+      "webSha256": "bfb9fee0c3dfe5836a5c85af5c465aa666352df5472fde297dcc387dd238eabd"
+    },
+    {
+      "id": "qing_jh12_01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh12_01.webp",
+      "webSha256": "0814a92175ecbe034d2057a4cfb60d650e2da5981e4422e8a19e8f4d181ee36c"
+    },
+    {
+      "id": "qing_jh12_01_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh12_01_l01.webp",
+      "webSha256": "5cb61956b7592daf7fdba60bf806a5e994ead21dcfd6db8d8bfc73ff62441d2b"
+    },
+    {
+      "id": "qing_jh12_02",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh12_02.webp",
+      "webSha256": "10e6fc20fe482c85a994836da79f5cfe07d6bfc8972861edd3b95dda7f4d9125"
+    },
+    {
+      "id": "qing_jh12_02_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh12_02_l01.webp",
+      "webSha256": "e5768e04daf8c4dcf8e50bc4871a4da36ee3ba438a8ab7fddfb64f8552d855e3"
+    },
+    {
+      "id": "qing_jh12_03",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh12_03.webp",
+      "webSha256": "684602ac9edf80f0679367b3e40b20b8e27e42ef94ba66e8b828824b13152aaf"
+    },
+    {
+      "id": "qing_jh12_03_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh12_03_l01.webp",
+      "webSha256": "ebfd939336a0743f5051905c8f19c036ad71832b296eeffe65551392cd9d364c"
+    },
+    {
+      "id": "qing_jh12_04",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh12_04.webp",
+      "webSha256": "b3b9c12311da81db34421a11b4138d9c8c1e6b72c344c742ea4ef8a6c84bc5b5"
+    },
+    {
+      "id": "qing_jh12_04_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh12_04_l01.webp",
+      "webSha256": "75baffd6e5f1507636c2f3b6cfd60a17765c97596cb2d6735d0820ea587f5576"
+    },
+    {
+      "id": "qing_lamplit_questioning",
+      "relativePath": "data/illustrations/qing/scenes/qing_lamplit_questioning.webp",
+      "webSha256": "d553a281076d7fd4009d5116def491ca44c93d40fd63393909f1f5a9bd9d880d"
+    },
+    {
+      "id": "qing_massacred_village",
+      "relativePath": "data/illustrations/qing/scenes/qing_massacred_village.webp",
+      "webSha256": "b00377c9954641c0f44844e0984dc9adef346d123c168fb89611a0ad8f88b65d"
+    },
+    {
+      "id": "qing_melee",
+      "relativePath": "data/illustrations/qing/scenes/qing_melee.webp",
+      "webSha256": "625aab7231c5d44a0fb92db881520f1de27296fcd2dc31a454ad6bfb7ee55f22"
+    },
+    {
+      "id": "qing_night_envoy",
+      "relativePath": "data/illustrations/qing/scenes/qing_night_envoy.webp",
+      "webSha256": "1f9e24a98b8815c7f020b055a3c987c661e033c492177a1dce5fb2a239e54be3"
+    },
+    {
+      "id": "qing_night_raid",
+      "relativePath": "data/illustrations/qing/scenes/qing_night_raid.webp",
+      "webSha256": "0754c9af8c79ddb3799109dcc36a681b11f90621e0767f805d450c78c2e7ca13"
+    },
+    {
+      "id": "qing_prisoner_escort",
+      "relativePath": "data/illustrations/qing/scenes/qing_prisoner_escort.webp",
+      "webSha256": "2e52976606f98acb950353ae594b2bebccd78d6cf2e65aa37e2cbd7e358d0b02"
+    },
+    {
+      "id": "qing_ransom_negotiation",
+      "relativePath": "data/illustrations/qing/scenes/qing_ransom_negotiation.webp",
+      "webSha256": "f144866902306b14b7553d99db706fafbea9635cb213f07fe18a24dee6ad8eb9"
+    },
+    {
+      "id": "qing_requisition_standoff",
+      "relativePath": "data/illustrations/qing/scenes/qing_requisition_standoff.webp",
+      "webSha256": "7674b32605ca044f28c2f7c3c927be090f017772996fb0a92ef46a92b595588b"
+    },
+    {
+      "id": "qing_riverside_market",
+      "relativePath": "data/illustrations/qing/scenes/qing_riverside_market.webp",
+      "webSha256": "f7e68833d0fbb91d5eaf12466e0fdf189cef63cb017a3d0d7a196f1ec3aa64b6"
+    },
+    {
+      "id": "qing_romance",
+      "relativePath": "data/illustrations/qing/romance.svg",
+      "webSha256": "0b5b5a1e3b05f5c1e8f729852a7139d6f7c77a7aeed6b3716741abb534c7481d"
+    },
+    {
+      "id": "qing_secret_exchange",
+      "relativePath": "data/illustrations/qing/scenes/qing_secret_exchange.webp",
+      "webSha256": "eb605496faf0425d432c86abcdeedbaefacdff871b398d9683d8210dea693069"
+    },
+    {
+      "id": "qing_secret_letter",
+      "relativePath": "data/illustrations/qing/scenes/qing_secret_letter.webp",
+      "webSha256": "2e46d1ea7c1405747b6a4c6744b78ea8757588c86a435d7b7f4381c9f9a4822e"
+    },
+    {
+      "id": "qing_shengjing_palace",
+      "relativePath": "data/illustrations/qing/scenes/qing_shengjing_palace.webp",
+      "webSha256": "612b79d00ba491b2a6540264a24ad787b192e41cdabb8c1d7bddd7e11bbf2b86"
+    },
+    {
+      "id": "qing_siege",
+      "relativePath": "data/illustrations/qing/scenes/qing_siege.webp",
+      "webSha256": "c9ba6c13f8a2448331f3988cd4b38022029559d63316bc229b79b8966fc19a52"
+    },
+    {
+      "id": "qing_treasury",
+      "relativePath": "data/illustrations/qing/scenes/qing_treasury.webp",
+      "webSha256": "5454198ad8f01280bd61bef87c52844c185c6204e9cebe6773f0144ade8c860c"
+    },
+    {
+      "id": "qing_victory",
+      "relativePath": "data/illustrations/qing/victory.svg",
+      "webSha256": "b9069cfb639753a2e103e719dda1c5dfbcadb25a789f5b03f71fcf9274e0c577"
+    },
+    {
+      "id": "qing_war",
+      "relativePath": "data/illustrations/qing/war.jpg",
+      "webSha256": "e9387080161f04f61494ebfc23305fe07fa967a896facea99243f77d01e49f11"
+    },
+    {
+      "id": "qing_war_aftermath",
+      "relativePath": "data/illustrations/qing/scenes/qing_war_aftermath.webp",
+      "webSha256": "caa9376edf70e249bea77b149c6d2eb5837a123219af2cedd46aa421f5f25812"
+    },
+    {
+      "id": "qing_wealth",
+      "relativePath": "data/illustrations/qing/wealth.svg",
+      "webSha256": "567e7c934297c043949b6a57477e672045718da3ba8a2032cf74cc0d78eebae9"
+    },
+    {
+      "id": "qing_winter_march",
+      "relativePath": "data/illustrations/qing/scenes/qing_winter_march.webp",
+      "webSha256": "29084a374bb8da99e2cc688b56aaaa1b5e3439836f797cf68e90f371e2049b83"
+    },
+    {
+      "id": "shared_bg_history_epilogue",
+      "relativePath": "data/illustrations/neutral/backgrounds/shared_bg_history_epilogue.webp",
+      "webSha256": "b597b866dc4b22b4940f230ca1fa58ebb40ed8e69b147729e46997463a880859"
+    }
+  ],
+  "unchangedMapBindings": {
+    "qing:mukden": "qing_campaign_map",
+    "shanhaiguan:pass": "qing_frontier_pass",
+    "beijing:high": "ming_bg_cabinet_winter",
+    "jiangnan:mid": "ming_bg_fengqiao_canal",
+    "mongol:steppe": "mongol_khan_council_tent",
+    "nanming:maritime": "nanming_bg_fuzhou_palace"
+  },
+  "decisions": [
+    {
+      "id": "court-location",
+      "nodeIds": [
+        "qing_act4_b3_1"
+      ],
+      "question": "圈禁宗室这幕应画皇极殿内，还是乾清门御前？"
+    },
+    {
+      "id": "act5-map-dialogue",
+      "nodeIds": [
+        "qing_act5_a1_1_1",
+        "qing_act5_a1_1_2",
+        "qing_act5_a1_1_3",
+        "qing_act5_a1_2_1",
+        "qing_act5_a1_2_2",
+        "qing_act5_a1_2_3",
+        "qing_act5_a1_3_1",
+        "qing_act5_a1_3_2",
+        "qing_act5_a1_3_3",
+        "qing_act5_a2_1_1",
+        "qing_act5_a2_1_2",
+        "qing_act5_a2_1_3",
+        "qing_act5_a2_2_1",
+        "qing_act5_a2_2_2",
+        "qing_act5_a2_2_3",
+        "qing_act5_a2_3_1",
+        "qing_act5_a2_3_2",
+        "qing_act5_a2_3_3",
+        "qing_act5_a3_1_1",
+        "qing_act5_a3_1_2",
+        "qing_act5_a3_1_3",
+        "qing_act5_a3_2_1",
+        "qing_act5_a3_2_2",
+        "qing_act5_a3_2_3",
+        "qing_act5_a3_3_1",
+        "qing_act5_a3_3_2",
+        "qing_act5_a3_3_3",
+        "qing_act5_c1_1_1",
+        "qing_act5_c1_1_2",
+        "qing_act5_c1_1_3",
+        "qing_act5_c1_2_1",
+        "qing_act5_c1_2_2",
+        "qing_act5_c1_2_3",
+        "qing_act5_c1_3_1",
+        "qing_act5_c1_3_2",
+        "qing_act5_c1_3_3",
+        "qing_act5_c2_1_1",
+        "qing_act5_c2_1_2",
+        "qing_act5_c2_1_3",
+        "qing_act5_c2_2_1",
+        "qing_act5_c2_2_2",
+        "qing_act5_c2_2_3",
+        "qing_act5_c2_3_1",
+        "qing_act5_c2_3_2",
+        "qing_act5_c2_3_3",
+        "qing_act5_c3_1_1",
+        "qing_act5_c3_1_2",
+        "qing_act5_c3_1_3",
+        "qing_act5_c3_2_1",
+        "qing_act5_c3_2_2",
+        "qing_act5_c3_2_3",
+        "qing_act5_c3_3_1",
+        "qing_act5_c3_3_2",
+        "qing_act5_c3_3_3"
+      ],
+      "question": "后金第五幕A/C两线54节点，背景以太和殿前对白为准，还是保留江南/草原地图依据并明确各分支现场？仅确定配图依据，不自动修改任何剧情或坐标。"
+    }
+  ],
+  "limitations": [
+    "四张图是30个节点的语义分组环境，不是30张不同图片。",
+    "文字、坐标、选择边与引擎逻辑均未修改。",
+    "场景属于历史架空艺术诠释，不宣称古建或器物考古级复原。"
+  ]
+}

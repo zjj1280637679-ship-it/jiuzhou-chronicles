@@ -7,7 +7,9 @@ import {join} from "node:path";
 import {createStaticServer} from "./server.js";
 const require = createRequire(import.meta.url);
 const {chromium} = require("playwright");
-const batches = [require("./docs/scene-background-batch-1.json"), require("./docs/scene-background-batch-2.json")];
+const batches = [require("./docs/scene-background-batch-1.json"), require("./docs/scene-background-batch-2.json"),
+  require("./docs/scene-background-batch-3.json")];
+const latest = batches.at(-1);
 const batch = {assets: batches.flatMap(b => b.assets)};
 const catalog = require("./data/illustrations/catalog.json");
 const world = require("./skills-data.js");
@@ -66,7 +68,7 @@ try {
             document.querySelector("#mobile-scene-art").getAttribute("src")?.includes(id), expected);
         }
         if (faction === "qing") {
-          for (const {nodeId} of batches[1].pendingEditorial) {
+          for (const {nodeId} of latest.pendingEditorial) {
             const node = world.canonicalTrees.qing.nodes[nodeId];
             await page.evaluate(node => {
               const e = window.__vnEngine;
@@ -84,7 +86,7 @@ try {
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);
       }
       assert.deepEqual(errors, []);
-      console.log(`PASS ${viewport.width}×${viewport.height}: ${batch.assets.length} decoded backgrounds, all 1371 reviewed scene bindings, both display surfaces, no eager gallery image loads.`);
+      console.log(`PASS ${viewport.width}×${viewport.height}: ${batch.assets.length} decoded backgrounds, all ${latest.totalExplicitlyBoundNodes} reviewed scene bindings, both display surfaces, no eager gallery image loads.`);
     } finally {await context.close();}
   }
 } finally {
