@@ -1,7 +1,7 @@
 {
   "version": 1,
   "date": "2026-11-06",
-  "status": "implemented-unit-content-build-verified-browser-ci-pending",
+  "status": "verified",
   "baseCommit": "6f3167883e9bc75cf510c5d4f40283b89e98cf7e",
   "supersedesPendingFrom": "docs/scene-background-batch-3.json",
   "generatedCount": 0,
@@ -3972,5 +3972,31 @@
     "历史清单保留当时事实，本批明确记录获准的编辑修复，不再宣称剧情字节未变。",
     "场景为架空历史环境意象，不宣称考古级复原。"
   ],
-  "baselineCatalogSha256": "bdde7b4e6ed6ec33414b22e70b96106f73e77f4cae1a2088f6c977340c8653d1"
+  "baselineCatalogSha256": "bdde7b4e6ed6ec33414b22e70b96106f73e77f4cae1a2088f6c977340c8653d1",
+  "verification": {
+    "functionalCommit": "c0bc586beb2919680cc912905c1c0cc1c0055019",
+    "unitTests": 229,
+    "localUnitMode": "test-concurrency=1",
+    "githubDefaultUnitPassed": true,
+    "sceneUnitTests": 13,
+    "browserViewports": [
+      {
+        "width": 1440,
+        "height": 900
+      },
+      {
+        "width": 390,
+        "height": 844
+      }
+    ],
+    "decodedGeneratedImagesPerViewport": 122,
+    "boundNodesPerViewport": 1456,
+    "realLoaderRepairedNodesPerViewport": 55,
+    "logicRun": "https://github.com/zjj1280637679-ship-it/jiuzhou-chronicles/actions/runs/42244816773",
+    "browserRun": "https://github.com/zjj1280637679-ship-it/jiuzhou-chronicles/actions/runs/42244816750",
+    "limitations": [
+      "Local Chromium cannot start due to socket/ptrace restrictions; GitHub CI supplied browser validation.",
+      "Browser API responses are isolated fixtures, not live paid model calls or physical-device tests."
+    ]
+  }
 }
