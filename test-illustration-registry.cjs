@@ -8,6 +8,7 @@ const registry = require("./illustration-system.js");
 const catalog = require("./data/illustrations/catalog.json");
 const later = require("./docs/scene-background-batch-2.json");
 const latest = require("./docs/scene-background-batch-3.json");
+const completion = require("./docs/scene-background-batch-4.json");
 const addedAssets = [...later.assets, ...latest.assets];
 const additions = f => addedAssets.filter(a => a.faction === f).length;
 const imageCount = registry.list({faction: "qing"}).length;
@@ -76,7 +77,7 @@ assert.equal(worker.JiuzhouIllustrations.list().length, 0);
 assert.equal(worker.JiuzhouIllustrations.createRegistry({assets: registry.list({includeLegacy: true})}).list().length, 200 + addedAssets.length);
 const nodes = require("./skills-data.js").canonicalTrees.qing.nodes;
 assert.equal(Object.keys(catalog.scenes.nodes.qing).length, Object.keys(nodes).length);
-const pending = new Set(latest.pendingEditorial.map(n => n.nodeId));
+const pending = new Set(completion.pendingEditorial.map(n => n.nodeId));
 for (const nodeId of Object.keys(nodes)) {
   const actual = registry.sceneFor({faction: "qing", nodeId});
   if (pending.has(nodeId)) assert.equal(actual, null, nodeId);
@@ -84,8 +85,8 @@ for (const nodeId of Object.keys(nodes)) {
 }
 for (const node of Object.values(nodes).filter(node => node.id.startsWith("qing_act5_"))) {
   const art = registry.sceneFor({faction: "qing", nodeId: node.id, coords: node.coords});
-  if (node.id.startsWith("qing_act5_b")) assert.equal(art.id, "qing_bg_taihe_final_forecourt", node.id);
-  else assert.equal(art, null, node.id);
+  assert.equal(node.coords, "beijing:high", node.id);
+  assert.equal(art.id, "qing_bg_taihe_final_forecourt", node.id);
 }
 assert.equal(registry.sceneFor({faction: "qing", nodeId: "qing_act3_civil_exam", coords: "beijing:high"}).id, "qing_bg_confucius_dawn_court");
 assert.equal(registry.sceneFor({faction: "qing", nodeId: "qing_act4_a1_3"}).id, "qing_bg_act4_a1_3");

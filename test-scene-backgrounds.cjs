@@ -9,6 +9,7 @@ const world = require("./skills-data.js");
 const batch = require("./docs/scene-background-batch-1.json");
 const later = require("./docs/scene-background-batch-2.json");
 const latest = require("./docs/scene-background-batch-3.json");
+const completion = require("./docs/scene-background-batch-4.json");
 const compact = require("./data/illustrations/catalog-index.js");
 const {WebVisualNovelEngine} = require("./app.js");
 const sha = data => crypto.createHash("sha256").update(data).digest("hex");
@@ -53,7 +54,7 @@ test("reviewed later scenes have evidence-backed bindings and preserve all old a
   assert.equal(later.reviewedBindingChanges, 1251);
   assert.equal(later.existingReuse.length, 4);
   assert.equal(later.totalExplicitlyBoundNodes, 1371);
-  assert.equal(sha(fs.readFileSync("skills-data.js")), later.sourceStorySha256, "art work does not rewrite story");
+  assert.equal(completion.sourceStorySha256, later.sourceStorySha256, "historical art-only baseline is preserved in the edit audit");
   assert.equal(new Set([...batch.assets, ...later.assets].map(a => a.webSha256)).size, 118);
   for (const asset of later.assets) {
     const bytes = fs.readFileSync(asset.relativePath);
@@ -87,15 +88,23 @@ test("reviewed later scenes have evidence-backed bindings and preserve all old a
   assert.ok(!Object.values(catalog.scenes.nodes).some(nodes => Object.values(nodes).includes("shared_bg_history_epilogue")));
 });
 
-test("55 unresolved Qing locations stay explicitly unbound, even when a map background exists", () => {
-  assert.equal(latest.pendingEditorial.length, 55);
-  assert.equal(new Set(latest.pendingEditorial.map(n => n.nodeId)).size, 55);
-  for (const {nodeId, reason} of latest.pendingEditorial) {
-    assert.ok(reason.length > 10, nodeId);
-    const node = world.canonicalTrees.qing.nodes[nodeId];
-    assert.equal(catalog.scenes.nodes.qing[nodeId], null, nodeId);
-    assert.equal(registry.sceneFor({faction: "qing", nodeId, coords: node.coords}), null, nodeId);
+test("the final 55 editorial decisions resolve exactly the historical pending set", () => {
+  assert.equal(completion.generatedCount, 0, "reuse suitable art rather than claim new images");
+  assert.deepEqual(completion.assets, []);
+  assert.equal(completion.existingReuse.length, 2);
+  assert.equal(completion.bindingChanges.length, 55);
+  assert.equal(new Set(completion.bindingChanges.map(b => b.nodeId)).size, 55);
+  assert.deepEqual(new Set(completion.bindingChanges.map(b => b.nodeId)),
+    new Set(latest.pendingEditorial.map(n => n.nodeId)));
+  assert.equal(completion.pendingEditorialCount, 0);
+  assert.deepEqual(completion.pendingEditorial, []);
+  for (const {faction, nodeId, assetId, previousAssetId} of completion.bindingChanges) {
+    assert.equal(previousAssetId, null);
+    assert.equal(catalog.scenes.nodes[faction][nodeId], assetId, nodeId);
+    const node = world.canonicalTrees[faction].nodes[nodeId];
+    assert.equal(registry.sceneFor({faction, nodeId, coords: node.coords}).id, assetId, nodeId);
   }
+  assert.equal(Object.values(catalog.scenes.nodes).flatMap(nodes => Object.values(nodes)).filter(Boolean).length, 1456);
 });
 
 test("Qing endings follow real branch ancestry and keep three outcomes visually distinct", () => {
@@ -144,7 +153,7 @@ test("four third-batch environments resolve exactly 30 prior pending nodes and p
   assert.equal(latest.assets.length, 4);
   assert.equal(latest.reviewedBindingChanges, 30);
   assert.equal(latest.totalExplicitlyBoundNodes, 1401);
-  assert.equal(sha(fs.readFileSync("skills-data.js")), latest.sourceStorySha256);
+  assert.equal(completion.sourceStorySha256, latest.sourceStorySha256);
   assert.equal(latest.sourceStorySha256, later.sourceStorySha256);
   assert.deepEqual(catalog.scenes.locations, latest.unchangedMapBindings);
   assert.equal(new Set([...batch.assets, ...later.assets, ...latest.assets].map(a => a.webSha256)).size, 122);
@@ -178,29 +187,31 @@ test("four third-batch environments resolve exactly 30 prior pending nodes and p
   }
   assert.deepEqual(new Set([...changed, ...latest.pendingEditorial.map(n => n.nodeId)]),
     new Set(later.pendingEditorial.map(n => n.nodeId)), "the previous 85 nodes are partitioned, never dropped");
-  assert.equal(Object.values(catalog.scenes.nodes).flatMap(nodes => Object.values(nodes)).filter(Boolean).length, 1401);
+  assert.equal(completion.previousExplicitlyBoundNodes, 1401);
 });
 
-test("only 27 Qing B-line final acts have matching Beijing coordinates and Taihe forecourt art", () => {
+test("all 81 Qing final acts now agree on Beijing, Taihe dialogue, and forecourt art", () => {
   const fifth = Object.values(world.canonicalTrees.qing.nodes).filter(n => /^qing_act5_[abc][1-3]_[1-3]_[1-3]$/.test(n.id));
   assert.equal(fifth.length, 81);
   const resolved = latest.assets.find(a => a.id === "qing_bg_taihe_final_forecourt");
-  assert.equal(resolved.sceneNodeIds.length, 27);
+  assert.equal(resolved.sceneNodeIds.length, 27, "third-batch manifest remains a historical snapshot");
+  let transitioned = 0;
   for (const node of fifth) {
     assert.ok(node.beats.some(b => b.text.includes("才走到这金銮太和殿前")), node.id);
-    const isCivil = node.id.startsWith("qing_act5_b");
-    assert.equal(resolved.sceneNodeIds.includes(node.id), isCivil, node.id);
-    if (isCivil) {
-      assert.equal(node.coords, "beijing:high", node.id);
-      assert.equal(registry.sceneFor({faction: "qing", nodeId: node.id, coords: node.coords}).id, resolved.id, node.id);
-    } else {
-      assert.ok(["jiangnan:mid", "mongol:steppe"].includes(node.coords), node.id);
-      assert.equal(registry.sceneFor({faction: "qing", nodeId: node.id, coords: node.coords}), null, node.id);
+    assert.equal(node.coords, "beijing:high", node.id);
+    assert.equal(registry.sceneFor({faction: "qing", nodeId: node.id, coords: node.coords}).id, resolved.id, node.id);
+    if (!node.id.startsWith("qing_act5_b")) {
+      transitioned++;
+      for (const key of ["originalBeats", "beats"]) {
+        assert.equal(node[key][0].sub, "北京紫禁城 · 太和殿前", node.id);
+        assert.ok(node[key][0].text.startsWith("前幕风波之后，众人来到北京紫禁城太和殿前。"), node.id);
+      }
     }
   }
+  assert.equal(transitioned, 54);
 });
 
-test("resolved early Qing scenes preserve exact evidence while the disputed court remains unbound", () => {
+test("early Qing locations keep exact evidence and resolve the sole conflicting court subtitle", () => {
   const nodes = world.canonicalTrees.qing.nodes;
   assert.match(nodes.qing_act3_civil_exam.beats[0].text, /大成殿前/);
   assert.equal(registry.sceneFor({faction: "qing", nodeId: "qing_act3_civil_exam"}).id, "qing_bg_confucius_dawn_court");
@@ -211,6 +222,83 @@ test("resolved early Qing scenes preserve exact evidence while the disputed cour
   assert.ok(nodes.qing_act4_c2_1.beats.some(b => b.speaker === "五世达赖法使"));
   assert.equal(registry.sceneFor({faction: "qing", nodeId: "qing_act4_c2_1"}).id, "qing_bg_rehe_golden_roof_terrace");
   assert.match(nodes.qing_act4_b3_1.desc, /皇极殿/);
-  assert.match(nodes.qing_act4_b3_1.beats[0].sub, /乾清门/);
-  assert.equal(registry.sceneFor({faction: "qing", nodeId: "qing_act4_b3_1", coords: "beijing:high"}), null);
+  assert.equal(nodes.qing_act4_b3_1.beats[0].sub, "紫禁城 · 皇极殿御前");
+  assert.equal(nodes.qing_act4_b3_1.originalBeats[0].sub, "紫禁城 · 皇极殿御前");
+  assert.match(nodes.qing_act4_b3_1.beats[0].text, /殿内/);
+  assert.equal(registry.sceneFor({faction: "qing", nodeId: "qing_act4_b3_1", coords: "beijing:high"}).id, "qing_bg_mainhall_joint_court");
+});
+
+const clone = value => JSON.parse(JSON.stringify(value));
+function restoreStoryEdits(nodes) {
+  for (const {nodeId, fields} of completion.storyEdits) {
+    const allowed = nodeId === "qing_act4_b3_1"
+      ? ["originalBeats.0.sub", "beats.0.sub"]
+      : ["coords", "originalBeats.0.sub", "originalBeats.0.text", "beats.0.sub", "beats.0.text"];
+    if (nodeId !== "qing_act4_b3_1") assert.match(nodeId, /^qing_act5_[ac][1-3]_[1-3]_[1-3]$/);
+    assert.deepEqual(fields.map(f => f.path), allowed, nodeId);
+    for (const {path, before, after} of fields) {
+      const keys = path.split(".");
+      let target = nodes[nodeId];
+      for (const key of keys.slice(0, -1)) target = target[key];
+      assert.equal(target[keys.at(-1)], after, `${nodeId}.${path}`);
+      assert.notEqual(before, after);
+      target[keys.at(-1)] = before;
+    }
+  }
+}
+
+test("reversing only 272 audited fields restores every byte of the prior story and backup", () => {
+  assert.equal(completion.storyEdits.length, 55);
+  assert.equal(completion.storyEdits.reduce((n, edit) => n + edit.fields.length, 0), 272);
+  assert.deepEqual(new Set(completion.storyEdits.map(e => e.nodeId)), new Set(latest.pendingEditorial.map(n => n.nodeId)));
+  assert.equal(sha(fs.readFileSync("skills-data.js")), completion.currentStorySha256);
+  const original = clone(world);
+  restoreStoryEdits(original.canonicalTrees.qing.nodes);
+  const prefix = "// skills-data.js: 动态技能检定、宏观地缘时相、四大阵营剧情树与世界观设定\nconst _WORLD_PRESETS = ";
+  const suffix = ";\nif (typeof window !== 'undefined') window.WORLD_PRESETS = _WORLD_PRESETS;\nif (typeof global !== 'undefined') global.WORLD_PRESETS = _WORLD_PRESETS;\nif (typeof module !== 'undefined' && module.exports) module.exports = _WORLD_PRESETS;\n";
+  assert.equal(sha(prefix + JSON.stringify(original, null, 2) + suffix), completion.sourceStorySha256,
+    "all choices, outcomes, non-Qing data, and other nodes are byte-for-byte unchanged");
+  const backup = JSON.parse(fs.readFileSync("data/qing-363-tree.json", "utf8"));
+  for (const {nodeId} of completion.storyEdits) assert.deepEqual(backup.nodes[nodeId], world.canonicalTrees.qing.nodes[nodeId], nodeId);
+  restoreStoryEdits(backup.nodes);
+  assert.equal(sha(JSON.stringify(backup, null, 2)), completion.baselineSha256["data/qing-363-tree.json"]);
+  for (const [file, expected] of Object.entries(completion.currentSha256)) assert.equal(sha(fs.readFileSync(file)), expected, file);
+});
+
+test("all 286 assets keep their bytes and catalog changes are limited to the audited binding and usage edits", () => {
+  assert.equal(completion.retainedExistingAssets.length, 286);
+  assert.equal(catalog.assets.length, 286);
+  for (const old of completion.retainedExistingAssets) {
+    const current = catalog.assets.find(a => a.id === old.id);
+    assert.equal(current.relativePath, old.relativePath, old.id);
+    assert.equal(sha(fs.readFileSync(old.relativePath)), old.sha256, old.id);
+    assert.equal(sha(JSON.stringify(current)), old.metadataSha256, old.id);
+  }
+  const before = clone(catalog);
+  for (const edit of completion.bindingChanges) before.scenes.nodes[edit.faction][edit.nodeId] = edit.previousAssetId;
+  assert.equal(completion.metadataEdits.length, 1);
+  for (const edit of completion.metadataEdits) {
+    assert.equal(edit.id, "qing_bg_taihe_final_forecourt");
+    const index = before.assets.findIndex(a => a.id === edit.id);
+    assert.deepEqual(before.assets[index], edit.after);
+    before.assets[index] = edit.before;
+  }
+  assert.equal(sha(JSON.stringify(before, null, 2) + "\n"), completion.baselineCatalogSha256,
+    "all original bindings, aliases, maps, and metadata are preserved outside the exact audit");
+  assert.deepEqual(catalog.scenes.locations, completion.unchangedMapBindings);
+});
+
+test("the Qing generator reproduces all corrected scenes without reviving old coordinates or subtitles", () => {
+  const os = require("node:os"), path = require("node:path"), {execFileSync} = require("node:child_process");
+  const temporary = fs.mkdtempSync(path.join(os.tmpdir(), "jiuzhou-story-generation-"));
+  try {
+    fs.mkdirSync(path.join(temporary, "data"));
+    for (const file of ["skills-data.js", "build-qing-363-tree.js"]) fs.copyFileSync(file, path.join(temporary, file));
+    for (const file of fs.readdirSync("data").filter(f => /^qing-act[23]-.*\.json$/.test(f))) {
+      fs.copyFileSync(path.join("data", file), path.join(temporary, "data", file));
+    }
+    execFileSync(process.execPath, ["build-qing-363-tree.js"], {cwd: temporary, stdio: "pipe", timeout: 30000});
+    const regenerated = JSON.parse(fs.readFileSync(path.join(temporary, "data/qing-363-tree.json"), "utf8"));
+    for (const {nodeId} of completion.storyEdits) assert.deepEqual(regenerated.nodes[nodeId], world.canonicalTrees.qing.nodes[nodeId], nodeId);
+  } finally {fs.rmSync(temporary, {recursive: true, force: true});}
 });

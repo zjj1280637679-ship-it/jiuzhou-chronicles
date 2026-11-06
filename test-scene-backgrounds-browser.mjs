@@ -8,7 +8,7 @@ import {createStaticServer} from "./server.js";
 const require = createRequire(import.meta.url);
 const {chromium} = require("playwright");
 const batches = [require("./docs/scene-background-batch-1.json"), require("./docs/scene-background-batch-2.json"),
-  require("./docs/scene-background-batch-3.json")];
+  require("./docs/scene-background-batch-3.json"), require("./docs/scene-background-batch-4.json")];
 const latest = batches.at(-1);
 const batch = {assets: batches.flatMap(b => b.assets)};
 const catalog = require("./data/illustrations/catalog.json");
@@ -68,6 +68,29 @@ try {
             document.querySelector("#mobile-scene-art").getAttribute("src")?.includes(id), expected);
         }
         if (faction === "qing") {
+          // Load all editorially repaired nodes through the real scene loader,
+          // so coordinates, narration, storage, and both art surfaces agree.
+          for (const {nodeId, assetId} of latest.bindingChanges) {
+            const state = await page.evaluate(async nodeId => {
+              const e = window.__vnEngine;
+              if (e.isTyping) e.fastForwardTypewriter();
+              await e.loadCanonicalNode(nodeId, false);
+              if (e.isTyping) e.fastForwardTypewriter();
+              return {coords: e.currentCoords, nodeId: e.currentStoryNodeId,
+                sub: document.querySelector("#speaker-sub").textContent,
+                text: document.querySelector("#dialogue-content").textContent};
+            }, nodeId);
+            assert.equal(state.coords, "beijing:high", nodeId);
+            assert.equal(state.nodeId, nodeId);
+            assert.equal(state.sub, nodeId === "qing_act4_b3_1" ? "紫禁城 · 皇极殿御前" : "北京紫禁城 · 太和殿前", nodeId);
+            if (nodeId !== "qing_act4_b3_1") assert.ok(state.text.includes("前幕风波之后，众人来到北京紫禁城太和殿前。"), nodeId);
+            await page.waitForFunction(id => window.__vnEngine.currentSceneIllustration?.id === id &&
+              document.querySelector("#bg-active").dataset.backgroundId === id &&
+              document.querySelector("#mobile-scene-art").getAttribute("src")?.includes(id), assetId);
+            if (output && ["qing_act4_b3_1", "qing_act5_a1_1_1", "qing_act5_c1_1_1"].includes(nodeId)) {
+              await page.screenshot({path: join(output, `${nodeId}-${viewport.width}.png`)});
+            }
+          }
           for (const {nodeId} of latest.pendingEditorial) {
             const node = world.canonicalTrees.qing.nodes[nodeId];
             await page.evaluate(node => {
