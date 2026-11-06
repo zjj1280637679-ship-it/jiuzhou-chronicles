@@ -314,7 +314,7 @@ const act4Templates = {
     desc: "为推行均田满汉平权，顺治与范文程联手，在皇极殿御前强硬逮捕谋反的宗室亲王，以大清律严惩八旗特权，奠定皇权至上基石。",
     coords: "beijing:high",
     beats: [
-      { speaker: "旁白", sub: "紫禁城 · 乾清门御前听政", type: "narrator", stageChar: "center", text: "御林侍卫按刀肃立，殿内杀气弥漫。三位正白旗固山贝子身被重枷，宗人府文卷掷满金阶，顺治帝面色森冷如冰。" },
+      { speaker: "旁白", sub: "紫禁城 · 皇极殿御前", type: "narrator", stageChar: "center", text: "御林侍卫按刀肃立，殿内杀气弥漫。三位正白旗固山贝子身被重枷，宗人府文卷掷满金阶，顺治帝面色森冷如冰。" },
       { speaker: "顺治帝", sub: "猛击御案，声震梁栋", type: "npc", stageChar: "left", text: "“圈占民田、杀戮无辜、密谋逼宫！你们真当大清是八王议政的部落汗廷吗？！自今日起，大清唯有天子至尊，再无凌驾国法之旗王！”" },
       { speaker: "守旧亲贵", sub: "挣扎怒吼，须发倒竖", type: "npc", stageChar: "right", text: "“忘本之君！当年没有我们八旗刀枪，你如何坐得上这金銮宝殿！你重用汉奴削夺同族，太祖太宗在天之灵绝不容你！”" },
       { speaker: "集权直觉", sub: "【内在法统 · 铁腕皇权】", type: "voice-court", stageChar: "center", text: "“打破部落贵族体制是走向中央集权的必由之路。是彻底剥夺宗室兵权收归禁旅、是斩首首恶宽宥旁支，抑或建立宗室议政院妥协分权？”" }
@@ -593,7 +593,10 @@ act5Specs.forEach((spec, specIdx) => {
   const ending2Id = `qing_end_${specIdx * 3 + 2}`;
   const ending3Id = `qing_end_${specIdx * 3 + 3}`;
 
-  const coords = spec.trunk === 'A' ? 'jiangnan:mid' : (spec.trunk === 'B' ? 'beijing:high' : 'mongol:steppe');
+  // All fifth-act dialogue explicitly takes place before Taihe Hall in Beijing.
+  const coords = 'beijing:high';
+  const finalNarratorSub = spec.trunk === 'B' ? '神州乾坤交汇之所' : '北京紫禁城 · 太和殿前';
+  const finalTransition = spec.trunk === 'B' ? '' : '前幕风波之后，众人来到北京紫禁城太和殿前。';
 
   const act5Node = {
     id: spec.id,
@@ -607,10 +610,10 @@ act5Specs.forEach((spec, specIdx) => {
     originalBeats: [
       {
         speaker: "青史巨眼",
-        sub: "神州乾坤交汇之所",
+        sub: finalNarratorSub,
         type: "narrator",
         stageChar: "center",
-        text: `风云咆哮，山河倒悬。数百年的血与火、满汉蒙藏数千万生民的期盼与仇恨，在这最后的决战舞台上凝聚成实质。九洲神鼎之重，正待最后的铸型！`
+        text: `${finalTransition}风云咆哮，山河倒悬。数百年的血与火、满汉蒙藏数千万生民的期盼与仇恨，在这最后的决战舞台上凝聚成实质。九洲神鼎之重，正待最后的铸型！`
       },
       {
         speaker: spec.trunk === 'A' ? "八旗统帅" : (spec.trunk === 'B' ? "内阁首辅" : "草原大汗"),
@@ -637,10 +640,10 @@ act5Specs.forEach((spec, specIdx) => {
     beats: [
       {
         speaker: "青史巨眼",
-        sub: "神州乾坤交汇之所",
+        sub: finalNarratorSub,
         type: "narrator",
         stageChar: "center",
-        text: `风云咆哮，山河倒悬。数百年的血与火、满汉蒙藏数千万生民的期盼与仇恨，在这最后的决战舞台上凝聚成实质。九洲神鼎之重，正待最后的铸型！`
+        text: `${finalTransition}风云咆哮，山河倒悬。数百年的血与火、满汉蒙藏数千万生民的期盼与仇恨，在这最后的决战舞台上凝聚成实质。九洲神鼎之重，正待最后的铸型！`
       },
       {
         speaker: spec.trunk === 'A' ? "八旗统帅" : (spec.trunk === 'B' ? "内阁首辅" : "草原大汗"),
