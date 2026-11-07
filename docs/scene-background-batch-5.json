@@ -1,0 +1,2269 @@
+{
+  "version": 1,
+  "date": "2026-11-07",
+  "status": "local-static-checks-passed-browser-launch-blocked",
+  "baseCommit": "cdd6bac2a8777318264334e41b7e0137bb0983ea",
+  "userRequest": "好吧，现在重新生成并上传，虽然不知道哪里出错了，但是从头做是个好办法",
+  "scope": "Generate two genuinely new environment images for the exact final 55 batch-4 nodes; this is not 55 generated images. Preserve batches 1–4 as historical snapshots.",
+  "generatedCount": 2,
+  "assets": [
+    {
+      "id": "qing_bg_huangji_justice_rebuilt",
+      "token": "背景·后金皇极殿内肃政重绘",
+      "tokenAliases": [],
+      "categoryPath": [
+        "环境",
+        "文字冒险背景",
+        "后金"
+      ],
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_huangji_justice_rebuilt.webp",
+      "faction": "qing",
+      "factionName": "后金",
+      "category": "地点",
+      "categoryName": "无人环境",
+      "title": "皇极殿内肃政（重绘）",
+      "description": "皇极殿内侧向肃政场景：红柱彩梁、后方御座御案、阶旁无字卷册，空殿保留人物叠加空间。不暗示裁决结果。",
+      "tags": [
+        "后金",
+        "背景",
+        "无人环境",
+        "文字冒险",
+        "第五批",
+        "皇极殿内肃政"
+      ],
+      "useWhen": [
+        "皇极殿内侧向肃政场景：红柱彩梁、后方御座御案、阶旁无字卷册，空殿保留人物叠加空间。不暗示裁决结果。"
+      ],
+      "avoidWhen": [
+        "不得作为精确古建考证、人物身份或未选结局的证据。",
+        "只用于正文已明确的北京皇宫对应殿内或殿前场景。"
+      ],
+      "legacy": false,
+      "symbol": "🏞️",
+      "sourcePack": "文字冒险环境补全·第五批（2026-11-07 全新生成）",
+      "familyId": "qing_backgrounds_batch5",
+      "dimensions": {
+        "width": 1672,
+        "height": 941
+      },
+      "webBytes": 290096,
+      "webSha256": "d0afd7fc6786121a5d8a6ddb78624b3713f8f4662b7328edd9f493e7f47bc0b1",
+      "prompt": "Use case: historical-scene. Create ONE entirely new finished raster background for the alternate-history visual novel 九州沉浮录. Asset: early Qing imperial palace interior, scene qing_act4_b3_1, not a remake overlay or collage. Cinematic realistic environment painting, believable seventeenth-century Chinese wood and stone, finely detailed restrained film color, natural light. Wide landscape 16:9, target 1672x941. The scene is INSIDE the great imperial audience hall of the Forbidden City in Beijing, called Huangji Hall in the story, during a tense royal judicial confrontation. Depict only the empty architectural environment for character overlays: enormous dark-red timber columns, richly painted but subdued coffered beams, a proportionate raised imperial dais at the rear with a gilded dragon throne and small dark wooden imperial desk, dark stone paving. Two or three old paper dossiers and rolled judicial documents lie scattered at the side of the shallow steps, without any readable marks. Bronze incense vessels remain on solid stands; faint smoke. Light enters from side lattice doors, austere cool shadows with small amber light on the dais, serious tension but no battle damage. Slightly angled perspective from inside the hall, broad empty lower center floor, enough visible timber roof to convey the reverberating hall in the dialogue. No humans, silhouettes, captives, statues of humans, blood, flags, heraldry, modern objects, glass-chimney lamps, electric lighting, readable text, plaques, watermark or borders. This is historically informed alternate-fiction scenery, not a claim of exact reconstruction, and must not depict an outdoor palace gate or a modern tourist display.",
+      "generatedFilename": "exec-3248e0bc-0ed2-43e1-80ae-db72e1fb7850.png",
+      "originalRelativePath": "asset-inbox/scene-background-batch-5/originals/qing_bg_huangji_justice_rebuilt.png",
+      "originalSha256": "81ca956d66d52a534c6eaa2f3b840c730c30d5a42d2f1eacba7d3f4a0108f19d",
+      "originalBytes": 2617591,
+      "sceneNodeIds": [
+        "qing_act4_b3_1"
+      ],
+      "visualQA": {
+        "passed": true,
+        "independentReview": true,
+        "scope": "Full WebP pixels reviewed independently. No people, readable text, modern objects or outcome symbols; new composition; no cropping or stretching. Historically informed fiction, not archaeological reconstruction."
+      }
+    },
+    {
+      "id": "qing_bg_taihe_decision_rebuilt",
+      "token": "背景·后金太和殿前风云抉择重绘",
+      "tokenAliases": [],
+      "categoryPath": [
+        "环境",
+        "文字冒险背景",
+        "后金"
+      ],
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_taihe_decision_rebuilt.webp",
+      "faction": "qing",
+      "factionName": "后金",
+      "category": "地点",
+      "categoryName": "无人环境",
+      "title": "太和殿前风云抉择（重绘）",
+      "description": "太和殿前远斜视角：黄瓦重檐、白石台基、侧廊与空石庭，风云下等待终局抉择，不暗示任何胜败结果。",
+      "tags": [
+        "后金",
+        "背景",
+        "无人环境",
+        "文字冒险",
+        "第五批",
+        "太和殿前风云抉择"
+      ],
+      "useWhen": [
+        "太和殿前远斜视角：黄瓦重檐、白石台基、侧廊与空石庭，风云下等待终局抉择，不暗示任何胜败结果。"
+      ],
+      "avoidWhen": [
+        "不得作为精确古建考证、人物身份或未选结局的证据。",
+        "只用于正文已明确的北京皇宫对应殿内或殿前场景。"
+      ],
+      "legacy": false,
+      "symbol": "🏞️",
+      "sourcePack": "文字冒险环境补全·第五批（2026-11-07 全新生成）",
+      "familyId": "qing_backgrounds_batch5",
+      "dimensions": {
+        "width": 1672,
+        "height": 941
+      },
+      "webBytes": 282394,
+      "webSha256": "785ef238ae52841915efd033c1c4fd280c60fac971002b101b2e4eea0417ed90",
+      "prompt": "Use case: historical-scene. Create ONE completely new finished raster background for the alternate-history Chinese visual novel 九州沉浮录. Asset: a final decision scene outside Taihe Hall in Beijing Forbidden City, not a collage or UI. Cinematic realistic environmental painting, finely detailed weathered stone and timber, plausible early Qing seventeenth-century palace, restrained natural film color. Wide landscape 16:9, target 1672x941. View across the enormous EMPTY stone forecourt from a subtle diagonal position, at human eye level, toward the great imperial hall. The central great hall has broad double-eaved imperial yellow glazed roofs and red wooden columns above a white stone triple terrace; side corridors recede into distance. The full hall should sit in the middle upper distance rather than fill the frame, and spacious grey flagstones occupy the lower third for game portraits and dialogue. The dramatic ceiling of layered storm clouds opens with a thin cool light toward the far side, soft warm reflection along roof edges. Time and fate seem suspended BEFORE a final political decision. No celebratory banners, troops or horses, no destruction, fire, rubble or symbols of a decided victory/defeat. Keep the architecture grounded and gravity plausible, not fantasy spires. No people, human silhouettes or human statues, no text or plaque or watermark, no modern flag, no tourist barriers, lamps, electric lights or modern objects. The story's A and C branches explicitly arrive at this same forecourt after earlier events in Jiangnan or the steppe; therefore depict the Beijing imperial palace only, not those earlier places. Historically informed alternate-fiction scenery, not an archaeological reconstruction.",
+      "generatedFilename": "exec-5e641752-3b7c-4c7f-bf05-8ebf2e8dc0fc.png",
+      "originalRelativePath": "asset-inbox/scene-background-batch-5/originals/qing_bg_taihe_decision_rebuilt.png",
+      "originalSha256": "0b8a1986d0365b200afd3c7716763a6007ba523dedca85056054f7367db3e799",
+      "originalBytes": 2615794,
+      "sceneNodeIds": [
+        "qing_act5_a1_1_1",
+        "qing_act5_a1_1_2",
+        "qing_act5_a1_1_3",
+        "qing_act5_a1_2_1",
+        "qing_act5_a1_2_2",
+        "qing_act5_a1_2_3",
+        "qing_act5_a1_3_1",
+        "qing_act5_a1_3_2",
+        "qing_act5_a1_3_3",
+        "qing_act5_a2_1_1",
+        "qing_act5_a2_1_2",
+        "qing_act5_a2_1_3",
+        "qing_act5_a2_2_1",
+        "qing_act5_a2_2_2",
+        "qing_act5_a2_2_3",
+        "qing_act5_a2_3_1",
+        "qing_act5_a2_3_2",
+        "qing_act5_a2_3_3",
+        "qing_act5_a3_1_1",
+        "qing_act5_a3_1_2",
+        "qing_act5_a3_1_3",
+        "qing_act5_a3_2_1",
+        "qing_act5_a3_2_2",
+        "qing_act5_a3_2_3",
+        "qing_act5_a3_3_1",
+        "qing_act5_a3_3_2",
+        "qing_act5_a3_3_3",
+        "qing_act5_c1_1_1",
+        "qing_act5_c1_1_2",
+        "qing_act5_c1_1_3",
+        "qing_act5_c1_2_1",
+        "qing_act5_c1_2_2",
+        "qing_act5_c1_2_3",
+        "qing_act5_c1_3_1",
+        "qing_act5_c1_3_2",
+        "qing_act5_c1_3_3",
+        "qing_act5_c2_1_1",
+        "qing_act5_c2_1_2",
+        "qing_act5_c2_1_3",
+        "qing_act5_c2_2_1",
+        "qing_act5_c2_2_2",
+        "qing_act5_c2_2_3",
+        "qing_act5_c2_3_1",
+        "qing_act5_c2_3_2",
+        "qing_act5_c2_3_3",
+        "qing_act5_c3_1_1",
+        "qing_act5_c3_1_2",
+        "qing_act5_c3_1_3",
+        "qing_act5_c3_2_1",
+        "qing_act5_c3_2_2",
+        "qing_act5_c3_2_3",
+        "qing_act5_c3_3_1",
+        "qing_act5_c3_3_2",
+        "qing_act5_c3_3_3"
+      ],
+      "visualQA": {
+        "passed": true,
+        "independentReview": true,
+        "scope": "Full WebP pixels reviewed independently. No people, readable text, modern objects or outcome symbols; new composition; no cropping or stretching. Historically informed fiction, not archaeological reconstruction."
+      }
+    }
+  ],
+  "reviewedBindingChanges": 55,
+  "previousExplicitlyBoundNodes": 1456,
+  "totalExplicitlyBoundNodes": 1456,
+  "pendingEditorial": [],
+  "baselineCatalogSha256": "f21693c82857accf5e87db7847b3096c0d0a7677d24e19a7fb6aa459e3d1c4fc",
+  "retainedExistingAssets": [
+    {
+      "id": "ming_battle",
+      "relativePath": "data/illustrations/ming/battle.jpg",
+      "sha256": "d06b623829a611bc74ea8fd8e80b11bcfafd1c7358cc15f3eb38a2313d99006e",
+      "metadataSha256": "269891d9051e4665d68723d08e69b25ae3d20456d842d52147162f21eb7c694b"
+    },
+    {
+      "id": "ming_bg_anping_command",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_anping_command.webp",
+      "sha256": "d1137e1f7cb23563d75c4bff7b437be94fbff796d6e33be4f65b979245b01410",
+      "metadataSha256": "157bc771056134e717da78cee71cf0da93a9e24826d4f00fe9ed39cfad44fdf2"
+    },
+    {
+      "id": "ming_bg_artillery_yard",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_artillery_yard.webp",
+      "sha256": "a9501d3317f3f3c692aa3c5356237fd180dd54db050777b2582ac92ed16b3c69",
+      "metadataSha256": "916a41471f7e83e3cdd6059253d03a2f9e30e64b0765dc01c108c562629d959e"
+    },
+    {
+      "id": "ming_bg_beijing_snow_gate",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_beijing_snow_gate.webp",
+      "sha256": "5f6c92d7197be9a1dfea297ac8940a0452e3a03973c9e34441599b6f36bfd50a",
+      "metadataSha256": "1be23195e0beba71bf19aaa6ff1589a2775aca863292f99e537ab2877a17d211"
+    },
+    {
+      "id": "ming_bg_cabinet_winter",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_cabinet_winter.webp",
+      "sha256": "166b9169224439bb807ce6f4c40d1028978031dff819e2b22b8449feb0430fa9",
+      "metadataSha256": "42ab2ede130243c861f9267ede79c63d497bf8314ab79e45a8294db7f27b719b"
+    },
+    {
+      "id": "ming_bg_desheng_battlement",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_desheng_battlement.webp",
+      "sha256": "09a230c8e63de8cd5ebe2a85ce08d1fba6310fb5efcf3783f07c10b2abc266e0",
+      "metadataSha256": "1f5cc7c0c69c00a05deab5d62415f7e115e72951c386fbf6fdca5ecf22517258"
+    },
+    {
+      "id": "ming_bg_ending_central_restoration",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_ending_central_restoration.webp",
+      "sha256": "8859cdaf20a61c152e3803d43ff7c9834295e13463ea79344b3f3b509c460b69",
+      "metadataSha256": "d104383a1f0a7df3898338ef90f0e0b271912e4cc5de032377f9bf0ea6fee82d"
+    },
+    {
+      "id": "ming_bg_ending_divided_river",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_ending_divided_river.webp",
+      "sha256": "1bec19d8cf6d3f97a9c557fbb36c2f9770628aadb770d6b95c2222b64572dee2",
+      "metadataSha256": "a154b1f8f1d91ebb2568bfdeef34d684308ccdbf58ba0408268efd1ea72d2127"
+    },
+    {
+      "id": "ming_bg_ending_maritime_reform",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_ending_maritime_reform.webp",
+      "sha256": "91db21294fa0120cf0f45375cc1206191521d910f6d531086a2a41859b07d7b9",
+      "metadataSha256": "bda05586eedb4b66fb5b982f394503bd20db7ac651ca8ff15412c21ca8c0935c"
+    },
+    {
+      "id": "ming_bg_fengqiao_canal",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_fengqiao_canal.webp",
+      "sha256": "556ea5e39af5c9b4ce0f970b48442861e543f6ea8e5f52e55e130e9b63bb9280",
+      "metadataSha256": "c40636d501fd97ac4fdbcc6fcc6b40640e8558efce430eb79384bd71aaebf6a0"
+    },
+    {
+      "id": "ming_bg_later_andingmen_night",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_later_andingmen_night.webp",
+      "sha256": "b928216dd85ea9df046828d96596b8cce1fb22361da77c72daa4161c2303f408",
+      "metadataSha256": "da60e389fb3ee8e95e44a12fbcfba4ff76d39cc67133ed7a40335031c9ece9ca"
+    },
+    {
+      "id": "ming_bg_later_gongyuan_council",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_later_gongyuan_council.webp",
+      "sha256": "627219ad4720ee8c61f28b3863b209f77e29bd23774b6b0e9680ee4e021d2997",
+      "metadataSha256": "9fdabb7420b12a837b8de35ac2e107d172556039ef298b441450e084570b7c30"
+    },
+    {
+      "id": "ming_bg_later_huaian_sluice",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_later_huaian_sluice.webp",
+      "sha256": "39481242b38d74fac1aec6fc0df231fd860c778a444c9d761dd437f614bdb6c1",
+      "metadataSha256": "ec77296c87605e4ddb9a2f3fc3da917962201a5ee95539c49ae2119c995c8fe1"
+    },
+    {
+      "id": "ming_bg_later_qihua_gate",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_later_qihua_gate.webp",
+      "sha256": "ad3d1d2be13dcb0aed6dbc2b3321f15cf49ff59efd741e1f4c87167cab0b390f",
+      "metadataSha256": "f8d46177482dc19deeed49486dc86b069d53e0b18f943fbc9bf26f3efa7f592d"
+    },
+    {
+      "id": "ming_bg_later_river_blockade",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_later_river_blockade.webp",
+      "sha256": "e85298ef35ffb3844f0494596285a81e9e626864b5ec8b21fe64778fc878cac5",
+      "metadataSha256": "ce32124fdb1a3bd6be7febba69687f78498b0e4cc0e1695f359dcf9209d64946"
+    },
+    {
+      "id": "ming_bg_later_taihe_hall",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_later_taihe_hall.webp",
+      "sha256": "2c3b44ecb5c3ef45aaba8aea544996672aec39b2a1bca1a5176011f2d676e731",
+      "metadataSha256": "9c69a190a857f5acaacc7052ebc4ef04a742c1b7727056a5ebc308c94064845b"
+    },
+    {
+      "id": "ming_bg_later_yangtze_battery",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_later_yangtze_battery.webp",
+      "sha256": "98b30eaf8305df0d93e7ff821d82bd335f717096090021773a0de94dc0c1273b",
+      "metadataSha256": "0bebf356c8d033f53ea2afd75828b177d7c6c974b8c7680c4e7fb4708b70ce2f"
+    },
+    {
+      "id": "ming_bg_later_yipianshi_council",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_later_yipianshi_council.webp",
+      "sha256": "34a0aae8645ac0a11db4053068847a548a6b1ae53b12d20a47ed8d06bd5e3c9d",
+      "metadataSha256": "8118360f26fa052c579d9fede242068b8bce46ee395c085b08f2644621302a4b"
+    },
+    {
+      "id": "ming_bg_nanjing_thronehall",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_nanjing_thronehall.webp",
+      "sha256": "d028b4876dfb91c42819de8a6090c77910a30517f4b3d7bfbb6f210f1568bc07",
+      "metadataSha256": "4626484b0a5c81e46db356befc089d8561c43e1faccebe884cb852dae0cc17fa"
+    },
+    {
+      "id": "ming_bg_qinhuai_guesthall",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_qinhuai_guesthall.webp",
+      "sha256": "d6fe21a7cbb90bef3de9ef729469fdb5831065c1c63c7ce343cdfa68409fa26e",
+      "metadataSha256": "525ad10f49fdecc6c47e728e1951fe90a3194080888c31205c9c50bb48adb384"
+    },
+    {
+      "id": "ming_bg_snow_postroad",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_snow_postroad.webp",
+      "sha256": "c229e5efa3c7f800d1b7c9d25b9316f381167db8a3057ced676f73be77f54b8e",
+      "metadataSha256": "073ce21ad5c0d5130c0899ac83f382a5564c44685552e8ad57ce8904ae4e1c62"
+    },
+    {
+      "id": "ming_bg_storm_battlements",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_storm_battlements.webp",
+      "sha256": "5b7bc2149d65fd873377ec42c7cbca047690015c4f86c0a780e7aee7169725eb",
+      "metadataSha256": "3835debaae7e183b995a4f4c704715ae01b14d9712189d5c22bb8e7550d817a2"
+    },
+    {
+      "id": "ming_bg_xiaoling_path",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_xiaoling_path.webp",
+      "sha256": "177db2294b5b2bc31f9103519f43fa6cff8db1fd1002155aefbd030dfc7176aa",
+      "metadataSha256": "21808f41165f5a82b70e22920899f4a18e44fdb5aabbc3a0a2699932cc5bebdd"
+    },
+    {
+      "id": "ming_bg_yangzhou_defenses",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_yangzhou_defenses.webp",
+      "sha256": "0f0cf28079b8867ed1ba81b2737cd14d8292b4ffc4ed6e8df95edd459358c98d",
+      "metadataSha256": "e6982c5672ab915c7c720d4f4e77ad7e5ba6d46bb79c492c139406c9991b7cb1"
+    },
+    {
+      "id": "ming_bg_yuegang_customs",
+      "relativePath": "data/illustrations/ming/backgrounds/ming_bg_yuegang_customs.webp",
+      "sha256": "a7a80cd150839f70795da6c987ed1e8fd9e881337839f29ba400c1a823ddc7a8",
+      "metadataSha256": "102d10a584309274d4000a48d331ce8e817faf556f5cf4e37189e6effd98846a"
+    },
+    {
+      "id": "ming_captive",
+      "relativePath": "data/illustrations/ming/captive.svg",
+      "sha256": "bbc2ad49f681344b81410dac100f408229ccfc2ed0ea0cf78ea3bf57298d0013",
+      "metadataSha256": "d783a6f0253587a7b356614e7efd6d6aaafd877f07df76157ab661ee8088a362"
+    },
+    {
+      "id": "ming_romance",
+      "relativePath": "data/illustrations/ming/romance.jpg",
+      "sha256": "e4ffc9462004e46cc94aec930e7f79b5d64b27d968b45fd31700098d7b2c99c5",
+      "metadataSha256": "f6b98aca1c35285d050d78947812f95a1e53bb5015e0c982f68fca337c2994fb"
+    },
+    {
+      "id": "ming_victory",
+      "relativePath": "data/illustrations/ming/victory.svg",
+      "sha256": "3916aaa5ab0bbd4169785bef9ac6ca03f6bf8ff38ee685c7bdea720f6cc4b519",
+      "metadataSha256": "eca99cea9383ed1bb5a3d60fcee43572bcf6f8f7429c6439a19c607677b68ac3"
+    },
+    {
+      "id": "ming_war",
+      "relativePath": "data/illustrations/ming/war.svg",
+      "sha256": "6073c7cb1b3a3a9332a9104c5edcfa3bfce1d9be245aa335c607987c1a04a08a",
+      "metadataSha256": "f3923e94fcff36e5f5bba5c0bdd2f86c986f63ae242423ba8674a25286216dc0"
+    },
+    {
+      "id": "ming_wealth",
+      "relativePath": "data/illustrations/ming/wealth.svg",
+      "sha256": "d0f5d205cefad015452afe74ff62aa401ce3aa06454be4ac8b92d38689205a07",
+      "metadataSha256": "85ddd46db530ea82977c4593c7907baf632c951d1470279f9a8b80689e7e6f42"
+    },
+    {
+      "id": "mongol_battle",
+      "relativePath": "data/illustrations/mongol/battle.svg",
+      "sha256": "50f2f641106174e7170400f0ca9537ec4d279f96edc2ed9e21065615e1dbc5b2",
+      "metadataSha256": "97d8d043737447ef874a08d5c0c7bffa5d7787cffb4b19bfeaaec7974ed9c4b2"
+    },
+    {
+      "id": "mongol_bg_act5_2",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_bg_act5_2.webp",
+      "sha256": "2d5bcc4956c96b76b2d6cdbbf7479a05b6a09605f0dd725fac1fb3fcd6bd38e2",
+      "metadataSha256": "ae8cad6661cec592c68b5384c0e30f044d188c7f2d05c13099237475fac7f1b4"
+    },
+    {
+      "id": "mongol_bg_act5_3",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_bg_act5_3.webp",
+      "sha256": "3deba252e5349979135cd99df3035075e5edf4288cd63a7bf22247453fffe927",
+      "metadataSha256": "f69d1ba40247feddf2e2495ec6777cf1e8e683509e1718c8c1f796efb82d2f3a"
+    },
+    {
+      "id": "mongol_bg_act5_4",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_bg_act5_4.webp",
+      "sha256": "c07816cfd1c2043c3dae846994e76e52311c639926af49b1bbef4d502530f85f",
+      "metadataSha256": "0e423615a5dd4c71e7d51ce3e8f6ff8ed736cbb428abe422913f1d9e1aa344fc"
+    },
+    {
+      "id": "mongol_bg_act5_5",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_bg_act5_5.webp",
+      "sha256": "73f86cd5360dd791972c561fe1f2c00eb80ceea0c5501b853706768464398393",
+      "metadataSha256": "2ccea0ba8055a5c2a8ae5d4ef425fcce7e7b9ef1557943b999b9a80032bbc569"
+    },
+    {
+      "id": "mongol_bg_act5_6",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_bg_act5_6.webp",
+      "sha256": "f2d1ec52adb152f4a6f241a91e8f415a7914b60477f6e759f1486a5d6992d87a",
+      "metadataSha256": "63ff74c23fb5c6bc11adfe55a8945b338edbe7e34469631406b4662c9dbe1e91"
+    },
+    {
+      "id": "mongol_bg_act5_8",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_bg_act5_8.webp",
+      "sha256": "2095e1c2db548874eaccecedd503578f789747381ef1b0c6bf039f9b2fecf91b",
+      "metadataSha256": "e6d0c8f111f485bba24659d6991dac948f4b0171008c946022a29578ab516d9e"
+    },
+    {
+      "id": "mongol_bg_ending_1",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_bg_ending_1.webp",
+      "sha256": "932b9726783ee89f4ecb6b418fe2f9f46e0b6f61e4363118a59f5e3ef3f97bf8",
+      "metadataSha256": "18a701cec135b332e9b72d420dc80b41e7a5b2cdc405a8b13fc6442d1de70882"
+    },
+    {
+      "id": "mongol_bg_ending_2",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_bg_ending_2.webp",
+      "sha256": "10a74a66ba6b1cf1d69753c991f12c33450ab9d6394f73b7f33ae805ab4cfadd",
+      "metadataSha256": "b5931ad33b1ed4d734754ee8d49ca71ad1b187320964dbaca67d81aee1b224c3"
+    },
+    {
+      "id": "mongol_bg_ending_3",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_bg_ending_3.webp",
+      "sha256": "6e5692b62a74045dd7e69957b01842c5c9811109c590b6fa7dc223dc4c5587a3",
+      "metadataSha256": "871e46666b449e6e78e658a318b788fe1cc23514faf268e6eda480c7764281b3"
+    },
+    {
+      "id": "mongol_captive",
+      "relativePath": "data/illustrations/mongol/captive.svg",
+      "sha256": "9218f4a06633239fe29c5a98e6a7c2b423df5afe1b9cf66b8299501f3a8b5f3e",
+      "metadataSha256": "820e8d5d6c03be7eeb5c1d4d63c78ae097ae06c08b008fc7a1bacf8e4a132ef8"
+    },
+    {
+      "id": "mongol_chahar_camp",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_chahar_camp.webp",
+      "sha256": "644cc5c71e79a760bc3816a34c4a6ea2fd27502840748cb2826f0efa27b6e24e",
+      "metadataSha256": "1644b1b2eed69ed7411b542e4c60ba50484bfd4cbeb75508e6d579322e5a4177"
+    },
+    {
+      "id": "mongol_datong_aftermath",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_datong_aftermath.webp",
+      "sha256": "7da73e117aec62fbc8fb7d3c7d82acf39281858db5146537446ecc8decc73253",
+      "metadataSha256": "c52483ad758420c674c6ad56bc7ed64c270496d0e7fb973413bdab88db1b5bcb"
+    },
+    {
+      "id": "mongol_dazhao_temple",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_dazhao_temple.webp",
+      "sha256": "75557a981e3d2bd62716e77eff8320e4d808e4a5f2b79ed73c2ae5e24a7027d6",
+      "metadataSha256": "e6e8534d98f6e08adec05d9fc6bb513e9459a1147695c65de176cd839b305e80"
+    },
+    {
+      "id": "mongol_desert_battlefield",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_desert_battlefield.webp",
+      "sha256": "b071a3dfc420cc6d69b1b9503db81a42eeaa101efd4032bfe01707ce641b26f0",
+      "metadataSha256": "1e1dade7761c8caaab0a8747c2321505748b92d4b6ede3d4801a2b376437c7a9"
+    },
+    {
+      "id": "mongol_eight_white_shrine",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_eight_white_shrine.webp",
+      "sha256": "fb6c51f3e889b8c535c82c0527213243ca213c882f84f44ab85526d20bfab7b0",
+      "metadataSha256": "e6c670ba4bf39eb1700880769c761e81f022f2baefc1cfc145f1f8929ed49727"
+    },
+    {
+      "id": "mongol_khan_council_tent",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_khan_council_tent.webp",
+      "sha256": "d10ccad834562ecdc0a9232296092cf92ef0fb556ad60c449ad6b6a6d64d3b5f",
+      "metadataSha256": "50753a64f412d37326acfdc46d562004643fbfac87e8a809db94a317a8fd39c3"
+    },
+    {
+      "id": "mongol_khorchin_ruins",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_khorchin_ruins.webp",
+      "sha256": "339cc738950ba71061cb0137391e4f41809896118b462edda074b7e139639128",
+      "metadataSha256": "3ab5c834650bcd865726a371d0122b62ad6853d1d3bbc481aed6b8bd68d857ca"
+    },
+    {
+      "id": "mongol_liaoyang_granary",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_liaoyang_granary.webp",
+      "sha256": "2c4a6e46dfc9544c40f7c92f7d90bee0d50dda4d44c1cd52c8d7d79d356ad7c5",
+      "metadataSha256": "82f6b792e6a9e6eece12768307a1ca4a95cd0d9b132a6a2bb4f170c8427ec321"
+    },
+    {
+      "id": "mongol_onon_assembly",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_onon_assembly.webp",
+      "sha256": "11b4f5253755601b239cf82f449ba7494a08724dc9c2cda70c7a6231661809bb",
+      "metadataSha256": "95b7c6a08d5ff7f49b60a709563ed960d6b3a6153386442016a2ed0b06c7105a"
+    },
+    {
+      "id": "mongol_qinghai_goldtent",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_qinghai_goldtent.webp",
+      "sha256": "a9e86833e9a0111be39a6c1ded2049c6988056b2edba6c2cacdbbb5a88b039d9",
+      "metadataSha256": "6a236356a4b890ca4bf73faf4c6d6ecf95a9dc390c179af56653487a6d5c622b"
+    },
+    {
+      "id": "mongol_redsalt_camp",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_redsalt_camp.webp",
+      "sha256": "566a0d96d73f25093f4a991c484db9d691a5fced56f6c69f477e8e6f23139f2b",
+      "metadataSha256": "ef5786a33e1264410e959426569d1d247cad024b0e0fcd2179edc3787d3b7ed0"
+    },
+    {
+      "id": "mongol_romance",
+      "relativePath": "data/illustrations/mongol/romance.svg",
+      "sha256": "849ad50ef033c5bb5c0952b553098b6aaf84b85c5540f4793f997bcac8c9a6ec",
+      "metadataSha256": "664bfec0e3823c0da6b4e753b0c9bdb89cdeb9d6a2ef900b5c9005d4ee0840e2"
+    },
+    {
+      "id": "mongol_victory",
+      "relativePath": "data/illustrations/mongol/victory.svg",
+      "sha256": "a7c795515e02ceb75e3616b7df25096ed78922b85b523320fa2c6200db04c922",
+      "metadataSha256": "4596f28e6dab977ae529c756f71c2867478b9f553afde7262a1c67e06c1c57fb"
+    },
+    {
+      "id": "mongol_war",
+      "relativePath": "data/illustrations/mongol/war.svg",
+      "sha256": "594666be6808520957aeb17181a24faf90b68815f429a4a73aa7e210dfeded63",
+      "metadataSha256": "430342055fd6d22fb60dd064dffb866de42b90ec4d755494a1724c9f91fbf767"
+    },
+    {
+      "id": "mongol_wealth",
+      "relativePath": "data/illustrations/mongol/wealth.svg",
+      "sha256": "8036df36d2fe2b2fa8f4441703b644824a956754a30ceea11308beb21e5a05fe",
+      "metadataSha256": "0c6aeb7b830a78ab8cdae82f6473e072db5c7f507fa4f1e7bad7f542d9c9334b"
+    },
+    {
+      "id": "mongol_xifeng_pass",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_xifeng_pass.webp",
+      "sha256": "ebc9d112ec3a4a1f24efd9aae08f214350f5015ddb8e18aa5a95aeb2bb883b16",
+      "metadataSha256": "449ce4517187818fa8101a6afa137df18fe7e94835d14a3ce5d39512d7f69bb4"
+    },
+    {
+      "id": "mongol_yinshan_range",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_yinshan_range.webp",
+      "sha256": "1bc9f7fda2ed03b3f4baf989033f26242247b09677898be4df907bd0779150e3",
+      "metadataSha256": "db0a604fa2a859cf5aab5847d100ad694ee1a56d8e61b01c23936fd18a996cd7"
+    },
+    {
+      "id": "mongol_zhangjiakou_cellar",
+      "relativePath": "data/illustrations/mongol/backgrounds/mongol_zhangjiakou_cellar.webp",
+      "sha256": "404c1b74da02ab70e9dbad173ded00a0cf65d64dd2d59429436fd78428d6bdd0",
+      "metadataSha256": "f758dcc9bfb7f610a85887035e94b76edb11cf651ccc6903a252d7b7cec011eb"
+    },
+    {
+      "id": "nanming_battle",
+      "relativePath": "data/illustrations/nanming/battle.svg",
+      "sha256": "24a456d65f21b265bb288f7f9b93e37d1467d9d42701b6418c1400bc510f45f9",
+      "metadataSha256": "46d3fa095cc2af804fdd56983d606847738be14a4a3d24ab1ceb3308fed4017a"
+    },
+    {
+      "id": "nanming_bg_act5_1",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_act5_1.webp",
+      "sha256": "ffdc53473c4c3168b0b071d03ba3b4eaf451041148214600193c9119c915ec81",
+      "metadataSha256": "eb8543e53e78e2ae9dafce299663e732a130bb8226efab1741894b46eaa7ab72"
+    },
+    {
+      "id": "nanming_bg_act5_2",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_act5_2.webp",
+      "sha256": "9cdb6dd63467fb6c304fe59b2a7502138841c493c208a3f027ee48406e10f78a",
+      "metadataSha256": "c4ecd02905c4946b777b72afcc5da224178a5b40148c06d942fd5e5bf3f4e8aa"
+    },
+    {
+      "id": "nanming_bg_act5_3",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_act5_3.webp",
+      "sha256": "c835b60b93df6d4815fa422943b060b48a345b05b506f47105033f7f4484bf85",
+      "metadataSha256": "8a8d60b39adf903dd7cb32aabc2c33a8d6efdc76789ce4c733aec9853573ae90"
+    },
+    {
+      "id": "nanming_bg_act5_4",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_act5_4.webp",
+      "sha256": "40385e7a96eae23f700e5374ab86ebb9e1f276bc2945cd104af126011cbf902f",
+      "metadataSha256": "5edd947d12815ba1ca70ecb61eebc5659e0b709bb4cbcd8db056c7da1502eb01"
+    },
+    {
+      "id": "nanming_bg_act5_5",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_act5_5.webp",
+      "sha256": "155f9dc0f0f7d457ab1633fe71a2b5eea19bf159ff4849a0e32f6d041c0c9085",
+      "metadataSha256": "6ec3e1cd59e3b62c920107da1237f330d815b79848571342fa50f9d53dfcad69"
+    },
+    {
+      "id": "nanming_bg_anping_headquarters",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_anping_headquarters.webp",
+      "sha256": "bf6e4cad3aabbc09dfda1175bdad96edcf4218cb6b8b4e4654a4b0ded4825d3f",
+      "metadataSha256": "e2453759caaa0c6a5698dd99bdd9d5ce7c7c29770360f1c15d271b72af38c440"
+    },
+    {
+      "id": "nanming_bg_chengtian_fields",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_chengtian_fields.webp",
+      "sha256": "e320f72b22c65bbc0a920738131688372a4591705c70b5bef50fbf9e38e9c652",
+      "metadataSha256": "8d984cd1931ddeab41d9a40bfbcbf8887bbec0a3e9cd0820e233175402e7ebef"
+    },
+    {
+      "id": "nanming_bg_chongming_mudflat",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_chongming_mudflat.webp",
+      "sha256": "b77500994830c19f32560f81b1fd0e0bd6dfa69e3bb6dbf0bf15e78e72bbc733",
+      "metadataSha256": "f7e9c10a6dcb81869360a2f0f4c5c12471c3ecc37979418770e192da0897f131"
+    },
+    {
+      "id": "nanming_bg_ending_dongning_civilization",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_ending_dongning_civilization.webp",
+      "sha256": "6f8598e1448e6c0a72bf48ca9bad480f3c90ce072544f6c5fd78c6e2243067cc",
+      "metadataSha256": "2c2af6a6d5a016375a92590395801572f7728f45865b4648d3637b20954fdefb"
+    },
+    {
+      "id": "nanming_bg_ending_longwu_restoration",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_ending_longwu_restoration.webp",
+      "sha256": "0711784ad65a7b4ffed463ef1de3e27118f42afc360bec82cd1d66e08ff51071",
+      "metadataSha256": "f36200f0de5f14b0515b621610dea6742ea5adfaa68a4f784930c11240ee2a5e"
+    },
+    {
+      "id": "nanming_bg_ending_ocean_empire",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_ending_ocean_empire.webp",
+      "sha256": "8330cdf6fcefacbbd8ba5e06b00ace3c741a9fd26a9907df739901674d0dff71",
+      "metadataSha256": "1d0ff50dd0e405dc0db83b176b322e9ae343d832e2de795f0bfe1d995b21d7d9"
+    },
+    {
+      "id": "nanming_bg_fuzhou_palace",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_fuzhou_palace.webp",
+      "sha256": "ef9d65f22af4c8354616b5439a72963421808c29cbd66a7b792e087334edd80b",
+      "metadataSha256": "1ac569fe656c64974be5048d0f6b0d5f1bb12b865fad153d01befbda54a5e15b"
+    },
+    {
+      "id": "nanming_bg_guangdong_rendezvous",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_guangdong_rendezvous.webp",
+      "sha256": "ffe7a7901ae70dd9b687daf62cefdda8514408706a966525bbca150b075a03c9",
+      "metadataSha256": "931d75424d8f0d3f9f144a94bec1178feb72bf75abeb0f962c0682b26f14e92e"
+    },
+    {
+      "id": "nanming_bg_later_guangzhou_port",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_later_guangzhou_port.webp",
+      "sha256": "830a481895233e9291097f050cf21e7fdc4c26cc6812615077f97113d7c545f1",
+      "metadataSha256": "f0b232ff04f72ce46855169af9862d7b8dc4d43115e1250da535a459bd36e54d"
+    },
+    {
+      "id": "nanming_bg_later_malacca_decree",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_later_malacca_decree.webp",
+      "sha256": "d1ec48569f73550675b2c6529081a129bb62cd36a2ce5953be6d02388b6c0255",
+      "metadataSha256": "69c8a48214679b7f07fd09dfee1dcf3c41cd6b17dd454af2889a5714cf2209b7"
+    },
+    {
+      "id": "nanming_bg_later_taiwan_strait",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_later_taiwan_strait.webp",
+      "sha256": "2a30205e97ec12807e7bdb067672b72c8036836c3b8a49af87e109d999995abb",
+      "metadataSha256": "799fb301e976e4f0ae1dec8abf301cccbc9d2876516c7406450d9f105c2696a0"
+    },
+    {
+      "id": "nanming_bg_liaoluo_firesea",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_liaoluo_firesea.webp",
+      "sha256": "5dfc180098c41756c68f32b31ec9d696e4f23deba18a2ad49c5689ae8717bb0c",
+      "metadataSha256": "4b9bf183ddeb7f3398cb35d7de9062234ada2cd614f3fcab8573e26aa7d679b5"
+    },
+    {
+      "id": "nanming_bg_luermen_channel",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_luermen_channel.webp",
+      "sha256": "005fbe3b352af8529d35030203bf9cb173dd39311e7933aa22673ad24abdbfa2",
+      "metadataSha256": "94f892ef5a03441b76cfb898ad2f8bbfba738f39b53b19a2240fb9e6f722c5f6"
+    },
+    {
+      "id": "nanming_bg_manila_bay",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_manila_bay.webp",
+      "sha256": "d0ff405dd391ec00bcda10aeece8af1bfd3ffabd2fac6f9bec730b10a1cd6f37",
+      "metadataSha256": "252a8388fe4a8f2fbdb89fab4416dc40c5a8cbeb75708cd15718c6c5a7fb79b6"
+    },
+    {
+      "id": "nanming_bg_parrot_island",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_parrot_island.webp",
+      "sha256": "e967d3e2ffa85209d8d371fc87dae05589f1fba61cdf0561aff49a2c14a68a5e",
+      "metadataSha256": "182e89130339bf5b52274f72bbe14f01f3fdc5962dc7dcf03f7f36de2111f37b"
+    },
+    {
+      "id": "nanming_bg_storm_cannons",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_storm_cannons.webp",
+      "sha256": "cf8132c8e93243e30652ffb80152e80f05714f03c9522617df1e3eeeeb062040",
+      "metadataSha256": "506e50ae449a9f87869ec62b5897af1868790867db1e5ed78855c6faa34efb81"
+    },
+    {
+      "id": "nanming_bg_wanghai_negotiation",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_wanghai_negotiation.webp",
+      "sha256": "5517395f1381f17786a0b127ece22f60b3375aa5cc0611f23e5994b46259d237",
+      "metadataSha256": "8fc8a96a33eb61e0f46cad59371a6c64c0828c72b14f9d837df3fb3954fe8517"
+    },
+    {
+      "id": "nanming_bg_wanshou_oath",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_wanshou_oath.webp",
+      "sha256": "03975de3072b7a4d6057f00887e53f7f32f0fc7b91c8bb2cee0fab8d7ad5b32f",
+      "metadataSha256": "bf638a9ae6df7de742244bae5da4ee5a5054722863b20ba43dc6ee8396bf3908"
+    },
+    {
+      "id": "nanming_bg_xiamen_court",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_xiamen_court.webp",
+      "sha256": "300feb1af04befb23278a918c66d608aaedfe9b879cd03c127938305092d89b9",
+      "metadataSha256": "34599e27e3d24fb406dd2d523af0eef10a89bbbb4876ec6ab66875a1678b4bc2"
+    },
+    {
+      "id": "nanming_bg_yuegang_shipyard",
+      "relativePath": "data/illustrations/nanming/backgrounds/nanming_bg_yuegang_shipyard.webp",
+      "sha256": "7adde3d44e4c4fe444738579c84c10724aa8cbd0d0c6a83b3d95a94fd8162987",
+      "metadataSha256": "6a7e7ec8068252ac73e0ece447b66f933287c815c95b1cbb01784f621af8f311"
+    },
+    {
+      "id": "nanming_captive",
+      "relativePath": "data/illustrations/nanming/captive.svg",
+      "sha256": "a867fca135043530d17533e984cd819df90e4da8f353cbf025a53a2dc6dbf3bd",
+      "metadataSha256": "b30b9bb6037595112d79deb35b3e357ffa204bd10597f057358dcc6ebd670fef"
+    },
+    {
+      "id": "nanming_romance",
+      "relativePath": "data/illustrations/nanming/romance.svg",
+      "sha256": "7ce86eeefaa51048951755fa4ca8b4b733cccdc97c0d5f510db201944f91e8cb",
+      "metadataSha256": "462e10018cd53bf0ae040e784b95af0a56a4aa625380924ee595efe5b4740716"
+    },
+    {
+      "id": "nanming_victory",
+      "relativePath": "data/illustrations/nanming/victory.svg",
+      "sha256": "4d2bdfc45d77e4618db0d3f689c5f636f49197d3917376fd3aab1931194e3f59",
+      "metadataSha256": "bb812e6440c74597516f14a5cc88d809c699be644014fe096a31e7cda68ed0e3"
+    },
+    {
+      "id": "nanming_war",
+      "relativePath": "data/illustrations/nanming/war.svg",
+      "sha256": "a04b88e5ec5be4d7c146e58bf3fb6b6aaf473ca230a5999e23abe408cf726f60",
+      "metadataSha256": "6f0a96fdf532f07148126eaf081339c0248dc17a11a6a0bd962ccaf76caf5fea"
+    },
+    {
+      "id": "nanming_wealth",
+      "relativePath": "data/illustrations/nanming/wealth.svg",
+      "sha256": "f635819dca071bfd4b8c4fdb4415506c8c2b34d035f5f4e4246435588e13d808",
+      "metadataSha256": "d3eeb3c3680a3dca9eecb2cd3334e010d6275e42db5575e63800abca6fb4182f"
+    },
+    {
+      "id": "qing_auxiliary_drill",
+      "relativePath": "data/illustrations/qing/scenes/qing_auxiliary_drill.webp",
+      "sha256": "cc485b29921e360178f97374582ba3d90e44dd359ae492b395c6879b6ec32fdd",
+      "metadataSha256": "48d47058bfc73976fc1a5a0873532e21a77ddb4b31f3fc769a2081cbc2455b8b"
+    },
+    {
+      "id": "qing_battle",
+      "relativePath": "data/illustrations/qing/battle.svg",
+      "sha256": "de73e52c7e4a3d093a950702eb39fc9e652bb6cec1168fb32d3f56063577a16e",
+      "metadataSha256": "08bf4fad162cf2729ee0d7ab79a3511af433eb12526370b9b9882c8882d802f7"
+    },
+    {
+      "id": "qing_battlefield_dead",
+      "relativePath": "data/illustrations/qing/scenes/qing_battlefield_dead.webp",
+      "sha256": "0add6455a60ba2b344d2f9698a9a8c07e48b3c15155f804ba2f8b65680cd3db5",
+      "metadataSha256": "8bed32f666f12302983e3312b8fbcd1d6eff476c019aede223dbecb39c8a55b5"
+    },
+    {
+      "id": "qing_bg_act4_a1_1",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_a1_1.webp",
+      "sha256": "4800c58071c0935524b6c3d4afb0608d9a7cfab452fcdf599353a5c047bdca81",
+      "metadataSha256": "217032dfbe39aaef7a35a82bf21f834ee03726b2114b47f3e8de1d6595f385f1"
+    },
+    {
+      "id": "qing_bg_act4_a1_2",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_a1_2.webp",
+      "sha256": "0bb18e295665b0a928cef79455b63ed90b3d12e37ff6f78cee0492152fc06a1f",
+      "metadataSha256": "24a309db6e1aea561f6ec3ac2a30c3f55b90e3c226a47eeb4245ad0e792e0988"
+    },
+    {
+      "id": "qing_bg_act4_a1_3",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_a1_3.webp",
+      "sha256": "7334f7686f9f21c02a5fe0413c1d48da62585eee18a76d9d0a938a5bab7e9fd9",
+      "metadataSha256": "81097af8fa81e3ea7077e39828471b2ed9f58c00709e91277489a5f6f2bb2b20"
+    },
+    {
+      "id": "qing_bg_act4_a2_1",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_a2_1.webp",
+      "sha256": "1cc3c1c7b8d020186683bd26817f040caa7b7a369e1facf594c621b9e589d333",
+      "metadataSha256": "f1d4b11791ddf219dd6ea7b3775090435813d0d118df8ed29a326fc29e748851"
+    },
+    {
+      "id": "qing_bg_act4_a2_2",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_a2_2.webp",
+      "sha256": "b939892504a2537e09ef687dc127a74b62dfd06834475f80fd31ff82e3c36fea",
+      "metadataSha256": "c84ff392180af9c7245ee4fd03cde8ac1e5bfca29d8cb0bc053c570e57b9fd76"
+    },
+    {
+      "id": "qing_bg_act4_a2_3",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_a2_3.webp",
+      "sha256": "d52ba95a2787357979d3fd7e051faa94175d10f9a41856041fc43ba926475db9",
+      "metadataSha256": "87c48f1dbc486eb7c61620db9d4fd0b1b74aa38eb6b14ba23a37558bf7773378"
+    },
+    {
+      "id": "qing_bg_act4_a3_1",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_a3_1.webp",
+      "sha256": "c4580f59e2b7102be8b2e2d1a4293421626436cbfa5d68497cf9d0305594fb3e",
+      "metadataSha256": "1cb0ddc30d8e0f73de0e0851f4478a284c0410a3772f12c5d5fc8234368c5fc1"
+    },
+    {
+      "id": "qing_bg_act4_a3_2",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_a3_2.webp",
+      "sha256": "92759c7b0be19da962a5c5ad2596f3f18ccd8fad12c7ee65dd53afa703a02e53",
+      "metadataSha256": "2ece49f72e978d3074e4e957c96cea39784c37234b5076248f1c51d807674802"
+    },
+    {
+      "id": "qing_bg_act4_a3_3",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_a3_3.webp",
+      "sha256": "30c7e0bdc23a3b3f17137f10732dea832b007338d33a89a9b3afd735abddaaf7",
+      "metadataSha256": "475d365a030337bb511749649cba9253ff0d6435741159bb8403da02fa5b9512"
+    },
+    {
+      "id": "qing_bg_act4_b1_2",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_b1_2.webp",
+      "sha256": "36b9dce8e0ec2f8bf9e0e5fb9ea99585ec5832af7a3cdcbd53ed565f08983a8b",
+      "metadataSha256": "3d1c02a3ba36f4b74c57e4b89d61eb5df99623498df1685699f89872b704accd"
+    },
+    {
+      "id": "qing_bg_act4_b1_3",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_b1_3.webp",
+      "sha256": "555b94dd33fe50ef215524b3e78ed4319d367eecd59b0fa7e2d804944d80564a",
+      "metadataSha256": "a1b1674367c0d86af304c6fd014b29d48f35927b2637ce2cec686e98ef0dea9b"
+    },
+    {
+      "id": "qing_bg_act4_b2_1",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_b2_1.webp",
+      "sha256": "6ec06e42b7df8aeb5dc5a87ead02e6fc4cdbacbd9a7e0bfe19f0600108e7229b",
+      "metadataSha256": "f530892290cd2ae1abaa154465d00b2756b4175126c9645588b932827cffe765"
+    },
+    {
+      "id": "qing_bg_act4_b2_2",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_b2_2.webp",
+      "sha256": "4377bfac4e554a8a1e3da5d1dd5a0e975a8b0c5b7eefc1938daf6bb85e91a7e8",
+      "metadataSha256": "16171926ebd915cf2f54318a5a36613c0c41f53a543c2aa04f77082e4a653103"
+    },
+    {
+      "id": "qing_bg_act4_b2_3",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_b2_3.webp",
+      "sha256": "e77fd0a3bf822044d6ad4b64ae460f94c8b62e7e615fedcae48a8a75a4c24101",
+      "metadataSha256": "94bbf61f204811b406293aa7ac74ea6fc053ea99b2c2dd632256ec9c88a1d8c2"
+    },
+    {
+      "id": "qing_bg_act4_b3_2",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_b3_2.webp",
+      "sha256": "97b9f7922424e7a99cda239bd8a6ca9b1682ca3ad39cbdf8a24c65a149dc271c",
+      "metadataSha256": "f09725254fe0fc617c94067687d8a12901dc801b8f0486b8fa7f19e7376d20d2"
+    },
+    {
+      "id": "qing_bg_act4_b3_3",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_b3_3.webp",
+      "sha256": "a494f69f58aa7d8c082a799f3c7a1349117065dfb72f62b08aae1bb63d97509e",
+      "metadataSha256": "e08cb4d6c99c03380c99f8c395227006fb73bf0d1e842a8e123f786a819e7a9b"
+    },
+    {
+      "id": "qing_bg_act4_c1_1",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_c1_1.webp",
+      "sha256": "8eee596a7c2f2755a8e4dd4def737c7c86d3c297df0c372c12ecb0c2b87950e0",
+      "metadataSha256": "7b3083ceca6ca483d10e6fb4425ff7480ef0b4a6ad6f06d69cf001334c4e4aaa"
+    },
+    {
+      "id": "qing_bg_act4_c1_2",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_c1_2.webp",
+      "sha256": "6fb6210ae6c542a57d13155543e000127bc30c80abb3b7814526428a23c37210",
+      "metadataSha256": "e2a89a7b54ee4085be446823f03d0c2a83cd061c46e4c80f8b749780d6dc0a9a"
+    },
+    {
+      "id": "qing_bg_act4_c1_3",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_c1_3.webp",
+      "sha256": "97d252612d2149595e806c3f024b4d2c2ec8b1f0705718a1331ea47522954ba7",
+      "metadataSha256": "980955a8e0415aa535cf05f66d7c18df9b04f5be92db316abcc431400628cc11"
+    },
+    {
+      "id": "qing_bg_act4_c2_2",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_c2_2.webp",
+      "sha256": "379d7b87f41c8a9f4cd25f23ef433f2b3ddeff2acece3fae445501a9ada94d2c",
+      "metadataSha256": "38fed3270f17e3918198a8cc998c6959e8c9eb5b1f481c0b31a72582f10f0d60"
+    },
+    {
+      "id": "qing_bg_act4_c2_3",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_c2_3.webp",
+      "sha256": "fd5fcc5ab4a6033f4095dd6cc0ea833c5516881ee56f81e1a6bb25f62c181621",
+      "metadataSha256": "1cbefa7fb2aa882feb7412e086415514def6cd34c8ad5047d897acbc4c5c93de"
+    },
+    {
+      "id": "qing_bg_act4_c3_1",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_c3_1.webp",
+      "sha256": "47bdc0012fe82c73a1bd8f44e4592a206c2fa943675ce5b26b69589fea378e64",
+      "metadataSha256": "7e938494fd6c1a2727f1c29ac8ad79bf86981eb6d2d8b5934dcd33983ec852d3"
+    },
+    {
+      "id": "qing_bg_act4_c3_2",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_c3_2.webp",
+      "sha256": "4658fe91b8bac5ec96ecb6d33ec341da6d1854488d5ff5ce1af9bd7ea91a0bc8",
+      "metadataSha256": "795960af17b05deef11e63680651cc0c404990e594754fa5636da78bb81a6c36"
+    },
+    {
+      "id": "qing_bg_act4_c3_3",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_act4_c3_3.webp",
+      "sha256": "6bc645e383c16a8fb5934912ba11071480868b857e1a5e323bf02cce72fa84ea",
+      "metadataSha256": "6780e3fdce7c82c73df00c8be803095d19d231a08763afde4f139acaec314602"
+    },
+    {
+      "id": "qing_bg_chongzheng_snow_council",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_chongzheng_snow_council.webp",
+      "sha256": "c57974206344c5fa368fa15ef38988064afe08e91f33aeba181ac6f3cfaa4662",
+      "metadataSha256": "a4ac6a80c2a5f93e6fccef8be8b36b403fb9ef245e56a2c1977d30ab46dc2e02"
+    },
+    {
+      "id": "qing_bg_confucius_dawn_court",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_confucius_dawn_court.webp",
+      "sha256": "377c2a1d0624bb9d7480a2c295bf0f89cca2b2d43c15a76a57f8b420ad597f48",
+      "metadataSha256": "6563c90d150e8560ab20f2fa0b72000f876536220ece52c4bd2361c491ca4ab9"
+    },
+    {
+      "id": "qing_bg_ending_civil_fracture",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_ending_civil_fracture.webp",
+      "sha256": "0f4fef7c9fe9c3460c7e1723c708703a55ca9a476a22db01756cf57a7c1a67e0",
+      "metadataSha256": "b1327157d40a95b54b90fbc464b96625961efe1df6e2866ed4c1bfcf97b43785"
+    },
+    {
+      "id": "qing_bg_ending_civil_order",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_ending_civil_order.webp",
+      "sha256": "8757b6d578cd5a14210ab266cc5220acc367c336e4c0b93e9c8069d2e265b66d",
+      "metadataSha256": "728d89a66f0e18dda194deb3f536bd9d43f456ac866223485b4abdc55d0034d6"
+    },
+    {
+      "id": "qing_bg_ending_civil_union",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_ending_civil_union.webp",
+      "sha256": "d11f054b5d049d86ec90e7e40e571fe2a7dc3abd49b9e52a509ce211d71cbad9",
+      "metadataSha256": "041327a765fcab4c7e84fe40b38077000899ca097b7356beaeafb46d57faa664"
+    },
+    {
+      "id": "qing_bg_ending_iron_fracture",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_ending_iron_fracture.webp",
+      "sha256": "be4a2e1acc9a9ddd47c0f8118aa461b57016d083f154e6f232f6b626f240a664",
+      "metadataSha256": "aac0894a9a00e58342c86296819d9071da50578e54e4d7687cdf3608f153f7aa"
+    },
+    {
+      "id": "qing_bg_ending_iron_order",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_ending_iron_order.webp",
+      "sha256": "49209c76f796cb739c393f999d98c68798fbb83c21435fe1251fe3b3c415e541",
+      "metadataSha256": "73a09b0d489d013a81166047c4d20dcd5546a0484bff1b7c710d480582419488"
+    },
+    {
+      "id": "qing_bg_ending_iron_union",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_ending_iron_union.webp",
+      "sha256": "6a1e99b1795b1501e974c689ad601c90ae5742366cd05c9509be356445b1a76d",
+      "metadataSha256": "47003977ca0da0f32cc0edfd8ac316b632c98547753b00aeb025dc7fa4e35e8c"
+    },
+    {
+      "id": "qing_bg_ending_steppe_fracture",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_ending_steppe_fracture.webp",
+      "sha256": "da814bae614269c11c919c09dac240c9a8df0d01319a3552d1495decdec4fd30",
+      "metadataSha256": "8c48654d475c27e86812b3e0fc8054f6068b903a5ddca6ffc20d9ce57a4dd2a0"
+    },
+    {
+      "id": "qing_bg_ending_steppe_order",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_ending_steppe_order.webp",
+      "sha256": "2de4550c9b69d32abee49ed6274c1e23a365039b6c7e982c3d70017434b699ef",
+      "metadataSha256": "81651ca22990b3f33bcc2b4fe4fcaa0060f26e444d563ce718687af069db7925"
+    },
+    {
+      "id": "qing_bg_ending_steppe_union",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_ending_steppe_union.webp",
+      "sha256": "763268efedeb6a95cb9a00800d4e272e0ecd3bd34ea14614919e344a54f50173",
+      "metadataSha256": "6f2fd8dc16f2a3af361c1ff4503cebf1aa3f94a436e75cd63f5bc21b0863917f"
+    },
+    {
+      "id": "qing_bg_guihua_burning_snowcamp",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_guihua_burning_snowcamp.webp",
+      "sha256": "e0861fe4f228d33eee84b7083d27ce9e0cd58a786022323c213dd45eba0d52c8",
+      "metadataSha256": "107c3a9adad81d40a388bc099cde824e3e3c052c7ce46a4835f516aa702da746"
+    },
+    {
+      "id": "qing_bg_guihua_golden_tent",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_guihua_golden_tent.webp",
+      "sha256": "f6abf747ed86cfd3fa53c9040d89d0b2be82c0fbac70fc1c716774b503e7ca39",
+      "metadataSha256": "3ccd8c4961de0174c0a4fe33ce0ed0475e64ae8765fbdbf4b94e33b0e0a688e7"
+    },
+    {
+      "id": "qing_bg_lengkou_breached_pass",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_lengkou_breached_pass.webp",
+      "sha256": "9330d813548a4c3ec2de0b6e00cc44d486667bd5e2a02736289008d9dc86cab8",
+      "metadataSha256": "4ad11d726c96c6fdc26a66911c28edc9a810bfc8554972d54f3f946ad24c3c28"
+    },
+    {
+      "id": "qing_bg_liaoxi_starved_camp",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_liaoxi_starved_camp.webp",
+      "sha256": "4f9657ce3aadc0b0e5ee7afe3006d48d18373971dea4db218aab2f13e3ca2b7e",
+      "metadataSha256": "0e708253dc73aff2ff7a73317485cb167283f4f98d8d47343a4348826420c00e"
+    },
+    {
+      "id": "qing_bg_mainhall_joint_court",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_mainhall_joint_court.webp",
+      "sha256": "fde23f13e7bfec7656feaa6aa456481acc18d6bf0117c37daeea341f8079efbb",
+      "metadataSha256": "002339cd38d859ee6a0daec27fe2e58c20bd469f259470ae9b4e985ace9892f5"
+    },
+    {
+      "id": "qing_bg_neisanyuan_office",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_neisanyuan_office.webp",
+      "sha256": "3dd334a85e3460fd96fc1ddae0728ba4029dbc202f8d4a619676bee628688465",
+      "metadataSha256": "6486068479f8a1372125ba6758fae97d0834934b568ce26cb5261f6cae135565"
+    },
+    {
+      "id": "qing_bg_rehe_autumn_altar",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_rehe_autumn_altar.webp",
+      "sha256": "6e78dc96ff51bd7cf945eb5998cba4d499e68fe546620bdc899f5628ad3b69ec",
+      "metadataSha256": "8be5539ea2684ed4cbce60b5d484d10232d191745b07e9611fce334f9eab8e05"
+    },
+    {
+      "id": "qing_bg_rehe_golden_roof_terrace",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_rehe_golden_roof_terrace.webp",
+      "sha256": "e12dcc586c2c6e934ccdd49dee7ab1d791548682559a138699cfbea9e3cec82b",
+      "metadataSha256": "db973f48a00a78ef8211c8e15ace699246ac840fb4cbfd44dd04b03968f0358f"
+    },
+    {
+      "id": "qing_bg_shanhaiguan_cannon_slope",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_shanhaiguan_cannon_slope.webp",
+      "sha256": "56f624c3fe8f086f0c9fa9274146f88ebc2c46386743bd5a19ecda851a0a5d4c",
+      "metadataSha256": "df55ad9833ffcfa5214f94af90ad1239bbf9bde2da73b5084fddf40bb005316b"
+    },
+    {
+      "id": "qing_bg_taihe_final_forecourt",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_taihe_final_forecourt.webp",
+      "sha256": "f5fe4085c7525d54e41d5db83edeb98d3c361a6c84999aa3c39bbf91fc612397",
+      "metadataSha256": "11d0f140ef9e44b87be4b4fa2ab2f380202259f5ba2738293845fac7c228d3ac"
+    },
+    {
+      "id": "qing_bg_tongzhou_mourning_camp",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_tongzhou_mourning_camp.webp",
+      "sha256": "d918a6f2429bfa8031b6cc76aca1d4bf0bc9626c2e55b5d813ed35664bb07175",
+      "metadataSha256": "b2e6a144c5eed17a0339252fb3236431b046e82e31336c2105eef181d39f7d04"
+    },
+    {
+      "id": "qing_bg_wuying_edict_hall",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_wuying_edict_hall.webp",
+      "sha256": "be9bfcdf05a17860f72f9dc358ded9e3f289b731122d142ea643abf5933469bb",
+      "metadataSha256": "a233efb68703971fdd41dbd2e30b4ea08b3f5824c53c70c65c6937c7d33bdf55"
+    },
+    {
+      "id": "qing_bg_yangzhou_meihualing_ruins",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_yangzhou_meihualing_ruins.webp",
+      "sha256": "1ce68af5ba2a007ebcab0ebf014f4894bf3465bfd7f1b8548064775196f12509",
+      "metadataSha256": "4f463db4148246fed7d5a111c0f0cf2df6ae340903d4e7ec16a42b3afaef6921"
+    },
+    {
+      "id": "qing_bg_yipianshi_blizzard_front",
+      "relativePath": "data/illustrations/qing/backgrounds/qing_bg_yipianshi_blizzard_front.webp",
+      "sha256": "8acf2498e2d8f8730c8da911b0ca6befacf97e27e46c9a4f683ab0da14a1e7f9",
+      "metadataSha256": "7dfdabfb6c74ce6c9f4ef1c54dc792001ad722a9de34b7ba8e4892e1a44b59ab"
+    },
+    {
+      "id": "qing_camp_labor",
+      "relativePath": "data/illustrations/qing/scenes/qing_camp_labor.webp",
+      "sha256": "6b6abbe788b80b441a6a8b48498cf416d6da89a3aa2ea449b4e47b9904085ff6",
+      "metadataSha256": "ddba687d015c92557da67242008ea32f35da5c1f39a38e8d0b21bd51c4e415cc"
+    },
+    {
+      "id": "qing_campaign_map",
+      "relativePath": "data/illustrations/qing/scenes/qing_campaign_map.webp",
+      "sha256": "506a073e5c33615d5f78b0e3106a4e45ec0de2a4caf65eb2771e8a2a21c37722",
+      "metadataSha256": "99a5f3cbfb182cc79ff5f4604c5365124f90bebc24473d2d6271e20b8ebfbe4f"
+    },
+    {
+      "id": "qing_captive",
+      "relativePath": "data/illustrations/qing/captive.svg",
+      "sha256": "aa81c9f17d4ffe963b6bae0d82e82ea76cb2c7143fa0651b9a5d7ae368d706d6",
+      "metadataSha256": "dcb5cc8d609fc9a997f76098245752ae9834f0d18e0d7eeb6652728c5c1ac5fc"
+    },
+    {
+      "id": "qing_captive_audience",
+      "relativePath": "data/illustrations/qing/scenes/qing_captive_audience.webp",
+      "sha256": "16413e2dadc14bebaa24cfa629fcb771e7684f5836765dad881777cc2ef69089",
+      "metadataSha256": "72ad56faa6dfd7d6f03a05f67a3f01040c2c9d8eb9b6fd6b24998055cf259ae0"
+    },
+    {
+      "id": "qing_cavalry_charge",
+      "relativePath": "data/illustrations/qing/scenes/qing_cavalry_charge.webp",
+      "sha256": "2401a0a1a6bf1487bb7eb27485c2e0ffb7f5f8aa7241137a8c4988b348bf77ff",
+      "metadataSha256": "c977b5823d2fe5c43da0f3f18277c56da1d5e40a62ee346171ac436d5fefe7c2"
+    },
+    {
+      "id": "qing_cell_whispers",
+      "relativePath": "data/illustrations/qing/scenes/qing_cell_whispers.webp",
+      "sha256": "4605c8d42cae2a8b427eec6adb3bfc2283d395c2eab4d55fff76bc87a56215a2",
+      "metadataSha256": "3bf8e0766f80dc558ac8df17f22102a0849181b24f0c9975a7b676eb11e57d85"
+    },
+    {
+      "id": "qing_city_entry",
+      "relativePath": "data/illustrations/qing/scenes/qing_city_entry.webp",
+      "sha256": "54f993ff8f157cda95e75d51fa6f562c8f68bd46bda5a9aa4ce7ead38265aa5f",
+      "metadataSha256": "254607d11237389cca9784103343cdcd42022deb6191788bfb272acbbe6194f8"
+    },
+    {
+      "id": "qing_comrade_oath",
+      "relativePath": "data/illustrations/qing/scenes/qing_comrade_oath.webp",
+      "sha256": "d8a1b5c4950646ac735d0ec9c7578e150ac0e25ae5a1c1a213cf7ca0b34d1fad",
+      "metadataSha256": "534a3b6e59d460ef9419201024a75e01cca4181261bbda58ae38dd91daafb08d"
+    },
+    {
+      "id": "qing_council_tent",
+      "relativePath": "data/illustrations/qing/scenes/qing_council_tent.webp",
+      "sha256": "f8d9fe0d6c291fe28301f280b86b3ad0b46c21d8bcb768e5589691cbbdc8bebd",
+      "metadataSha256": "4e89fdab9973c25f630d9dbd92dfe0ac3822e82c56ff47dfbbc672024737a55b"
+    },
+    {
+      "id": "qing_disarmed_captives",
+      "relativePath": "data/illustrations/qing/scenes/qing_disarmed_captives.webp",
+      "sha256": "0b74660d9ab11e5472ea1678c7c042669c9bc2510d743b0f75514c736c9a4f3d",
+      "metadataSha256": "5adc60e5fcceada3c30b0d3ad02fbd80d6b985a8e18641c8b7561e46059bac52"
+    },
+    {
+      "id": "qing_evidence_hearing",
+      "relativePath": "data/illustrations/qing/scenes/qing_evidence_hearing.webp",
+      "sha256": "015035e6c4f263acdae047ea8674b5f4ba5fb44c8f473f0e19aa289518e6f9cb",
+      "metadataSha256": "3e764a73db507df8992ef97c9ff9b5b44c2f2d14ef07b24c0848757a6a84a4c0"
+    },
+    {
+      "id": "qing_frontier_pass",
+      "relativePath": "data/illustrations/qing/scenes/qing_frontier_pass.webp",
+      "sha256": "b4abcc68cd71170ae07e597450fe4fdc175891cfbfdd228b6db6b9fe59abc7f0",
+      "metadataSha256": "e166a81da44d969195b6c0b2a0d1f8d024c77f7dd1913540207251fe74291380"
+    },
+    {
+      "id": "qing_garrison_courtyard",
+      "relativePath": "data/illustrations/qing/scenes/qing_garrison_courtyard.webp",
+      "sha256": "1ab09e09471c2fd6f9732203f2ef237e7434d2e02ff258349b0ff9c4cedda60e",
+      "metadataSha256": "2a1744c357d71cb44e770d68dc297ff42adc81dbdcf2e5ed80f56ec711180eb8"
+    },
+    {
+      "id": "qing_holding_cell",
+      "relativePath": "data/illustrations/qing/scenes/qing_holding_cell.webp",
+      "sha256": "6222d96ce3dc3b7809691bfcee6fb3e574f3e45dabd79e92920dbbe2d0aead8d",
+      "metadataSha256": "a672b39bfe0c9c5f2eb8a9f40956b1fb6159f0808eb53501a11f7b6856e56ff6"
+    },
+    {
+      "id": "qing_household_service",
+      "relativePath": "data/illustrations/qing/scenes/qing_household_service.webp",
+      "sha256": "737d1ec31ad4b4150b27f6f1395fa4e3f0a33e7b1d9b67915739e17949c7a429",
+      "metadataSha256": "8924723c5607602feec98a0f1af60258c0d66476b42a48ac1c0deeae23dcdac5"
+    },
+    {
+      "id": "qing_jh01_00",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh01_00.webp",
+      "sha256": "7ee5dca92785cfb33a06b27d03b3326c302fc78879f3abd025779cc68b2aa00e",
+      "metadataSha256": "06df391e8c8f6efbe55491cafcdbaa4c3172af5cc38f162b619958269d4f7133"
+    },
+    {
+      "id": "qing_jh01_01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh01_01.webp",
+      "sha256": "5eb21a709cbc4afcc31bda27ec1e20045c161656e6b2c8d07abb66dc5efb4db4",
+      "metadataSha256": "0713173047d46ab628305134d5d535bac1d4d2743bfca8d17384bb0bc0f77772"
+    },
+    {
+      "id": "qing_jh01_01_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh01_01_l01.webp",
+      "sha256": "991ab7b90a80c2bff9b8e009cfbde91f2e79802eaa49a2f6a9f68eaf47d477da",
+      "metadataSha256": "fff8748f5e3b97e94c1705cff87f30c60b76c56aaa028848eb7830e4c5af089b"
+    },
+    {
+      "id": "qing_jh01_02",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh01_02.webp",
+      "sha256": "2bc4591e042d6bcea819017ec6e064d3a014b07c35e954dcdb9e81238e0c8315",
+      "metadataSha256": "24713785cab544bcb7514a9a74e7fb0b03bef8d579006b2b54f438e0d64cc4b1"
+    },
+    {
+      "id": "qing_jh01_02_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh01_02_l01.webp",
+      "sha256": "5933d6d60d3bebf6fc33d2abfabdc0f07044880cba2a4615a8cea78cc1b71c5a",
+      "metadataSha256": "1c1eefd7e6217a7d48471951d792cf72e8beac1acfbf13ebc3394a9d267db990"
+    },
+    {
+      "id": "qing_jh01_03",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh01_03.webp",
+      "sha256": "ed2d7412d0f2d1376e5c55bef29e5ebf9f84bdcc000a5aca6f3be5bbc25819fc",
+      "metadataSha256": "ef18617b418ee7f087935673990cb19b0b493014c136302e1aa422ef545253cc"
+    },
+    {
+      "id": "qing_jh01_03_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh01_03_l01.webp",
+      "sha256": "b614af6cbd88ae35a7b310f8130457b0e65b5f9c57135f23bf45ccfd39591492",
+      "metadataSha256": "01cbd7a248c5dd2305f1c174a102896b6eb1431bcd197f991c0fa7ee6d0597d8"
+    },
+    {
+      "id": "qing_jh01_04",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh01_04.webp",
+      "sha256": "bac88a4d615bccded9f2dd8ff98f24e136a2e66c01df03116d1702aaa81abfff",
+      "metadataSha256": "bfd2279715ad42801e645d1246e13ebf49137e25214ae272640eb1cda65440b9"
+    },
+    {
+      "id": "qing_jh01_04_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh01_04_l01.webp",
+      "sha256": "2d918fa84e0b27333ccbdeddea07e2f91befd04378008d4bc96b2eeeb163262b",
+      "metadataSha256": "f82a4aaf032b8c6b704bd5229215fd427eb0c06cc5d18587f00674aadbf085df"
+    },
+    {
+      "id": "qing_jh02_00",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh02_00.webp",
+      "sha256": "2d7fbfbbcebb0fd673fb8b85b0dce427a3431fe6030071f088ecd225b67fe5b2",
+      "metadataSha256": "8c5ec54905a2cbc71fbf871f1713833fcdc73f8af2d23dc51ced77fcc7712ed4"
+    },
+    {
+      "id": "qing_jh02_01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh02_01.webp",
+      "sha256": "0ba75b0609f61684ef3cf4b99a9353f65b13eeffd110da249ed39424967525c2",
+      "metadataSha256": "b2a703e442a7a8eb24f7d7dcbafd55101267ad43f9119c6a5362fa85679cedf3"
+    },
+    {
+      "id": "qing_jh02_01_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh02_01_l01.webp",
+      "sha256": "d8201b8ba3a0dd9f38778726a10a81066aaa41d78eabd2f2e20835d577fbad59",
+      "metadataSha256": "2acc289645945261cea8766a0859ad81ed10df8e2b800e1c928ef569f3ec156e"
+    },
+    {
+      "id": "qing_jh02_02",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh02_02.webp",
+      "sha256": "d2d3c8b41c79826f4c611c993c4a68c180136f7637dcbcbbf59355eede54bbbe",
+      "metadataSha256": "b206dd0dae5fc5065c41d02ee229cc4cba49007dd4481f7337ddb4d2cfae1da2"
+    },
+    {
+      "id": "qing_jh02_02_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh02_02_l01.webp",
+      "sha256": "36c5db1ebc20a5df6e4396288d79aeff966e90a1abeb5aed4a41a9fd79e47608",
+      "metadataSha256": "b9233032bbf73623fdcfb109e86ef21fbe2f6eb314a2e7775b28cbd823297773"
+    },
+    {
+      "id": "qing_jh02_03",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh02_03.webp",
+      "sha256": "fa479adcf34e6ed2431eb90aed98effd68306cde5e236153e22576fcb2a5eee9",
+      "metadataSha256": "97277dee271f0c688700821f7357021064d9ad5a35f850ae17bef19382a1ce58"
+    },
+    {
+      "id": "qing_jh02_03_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh02_03_l01.webp",
+      "sha256": "174819252b177da5a041b45340009cba8c9c1280e73947e659c27e28395b4b6f",
+      "metadataSha256": "1fe90c6b20d173d77d3ca27c42a43f4e75e7d6a639c19d18074a87fa21dab3cc"
+    },
+    {
+      "id": "qing_jh02_04",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh02_04.webp",
+      "sha256": "07248a0e3dc4caea0cb126005dcc3ef74205b59b575406dd899b9a5b29cc9fb4",
+      "metadataSha256": "eb4050e5f60f7dddf20cbf6934c19641c827dd82056e79045eb56c231ffdf8ef"
+    },
+    {
+      "id": "qing_jh02_04_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh02_04_l01.webp",
+      "sha256": "b15bf4b4674f8846b663f44571ae0ac1e28af0e6245604ca565e93d83245569a",
+      "metadataSha256": "44dfb6184cb904a3553f925a6987cb7844ac98053be05c4d19afde0c53393d9f"
+    },
+    {
+      "id": "qing_jh03_00",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh03_00.webp",
+      "sha256": "239f02f0eb7d098089c6bf1357c4b01ff954b3765afdca001c61682e26994721",
+      "metadataSha256": "ec2012d6db1141af746cab6ec6c25a42cc06d4ea3bce22cad44795417be85322"
+    },
+    {
+      "id": "qing_jh03_01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh03_01.webp",
+      "sha256": "deb39010e841bc8a5c0f59c51f768b5d6feb3a3ed7564e731dcd6796afdce2ed",
+      "metadataSha256": "ec92513e93de5059950ea17d78e5e735d2447f98e8017a28be906a3ffd3887f1"
+    },
+    {
+      "id": "qing_jh03_01_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh03_01_l01.webp",
+      "sha256": "57919f7cd4e289dae0b044f4cb0af01dad464a12db446ebdb13f6132897b3bca",
+      "metadataSha256": "56464223df2faa6849d350d1bd5a5848a6fc81b67b619732ce0859b33b57185e"
+    },
+    {
+      "id": "qing_jh03_02",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh03_02.webp",
+      "sha256": "fbdbc34aab0ed444177cd37cfa3a30c80b36bb78b2982eb118513ba8fd5e7a80",
+      "metadataSha256": "dd0094e155dd2fa72b4c13efae36a45a0121ac4415b9f34ac1ebe02c4b42a93f"
+    },
+    {
+      "id": "qing_jh03_02_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh03_02_l01.webp",
+      "sha256": "09137f266fcc0af214d0645ed999df171ed7e95d10322e78a28ba4a045047b5e",
+      "metadataSha256": "65553a9beeb78fbd41778132fd6e94f24482a9fa50781a01a3e6e6d83e423150"
+    },
+    {
+      "id": "qing_jh03_03",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh03_03.webp",
+      "sha256": "c4c5e3591060ff6431ea6e28e5f5888d6ac633f3f57107d94fa2695af83a348b",
+      "metadataSha256": "6cbf579ed66a3b70015ada9b3dfba10dab3e157bba89cec3537db4e872ee8186"
+    },
+    {
+      "id": "qing_jh03_03_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh03_03_l01.webp",
+      "sha256": "6729457c20cbb1e7b723beb80f3ae4792eddb075e7eaa5131e4829b15da4de49",
+      "metadataSha256": "1826c79e40883b877e14ead4c45878c3c47da285ab76373b6d456cc1d912d479"
+    },
+    {
+      "id": "qing_jh03_04",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh03_04.webp",
+      "sha256": "7c2ffcb2078c1890dce58e5f2c20e5c08bd7008bfe7df7b00d0830d7132fbb5f",
+      "metadataSha256": "0332cef6c4f352ea0fb7e7aef7e18d357cde218d1b402febf5a256f88934298f"
+    },
+    {
+      "id": "qing_jh03_04_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh03_04_l01.webp",
+      "sha256": "723e77567ae02f5a9ddcef73ca60bba060961a5112b23c6335ad937c95228015",
+      "metadataSha256": "2077d9d9933e726a882d4cfbc9ec6a3670a33c7f6c26be370dd86d261b3a5cb1"
+    },
+    {
+      "id": "qing_jh04_00",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh04_00.webp",
+      "sha256": "8bc035d6effcdc334315e500e36ad23b4ae7969e0cf96cbea9ee22819da2076f",
+      "metadataSha256": "ea24e2bc5d77cb40a1bd1c05476fc67e44369ad6050783456a73f632eed9662c"
+    },
+    {
+      "id": "qing_jh04_01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh04_01.webp",
+      "sha256": "e071925efca84c0fd459a948995b05a5b542ce1b9a51b657462b3753467d5447",
+      "metadataSha256": "1dab1b0d053b38f0ecc21cec2196f2a6cb79d84c80d641d11eb25c0d6f9b5939"
+    },
+    {
+      "id": "qing_jh04_01_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh04_01_l01.webp",
+      "sha256": "6c988c8099fea1c42060017e262a67b5adeabd5512b12d0bb371e687707d2863",
+      "metadataSha256": "237ec78b1268d5cdc54231b22f9bc564f14fc8c4a971e910e5c64791a63da12b"
+    },
+    {
+      "id": "qing_jh04_02",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh04_02.webp",
+      "sha256": "cfb51c4fd616d6f96252c67329d969eacff83ecbf7630ba0bb16bc8e7e5aa9dc",
+      "metadataSha256": "b5cc9fc83dbb1db4c05c298ec635964e0ae5aa8cb635336b8308134fa41a7eec"
+    },
+    {
+      "id": "qing_jh04_02_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh04_02_l01.webp",
+      "sha256": "e55185cecd5cc9f9a901730a03cea0cafe60bb3f4718a90bcfdfe0ef4f4d133e",
+      "metadataSha256": "9015df97575d91d699bb776c760894e9ee4ac690278a7a6dcf8ffba2e0b5838f"
+    },
+    {
+      "id": "qing_jh04_03",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh04_03.webp",
+      "sha256": "7af1a7a25fdbcb14f0a4f9446b36d16eae360c31366635ff80fd46a3a841eac5",
+      "metadataSha256": "2bcc38726d0fda90c1559e751a5cc6a1ba01f6c3ff5a70d8b8145f98a5ef06d2"
+    },
+    {
+      "id": "qing_jh04_03_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh04_03_l01.webp",
+      "sha256": "6f7704d3dbaafce74dfb1978343cafaf718473cc69b08462c2dd901450a7b96a",
+      "metadataSha256": "3a1e2c9d81cf1313d44c98642b55f04da37b5e796d16fe64e974345e9eab5278"
+    },
+    {
+      "id": "qing_jh04_04",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh04_04.webp",
+      "sha256": "d29ae4235caaa792200f04643fa60409a490dcfe4e1a0a66d082aa8bfedf3884",
+      "metadataSha256": "b6eaf3afd2eab22bb6a3da0f52838cfae479057a4195c34f98ae24ca4794bd34"
+    },
+    {
+      "id": "qing_jh04_04_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh04_04_l01.webp",
+      "sha256": "2d3a8488c4df410eef54f89712607019a6cbbd2a9a8389be3026aacc91cb467a",
+      "metadataSha256": "a983056441c9ff0bc4377251e55d1a886581c9c9ab91881efa9271949c7305f8"
+    },
+    {
+      "id": "qing_jh05_00",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh05_00.webp",
+      "sha256": "39be0453f259e717ed5faf28a2ccd5cd24f8b1a2e81a5c0bef057c3228c6707e",
+      "metadataSha256": "ad880623f6e4881c87b5850ded1de243cec2e39081cc447b8f174a61e621e66a"
+    },
+    {
+      "id": "qing_jh05_01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh05_01.webp",
+      "sha256": "50aea55b586322c254eb21d0fa073d52caae5cea588764c2ea8db1d84f817cb6",
+      "metadataSha256": "4578aa026d6d313bfaa811637eb70f6bd1e3b5651e14ecd602b2ce9bc74a1e9b"
+    },
+    {
+      "id": "qing_jh05_01_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh05_01_l01.webp",
+      "sha256": "ea2f32cf9cd5902938510a817bbbeb0e28c8dda5fc310d5e175abf113393d462",
+      "metadataSha256": "8c1b08b3aa2d9fca2b3cfd8d3888143d716a077627ede8e9b1ab2f57a94b3cb4"
+    },
+    {
+      "id": "qing_jh05_02",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh05_02.webp",
+      "sha256": "a59d793d4d35115ad24712720cf912a8c8e79419c2bb91da2b54822e7c131e5d",
+      "metadataSha256": "4eefe43c4aab18a7d2c7271c4766128c0a4b0f3801302749ece926f2575cf1a6"
+    },
+    {
+      "id": "qing_jh05_02_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh05_02_l01.webp",
+      "sha256": "fd6ddcde4b234407dda6d0afc325f4649b4b1eed71dd76047af4757bbad2dbcf",
+      "metadataSha256": "200c8dc0f438477cd8566adedaa7c60f4c4da294f31d4861c824d3fbd355ee1c"
+    },
+    {
+      "id": "qing_jh05_03",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh05_03.webp",
+      "sha256": "06cf1969d00b1f52b7084272d2daa5193d1214d9dbd61a2bc2266e8d005faa52",
+      "metadataSha256": "dafe633203a1db46afd49a703cd43d9d0abb3965a9f9d1177e9baa52591a4921"
+    },
+    {
+      "id": "qing_jh05_03_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh05_03_l01.webp",
+      "sha256": "725f415965fd0fded8b2d68ce6fc5f9efd191d66bcce838e7704a067585c1737",
+      "metadataSha256": "3601dc466e3adae6d7e734dd63b473b61c4308ea8f60545d090b86e5b18fa64e"
+    },
+    {
+      "id": "qing_jh05_04",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh05_04.webp",
+      "sha256": "5745babda30097b7c6631df517537dfa1178c354b8f3eaac854d8ec4074f6a90",
+      "metadataSha256": "e1a4d08e60ad1ab0b2d85e27168a50fbe16825558f3a9aa1aed5edafad7525d2"
+    },
+    {
+      "id": "qing_jh05_04_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh05_04_l01.webp",
+      "sha256": "e79d2a54170c19bf932af384ccd90da0c29fbc5239390252c16ea76221c8f67a",
+      "metadataSha256": "0f883b4f9483035158eb23f0cbd267e97ba06b2db0e76dd06afc6d24c1ae2ad3"
+    },
+    {
+      "id": "qing_jh06_00",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh06_00.webp",
+      "sha256": "5ce97c8001075ce3dad0d7988982c61f5278d793e577af6c3aee892161b0d5e0",
+      "metadataSha256": "6a56c578ab108f1a47e11ecb1e406867bdca4c5b87102b32184cb8a57704f78e"
+    },
+    {
+      "id": "qing_jh06_01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh06_01.webp",
+      "sha256": "2533cbcd16c964453ad3453ce07ec3149c6a92a0d81b3f6e6e7802860e7005cf",
+      "metadataSha256": "a02bf3d2f6676b7417056461d8b55175a6d44e2413f20e1afd31aa97688ebaad"
+    },
+    {
+      "id": "qing_jh06_01_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh06_01_l01.webp",
+      "sha256": "c45217b6cf502bd40ffa855e14087450e56f8b28b69b78419b67ec3cc2b450f9",
+      "metadataSha256": "798ec27ed764d278a62f258f843a5e9092a06a69caaa41d3f5ffabfd50ed8137"
+    },
+    {
+      "id": "qing_jh06_02",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh06_02.webp",
+      "sha256": "f3c2fdd3e8310d44131171746e609a3668550ab60a9d90e2792da13aa66b4390",
+      "metadataSha256": "718cdf476fdbd3ff9f00869d13568a0950c29c7ea87bb81dd5f7222ee3414797"
+    },
+    {
+      "id": "qing_jh06_02_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh06_02_l01.webp",
+      "sha256": "a21639189c5a355b3796006f1d4e5d93a843e90a51564237eaf2915b2b465ed2",
+      "metadataSha256": "05cc9f409b9474559e911a1990331538ca4c24b10a435813df1b85ccfc74ce04"
+    },
+    {
+      "id": "qing_jh06_03",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh06_03.webp",
+      "sha256": "966b374b7c12c124a3254f17d00c21a103d7be013e1b0784f93acd9d7604b4b6",
+      "metadataSha256": "b6ee39bc179b524b11ed125301dd2f1b420fa89217da8968a931857523ab20ec"
+    },
+    {
+      "id": "qing_jh06_03_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh06_03_l01.webp",
+      "sha256": "c2bf780611f959e6aaa7eba40e7753892ed026dfcf0c359dfa2b864ce50a1fbb",
+      "metadataSha256": "991f61861b457376da69a0ecb689d9c23c34d4891fa9bbf82f0d669f2cd575dd"
+    },
+    {
+      "id": "qing_jh06_04",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh06_04.webp",
+      "sha256": "83d4f23706718eb2ab61a0b63dda0aaf40031b47ec1e10a083b460e04efa51fc",
+      "metadataSha256": "098cda3ef2c1562772b50a84f62e862d7caa3d3ee8d15d332866cd8cfda08765"
+    },
+    {
+      "id": "qing_jh06_04_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh06_04_l01.webp",
+      "sha256": "f8c054e1eae2a1b08e1dfc26ce829ba615f86ab15ac0840a99addd078f649bcd",
+      "metadataSha256": "d29a8ab7b16b20dd9ec5f361082010378055bf9e7d53e821dbaa3bde70a80f5e"
+    },
+    {
+      "id": "qing_jh07_00",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh07_00.webp",
+      "sha256": "bcca4d812c86730c7c59d252d4a15b0a64e5c9ba086141cc0fc0e1dd9a664ef0",
+      "metadataSha256": "935a023896ed817c7674ac009e2d9eddf866005c83783122d3b6f7085460b894"
+    },
+    {
+      "id": "qing_jh07_01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh07_01.webp",
+      "sha256": "6f070dc1e3f5c6b0dba1cc6ea2e487d676b807e73f7f3e5a07056b2551957069",
+      "metadataSha256": "e8dbd21ceff27ce306ccc61544ed08e7e22a388adf5903eed4a8c61b37c1ba33"
+    },
+    {
+      "id": "qing_jh07_01_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh07_01_l01.webp",
+      "sha256": "9c2e44e925e75d0e548604668cf40c1d5d008032df50e0ab31d7abbf5e7858db",
+      "metadataSha256": "b6efbab7109c72a263bfacf4329f69b2de684a813e60f7ba0a2da86c90eec48a"
+    },
+    {
+      "id": "qing_jh07_02",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh07_02.webp",
+      "sha256": "eb92c7a1c009feb2fa76c500fd58045987b5b8f44a82af5aad92d784bfde9039",
+      "metadataSha256": "cbc95f41f299c5cd3d8963f7f0968952f4ced7811573b53c4a2e82df3aacad96"
+    },
+    {
+      "id": "qing_jh07_02_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh07_02_l01.webp",
+      "sha256": "8b9cae9c2884e818337d0a646b040a473bb440f29448c37f5dc1ca1b2aecfbdb",
+      "metadataSha256": "e0d60480363966abfdcc977c9858ebd54a9828f693af6c5139255ebd7f31dc4c"
+    },
+    {
+      "id": "qing_jh07_03",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh07_03.webp",
+      "sha256": "eefb1f90544fa972e0ee79194fa8e16ffcc6fb99161729f02db7fac14837d417",
+      "metadataSha256": "4c7110711efa38070e9a9b036e9f690a3632cc309d93fd4917762d6d9a067d1b"
+    },
+    {
+      "id": "qing_jh07_03_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh07_03_l01.webp",
+      "sha256": "90c04d62f4758c8628b2943e2c602bdea49e3c2c80f3d99dfb7331069802fdfa",
+      "metadataSha256": "d8c6e5645f790bc5cee8f6687378c6db4234719d9161d28a8ef7cff28d979a01"
+    },
+    {
+      "id": "qing_jh07_04",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh07_04.webp",
+      "sha256": "0c814ebf7a32c77436437262a474ff7280b1d91f8cedcf6257fa4dba9a2ad84e",
+      "metadataSha256": "16ee5eeb22d1ce78f881ab718511f5cc1ce5d4a8803230945080aa9994bc1008"
+    },
+    {
+      "id": "qing_jh07_04_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh07_04_l01.webp",
+      "sha256": "389992cfa64c45d4bc1593d0c78b3f9859ee9d3b67d89b7050cb0f4f85e371b5",
+      "metadataSha256": "ea11f0d8631f29a7e849300312a9c877a683c157a6573354bc204a9a63169fc1"
+    },
+    {
+      "id": "qing_jh08_00",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh08_00.webp",
+      "sha256": "8442b6eb60e7ecac77600276cef5bc3e3381f13f23bed0077c6b651d1b63000d",
+      "metadataSha256": "5fe0cd03fcf989c113ec5340112e9758fded09d03f688f925fdace6860692b9e"
+    },
+    {
+      "id": "qing_jh08_01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh08_01.webp",
+      "sha256": "e081cdc5476396eedb2cf0e98ae9636ccee0212d1f3f627ca58019bfe08bdc15",
+      "metadataSha256": "705168f4ce59121ea76b7bd373a6da61163a5fada4b14f860878c8b56c7f029e"
+    },
+    {
+      "id": "qing_jh08_01_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh08_01_l01.webp",
+      "sha256": "a6d78298cbe04bae3b167a324b6840b3a6195990ec65553e1dc11f4b53a2da61",
+      "metadataSha256": "d157eb2cb854dfa30dc433c820b9ca4a4c0e23f51456cb9e427b9cae63232288"
+    },
+    {
+      "id": "qing_jh08_02",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh08_02.webp",
+      "sha256": "5930a736d20f246bc42c7d6048789a7f58fb0fbb0f52efa562a5fdb67d6edc45",
+      "metadataSha256": "e7150cc50ecee4bf54a47a4e3e91e46f51be57d1707551760e6c5d667cafebb7"
+    },
+    {
+      "id": "qing_jh08_02_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh08_02_l01.webp",
+      "sha256": "8c1a0b860c342d10c80fbcc3a617c58afd7d43ee3cdb8e55fd4d7727ec442a7d",
+      "metadataSha256": "54ed1233c2e87690c44b51eaf5c792d26a84b61f57ae4c22af52dab2d7d540fa"
+    },
+    {
+      "id": "qing_jh08_03",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh08_03.webp",
+      "sha256": "aa29d463ef7c409aaf80b898a769379ee9bd249ebde4d933f696177c50436e5c",
+      "metadataSha256": "cb8e7aa82fe385797f40fa8c6e7eedabf6bbe8401dcf18326512e85ed2a3a42f"
+    },
+    {
+      "id": "qing_jh08_03_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh08_03_l01.webp",
+      "sha256": "8557a302cb59da99589de0a8bc5f5ee0a2f30bc45a017e0e9d3ad57da94e355a",
+      "metadataSha256": "c60f59dca4399e8540d221d1c6f48522d0a6c211a5b664a53ee7f26ca62eb413"
+    },
+    {
+      "id": "qing_jh08_04",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh08_04.webp",
+      "sha256": "14c7b7473aabe2867b5b7aa0c26680d2ccf2150c816c189058d6dd6fcb616ec7",
+      "metadataSha256": "38e9aab106f59605fc74f2a5bc1aa439af687e5db3c61ba59be9d54cfa9d33f4"
+    },
+    {
+      "id": "qing_jh08_04_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh08_04_l01.webp",
+      "sha256": "a7304e9b3c50c7b2c3d0de94d3880dace521acc525fac054fe681ac500b0941c",
+      "metadataSha256": "04b4accde8c0ec2988e31f4b7c3eb453eb6e1bb0a63b9f58f9ca93a0b8340be8"
+    },
+    {
+      "id": "qing_jh09_00",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh09_00.webp",
+      "sha256": "262477d7c0d5cf4abc3af51f60028470f5d8a95b94c56606c22cbc12facdbad4",
+      "metadataSha256": "7a65252547ee7a41878174f0841a367daa445928e88f1276ca6c0d3349f00a43"
+    },
+    {
+      "id": "qing_jh09_01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh09_01.webp",
+      "sha256": "c24cbd858428a6023ab2fe19832bdd97903351fe9a797cda7c760acf15177bd4",
+      "metadataSha256": "03fc0877f40f4e27fe2d9d04436cea182987d2b0e142291565e343d8f1f610b2"
+    },
+    {
+      "id": "qing_jh09_01_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh09_01_l01.webp",
+      "sha256": "ccd6feb793745cd9cc8ef2add35d004b678ad8aad2add18a8403d69516d3934f",
+      "metadataSha256": "d94fce4bfaf8c17769dae77472b575f792dce3bba3e2532e719485427742e85a"
+    },
+    {
+      "id": "qing_jh09_02",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh09_02.webp",
+      "sha256": "587a5ab97a58975b40ccb9b16bfbc69e22a3a1b703e1fd66d399544155a6251f",
+      "metadataSha256": "c11eedbd3b23d99da1799480f36a1f66c0f0399c660ddda4776646c901172984"
+    },
+    {
+      "id": "qing_jh09_02_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh09_02_l01.webp",
+      "sha256": "0f435d0757c604f17bd0c273433b99c6f98fa4307724bc6dd142039829e396da",
+      "metadataSha256": "bb27fc998be5d17b081026dc1d0689d6faa476c43174ed03c6e0b87529d68239"
+    },
+    {
+      "id": "qing_jh09_03",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh09_03.webp",
+      "sha256": "5170c147165b8bab960c73795f082eeddc387b0e6c124ff5921f5a06f25648d4",
+      "metadataSha256": "be5af764d6e197af1f6585aedadb2b7138142270b31acad6a7dfceb84b6111fe"
+    },
+    {
+      "id": "qing_jh09_03_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh09_03_l01.webp",
+      "sha256": "78e9c7061fc05347db21a75ac0293c27debe98f4c9891cfdba5da185b175df58",
+      "metadataSha256": "44dd45cefab7f1d4ea494c21d72d6de249e93dc29685d7be32e7ddaec2f58b36"
+    },
+    {
+      "id": "qing_jh09_04",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh09_04.webp",
+      "sha256": "1679dd17182f02b06660687e1739211ab470a5d7763d2b8f9a2be36e7364bf01",
+      "metadataSha256": "a2c7c4065183089f2cf7d8d214af80c3d458b1608af1ff46ee63e7488e92d63d"
+    },
+    {
+      "id": "qing_jh09_04_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh09_04_l01.webp",
+      "sha256": "1c4b5f73eb69b1dded97136d0c42ea26a03154d742b01b52960a045f82c2119a",
+      "metadataSha256": "f25c8813a8c5ce077581dd71f2cab2443e80c78175a09fd8fa96fdbeb14c2df6"
+    },
+    {
+      "id": "qing_jh10_00",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh10_00.webp",
+      "sha256": "38135bc820992c7fe3d1b07964f79b35bcd8163e4e9f1b9831064d96b3d25a1e",
+      "metadataSha256": "5bee63bacb828468189bbfcef5a6328527e50e16c99ee64e1153a6ff0f929867"
+    },
+    {
+      "id": "qing_jh10_01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh10_01.webp",
+      "sha256": "d35e13e5363a7ddc7cf0a5556b67819c4f7798282b2a438258215f4ce76b7f05",
+      "metadataSha256": "a605375e327d32688149eb2788ddca8f50cf90f71a6fd6d79a346d4ec111a3ac"
+    },
+    {
+      "id": "qing_jh10_01_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh10_01_l01.webp",
+      "sha256": "74031065b0de5ce82aad09ea5cb4358eff2181966895540da0471f9fc9a2bf5b",
+      "metadataSha256": "9cf018a97e420b852180c34e468f9cca34236b5ee467e943e09299d0961e0980"
+    },
+    {
+      "id": "qing_jh10_02",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh10_02.webp",
+      "sha256": "8c5464e360f1f774d46f05b87ee2c4447d752f8f5cd8ba1421d9dd99776e8a87",
+      "metadataSha256": "911f362c993de30dcfe46ce9590e5d63c0e93f7c0d2759d6356b814e28413599"
+    },
+    {
+      "id": "qing_jh10_02_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh10_02_l01.webp",
+      "sha256": "106a38259c3a2d0a1ae2bc1b122183b7be8716910537034d0d00908fb811bd49",
+      "metadataSha256": "961bedb9e505d332ae66447e852f4bd2737b8da97ec2ceab8800f0e44408d472"
+    },
+    {
+      "id": "qing_jh10_03",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh10_03.webp",
+      "sha256": "83de9484c152f2518d1f35f5674f107a7a9e180216356195a0fde87def478b06",
+      "metadataSha256": "546d85c9544083ccd1a2a998fb50a118a3555a6f579ff4e68b03611421f95159"
+    },
+    {
+      "id": "qing_jh10_03_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh10_03_l01.webp",
+      "sha256": "8e89b04971be2a1da5cbbb1ede7e75196e62ab833bb88635601156df86e4219b",
+      "metadataSha256": "1d56a846b55764c16a620bf7b8ee850e521e3cc9bc5309e712163386e1357cfd"
+    },
+    {
+      "id": "qing_jh10_04",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh10_04.webp",
+      "sha256": "583a169aaac0d84274bdc7564eb6e45de7ee5332dc5d6220b5a98ca481c012a1",
+      "metadataSha256": "3a4585d5d396397025ca5bf06903deec930bbee4efe89d3fe75793f858efdcd6"
+    },
+    {
+      "id": "qing_jh10_04_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh10_04_l01.webp",
+      "sha256": "d1b73be06edb87c3939dd4a80482a509ae47637e401e9aa0b3f4061fa8b04e3c",
+      "metadataSha256": "f25fe39776823dcb581bfa0a681fc2f20b4af8375e40d8dcdf3216389f2c92a4"
+    },
+    {
+      "id": "qing_jh11_00",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh11_00.webp",
+      "sha256": "cc4a890313983015826c2d9ddab141b1a058008347f885f2efe91b7408f4d160",
+      "metadataSha256": "e613ebb57f438ab9123ecdf095ef9109a9ae003c6d596c093cb211bcef6a8e9e"
+    },
+    {
+      "id": "qing_jh11_01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh11_01.webp",
+      "sha256": "691aa9eaa802d595144b6aac432d2604274a8c685cdca6885df0a9f3c2b685d8",
+      "metadataSha256": "ccb7d8fe0bb9b652ae1111455d1d4bfef7fc58fcfd1bb9540fb7dd56ca3baff9"
+    },
+    {
+      "id": "qing_jh11_01_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh11_01_l01.webp",
+      "sha256": "090357de59469dba116130598004afd3fa2f944819431dc6ea3fc8012cfb7041",
+      "metadataSha256": "b82b6af96ef9e2a9373cc7ab105479ad345732c617b3bbc8947eb591ffb37592"
+    },
+    {
+      "id": "qing_jh11_02",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh11_02.webp",
+      "sha256": "1d0df8473c09ee7e5aa5357209bd0fb99162b11d31ca28f0ab7308065df5e0fa",
+      "metadataSha256": "acecdaf781efd15ede678d1d41e81f20f779190b7683b43225d1e2bf94d86097"
+    },
+    {
+      "id": "qing_jh11_02_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh11_02_l01.webp",
+      "sha256": "5a9863b6c5d4844ecd20126d5f848b1658702b64fa6dfced9411045b1d056936",
+      "metadataSha256": "84930ff5218a55ad767f1ffcd635901e6be1eecb946cd918054e44d3feec1767"
+    },
+    {
+      "id": "qing_jh11_03",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh11_03.webp",
+      "sha256": "feef424541113baa71cf0104aa05ee914a2b820e9d50544ea617f051838d3aaf",
+      "metadataSha256": "efba03fca177ca2dacf283818d2eda0817e0c5357a3886bfdd01cf7d11745a2c"
+    },
+    {
+      "id": "qing_jh11_03_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh11_03_l01.webp",
+      "sha256": "7023baafc41478cf94ed0317d59bd252eeb19c9daaa811209f4d09e9cbe95a28",
+      "metadataSha256": "1e106aec362cd45bcdb8ee292acfd9b1aa428392a1ff093f39b814503f55d0f2"
+    },
+    {
+      "id": "qing_jh11_04",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh11_04.webp",
+      "sha256": "8bb2b789a88f5b93b78db24d3689be2c20123f01c1e436ee02310a8d247cb43e",
+      "metadataSha256": "b5d872e0d867f217620c6651f18a16a625b1c7aad85c64d594e4e517a755b6aa"
+    },
+    {
+      "id": "qing_jh11_04_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh11_04_l01.webp",
+      "sha256": "0de1e8e0d90bff39be78b79f62d03336f2deb614e3b6a4cec21da5ceaef9b6b7",
+      "metadataSha256": "45c55f208ffb1fdcb464d9e51ed1d5d7b832b60a4e03b9c971b242918aec3e1d"
+    },
+    {
+      "id": "qing_jh12_00",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh12_00.webp",
+      "sha256": "bfb9fee0c3dfe5836a5c85af5c465aa666352df5472fde297dcc387dd238eabd",
+      "metadataSha256": "352e9c12ec04c6dbd7fd6790a4304b1dd02a1151df121e0e462ffd54988ae93a"
+    },
+    {
+      "id": "qing_jh12_01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh12_01.webp",
+      "sha256": "0814a92175ecbe034d2057a4cfb60d650e2da5981e4422e8a19e8f4d181ee36c",
+      "metadataSha256": "ae1e33b254c18ab446e2d6d5c6aacb04bf1b93bf774afb53b0dafff4d9c3b84d"
+    },
+    {
+      "id": "qing_jh12_01_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh12_01_l01.webp",
+      "sha256": "5cb61956b7592daf7fdba60bf806a5e994ead21dcfd6db8d8bfc73ff62441d2b",
+      "metadataSha256": "2d9f8aa1de86792035550c946a3be9d636b6f6968dc7bf298bdc7b44b989218d"
+    },
+    {
+      "id": "qing_jh12_02",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh12_02.webp",
+      "sha256": "10e6fc20fe482c85a994836da79f5cfe07d6bfc8972861edd3b95dda7f4d9125",
+      "metadataSha256": "f7c34d0c937496ddd74b64ca503ea907cbb31799a612ec0c6204e0d70e354529"
+    },
+    {
+      "id": "qing_jh12_02_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh12_02_l01.webp",
+      "sha256": "e5768e04daf8c4dcf8e50bc4871a4da36ee3ba438a8ab7fddfb64f8552d855e3",
+      "metadataSha256": "8fbba1094489289d75c1af2cbd840a0ddb7493d029d59d066655006f89adc024"
+    },
+    {
+      "id": "qing_jh12_03",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh12_03.webp",
+      "sha256": "684602ac9edf80f0679367b3e40b20b8e27e42ef94ba66e8b828824b13152aaf",
+      "metadataSha256": "cc3ad16e92a2f1cc445a4ee5e080d11c2e6d98229a8c7cb3dacb475e7a539877"
+    },
+    {
+      "id": "qing_jh12_03_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh12_03_l01.webp",
+      "sha256": "ebfd939336a0743f5051905c8f19c036ad71832b296eeffe65551392cd9d364c",
+      "metadataSha256": "c1cc1f06b2ab2af5a0ec5e04c293c3a5a5e27108dc96c5ad41c726795c03e410"
+    },
+    {
+      "id": "qing_jh12_04",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh12_04.webp",
+      "sha256": "b3b9c12311da81db34421a11b4138d9c8c1e6b72c344c742ea4ef8a6c84bc5b5",
+      "metadataSha256": "8bd1a0b978f1c1c54a19ab4d7eb6b2e812938a3644568625ec449cab76995d4b"
+    },
+    {
+      "id": "qing_jh12_04_l01",
+      "relativePath": "data/illustrations/qing/scenes/qing_jh12_04_l01.webp",
+      "sha256": "75baffd6e5f1507636c2f3b6cfd60a17765c97596cb2d6735d0820ea587f5576",
+      "metadataSha256": "59dd3d410af78d04f9e645b107e8095cdb72459487dbee5e83d15d9afc6df573"
+    },
+    {
+      "id": "qing_lamplit_questioning",
+      "relativePath": "data/illustrations/qing/scenes/qing_lamplit_questioning.webp",
+      "sha256": "d553a281076d7fd4009d5116def491ca44c93d40fd63393909f1f5a9bd9d880d",
+      "metadataSha256": "3292d2541d98fc4637c9394ca71991ab94d587137ce19fae04c6fcfd0b58671e"
+    },
+    {
+      "id": "qing_massacred_village",
+      "relativePath": "data/illustrations/qing/scenes/qing_massacred_village.webp",
+      "sha256": "b00377c9954641c0f44844e0984dc9adef346d123c168fb89611a0ad8f88b65d",
+      "metadataSha256": "12bee21553ee96ddfae204c047181d065adf68468627dc988acdff23d86c9712"
+    },
+    {
+      "id": "qing_melee",
+      "relativePath": "data/illustrations/qing/scenes/qing_melee.webp",
+      "sha256": "625aab7231c5d44a0fb92db881520f1de27296fcd2dc31a454ad6bfb7ee55f22",
+      "metadataSha256": "856a0f6b9990f4d45693ece4f5496ca66aec5294de5fe3bfaf6bc524f657c104"
+    },
+    {
+      "id": "qing_night_envoy",
+      "relativePath": "data/illustrations/qing/scenes/qing_night_envoy.webp",
+      "sha256": "1f9e24a98b8815c7f020b055a3c987c661e033c492177a1dce5fb2a239e54be3",
+      "metadataSha256": "1d286b6c0aa4f3f8643e02d018a156b5e9f09e177b20c8074795aa521196d7b6"
+    },
+    {
+      "id": "qing_night_raid",
+      "relativePath": "data/illustrations/qing/scenes/qing_night_raid.webp",
+      "sha256": "0754c9af8c79ddb3799109dcc36a681b11f90621e0767f805d450c78c2e7ca13",
+      "metadataSha256": "4e56225c3a04c38dfd72fde0873e14c8087ea4c73ee53ce7d35a1647f9c02bfc"
+    },
+    {
+      "id": "qing_prisoner_escort",
+      "relativePath": "data/illustrations/qing/scenes/qing_prisoner_escort.webp",
+      "sha256": "2e52976606f98acb950353ae594b2bebccd78d6cf2e65aa37e2cbd7e358d0b02",
+      "metadataSha256": "d209588c131b5f97f0a245df6a59fa18625b5448d932869dd8a6c8da1166b97c"
+    },
+    {
+      "id": "qing_ransom_negotiation",
+      "relativePath": "data/illustrations/qing/scenes/qing_ransom_negotiation.webp",
+      "sha256": "f144866902306b14b7553d99db706fafbea9635cb213f07fe18a24dee6ad8eb9",
+      "metadataSha256": "40512be10b257e24720649e11cc874b373c4990f42707c2a41ca9c32bcdfc052"
+    },
+    {
+      "id": "qing_requisition_standoff",
+      "relativePath": "data/illustrations/qing/scenes/qing_requisition_standoff.webp",
+      "sha256": "7674b32605ca044f28c2f7c3c927be090f017772996fb0a92ef46a92b595588b",
+      "metadataSha256": "4d64a510e1071a978b237926cd271045aabaacfa5dda7dd1d17f73bc2986ec19"
+    },
+    {
+      "id": "qing_riverside_market",
+      "relativePath": "data/illustrations/qing/scenes/qing_riverside_market.webp",
+      "sha256": "f7e68833d0fbb91d5eaf12466e0fdf189cef63cb017a3d0d7a196f1ec3aa64b6",
+      "metadataSha256": "5e4543073bcdbc16452889c7b32c00ab81a6201d296b3e219fd7fad70d7df93a"
+    },
+    {
+      "id": "qing_romance",
+      "relativePath": "data/illustrations/qing/romance.svg",
+      "sha256": "0b5b5a1e3b05f5c1e8f729852a7139d6f7c77a7aeed6b3716741abb534c7481d",
+      "metadataSha256": "4fd471fe810631a19b2bce0af885ecc8c8daac4e7c2a089da3b5b7f826c46b4c"
+    },
+    {
+      "id": "qing_secret_exchange",
+      "relativePath": "data/illustrations/qing/scenes/qing_secret_exchange.webp",
+      "sha256": "eb605496faf0425d432c86abcdeedbaefacdff871b398d9683d8210dea693069",
+      "metadataSha256": "8090485b95570bfa7a4f611f66a4466c47a8ce2932061662b92e084400171e3f"
+    },
+    {
+      "id": "qing_secret_letter",
+      "relativePath": "data/illustrations/qing/scenes/qing_secret_letter.webp",
+      "sha256": "2e46d1ea7c1405747b6a4c6744b78ea8757588c86a435d7b7f4381c9f9a4822e",
+      "metadataSha256": "a1c287a28efc2dc24a750ed543e12129270375781801abdd79cfe8312a63c65b"
+    },
+    {
+      "id": "qing_shengjing_palace",
+      "relativePath": "data/illustrations/qing/scenes/qing_shengjing_palace.webp",
+      "sha256": "612b79d00ba491b2a6540264a24ad787b192e41cdabb8c1d7bddd7e11bbf2b86",
+      "metadataSha256": "fe7c9f891692109697f92a8b73e83279eab6668553d7f13860373aded670db95"
+    },
+    {
+      "id": "qing_siege",
+      "relativePath": "data/illustrations/qing/scenes/qing_siege.webp",
+      "sha256": "c9ba6c13f8a2448331f3988cd4b38022029559d63316bc229b79b8966fc19a52",
+      "metadataSha256": "a4650b1bc00ab4eb5bc18fd072f50e442a101e3cbf91224a01ea36f814a116e2"
+    },
+    {
+      "id": "qing_treasury",
+      "relativePath": "data/illustrations/qing/scenes/qing_treasury.webp",
+      "sha256": "5454198ad8f01280bd61bef87c52844c185c6204e9cebe6773f0144ade8c860c",
+      "metadataSha256": "b09be93e395810e457c9795a6640843f02ccfd708ff51eb026a7624d0c956f0f"
+    },
+    {
+      "id": "qing_victory",
+      "relativePath": "data/illustrations/qing/victory.svg",
+      "sha256": "b9069cfb639753a2e103e719dda1c5dfbcadb25a789f5b03f71fcf9274e0c577",
+      "metadataSha256": "dc6276d92beb2799c5318e16f69688bbe9ee8e97b6f1d60524b59ee62735d324"
+    },
+    {
+      "id": "qing_war",
+      "relativePath": "data/illustrations/qing/war.jpg",
+      "sha256": "e9387080161f04f61494ebfc23305fe07fa967a896facea99243f77d01e49f11",
+      "metadataSha256": "b9cf8e3303e6730d38ef0590d9f98e67d0321ced68147f4e0b95a87f70ac5d94"
+    },
+    {
+      "id": "qing_war_aftermath",
+      "relativePath": "data/illustrations/qing/scenes/qing_war_aftermath.webp",
+      "sha256": "caa9376edf70e249bea77b149c6d2eb5837a123219af2cedd46aa421f5f25812",
+      "metadataSha256": "73244b8aa678c1577db32c0cd4aec1a0f203ff8ce44af00c584b63a8a825bb3d"
+    },
+    {
+      "id": "qing_wealth",
+      "relativePath": "data/illustrations/qing/wealth.svg",
+      "sha256": "567e7c934297c043949b6a57477e672045718da3ba8a2032cf74cc0d78eebae9",
+      "metadataSha256": "82cc0a368d8cb61340b859bc449e086a1a0bfabf40178aab96c18f96ee715b1b"
+    },
+    {
+      "id": "qing_winter_march",
+      "relativePath": "data/illustrations/qing/scenes/qing_winter_march.webp",
+      "sha256": "29084a374bb8da99e2cc688b56aaaa1b5e3439836f797cf68e90f371e2049b83",
+      "metadataSha256": "782f9b9e9960d256fa4e7849e9dc1fa1283769ef9ae59ef81963e11aaf0ae319"
+    },
+    {
+      "id": "shared_bg_history_epilogue",
+      "relativePath": "data/illustrations/neutral/backgrounds/shared_bg_history_epilogue.webp",
+      "sha256": "b597b866dc4b22b4940f230ca1fa58ebb40ed8e69b147729e46997463a880859",
+      "metadataSha256": "92c51f189c51bb0d78d0698c0a57342b966aad42a88a5065a74ddd9067cf5b82"
+    }
+  ],
+  "unchangedFilesSha256": {
+    "skills-data.js": "527fc92c3eec27133be4dce6e302759bc5e878afae9a24b03b57280dd21be631",
+    "data/qing-363-tree.json": "ad3542d78829577ee320e1aa986969a2f75491a5bcc3ed0b8963c6dc3687623c",
+    "build-qing-363-tree.js": "72367f13ead116fff53aa76f5f3017440c885ae8561cdbcea81518f1f608c043",
+    "scripts/build-illustration-catalog.cjs": "68d676379b320a162c7a27fedd3cf8b6bca18d7ac9e459362737b052326c39b7",
+    "docs/scene-background-batch-1.json": "06800170c48cc21ded8923b55d298ab3a4479780132a6b2f896047291a20e842",
+    "docs/scene-background-batch-2.json": "fbee7939648b1f63b764f3d1dbb4144bb6decc66ae26b5f66a8ab9f2b4390c10",
+    "docs/scene-background-batch-3.json": "17f0e0e6501fbbf1600da444e90188a0dcea3712dd0c2b3f02dbe47551e40ce1",
+    "docs/scene-background-batch-4.json": "429a26b9a2208c56febbb1de84c08deee690bdca747d5c5b9227eaa849f3e82c"
+  },
+  "unchangedMapBindings": {
+    "qing:mukden": "qing_campaign_map",
+    "shanhaiguan:pass": "qing_frontier_pass",
+    "beijing:high": "ming_bg_cabinet_winter",
+    "jiangnan:mid": "ming_bg_fengqiao_canal",
+    "mongol:steppe": "mongol_khan_council_tent",
+    "nanming:maritime": "nanming_bg_fuzhou_palace"
+  },
+  "bindingChanges": [
+    {
+      "faction": "qing",
+      "nodeId": "qing_act4_b3_1",
+      "previousAssetId": "qing_bg_mainhall_joint_court",
+      "assetId": "qing_bg_huangji_justice_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_a1_1_1",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_a1_1_2",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_a1_1_3",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_a1_2_1",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_a1_2_2",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_a1_2_3",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_a1_3_1",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_a1_3_2",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_a1_3_3",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_a2_1_1",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_a2_1_2",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_a2_1_3",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_a2_2_1",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_a2_2_2",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_a2_2_3",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_a2_3_1",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_a2_3_2",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_a2_3_3",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_a3_1_1",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_a3_1_2",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_a3_1_3",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_a3_2_1",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_a3_2_2",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_a3_2_3",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_a3_3_1",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_a3_3_2",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_a3_3_3",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_c1_1_1",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_c1_1_2",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_c1_1_3",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_c1_2_1",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_c1_2_2",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_c1_2_3",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_c1_3_1",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_c1_3_2",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_c1_3_3",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_c2_1_1",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_c2_1_2",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_c2_1_3",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_c2_2_1",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_c2_2_2",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_c2_2_3",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_c2_3_1",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_c2_3_2",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_c2_3_3",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_c3_1_1",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_c3_1_2",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_c3_1_3",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_c3_2_1",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_c3_2_2",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_c3_2_3",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_c3_3_1",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_c3_3_2",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    },
+    {
+      "faction": "qing",
+      "nodeId": "qing_act5_c3_3_3",
+      "previousAssetId": "qing_bg_taihe_final_forecourt",
+      "assetId": "qing_bg_taihe_decision_rebuilt"
+    }
+  ],
+  "reversal": "Remove exactly the two new asset IDs and reverse all 55 bindingChanges. JSON.stringify(catalog, null, 2) + newline must match baselineCatalogSha256, proving every other binding, metadata field, alias, taxonomy and map is unchanged.",
+  "qa": {
+    "unit": {
+      "passed": 230,
+      "failed": 0
+    },
+    "content": "passed",
+    "build": "passed: 288 handles, 282 default, 442 public assets",
+    "diffCheck": "passed",
+    "browser": {
+      "status": "blocked-before-tests",
+      "viewportsPlanned": [
+        "1440x900",
+        "390x844"
+      ],
+      "coveragePlanned": "Decode all 124 generated backgrounds at full dimensions; all 1456 bindings; loadCanonicalNode for 55 rebuilt nodes and 27 unchanged B-line nodes.",
+      "reason": "Default Playwright browser missing. Existing /usr/bin/chromium launch failed with process_singleton socket() Operation not permitted and SIGABRT. No bypass attempted.",
+      "mobileThroneVisibility": "Not yet verified in game viewport; full image independent review passed."
+    },
+    "production": "Not checked by this integration step; publication owned by parent task.",
+    "npmTest": "passed: all four factions (run by coordinating task)"
+  }
+}

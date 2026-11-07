@@ -9,7 +9,7 @@ const catalog = require("./data/illustrations/catalog.json");
 const later = require("./docs/scene-background-batch-2.json");
 const latest = require("./docs/scene-background-batch-3.json");
 const completion = require("./docs/scene-background-batch-4.json");
-const addedAssets = [...later.assets, ...latest.assets];
+const addedAssets = [...later.assets, ...latest.assets, ...require("./docs/scene-background-batch-5.json").assets];
 const additions = f => addedAssets.filter(a => a.faction === f).length;
 const imageCount = registry.list({faction: "qing"}).length;
 assert.equal(imageCount, 140 + additions("qing"));
@@ -86,7 +86,7 @@ for (const nodeId of Object.keys(nodes)) {
 for (const node of Object.values(nodes).filter(node => node.id.startsWith("qing_act5_"))) {
   const art = registry.sceneFor({faction: "qing", nodeId: node.id, coords: node.coords});
   assert.equal(node.coords, "beijing:high", node.id);
-  assert.equal(art.id, "qing_bg_taihe_final_forecourt", node.id);
+  assert.equal(art.id, /^qing_act5_b/.test(node.id) ? "qing_bg_taihe_final_forecourt" : "qing_bg_taihe_decision_rebuilt", node.id);
 }
 assert.equal(registry.sceneFor({faction: "qing", nodeId: "qing_act3_civil_exam", coords: "beijing:high"}).id, "qing_bg_confucius_dawn_court");
 assert.equal(registry.sceneFor({faction: "qing", nodeId: "qing_act4_a1_3"}).id, "qing_bg_act4_a1_3");
