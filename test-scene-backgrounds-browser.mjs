@@ -8,7 +8,8 @@ import {createStaticServer} from "./server.js";
 const require = createRequire(import.meta.url);
 const {chromium} = require("playwright");
 const batches = [require("./docs/scene-background-batch-1.json"), require("./docs/scene-background-batch-2.json"),
-  require("./docs/scene-background-batch-3.json"), require("./docs/scene-background-batch-4.json")];
+  require("./docs/scene-background-batch-3.json"), require("./docs/scene-background-batch-4.json"),
+  require("./docs/scene-background-batch-5.json")];
 const latest = batches.at(-1);
 const batch = {assets: batches.flatMap(b => b.assets)};
 const catalog = require("./data/illustrations/catalog.json");
@@ -70,7 +71,10 @@ try {
         if (faction === "qing") {
           // Load all editorially repaired nodes through the real scene loader,
           // so coordinates, narration, storage, and both art surfaces agree.
-          for (const {nodeId, assetId} of latest.bindingChanges) {
+          const retainedB = Object.keys(catalog.scenes.nodes.qing).filter(id => /^qing_act5_b[1-3]_[1-3]_[1-3]$/.test(id))
+            .map(nodeId => ({nodeId, assetId: "qing_bg_taihe_final_forecourt"}));
+          assert.equal(retainedB.length, 27);
+          for (const {nodeId, assetId} of [...latest.bindingChanges, ...retainedB]) {
             const state = await page.evaluate(async nodeId => {
               const e = window.__vnEngine;
               if (e.isTyping) e.fastForwardTypewriter();
@@ -82,8 +86,8 @@ try {
             }, nodeId);
             assert.equal(state.coords, "beijing:high", nodeId);
             assert.equal(state.nodeId, nodeId);
-            assert.equal(state.sub, nodeId === "qing_act4_b3_1" ? "紫禁城 · 皇极殿御前" : "北京紫禁城 · 太和殿前", nodeId);
-            if (nodeId !== "qing_act4_b3_1") assert.ok(state.text.includes("前幕风波之后，众人来到北京紫禁城太和殿前。"), nodeId);
+            assert.equal(state.sub, nodeId === "qing_act4_b3_1" ? "紫禁城 · 皇极殿御前" : /^qing_act5_b/.test(nodeId) ? "神州乾坤交汇之所" : "北京紫禁城 · 太和殿前", nodeId);
+            if (/^qing_act5_[ac]/.test(nodeId)) assert.ok(state.text.includes("前幕风波之后，众人来到北京紫禁城太和殿前。"), nodeId);
             await page.waitForFunction(id => window.__vnEngine.currentSceneIllustration?.id === id &&
               document.querySelector("#bg-active").dataset.backgroundId === id &&
               document.querySelector("#mobile-scene-art").getAttribute("src")?.includes(id), assetId);
