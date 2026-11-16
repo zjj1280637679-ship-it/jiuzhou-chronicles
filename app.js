@@ -16,6 +16,8 @@ const Illustrations = typeof module === "object" && module.exports
   ? require("./illustration-system.js") : globalThis.JiuzhouIllustrations;
 const StageEffects = typeof module === "object" && module.exports
   ? require("./harness/effects.js") : globalThis.JiuzhouEffects;
+const SceneAnimation = typeof module === "object" && module.exports
+  ? require("./harness/scene-animation.js") : globalThis.JiuzhouSceneAnimation;
 const escapeHTML = value => String(value ?? "").replace(/[&<>"']/g, char => ({
   "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
 })[char]);
@@ -272,7 +274,13 @@ class WebVisualNovelEngine {
     this.currentSceneIllustration = asset || null;
     const layer = typeof document !== "undefined" ? document.getElementById("bg-active") : null;
     const map = typeof WORLD_PRESETS !== "undefined" ? WORLD_PRESETS.thinMaps?.[this.currentCoords] : null;
-    if (layer?.style) layer.style.backgroundImage = asset ? `url("${asset.relativePath}")` : (map?.bgGradient || "");
+    const reducedMotion = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    const animation = SceneAnimation?.pathFor({faction: this.currentFaction, nodeId: this.currentStoryNodeId,
+      asset, override: Boolean(this.stageBackground?.id), reducedMotion});
+    // A missing GIF falls back to the unchanged original image underneath it.
+    if (layer?.style) layer.style.backgroundImage = asset
+      ? (animation ? `url("${animation}"), url("${asset.relativePath}")` : `url("${asset.relativePath}")`)
+      : (map?.bgGradient || "");
     if (layer?.dataset) layer.dataset.backgroundId = asset?.id || "";
     if (typeof window !== "undefined" && typeof window.dispatchEvent === "function") window.dispatchEvent(new Event("jiuzhou:scene-background"));
   }
