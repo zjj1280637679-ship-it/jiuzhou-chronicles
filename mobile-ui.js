@@ -20,6 +20,14 @@
   const pagePosition = byId("mobile-page-position");
   const sceneTitle = byId("mobile-scene-title");
   const sceneArt = byId("mobile-scene-art");
+  const failedAnimations = new Set();
+  sceneArt?.addEventListener("error", () => {
+    const requested = sceneArt.getAttribute("src");
+    if (requested?.endsWith(".gif")) {
+      failedAnimations.add(requested);
+      attr(sceneArt, "src", window.__vnEngine?.currentSceneIllustration?.relativePath || defaultArt);
+    }
+  });
   const defaultArt = sceneArt?.getAttribute("src") || "data/mobile/palace-night.webp";
   const branchPill = byId("branch-pill");
   const speaker = byId("speaker-name");
@@ -318,7 +326,8 @@
 
     if (sceneArt) {
       const scene = window.__vnEngine?.currentSceneIllustration;
-      attr(sceneArt, "src", scene?.relativePath || defaultArt);
+      const animation = window.__vnEngine?.currentSceneAnimationPath;
+      attr(sceneArt, "src", animation && !failedAnimations.has(animation) ? animation : scene?.relativePath || defaultArt);
       attr(sceneArt, "alt", scene?.title || (speakerSub?.textContent.trim() || title || "九州行旅") + " · 场景画面");
     }
     const promptText = prompt?.textContent || "";

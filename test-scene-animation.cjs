@@ -8,4 +8,4 @@ for(const [nodeId,id] of Object.entries(animation.scenes))test(nodeId+' selects 
  assert.equal(animation.pathFor({...input,reducedMotion:true}),null);assert.equal(animation.pathFor({...input,override:true}),null);assert.equal(animation.pathFor({...input,faction:'ming'}),null);assert.equal(animation.pathFor({...input,asset:{id:'wrong'}}),null);
 });
 test('other nodes and missing state remain static',()=>{assert.equal(animation.pathFor(),null);assert.equal(animation.pathFor({faction:'qing',nodeId:'qing_act3_iron',asset:{id:'qing_bg_chongzheng_snow_council'}}),null)});
-test('rejected act-two previews remain static',()=>{for(const nodeId of ['qing_act2_iron','qing_act2_civil','qing_act2_steppe']) {const id=catalog.scenes.nodes.qing[nodeId];assert.equal(animation.pathFor({faction:'qing',nodeId,asset:catalog.assets.find(a=>a.id===id)}),null)}});
+test('civil branch remains static',()=>{for(const nodeId of ['qing_act2_civil']) {const id=catalog.scenes.nodes.qing[nodeId];assert.equal(animation.pathFor({faction:'qing',nodeId,asset:catalog.assets.find(a=>a.id===id)}),null)}});

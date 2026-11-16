@@ -277,6 +277,7 @@ class WebVisualNovelEngine {
     const reducedMotion = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     const animation = SceneAnimation?.pathFor({faction: this.currentFaction, nodeId: this.currentStoryNodeId,
       asset, override: Boolean(this.stageBackground?.id), reducedMotion});
+    this.currentSceneAnimationPath = animation || null;
     // A missing GIF falls back to the unchanged original image underneath it.
     if (layer?.style) layer.style.backgroundImage = asset
       ? (animation ? `url("${animation}"), url("${asset.relativePath}")` : `url("${asset.relativePath}")`)
