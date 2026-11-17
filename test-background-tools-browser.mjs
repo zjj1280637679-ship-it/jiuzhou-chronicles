@@ -97,7 +97,11 @@ try {
     try {
       await page.goto(origin, {waitUntil:"domcontentloaded"});
       await page.waitForFunction(() => Boolean(window.__vnEngine && window.JiuzhouIllustrations));
-      await page.evaluate(() => window.__vnEngine.startNewGame("qing"));
+      await page.evaluate(() => {
+        const e = window.__vnEngine; e.startNewGame("qing"); e.fastForwardTypewriter();
+        // Isolate native background/popup tools from the separately tested authored page projection.
+        e.currentFullText = ""; e.refreshStageBackground();
+      });
       const staticId = await page.evaluate(() => window.JiuzhouIllustrations.sceneFor({faction:"qing", nodeId:window.__vnEngine.currentStoryNodeId, coords:window.__vnEngine.currentCoords}).id);
       const initial = await background(page, staticId);
       assert.equal(initial.stage, null); assert.ok(initial.desktop.includes(staticId));
