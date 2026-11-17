@@ -1,5 +1,5 @@
 // Real browser pagination, not node injection. Initial game selection is programmatic;
-// every within-act transition uses the real keyboard/back control.
+// every within-act transition uses the real reading/back controls.
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
 import {mkdir,writeFile} from 'node:fs/promises';
@@ -31,7 +31,7 @@ try {
    assert.equal(await page.locator('#stage-characters .char-guard').evaluate(e=>getComputedStyle(e).visibility),'hidden');
    await page.waitForFunction(()=>!window.__vnEngine.isTyping);
   }
-  async function next(){await page.keyboard.press('ArrowRight')}
+  async function next(){await page.locator(width<769?'#mobile-next':'#continue-prompt').click()}
   for(let i=0;i<4;i++) {
    if(i)await next();await visible(i);
    const allowed=new Set(firstActPages.slice(0,i+1).flatMap(p=>[p.path,p.path.replace(/\.gif$/,'-first-frame.png')]));
@@ -39,7 +39,8 @@ try {
    await page.screenshot({path:`${out}/${width}-page-${i+1}.png`});
   }
   await next();await page.waitForFunction(()=>window.__vnEngine.choiceOverlay.classList.contains('visible'));
-  await page.locator('#btn-dialogue-prev').click();await visible(3);
+  if(width<769)await page.locator('#mobile-choice-return').click();else await page.keyboard.press('Escape');
+  await visible(3);
   for(let i=2;i>=0;i--){await page.locator('#btn-dialogue-prev').click();await visible(i)}
   await next();await visible(1);
   await page.evaluate(()=>window.__vnEngine.saveGameState());
