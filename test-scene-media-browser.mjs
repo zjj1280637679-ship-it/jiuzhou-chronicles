@@ -52,6 +52,9 @@ try {
       assert.equal(bg, `url("${gif}")`);
       if (width < 769) assert.equal(await page.locator('#mobile-scene-art').getAttribute('src'), gif);
       else assert.equal(await page.locator('#mobile-scene-art').getAttribute('src'), null);
+      // The desktop background has a 1.2s CSS transition. Request completion
+      // alone is not a visual-completion signal; finish finite transitions first.
+      await page.locator('#bg-active').evaluate(el => Promise.all(el.getAnimations().map(a => a.finished.catch(() => {}))));
       await page.screenshot({path: `${output}/${width}-${stepIndex++}-${nodeId}.png`});
     }
     // Reduced motion requests the current static image, not another scene.
@@ -69,6 +72,9 @@ try {
     assert.deepEqual(errors, []);
     } finally {
       await writeFile(`${output}/${width}-requests.json`, JSON.stringify({requests, errors}, null, 2));
+      // The desktop background has a 1.2s CSS transition. Request completion
+      // alone is not a visual-completion signal; finish finite transitions first.
+      await page.locator('#bg-active').evaluate(el => Promise.all(el.getAnimations().map(a => a.finished.catch(() => {}))));
       await page.screenshot({path: `${output}/${width}-final.png`}).catch(() => {});
       await context.close();
     }

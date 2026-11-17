@@ -30,3 +30,11 @@ JIUZHOU_BROWSER_EXECUTABLE=/usr/bin/chromium node test-scene-media-browser.mjs
 ```
 
 默认请求记录和截图输出到 `/tmp/jiuzhou-media-network`，可用 `JIUZHOU_SCENE_SCREENSHOTS` 覆盖目录。该测试不调用收费模型 API。
+
+## 后续真实浏览器验收
+
+本地 Chromium 限制未解除，改由仓库已有 GitHub Actions Chrome 执行器运行，不扩大工作流权限，不调用模型 API。提交 `5978dbf8c302cb7a648833ebc11c2e619fc76a21` 的 [浏览器运行](https://github.com/zjj1280637679-ship-it/jiuzhou-chronicles/actions/runs/44100825302) 中，当前场景网络断言、冷 GIF 失败回退、布局切换、图库按需图片、全场景映射与图片解码均通过；请求记录和截图保存在 `scene-media-network` artifact。
+
+下载审查请求记录确认：进入后金、选择铁军分支、返回、选择草原分支时，只请求实际到达的三张 GIF；没有提前下载它们的静图。开启“减少动态”后才请求当前草原静图。桌面没有下载手机首页 palace-night.webp，返回首页场景未再次发起 GIF 网络请求。无页面 JavaScript 异常。
+
+这验证了 Chrome 中的资源请求边界，不是国内网络速度基准、实体 iPhone Safari 验收或全部页面性能保证。截图审查还发现桌面背景保留了既有 1.2 秒过渡，验收脚本已改为等待过渡结束再截图，不能仅凭请求完成判断画面已经切换。CI 缺少中文系统字体且测试屏蔽外网字体，截图汉字缺字不是用户设备字体表现。
