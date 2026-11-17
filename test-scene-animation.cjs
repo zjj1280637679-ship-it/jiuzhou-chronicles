@@ -27,3 +27,27 @@ test('every mapped GIF has a matching first-frame PNG, also selected for reduced
 });
 
 test('exactly ten early faction nodes are mapped, later branches remain unchanged',()=>{assert.equal(Object.keys(animation.scenes).length,10);assert.ok(animation.scenes.qing_act2_civil);for(const nodeId of ['qing_act3_iron_exhaustion','qing_act3_civil_backlash','qing_act3_steppe_fracture']){const id=catalog.scenes.nodes.qing[nodeId];assert.equal(animation.pathFor({faction:'qing',nodeId,asset:{id}}),null)}});
+
+test('first act pages match actual normalized beats, not arbitrary page indices',()=>{
+ const {WebVisualNovelEngine}=require('./app.js'),world=require('./skills-data.js');
+ const e=Object.create(WebVisualNovelEngine.prototype);
+ const beats=e.normalizeAndChunkBeats(world.canonicalTrees.qing.nodes.qing_act1.originalBeats,90);
+ assert.equal(beats.length,4);assert.equal(animation.firstActPages.length,4);
+ const asset=catalog.assets.find(a=>a.id===animation.scenes.qing_act1),input={faction:'qing',nodeId:'qing_act1',asset};
+ const paths=beats.map((b,i)=>{
+  assert.equal(b.text,animation.firstActPages[i].text);
+  const path=animation.pathFor({...input,pageText:b.text});
+  assert.equal(path,`data/illustrations/qing/animated/qing_act1-page-${i+1}-action-v1.gif`);
+  const gif=fs.readFileSync(path);assert.equal(gif.subarray(0,6).toString(),'GIF89a');
+  assert.equal(gif.readUInt16LE(6),836);assert.equal(gif.readUInt16LE(8),470);
+  assert.ok(publicPathAllowed(path));assert.ok(fs.existsSync(animation.posterFor({...input,pageText:b.text})));
+  assert.equal(animation.pathFor({...input,pageText:b.text,reducedMotion:true}),null);
+  assert.equal(animation.pathFor({...input,pageText:b.text,override:true}),null);
+  return path;
+ });
+ assert.equal(new Set(paths).size,4);
+ for(const i of [3,2,1,0,1,2,3])assert.equal(animation.pathFor({...input,pageText:beats[i].text}),paths[i]);
+ assert.equal(animation.pathFor({...input,pageText:'用户自由输入产生的新剧情'}),animation.pathFor(input));
+ const other={faction:'qing',nodeId:'qing_act2_iron',asset:catalog.assets.find(a=>a.id===animation.scenes.qing_act2_iron)};
+ assert.equal(animation.pathFor({...other,pageText:beats[0].text}),animation.pathFor(other));
+});

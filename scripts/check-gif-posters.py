@@ -11,11 +11,11 @@ from PIL import Image
 parser = argparse.ArgumentParser()
 parser.add_argument('--write', action='store_true', help='extract registered GIF first frames before verifying')
 args = parser.parse_args()
-pairs = json.loads(subprocess.check_output(['node', '-e', '''
+pairs = json.loads(subprocess.check_output(['node', '-e', r'''
 const a=require('./harness/scene-animation.js'),r=require('./illustration-system.js');
 console.log(JSON.stringify(Object.keys(a.scenes).map(nodeId=>{
 const input={faction:'qing',nodeId,asset:r.sceneFor({faction:'qing',nodeId})};
-return {nodeId,gif:a.pathFor(input),poster:a.posterFor(input)};})));
+return {nodeId,gif:a.pathFor(input),poster:a.posterFor(input)};}).concat(a.firstActPages.map((p,i)=>({nodeId:`qing_act1_page_${i+1}`,gif:p.path,poster:p.path.replace(/\.gif$/,'-first-frame.png')})))));
 '''], text=True))
 for entry in pairs:
     gif, poster = Path(entry['gif']), Path(entry['poster'])

@@ -278,7 +278,7 @@ class WebVisualNovelEngine {
     const map = typeof WORLD_PRESETS !== "undefined" ? WORLD_PRESETS.thinMaps?.[this.currentCoords] : null;
     const reducedMotion = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     const mediaInput = {faction:this.currentFaction, nodeId:this.currentStoryNodeId,
-      asset, override:Boolean(this.stageBackground?.id), reducedMotion};
+      asset, override:Boolean(this.stageBackground?.id), reducedMotion, pageText:this.currentFullText};
     const animation = SceneAnimation?.pathFor(mediaInput);
     const poster = SceneAnimation?.posterFor(mediaInput);
     // Registered action scenes already contain their NPCs, including their exact
@@ -1164,8 +1164,8 @@ class WebVisualNovelEngine {
       this.updateBranchIndicatorUI(false);
     }
 
-    // Authored scene art is a stage background, never an implicit popup event.
-    this.refreshStageBackground();
+    // displayDialogue selects media after the new page text is set. Refreshing
+    // here would briefly download the previous page using a stale currentStep.
 
     this.recordFateKnot(node.title, `主剧情树 · 第${node.actNumber}幕展开`);
     this.currentStep = 0;

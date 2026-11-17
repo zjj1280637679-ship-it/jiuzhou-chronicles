@@ -32,7 +32,9 @@ try {
     // narrative choice path was played. Normal click-flow tests run separately.
     await page.emulateMedia({reducedMotion:'reduce'});
     await page.evaluate(() => window.__vnEngine.startNewGame('qing'));
-    const visited = new Set(), nodes = Object.keys(animations.scenes);
+    // Starting the actual first page now requests its page poster. Subsequent
+    // injected-node tests clear the page text and test scene-level defaults.
+    const visited = new Set([animations.firstActPages[0].path.replace(/\.gif$/,'-first-frame.png')]), nodes = Object.keys(animations.scenes);
     assert.ok(nodes.length > 0);
     const sequence = [...nodes, nodes[0]]; // Every mapping, then a return.
     let stepIndex = 0;
@@ -54,7 +56,7 @@ try {
       assert.ok(world.canonicalTrees.qing.nodes[nodeId],nodeId);
       await page.emulateMedia({reducedMotion:'reduce'});
       await page.evaluate(node=>{
-        const e=window.__vnEngine;e.currentStoryNodeId=node.id;e.currentCoords=node.coords;e.stageBackground=null;e.refreshStageBackground();
+        const e=window.__vnEngine;e.currentStoryNodeId=node.id;e.currentCoords=node.coords;e.stageBackground=null;e.currentFullText="";e.refreshStageBackground();
       },world.canonicalTrees.qing.nodes[nodeId]);
       await visible(poster);
       assert.equal(await page.locator('#stage-characters .char-guard').evaluate(el=>getComputedStyle(el).visibility),'hidden','NPC poster must not be covered by generic guard');
