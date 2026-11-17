@@ -208,6 +208,7 @@ try {
     if (size.mobile) {
       // Opening pages keep authored media but now change to each page's own first frame.
       await page.waitForFunction(path => document.querySelector("#mobile-scene-art").getAttribute("src") === path, scene.expectedPath);
+      await page.waitForFunction(() => !window.__vnEngine.isTyping);
       await next(page, size);
       const nextPath = await page.evaluate(() => window.JiuzhouSceneAnimation.firstActPages[1].path.replace(/\.gif$/, '-first-frame.png'));
       assert.notEqual(nextPath, scene.expectedPath);
