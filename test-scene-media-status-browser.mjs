@@ -37,9 +37,14 @@ try {
       assert.equal(await page.locator('#scene-media-status-text').getAttribute('role'),'status');
       await page.locator('#bg-active').evaluate(el => Promise.all(el.getAnimations().map(a => a.finished.catch(() => {}))));
       await page.screenshot({path:`${out}/${width}-status-loading.png`});
-      assert.ok(held); await held.abort();
+      assert.ok(held);
+      assert.equal(await page.locator('#bg-active').evaluate(el=>el.style.backgroundImage),`url("${openingPoster}")`);
+      if(width<769) assert.equal(await page.locator('#mobile-scene-art').getAttribute('src'),openingPoster);
+      assert.equal(requests.some(p=>p.endsWith(opening.relativePath)),false,'never request old static art');
+      await held.abort();
       await page.waitForFunction(() => document.querySelector('#scene-media-status').dataset.phase==='fallback');
       assert.ok((await page.locator('#scene-media-status-text').innerText()).includes('保留首帧'));
+      assert.equal(await page.locator('#bg-active').evaluate(el=>el.style.backgroundImage),`url("${openingPoster}")`);
       const box = await page.locator('#scene-media-status').boundingBox();
       const prose = await page.locator('#dialogue-box').boundingBox();
       assert.ok(box.x>=0 && box.x+box.width<=width && box.y+box.height<=prose.y, 'status must stay in scene corner, above prose');

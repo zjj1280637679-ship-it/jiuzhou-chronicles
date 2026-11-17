@@ -8,13 +8,12 @@ for(const [nodeId,id] of Object.entries(animation.scenes))test(nodeId+' selects 
  assert.equal(animation.pathFor({...input,reducedMotion:true}),null);assert.equal(animation.pathFor({...input,override:true}),null);assert.equal(animation.pathFor({...input,faction:'ming'}),null);assert.equal(animation.pathFor({...input,asset:{id:'wrong'}}),null);
 });
 test('other nodes and missing state remain static',()=>{assert.equal(animation.pathFor(),null);assert.equal(animation.pathFor({faction:'qing',nodeId:'qing_act3_iron',asset:{id:'qing_bg_chongzheng_snow_council'}}),null)});
-test('civil branch remains static',()=>{for(const nodeId of ['qing_act2_civil']) {const id=catalog.scenes.nodes.qing[nodeId];assert.equal(animation.pathFor({faction:'qing',nodeId,asset:catalog.assets.find(a=>a.id===id)}),null)}});
 
-test('approved photoreal council GIF shared across devices; other scenes and originals preserved',()=>{
+test('approved action GIFs shared across devices; originals preserved',()=>{
  const asset=catalog.assets.find(a=>a.id==='qing_bg_chongzheng_snow_council');
- for(const device of ['mobile','desktop']) assert.equal(animation.pathFor({faction:'qing',nodeId:'qing_act1',asset,device}),'data/illustrations/qing/animated/qing_bg_chongzheng_snow_council-photoreal-v1.gif');
+ for(const device of ['mobile','desktop']) assert.equal(animation.pathFor({faction:'qing',nodeId:'qing_act1',asset,device}),'data/illustrations/qing/animated/qing_bg_chongzheng_snow_council-action-v1.gif');
  assert.ok(fs.existsSync('data/illustrations/qing/animated/qing_bg_chongzheng_snow_council-npc-v2.gif'));
- for(const nodeId of ['qing_act2_iron','qing_act2_steppe']) assert.match(animation.pathFor({faction:'qing',nodeId,asset:catalog.assets.find(a=>a.id===animation.scenes[nodeId])}),/-npc-v2\.gif$/);
+ for(const nodeId of ['qing_act2_iron','qing_act2_steppe']) assert.match(animation.pathFor({faction:'qing',nodeId,asset:catalog.assets.find(a=>a.id===animation.scenes[nodeId])}),/-action-v1\.gif$/);
 });
 
 test('every mapped GIF has a matching first-frame PNG, also selected for reduced motion',()=>{
@@ -26,3 +25,5 @@ test('every mapped GIF has a matching first-frame PNG, also selected for reduced
   assert.equal(animation.posterFor({...input,reducedMotion:true}),p);assert.equal(animation.posterFor({...input,override:true}),null);
  }
 });
+
+test('exactly ten early faction nodes are mapped, later branches remain unchanged',()=>{assert.equal(Object.keys(animation.scenes).length,10);assert.ok(animation.scenes.qing_act2_civil);for(const nodeId of ['qing_act3_iron_exhaustion','qing_act3_civil_backlash','qing_act3_steppe_fracture']){const id=catalog.scenes.nodes.qing[nodeId];assert.equal(animation.pathFor({faction:'qing',nodeId,asset:{id}}),null)}});

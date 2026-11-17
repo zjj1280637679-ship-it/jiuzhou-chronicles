@@ -1,32 +1,102 @@
 [
   {
     "nodeId": "qing_act1",
-    "gif": "data/illustrations/qing/animated/qing_bg_chongzheng_snow_council-photoreal-v1.gif",
-    "poster": "data/illustrations/qing/animated/qing_bg_chongzheng_snow_council-photoreal-v1-first-frame.png",
+    "gif": "data/illustrations/qing/animated/qing_bg_chongzheng_snow_council-action-v1.gif",
+    "poster": "data/illustrations/qing/animated/qing_bg_chongzheng_snow_council-action-v1-first-frame.png",
     "width": 836,
     "height": 470,
-    "rgbaSha256": "6fd226a25be6cac806603ef428a3b26d4ac2f28de27ef58404acbc9f4de9512f",
-    "gifSha256": "29a0cd8826badcf49a01aba304adbddadc3ff21f6a039642eacd07e505a68e10",
-    "posterSha256": "a847e1cc16759399170f5b00560f3eb6bfb7aea8817549aa86c21150390b5527"
+    "rgbaSha256": "201153da593bbf136246b50ab3c85cfc743734932eaeaff114b47cac76ae308d",
+    "gifSha256": "04f8c5e24642f140afa72d88d9a92cda70692563b497096008c6dd67cc9b82ba",
+    "posterSha256": "9b9a923e49a5b8ebcd0fdb03a358b164064e9c194ce8f219337477828984ac00"
   },
   {
     "nodeId": "qing_act2_iron",
-    "gif": "data/illustrations/qing/animated/qing_bg_yipianshi_blizzard_front-npc-v2.gif",
-    "poster": "data/illustrations/qing/animated/qing_bg_yipianshi_blizzard_front-npc-v2-first-frame.png",
+    "gif": "data/illustrations/qing/animated/qing_bg_yipianshi_blizzard_front-action-v1.gif",
+    "poster": "data/illustrations/qing/animated/qing_bg_yipianshi_blizzard_front-action-v1-first-frame.png",
     "width": 836,
     "height": 470,
-    "rgbaSha256": "32e55d673ce6acfab678cb6885f8a46683932856a01d7aed0b50c36b307d24f8",
-    "gifSha256": "8344256f5fbc9d9ca8898aa56d579cbbc6c8fee3b6695bb85154e892e6cb3335",
-    "posterSha256": "01e5413a31988529c725d788872de7e5e91c22320dbed9460008a36d4b38f7f6"
+    "rgbaSha256": "f81ac3c156195a5c11aca75cf6eaf41ceb81bfc314e375c604bf9cdf8402ff12",
+    "gifSha256": "df1f77c0a84dd66196b76698a39e554d8c475a7d91260a97996a71d811c8a0ad",
+    "posterSha256": "6ac789f353a20c2928216dd24ce5107e1d469a5070815ef6eb81c6d0ce15a40d"
+  },
+  {
+    "nodeId": "qing_act3_iron_cannon",
+    "gif": "data/illustrations/qing/animated/qing_bg_shanhaiguan_cannon_slope-action-v1.gif",
+    "poster": "data/illustrations/qing/animated/qing_bg_shanhaiguan_cannon_slope-action-v1-first-frame.png",
+    "width": 836,
+    "height": 470,
+    "rgbaSha256": "6660d6c4c75063b8a62baed3caabc685ae703106d4eafeabd81c1a5c2ebe1628",
+    "gifSha256": "05548a7d1ae46cb19774f884a9d5600a45efaeeff7fb19d6b34f353467a0ab3f",
+    "posterSha256": "c73fda73fc43fe66752ce4432229a741ecb0e87b8fc3c5978da731fb484a6664"
+  },
+  {
+    "nodeId": "qing_act3_iron_slaughter",
+    "gif": "data/illustrations/qing/animated/qing_bg_yangzhou_meihualing_ruins-action-v1.gif",
+    "poster": "data/illustrations/qing/animated/qing_bg_yangzhou_meihualing_ruins-action-v1-first-frame.png",
+    "width": 836,
+    "height": 470,
+    "rgbaSha256": "d28fc180b9ed30770586a37d2495884ffd11f0ffb83f79c64e23f7d9b4cd36d5",
+    "gifSha256": "1f742cc2b2f85743e4355cb3d5612f39c3a4a256d629c4f571d8e716d5ce9a38",
+    "posterSha256": "432668c6ea93645b5de4c842fb05623894e53a7e17bcbc01ee79a9d2a5f3398f"
+  },
+  {
+    "nodeId": "qing_act2_civil",
+    "gif": "data/illustrations/qing/animated/qing_bg_neisanyuan_office-action-v1.gif",
+    "poster": "data/illustrations/qing/animated/qing_bg_neisanyuan_office-action-v1-first-frame.png",
+    "width": 836,
+    "height": 470,
+    "rgbaSha256": "b431ba282b661d1744de3f8f54b42ea2bcca7a61e0c6fec637bad58197e5c9fd",
+    "gifSha256": "c4f6cd5f3e9bd6cf0887a50651adb2117e5c0d300ac7c92eba8b38865cfeaa46",
+    "posterSha256": "88266d13ed31e42e3733cff804481d589347b44984a05e1193d465c97cbda0bb"
+  },
+  {
+    "nodeId": "qing_act3_civil_exam",
+    "gif": "data/illustrations/qing/animated/qing_bg_confucius_dawn_court-action-v1.gif",
+    "poster": "data/illustrations/qing/animated/qing_bg_confucius_dawn_court-action-v1-first-frame.png",
+    "width": 836,
+    "height": 470,
+    "rgbaSha256": "45d86d2f4223fe41962f998f5179fdcb5028b9b45af0f9efec02832be5662447",
+    "gifSha256": "6ef6c11e4a6da260927619bf5ded812fb480286c1e81a61192a9a1ef012b4c53",
+    "posterSha256": "691cb6228e3fb49de50eef8acdf214fd3072408a4ada47a28bda954d7a48f49f"
+  },
+  {
+    "nodeId": "qing_act3_civil_mourn",
+    "gif": "data/illustrations/qing/animated/qing_bg_tongzhou_mourning_camp-action-v1.gif",
+    "poster": "data/illustrations/qing/animated/qing_bg_tongzhou_mourning_camp-action-v1-first-frame.png",
+    "width": 836,
+    "height": 470,
+    "rgbaSha256": "69d6a5768ecbb16956b02c4a828e1fb3f8d1dccab6fbf02404de70d00e8725d1",
+    "gifSha256": "eb85856abc6b97493d984b2a1cd258f5623674dfd8fb6b28049dc3508e267753",
+    "posterSha256": "05d0f22b320079da70ac8e859284cc835f5b1bb217f94748fd497e40ba0fdc90"
   },
   {
     "nodeId": "qing_act2_steppe",
-    "gif": "data/illustrations/qing/animated/qing_bg_guihua_golden_tent-npc-v2.gif",
-    "poster": "data/illustrations/qing/animated/qing_bg_guihua_golden_tent-npc-v2-first-frame.png",
+    "gif": "data/illustrations/qing/animated/qing_bg_guihua_golden_tent-action-v1.gif",
+    "poster": "data/illustrations/qing/animated/qing_bg_guihua_golden_tent-action-v1-first-frame.png",
     "width": 836,
     "height": 470,
-    "rgbaSha256": "0c81590cdda30607d550804a59d9e0707da5614df0aebdfe338d99a92c017c37",
-    "gifSha256": "bbcc0a0e6e098ea7054be2e5919b78a3f3342ef923bfa428b74a165bf32b563e",
-    "posterSha256": "1bccaafbd33269c2d5f5f7477cd7283196dadc8ad5ea305012821653b75a6e0f"
+    "rgbaSha256": "8c6d4a0204de3f07153781a0faff4bf44bbcdb91678ca3d87920418fac4099d0",
+    "gifSha256": "a07dbed641a21373eccecf40f336405b091edf65799bd19d1bb2d75e55f840cd",
+    "posterSha256": "7c6d1ee9b0799b1eec9ea89068b5d052fe53ee4f28b58a7b61676968cad7021e"
+  },
+  {
+    "nodeId": "qing_act3_steppe_charge",
+    "gif": "data/illustrations/qing/animated/qing_bg_lengkou_breached_pass-action-v1.gif",
+    "poster": "data/illustrations/qing/animated/qing_bg_lengkou_breached_pass-action-v1-first-frame.png",
+    "width": 836,
+    "height": 470,
+    "rgbaSha256": "d6ba738849217f6999e2eeac1f5934dd180a8cec7d2b345bf23ff68ac97c581d",
+    "gifSha256": "b80cdb0d0636faa32463403f6cc0972d25fd529a42f00b2fd94ef46051789651",
+    "posterSha256": "bd49393029c5322bfec29abeb1cff504ec4e70eadcb168352c88dfd3d97bf088"
+  },
+  {
+    "nodeId": "qing_act3_steppe_lama",
+    "gif": "data/illustrations/qing/animated/qing_bg_rehe_autumn_altar-action-v1.gif",
+    "poster": "data/illustrations/qing/animated/qing_bg_rehe_autumn_altar-action-v1-first-frame.png",
+    "width": 836,
+    "height": 470,
+    "rgbaSha256": "bf6a4ad9aa690a2482ef3bb3c9bb72d47b69933d57b4b5e9e7c7d8e6ce78e919",
+    "gifSha256": "0f80c1b193ce9aea38270eeb61cc0315e3dda39d109827dc34a682e676b46ed2",
+    "posterSha256": "726b8ff04445af24f30b90a33d6e1f0121e32de313a374473a3406d6457fd8f4"
   }
 ]

@@ -28,44 +28,48 @@ try {
     await page.waitForFunction(() => window.__vnEngine);
     assert.equal(requests.some(p => p.startsWith('data/illustrations/')), false, 'no title-screen story images');
     if (width > 768) assert.equal(requests.includes('data/mobile/palace-night.webp'), false, 'hidden mobile image not downloaded');
+    // This is a scene-projection/rendering audit, not a claim that every
+    // narrative choice path was played. Normal click-flow tests run separately.
+    await page.emulateMedia({reducedMotion:'reduce'});
     await page.evaluate(() => window.__vnEngine.startNewGame('qing'));
-    const visited = new Set();
+    const visited = new Set(), nodes = Object.keys(animations.scenes);
+    assert.ok(nodes.length > 0);
+    const sequence = [...nodes, nodes[0]]; // Every mapping, then a return.
     let stepIndex = 0;
-    for (const nodeId of ['qing_act1', 'qing_act2_iron', 'qing_act1', 'qing_act2_steppe']) {
-      const asset = registry.sceneFor({faction: 'qing', nodeId});
-      const gif = animations.pathFor({faction: 'qing', nodeId, asset});
-      const poster = animations.posterFor({faction: 'qing', nodeId, asset});
-      visited.add(gif); visited.add(poster);
-      await page.evaluate(node => {
-        const e = window.__vnEngine;
-        e.currentStoryNodeId = node.id; e.currentCoords = node.coords; e.stageBackground = null;
-        e.refreshStageBackground();
-      }, world.canonicalTrees.qing.nodes[nodeId]);
-      await page.waitForFunction(path => performance.getEntriesByName(new URL(path, document.baseURI).href).some(e => e.responseEnd > 0), gif);
-      if (width < 769) await page.waitForFunction(path => {
-        const img = document.querySelector('#mobile-scene-art');
-        return img.getAttribute('src') === path && img.complete && img.naturalWidth > 0;
-      }, gif);
-      assert.ok(requests.includes(gif), 'selected GIF downloaded');
-      const storyRequests = requests.filter(p => p.startsWith('data/illustrations/'));
-      assert.ok(storyRequests.every(p => visited.has(p)), `unexpected prefetch/fallback: ${storyRequests}`);
-      await page.waitForFunction(path => window.__vnEngine.currentSceneMediaPath === path, gif);
-      const bg = await page.locator('#bg-active').evaluate(el => el.style.backgroundImage);
-      assert.equal(bg, `url("${gif}")`);
-      if (width < 769) assert.equal(await page.locator('#mobile-scene-art').getAttribute('src'), gif);
-      else assert.equal(await page.locator('#mobile-scene-art').getAttribute('src'), null);
-      // The desktop background has a 1.2s CSS transition. Request completion
-      // alone is not a visual-completion signal; finish finite transitions first.
-      await page.locator('#bg-active').evaluate(el => Promise.all(el.getAnimations().map(a => a.finished.catch(() => {}))));
-      await page.screenshot({path: `${output}/${width}-${stepIndex++}-${nodeId}.png`});
+    async function visible(path) {
+      await page.waitForFunction(path => performance.getEntriesByName(new URL(path,document.baseURI).href).some(e=>e.responseEnd>0),path);
+      await page.waitForFunction(path=>window.__vnEngine.currentSceneMediaPath===path,path);
+      if(width<769) await page.waitForFunction(path=>{
+        const img=document.querySelector('#mobile-scene-art');
+        return img.getAttribute('src')===path && img.complete && img.naturalWidth>0;
+      },path);
+      assert.equal(await page.locator('#bg-active').evaluate(el=>el.style.backgroundImage),`url("${path}")`);
+      if(width>768) assert.equal(await page.locator('#mobile-scene-art').getAttribute('src'),null);
+      await page.locator('#bg-active').evaluate(el=>Promise.all(el.getAnimations().map(a=>a.finished.catch(()=>{}))));
     }
-    // Reduced motion requests the current static image, not another scene.
-    await page.emulateMedia({reducedMotion: 'reduce'});
-    await page.evaluate(() => window.__vnEngine.refreshStageBackground());
-    await page.waitForLoadState('networkidle');
-    const staticPath = animations.posterFor({faction:'qing', nodeId:'qing_act2_steppe', asset:registry.sceneFor({faction:'qing', nodeId:'qing_act2_steppe'})});
-    await page.waitForFunction(path => performance.getEntriesByName(new URL(path, document.baseURI).href).some(e => e.responseEnd > 0), staticPath);
-    assert.ok(requests.includes(staticPath));
+    for(const nodeId of sequence) {
+      const asset=registry.sceneFor({faction:'qing',nodeId}),input={faction:'qing',nodeId,asset};
+      const gif=animations.pathFor(input),poster=animations.posterFor(input);
+      const alreadyVisited=visited.has(gif);visited.add(gif);visited.add(poster);
+      assert.ok(world.canonicalTrees.qing.nodes[nodeId],nodeId);
+      await page.emulateMedia({reducedMotion:'reduce'});
+      await page.evaluate(node=>{
+        const e=window.__vnEngine;e.currentStoryNodeId=node.id;e.currentCoords=node.coords;e.stageBackground=null;e.refreshStageBackground();
+      },world.canonicalTrees.qing.nodes[nodeId]);
+      await visible(poster);
+      if(!alreadyVisited) assert.equal(requests.includes(gif),false,'reduced motion must not request new GIF');
+      await page.screenshot({path:`${output}/${width}-${stepIndex}-${nodeId}-first-frame.png`});
+      await page.emulateMedia({reducedMotion:'no-preference'});
+      await page.evaluate(()=>window.__vnEngine.refreshStageBackground());
+      await visible(gif);
+      const storyRequests=requests.filter(p=>p.startsWith('data/illustrations/'));
+      assert.ok(storyRequests.every(p=>visited.has(p)),`unexpected old art/prefetch: ${storyRequests}`);
+      await page.screenshot({path:`${output}/${width}-${stepIndex++}-${nodeId}-gif.png`});
+    }
+    await page.emulateMedia({reducedMotion:'reduce'});
+    await page.evaluate(()=>window.__vnEngine.refreshStageBackground());
+    const last=sequence.at(-1),staticPath=animations.posterFor({faction:'qing',nodeId:last,asset:registry.sceneFor({faction:'qing',nodeId:last})});
+    await visible(staticPath);
     // Resize reuses the current source, with no hidden desktop image left loading.
     await page.setViewportSize({width: 390, height: 900});
     await page.waitForFunction(path => document.querySelector('#mobile-scene-art').getAttribute('src') === path, staticPath);
