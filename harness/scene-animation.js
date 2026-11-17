@@ -12,7 +12,9 @@
   });
   function pathFor({faction, nodeId, asset, override, reducedMotion} = {}) {
     if (reducedMotion || override || faction !== 'qing' || !asset || scenes[nodeId] !== asset.id) return null;
-    return `data/illustrations/qing/animated/${asset.id}-npc-v2.gif`;
+    // Shared by desktop and mobile; original NPC GIF and WebP stay available for rollback.
+    const version = nodeId === 'qing_act1' ? 'photoreal-v1' : 'npc-v2';
+    return `data/illustrations/qing/animated/${asset.id}-${version}.gif`;
   }
   return {scenes, pathFor};
 });
