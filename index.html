@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>九州沉浮录 · 东方历史文字冒险</title>
-  <link rel="stylesheet" href="styles.css?v=20261023-ui04">
+  <link rel="stylesheet" href="styles.css?v=20261117-status1">
   <link rel="stylesheet" href="mobile.css?v=20261024-cleanup02">
   <link rel="stylesheet" href="settings.css?v=20261024-cleanup02">
   <link rel="stylesheet" href="favorites.css?v=20261021-0800">
@@ -19,6 +19,11 @@
 
   <!-- 全屏游戏主舞台视口 -->
   <div class="webvn-viewport" id="game-viewport">
+
+    <div class="scene-media-status" id="scene-media-status" hidden>
+      <span id="scene-media-status-text" role="status" aria-live="polite" aria-atomic="true"></span>
+      <button type="button" id="scene-media-retry" hidden aria-label="重新加载当前场景动图">重试动图</button>
+    </div>
 
     <!-- 手机剧场：同一份剧情与表单，抉择仍由剧情临时触发。 -->
     <div class="mobile-theater mobile-only" aria-hidden="true">
@@ -583,13 +588,14 @@
   <script src="harness/protocol.js?v=20261027-jh10801"></script>
   <script src="harness/plugin-host.js?v=20261027-jh10801"></script>
   <script src="harness/runtime.js?v=20261027-jh10801"></script>
-  <script src="harness/scene-animation.js?v=20261117-gif2"></script>
-  <script src="harness/scene-media.js?v=20261117-paged1"></script>
-  <script src="app.js?v=20261117-paged1"></script>
+  <script src="harness/scene-animation.js?v=20261117-photoreal1"></script>
+  <script src="harness/scene-media.js?v=20261117-status1"></script>
+  <script src="app.js?v=20261117-status1"></script>
   <script src="recovery-ui.js?v=20261022-0900"></script>
   <script src="favorites-ui.js?v=20261021-0800"></script>
   <script src="gallery-ui.js?v=20261027-jh10801"></script>
-  <script src="mobile-ui.js?v=20261117-paged1"></script>
+  <script src="harness/scene-media-status.js?v=20261117-status1"></script>
+  <script src="mobile-ui.js?v=20261117-status1"></script>
   <script src="settings-ui.js?v=20261023-ui04"></script>
   <script src="input-viewport.js?v=20261021-0800"></script>
 </body>

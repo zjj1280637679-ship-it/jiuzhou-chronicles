@@ -27,6 +27,7 @@ on:
       - 'test-gallery-browser.mjs'
       - 'test-scene-backgrounds-browser.mjs'
       - 'test-scene-media-browser.mjs'
+      - 'test-scene-media-status-browser.mjs'
       - 'data/mobile/**'
       - 'harness/**'
       - '.github/workflows/jiuzhou-live-ai-browser.yml'
@@ -57,6 +58,7 @@ on:
       - 'test-gallery-browser.mjs'
       - 'test-scene-backgrounds-browser.mjs'
       - 'test-scene-media-browser.mjs'
+      - 'test-scene-media-status-browser.mjs'
       - 'data/mobile/**'
       - 'harness/**'
       - '.github/workflows/jiuzhou-live-ai-browser.yml'
@@ -79,6 +81,8 @@ jobs:
       - run: /usr/bin/google-chrome --version
       - name: Verify current-scene-only image network requests and GIF fallback
         run: node test-scene-media-browser.mjs
+      - name: Verify scene-corner loading, fallback and explicit retry notices
+        run: node test-scene-media-status-browser.mjs
       - name: Preserve image-request traces and screenshots
         if: always()
         uses: actions/upload-artifact@v4

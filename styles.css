@@ -2577,3 +2577,22 @@ body, html {
   opacity: .65;
   cursor: wait;
 }
+
+/* Truthful scene-media status: no invented byte percentage, never blocks prose. */
+.scene-media-status {
+  position: absolute; z-index: 14; top: 82px; right: 16px;
+  max-width: min(360px, calc(100% - 32px)); display: flex; align-items: center; gap: 8px;
+  padding: 5px 10px; border: 1px solid #6f6142; border-radius: 7px;
+  background: rgb(7 12 16 / 90%); color: #f2dfbb;
+  font: 12px/1.5 var(--font-sans); pointer-events: auto;
+}
+.scene-media-status[hidden], .state-title .scene-media-status { display: none; }
+.scene-media-status button { pointer-events: auto; flex: none; min-height: 44px; padding: 4px 8px;
+  color: #ffe2a3; background: #263039; border: 1px solid #a1844e; border-radius: 5px; font: inherit; cursor: pointer; }
+.scene-media-status button[hidden] { display: none; }
+.scene-media-status button:focus-visible { outline: 2px solid #ffe2a3; outline-offset: 2px; }
+@media (max-width: 768px), (max-width: 1024px) and (max-height: 600px) and (pointer: coarse) {
+  .scene-media-status { top: calc(62px + env(safe-area-inset-top)); right: 10px; max-width: calc(100% - 20px); }
+}
+
+.scene-media-status button[aria-disabled="true"] { opacity: .75; cursor: default; }

@@ -282,6 +282,10 @@ class WebVisualNovelEngine {
     this.currentSceneAnimationPath = animation || null;
     if (!this.sceneMediaLoader) this.sceneMediaLoader = SceneMedia.create({
       createImage: typeof Image !== "undefined" ? () => new Image() : null,
+      onStatus: status => {
+        this.currentSceneMediaStatus = status;
+        if (typeof window !== "undefined" && typeof window.dispatchEvent === "function") window.dispatchEvent(new Event("jiuzhou:scene-media-status"));
+      },
       onChange: path => {
         this.currentSceneMediaPath = path;
         // Re-read the live map; asynchronous GIF errors must not restore an old scene.
