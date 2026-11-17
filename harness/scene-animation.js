@@ -1,4 +1,4 @@
-// Small reversible GIF trial: opening scene and two second-act branches; only local flame phases animate.
+// Small reversible GIF trial: opening scene and two second-act branches; NPC-inclusive v2 artwork with localized firelight animation.
 // The canonical illustration catalog, source WebPs and save-file handles stay unchanged.
 (function (root, factory) {
   const api = factory();
@@ -12,7 +12,7 @@
   });
   function pathFor({faction, nodeId, asset, override, reducedMotion} = {}) {
     if (reducedMotion || override || faction !== 'qing' || !asset || scenes[nodeId] !== asset.id) return null;
-    return `data/illustrations/qing/animated/${asset.id}.gif`;
+    return `data/illustrations/qing/animated/${asset.id}-npc-v2.gif`;
   }
   return {scenes, pathFor};
 });
