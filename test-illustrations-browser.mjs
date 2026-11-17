@@ -196,7 +196,7 @@ try {
     const scene = await page.evaluate(() => {
       const engine = window.__vnEngine, registry = window.JiuzhouIllustrations;
       const expected = registry.sceneFor({faction:engine.currentFaction, nodeId:engine.currentStoryNodeId, coords:engine.currentCoords});
-      return {expected:expected?.id, expectedPath:window.JiuzhouSceneAnimation.posterFor({faction:engine.currentFaction,nodeId:engine.currentStoryNodeId,asset:expected}) || expected?.relativePath, current:engine.currentSceneIllustration?.id,
+      return {expected:expected?.id, expectedPath:window.JiuzhouSceneAnimation.posterFor({faction:engine.currentFaction,nodeId:engine.currentStoryNodeId,asset:expected,pageText:engine.currentFullText}) || expected?.relativePath, current:engine.currentSceneIllustration?.id,
         queue:engine.storyQueue.filter(beat => beat.illustrationData).map(beat => beat.illustrationData.id)};
     });
     assert.ok(scene.expected, "The authored initial Later Jin scene needs an explicit illustration binding");
@@ -206,10 +206,12 @@ try {
     assert.equal(await page.locator("#btn-view-illustration").isVisible(), false,
       "A background alone must not create a popup opener");
     if (size.mobile) {
-      // A prose page does not erase the scene image selected for this chapter.
+      // Opening pages keep authored media but now change to each page's own first frame.
       await page.waitForFunction(path => document.querySelector("#mobile-scene-art").getAttribute("src") === path, scene.expectedPath);
       await next(page, size);
-      assert.equal(await page.locator("#mobile-scene-art").getAttribute("src"), scene.expectedPath);
+      const nextPath = await page.evaluate(() => window.JiuzhouSceneAnimation.firstActPages[1].path.replace(/\.gif$/, '-first-frame.png'));
+      assert.notEqual(nextPath, scene.expectedPath);
+      await page.waitForFunction(path => document.querySelector("#mobile-scene-art").getAttribute("src") === path, nextPath);
     }
     await noOverflow(page, size.name + " canonical scene");
     await toChoices(page, size);
