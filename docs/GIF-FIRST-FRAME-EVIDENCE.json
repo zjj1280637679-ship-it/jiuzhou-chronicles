@@ -1,0 +1,32 @@
+[
+  {
+    "nodeId": "qing_act1",
+    "gif": "data/illustrations/qing/animated/qing_bg_chongzheng_snow_council-photoreal-v1.gif",
+    "poster": "data/illustrations/qing/animated/qing_bg_chongzheng_snow_council-photoreal-v1-first-frame.png",
+    "width": 836,
+    "height": 470,
+    "rgbaSha256": "6fd226a25be6cac806603ef428a3b26d4ac2f28de27ef58404acbc9f4de9512f",
+    "gifSha256": "29a0cd8826badcf49a01aba304adbddadc3ff21f6a039642eacd07e505a68e10",
+    "posterSha256": "a847e1cc16759399170f5b00560f3eb6bfb7aea8817549aa86c21150390b5527"
+  },
+  {
+    "nodeId": "qing_act2_iron",
+    "gif": "data/illustrations/qing/animated/qing_bg_yipianshi_blizzard_front-npc-v2.gif",
+    "poster": "data/illustrations/qing/animated/qing_bg_yipianshi_blizzard_front-npc-v2-first-frame.png",
+    "width": 836,
+    "height": 470,
+    "rgbaSha256": "32e55d673ce6acfab678cb6885f8a46683932856a01d7aed0b50c36b307d24f8",
+    "gifSha256": "8344256f5fbc9d9ca8898aa56d579cbbc6c8fee3b6695bb85154e892e6cb3335",
+    "posterSha256": "01e5413a31988529c725d788872de7e5e91c22320dbed9460008a36d4b38f7f6"
+  },
+  {
+    "nodeId": "qing_act2_steppe",
+    "gif": "data/illustrations/qing/animated/qing_bg_guihua_golden_tent-npc-v2.gif",
+    "poster": "data/illustrations/qing/animated/qing_bg_guihua_golden_tent-npc-v2-first-frame.png",
+    "width": 836,
+    "height": 470,
+    "rgbaSha256": "0c81590cdda30607d550804a59d9e0707da5614df0aebdfe338d99a92c017c37",
+    "gifSha256": "bbcc0a0e6e098ea7054be2e5919b78a3f3342ef923bfa428b74a165bf32b563e",
+    "posterSha256": "1bccaafbd33269c2d5f5f7477cd7283196dadc8ad5ea305012821653b75a6e0f"
+  }
+]

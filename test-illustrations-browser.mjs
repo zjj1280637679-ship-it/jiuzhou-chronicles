@@ -196,7 +196,7 @@ try {
     const scene = await page.evaluate(() => {
       const engine = window.__vnEngine, registry = window.JiuzhouIllustrations;
       const expected = registry.sceneFor({faction:engine.currentFaction, nodeId:engine.currentStoryNodeId, coords:engine.currentCoords});
-      return {expected:expected?.id, expectedPath:expected?.relativePath, current:engine.currentSceneIllustration?.id,
+      return {expected:expected?.id, expectedPath:window.JiuzhouSceneAnimation.posterFor({faction:engine.currentFaction,nodeId:engine.currentStoryNodeId,asset:expected}) || expected?.relativePath, current:engine.currentSceneIllustration?.id,
         queue:engine.storyQueue.filter(beat => beat.illustrationData).map(beat => beat.illustrationData.id)};
     });
     assert.ok(scene.expected, "The authored initial Later Jin scene needs an explicit illustration binding");

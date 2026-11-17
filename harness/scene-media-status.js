@@ -10,11 +10,15 @@
     const version = ++revision;
     const state = window.__vnEngine?.currentSceneMediaStatus || {phase: 'idle'};
     const messages = {
-      loading: state.retrying ? '正在重试动图…' : '动图加载中…',
-      slow: '动图加载较慢，可继续阅读',
-      'fallback-loading': '动图未能加载，正在载入静图…',
-      'fallback-slow': '动图未能加载，静图加载较慢',
-      fallback: '动图未能加载，已显示静图',
+      loading: state.retrying ? '正在重试动图，保留首帧…' : '动图加载中，先看首帧…',
+      'loading-poster': state.retrying ? '正在重试首帧和动图…' : '首帧与动图加载中…',
+      'loading-no-poster': '首帧未能加载，动图仍在加载…',
+      slow: '动图加载较慢，保留首帧预览',
+      'slow-poster': '首帧和动图加载较慢，可继续阅读',
+      'slow-no-poster': '首帧未能加载，动图加载较慢',
+      'fallback-loading': '动图未能加载，正在载入首帧…',
+      'fallback-slow': '动图未能加载，首帧加载较慢',
+      fallback: '动图未能加载，保留首帧预览',
       error: '场景图片未能加载，可继续阅读',
       ready: state.retrying ? '动图已恢复' : ''
     };

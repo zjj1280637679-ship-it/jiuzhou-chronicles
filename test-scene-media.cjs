@@ -3,130 +3,101 @@ const {test} = require('node:test');
 const assert = require('node:assert/strict');
 const {create} = require('./harness/scene-media.js');
 function fixture() {
-  const requests = [], displays = [], images = [], states = [], timers = new Map();
-  let timerId = 0;
+  const requests = [], displays = [], images = [], states = [], timers = new Map(); let timerId = 0;
   const loader = create({createImage() {
-    const image = {removeAttribute() {}, set src(value) {requests.push(value);}};
+    const image = {removeAttribute() {}, set src(value) {this.url=value; requests.push(value);}};
     images.push(image); return image;
   }, onChange(path) {displays.push(path);}, onStatus(state) {states.push(state);},
-    setTimer(fn) {timers.set(++timerId, fn); return timerId;}, clearTimer(id) {timers.delete(id);}});
-  return {loader, requests, displays, images, states, timers};
+  setTimer(fn) {timers.set(++timerId,fn);return timerId;}, clearTimer(id) {timers.delete(id);}});
+  return {loader,requests,displays,images,states,timers};
 }
-test('one current GIF, not its static fallback or other branches', () => {
-  const f = fixture(); f.loader.select('current.gif', 'current.webp');
-  assert.deepEqual(f.requests, ['current.gif']); assert.deepEqual(f.displays, ['current.gif']);
-  f.loader.select('current.gif', 'current.webp');
-  assert.equal(f.images.length, 1); assert.equal(f.displays.length, 2);
+test('only current poster and GIF start, poster displays first without loading old art or branches',()=>{
+ const f=fixture();f.loader.select('current.gif','current-first-frame.png');
+ assert.deepEqual(f.requests,['current-first-frame.png','current.gif']);
+ assert.deepEqual(f.displays,['current-first-frame.png']);
+ assert.equal(f.loader.getStatus().phase,'loading-poster');
+ f.loader.select('current.gif','current-first-frame.png');assert.equal(f.images.length,2);
 });
-test('static selection has no extra image probe or prefetch', () => {
-  const f = fixture(); f.loader.select('current.webp');
-  assert.deepEqual(f.requests, []); assert.deepEqual(f.displays, ['current.webp']);
+test('successful GIF swaps only after load and late poster errors cannot overwrite it',()=>{
+ const f=fixture();f.loader.select('current.gif','poster.png');f.images[1].onload();
+ assert.equal(f.displays.at(-1),'current.gif');assert.equal(f.loader.getStatus().phase,'ready');
+ f.images[0].onerror();assert.equal(f.displays.at(-1),'current.gif');assert.equal(f.loader.getStatus().phase,'ready');
 });
-test('failed GIF falls back once and stays static on repeated display and return', () => {
-  const f = fixture(); f.loader.select('current.gif', 'current.webp'); f.images[0].onerror();
-  f.loader.select('current.gif', 'current.webp');
-  f.loader.select('next.webp'); f.loader.select('current.gif', 'current.webp');
-  assert.deepEqual(f.displays, ['current.gif', 'current.webp', 'current.webp', 'next.webp', 'current.webp']);
-  assert.deepEqual(f.requests, ['current.gif', 'current.webp', 'current.webp']);
+test('GIF failure keeps actual first frame, and cannot claim it is ready before load',()=>{
+ const f=fixture();f.loader.select('current.gif','poster.png');f.images[1].onerror();
+ assert.equal(f.loader.getStatus().phase,'fallback-loading');
+ assert.deepEqual(f.displays,['poster.png']);
+ f.images[0].onload();assert.equal(f.loader.getStatus().phase,'fallback');assert.equal(f.loader.getStatus().canRetry,true);
+ assert.deepEqual(f.requests,['poster.png','current.gif']);
 });
-test('late failure cannot overwrite a different scene, override or reduced motion selection', () => {
-  for (const next of ['branch.gif', 'manual.webp', 'current.webp', null]) {
-    const f = fixture(); f.loader.select('current.gif', 'current.webp'); const stale = f.images[0].onerror;
-    f.loader.select(next); stale();
-    assert.deepEqual(f.displays, ['current.gif', next]);
-  }
+test('poster failure is reported but does not block a successful GIF',()=>{
+ const f=fixture();f.loader.select('current.gif','poster.png');f.images[0].onerror();
+ assert.equal(f.loader.getStatus().phase,'loading-no-poster');
+ f.images[1].onload();assert.equal(f.loader.getStatus().phase,'ready');assert.equal(f.displays.at(-1),'current.gif');
 });
-test('successful GIF, next branch and return keep no queued speculative work', () => {
-  const f = fixture(); f.loader.select('current.gif', 'current.webp'); f.images[0].onload();
-  f.loader.select('branch.gif', 'branch.webp'); f.images[1].onload();
-  f.loader.select('current.gif', 'current.webp');
-  assert.deepEqual(f.requests, ['current.gif', 'branch.gif', 'current.gif']);
-  assert.deepEqual(f.displays, f.requests);
+test('both failed reports error, without ever reverting to unrelated artwork',()=>{
+ const f=fixture();f.loader.select('current.gif','poster.png');f.images[0].onerror();f.images[1].onerror();
+ assert.equal(f.loader.getStatus().phase,'error');assert.equal(f.loader.getStatus().canRetry,true);
+ assert.deepEqual(f.displays,['poster.png']);
 });
-
-test('same resource restores the display after navigation overwrote the background', () => {
-  const f = fixture(); f.loader.select('current.gif', 'current.webp');
-  f.displays.push('map-gradient'); f.loader.select('current.gif', 'current.webp');
-  assert.equal(f.displays.at(-1), 'current.gif'); assert.equal(f.images.length, 1);
-  f.images[0].onerror(); f.displays.push('map-gradient'); f.loader.select('current.gif', 'current.webp');
-  assert.equal(f.displays.at(-1), 'current.webp'); assert.equal(f.images.length, 2);
+test('slow countdown is informational only and never retries or aborts',()=>{
+ const f=fixture();f.loader.select('current.gif','poster.png');[...f.timers.values()][0]();
+ assert.equal(f.loader.getStatus().phase,'slow-poster');f.images[0].onload();
+ assert.equal(f.loader.getStatus().phase,'slow');assert.equal(f.requests.length,2);
+ f.images[1].onerror();assert.equal(f.loader.getStatus().phase,'fallback');
+ assert.equal(f.timers.size,0);assert.ok(f.states.every(s=>!('percent' in s)));
 });
-test('engine wiring restores one resource after gradient overwrite and exposes updated event metadata', () => {
-  const {WebVisualNovelEngine} = require('./app.js');
-  const registry = require('./illustration-system.js');
-  const layer = {style: {}, dataset: {}}, eventIDs = [];
-  const saved = {document: global.document, window: global.window, Image: global.Image};
-  const probes = [];
-  global.document = {getElementById() {return layer;}};
-  global.window = {matchMedia() {return {matches: false};}, dispatchEvent() {eventIDs.push(layer.dataset.backgroundId);}};
-  global.Image = class {constructor() {probes.push(this);} removeAttribute() {}};
-  try {
-    const e = Object.create(WebVisualNovelEngine.prototype);
-    e.currentFaction = 'qing'; e.currentStoryNodeId = 'qing_act1';
-    e.getSceneIllustration = () => registry.sceneFor({faction:'qing', nodeId:'qing_act1'});
-    const asset = e.getSceneIllustration();
-    e.refreshStageBackground();
-    assert.equal(layer.style.backgroundImage, `url("${e.currentSceneAnimationPath}")`);
-    assert.ok(!layer.style.backgroundImage.includes('.webp'));
-    layer.style.backgroundImage = 'linear-gradient(red,blue)'; e.refreshStageBackground();
-    assert.equal(layer.style.backgroundImage, `url("${e.currentSceneAnimationPath}")`);
-    assert.equal(probes.length, 1);
-    probes[0].onerror();
-    assert.equal(e.currentSceneMediaPath, asset.relativePath);
-    layer.style.backgroundImage = 'linear-gradient(red,blue)'; e.refreshStageBackground();
-    assert.equal(layer.style.backgroundImage, `url("${asset.relativePath}")`);
-    assert.ok(eventIDs.every(id => id === asset.id));
-  } finally {
-    for (const key of Object.keys(saved)) if (saved[key] === undefined) delete global[key]; else global[key] = saved[key];
-  }
+test('manual retry keeps loaded poster and only requests a unique GIF once',()=>{
+ const f=fixture();f.loader.select('current.gif','poster.png');assert.equal(f.loader.retry(),false);
+ f.images[0].onload();f.images[1].onerror();assert.equal(f.loader.retry(),true);
+ assert.equal(f.displays.at(-1),'poster.png');assert.equal(f.images.length,3);
+ assert.match(f.requests.at(-1),/^current\.gif\?scene_retry=/);assert.equal(f.loader.retry(),false);
+ f.images[2].onload();assert.equal(f.loader.getStatus().phase,'ready');assert.equal(f.loader.getStatus().retrying,true);
 });
-
-test('states distinguish loading, slow, actual static fallback and total failure without fake percentages', () => {
-  const f = fixture(); f.loader.select('current.gif', 'current.webp');
-  assert.equal(f.loader.getStatus().phase, 'loading');
-  [...f.timers.values()][0]();
-  assert.deepEqual(f.loader.getStatus(), {phase:'slow', retrying:false, canRetry:true});
-  assert.equal(f.requests.length, 1, 'slow notice never retries automatically');
-  f.images[0].onerror();
-  assert.equal(f.loader.getStatus().phase, 'fallback-loading');
-  f.images[1].onload();
-  assert.equal(f.loader.getStatus().phase, 'fallback');
-  assert.ok(f.loader.retry());
-  f.images[2].onerror(); f.images[3].onerror();
-  assert.equal(f.loader.getStatus().phase, 'error');
-  assert.ok(f.states.every(s => !('percent' in s)));
+test('retry of failed poster can refetch both current assets, not a different scene',()=>{
+ const f=fixture();f.loader.select('current.gif','poster.png');f.images[0].onerror();f.images[1].onerror();f.loader.retry();
+ assert.match(f.requests[2],/^poster\.png\?scene_retry=/);assert.match(f.requests[3],/^current\.gif\?scene_retry=/);
 });
-test('manual retry bypasses failure cache once, prevents double clicks and reports recovery', () => {
-  const f = fixture(); f.loader.select('current.gif', 'current.webp');
-  assert.equal(f.loader.retry(), false);
-  f.images[0].onerror(); f.images[1].onload();
-  assert.equal(f.loader.retry(), true);
-  assert.match(f.requests.at(-1), /^current\.gif\?scene_retry=[a-z0-9]+-1$/);
-  assert.equal(f.loader.getStatus().retrying, true);
-  assert.equal(f.loader.retry(), false);
-  f.images[2].onload();
-  assert.equal(f.loader.getStatus().phase, 'ready');
-  f.loader.select('current.gif', 'current.webp');
-  assert.equal(f.requests.length, 3, 'text refresh does not retrigger retry');
+test('stale poster/GIF errors and timers cannot alter another scene or a retry',()=>{
+ const f=fixture();f.loader.select('current.gif','poster.png');const latePoster=f.images[0].onload,lateGIF=f.images[1].onerror,lateTimer=[...f.timers.values()][0];
+ f.loader.select('other.gif','other.png');latePoster();lateGIF();lateTimer();
+ assert.equal(f.displays.at(-1),'other.png');assert.equal(f.loader.getStatus().phase,'loading-poster');
 });
-test('stale timer and fallback errors cannot overwrite a user retry or new scene', () => {
-  const f = fixture(); f.loader.select('current.gif', 'current.webp');
-  const slow = [...f.timers.values()][0]; f.images[0].onerror();
-  const stale = f.images[1].onerror; [...f.timers.values()][0]();
-  f.loader.retry(); stale(); slow();
-  assert.equal(f.loader.getStatus().phase, 'loading');
-  assert.match(f.displays.at(-1), /^current\.gif\?scene_retry=/);
-  const late = f.images[2].onerror;
-  f.loader.select('manual.webp'); late();
-  assert.equal(f.loader.getStatus().phase, 'idle');
-  assert.equal(f.displays.at(-1), 'manual.webp');
-  assert.equal(f.timers.size, 0);
+test('return to failed scene shows and checks its first frame without auto retrying GIF',()=>{
+ const f=fixture();f.loader.select('current.gif','poster.png');f.images[0].onload();f.images[1].onerror();
+ f.loader.select('other.webp');f.loader.select('current.gif','poster.png');
+ assert.deepEqual(f.requests,['poster.png','current.gif','poster.png']);
+ f.images[2].onload();assert.equal(f.loader.getStatus().phase,'fallback');
 });
-
-test('manual retries remain unique after navigating away and back', () => {
-  const f = fixture(); f.loader.select('current.gif', 'current.webp');
-  f.images[0].onerror(); f.images[1].onload(); f.loader.retry();
-  const first = f.requests.at(-1); f.images[2].onerror(); f.images[3].onload();
-  f.loader.select('other.webp'); f.loader.select('current.gif', 'current.webp'); f.images[4].onload();
-  f.loader.retry(); assert.notEqual(f.requests.at(-1), first);
+test('same resource restores display after external gradient overwrite without another probe',()=>{
+ const f=fixture();f.loader.select('current.gif','poster.png');f.images[0].onload();f.images[1].onload();
+ f.displays.push('gradient');f.loader.select('current.gif','poster.png');
+ assert.equal(f.displays.at(-1),'current.gif');assert.equal(f.images.length,2);
+});
+test('static selection, reduced motion and empty state do not request GIF probes',()=>{
+ const f=fixture();f.loader.select('poster.png');f.loader.select(null);
+ assert.deepEqual(f.requests,[]);assert.deepEqual(f.displays,['poster.png',null]);
+});
+test('retry identifiers are not reused after changing scenes',()=>{
+ const f=fixture();f.loader.select('current.gif','poster.png');f.images[0].onload();f.images[1].onerror();f.loader.retry();
+ const first=f.requests.at(-1);f.images[2].onerror();f.loader.select('other.webp');f.loader.select('current.gif','poster.png');f.images[3].onload();f.loader.retry();
+ assert.notEqual(f.requests.at(-1),first);
+});
+test('engine connects both surfaces to poster then GIF; reduced motion selects poster not old art',()=>{
+ const {WebVisualNovelEngine}=require('./app.js'),registry=require('./illustration-system.js');
+ const layer={style:{},dataset:{}},probes=[];let reduced=false;
+ const saved={document:global.document,window:global.window,Image:global.Image};
+ global.document={getElementById(){return layer;}};
+ global.window={matchMedia(){return {matches:reduced};},dispatchEvent(){}};
+ global.Image=class {constructor(){probes.push(this);}removeAttribute(){}};
+ try {
+  const e=Object.create(WebVisualNovelEngine.prototype);e.currentFaction='qing';e.currentStoryNodeId='qing_act1';
+  e.getSceneIllustration=()=>registry.sceneFor({faction:'qing',nodeId:'qing_act1'});
+  e.refreshStageBackground();assert.match(e.currentSceneMediaPath,/-first-frame\.png$/);
+  assert.equal(layer.style.backgroundImage,`url("${e.currentScenePosterPath}")`);
+  probes[0].onload();probes[1].onload();assert.equal(e.currentSceneMediaPath,e.currentSceneAnimationPath);
+  layer.style.backgroundImage='gradient';e.refreshStageBackground();assert.equal(layer.style.backgroundImage,`url("${e.currentSceneAnimationPath}")`);
+  reduced=true;e.refreshStageBackground();assert.equal(e.currentSceneAnimationPath,null);assert.equal(e.currentSceneMediaPath,e.currentScenePosterPath);
+  assert.notEqual(e.currentSceneMediaPath,e.currentSceneIllustration.relativePath);
+ } finally {for(const key of Object.keys(saved)) if(saved[key]===undefined)delete global[key];else global[key]=saved[key];}
 });

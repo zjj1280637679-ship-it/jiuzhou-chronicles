@@ -16,3 +16,13 @@ test('approved photoreal council GIF shared across devices; other scenes and ori
  assert.ok(fs.existsSync('data/illustrations/qing/animated/qing_bg_chongzheng_snow_council-npc-v2.gif'));
  for(const nodeId of ['qing_act2_iron','qing_act2_steppe']) assert.match(animation.pathFor({faction:'qing',nodeId,asset:catalog.assets.find(a=>a.id===animation.scenes[nodeId])}),/-npc-v2\.gif$/);
 });
+
+test('every mapped GIF has a matching first-frame PNG, also selected for reduced motion',()=>{
+ for(const nodeId of Object.keys(animation.scenes)) {
+  const asset=catalog.assets.find(a=>a.id===animation.scenes[nodeId]),input={faction:'qing',nodeId,asset};
+  const p=animation.posterFor(input),gif=fs.readFileSync(animation.pathFor(input)),png=fs.readFileSync(p);
+  assert.equal(p,animation.pathFor(input).replace(/\.gif$/,'-first-frame.png'));
+  assert.equal(png.subarray(1,4).toString(),'PNG');assert.equal(png.readUInt32BE(16),gif.readUInt16LE(6));assert.equal(png.readUInt32BE(20),gif.readUInt16LE(8));
+  assert.equal(animation.posterFor({...input,reducedMotion:true}),p);assert.equal(animation.posterFor({...input,override:true}),null);
+ }
+});

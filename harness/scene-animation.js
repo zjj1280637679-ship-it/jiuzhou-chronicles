@@ -16,5 +16,11 @@
     const version = nodeId === 'qing_act1' ? 'photoreal-v1' : 'npc-v2';
     return `data/illustrations/qing/animated/${asset.id}-${version}.gif`;
   }
-  return {scenes, pathFor};
+  // The PNG is decoded from this exact final GIF, not the old scene illustration.
+  // Reduced-motion users also see this first frame, without downloading the GIF.
+  function posterFor(input = {}) {
+    const path = pathFor({...input, reducedMotion:false});
+    return path ? path.replace(/\.gif$/, '-first-frame.png') : null;
+  }
+  return {scenes, pathFor, posterFor};
 });

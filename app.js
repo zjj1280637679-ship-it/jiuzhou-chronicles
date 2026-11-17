@@ -277,8 +277,11 @@ class WebVisualNovelEngine {
     const layer = typeof document !== "undefined" ? document.getElementById("bg-active") : null;
     const map = typeof WORLD_PRESETS !== "undefined" ? WORLD_PRESETS.thinMaps?.[this.currentCoords] : null;
     const reducedMotion = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-    const animation = SceneAnimation?.pathFor({faction: this.currentFaction, nodeId: this.currentStoryNodeId,
-      asset, override: Boolean(this.stageBackground?.id), reducedMotion});
+    const mediaInput = {faction:this.currentFaction, nodeId:this.currentStoryNodeId,
+      asset, override:Boolean(this.stageBackground?.id), reducedMotion};
+    const animation = SceneAnimation?.pathFor(mediaInput);
+    const poster = SceneAnimation?.posterFor(mediaInput);
+    this.currentScenePosterPath = poster || null;
     this.currentSceneAnimationPath = animation || null;
     if (!this.sceneMediaLoader) this.sceneMediaLoader = SceneMedia.create({
       createImage: typeof Image !== "undefined" ? () => new Image() : null,
@@ -299,7 +302,7 @@ class WebVisualNovelEngine {
       }
     });
     if (layer?.dataset) layer.dataset.backgroundId = asset?.id || "";
-    this.sceneMediaLoader.select(animation || asset?.relativePath || null, animation ? asset.relativePath : null);
+    this.sceneMediaLoader.select(animation || poster || asset?.relativePath || null, animation ? poster : null);
     if (!asset && layer?.style) layer.style.backgroundImage = map?.bgGradient || "";
 
   }
