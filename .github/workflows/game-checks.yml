@@ -4,6 +4,7 @@ on:
     paths:
       - '*.js'
       - '*.cjs'
+      - '*.mjs'
       - '*.html'
       - 'harness/**'
       - 'data/**'
@@ -17,6 +18,7 @@ on:
     paths:
       - '*.js'
       - '*.cjs'
+      - '*.mjs'
       - '*.html'
       - 'harness/**'
       - 'data/**'
