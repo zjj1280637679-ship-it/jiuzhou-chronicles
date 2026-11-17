@@ -62,6 +62,7 @@ try {
           await page.evaluate(node => {
             const e = window.__vnEngine;
             e.currentStoryNodeId = node.id; e.currentCoords = node.coords; e.stageBackground = null;
+            e.currentFullText = ""; // Node-binding projection: no displayed page is being selected here.
             e.refreshStageBackground();
           }, node);
           await page.waitForFunction(id => window.__vnEngine.currentSceneIllustration?.id === id &&
@@ -100,6 +101,7 @@ try {
             await page.evaluate(node => {
               const e = window.__vnEngine;
               e.currentStoryNodeId = node.id; e.currentCoords = node.coords; e.stageBackground = null;
+            e.currentFullText = ""; // Node-binding projection: no displayed page is being selected here.
               e.refreshStageBackground();
             }, node);
             await page.waitForFunction(() => window.__vnEngine.currentSceneIllustration === null &&
