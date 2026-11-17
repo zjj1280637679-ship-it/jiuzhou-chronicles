@@ -30,6 +30,9 @@ try {
    if(width<769)await page.waitForFunction(p=>{const i=document.querySelector('#mobile-scene-art');return i.src.endsWith(p)&&i.complete&&i.naturalWidth>0},expected);
    assert.equal(await page.locator('#stage-characters .char-guard').evaluate(e=>getComputedStyle(e).visibility),'hidden');
    await page.waitForFunction(()=>!window.__vnEngine.isTyping);
+   // style.backgroundImage changes before the 1.2-second CSS crossfade ends.
+   // Inspect settled pixels, not the temporary blend between two story pages.
+   await page.locator('#bg-active').evaluate(e=>Promise.all(e.getAnimations().map(a=>a.finished.catch(()=>{}))));
   }
   async function next(){await page.locator(width<769?'#mobile-next':'#continue-prompt').click()}
   for(let i=0;i<4;i++) {
@@ -49,6 +52,10 @@ try {
   // Use the same persisted reading state via the product's continue control.
   await page.locator('#title-btn-continue').click();await visible(1);
   await page.screenshot({path:`${out}/${width}-restored-page-2.png`});
+  await page.locator('#btn-dialogue-prev').click();await visible(0);
+  for(let i=0;i<3;i++) {await next();if(await page.evaluate(()=>window.__vnEngine.isTyping))await next()}
+  await visible(3);
+  await page.screenshot({path:`${out}/${width}-rapid-page-4-settled.png`});
   assert.deepEqual(errors,[]);
   await writeFile(`${out}/${width}-requests.json`,JSON.stringify({requests,errors},null,2));
   await context.close();
