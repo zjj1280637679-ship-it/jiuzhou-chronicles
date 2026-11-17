@@ -2596,3 +2596,9 @@ body, html {
 }
 
 .scene-media-status button[aria-disabled="true"] { opacity: .75; cursor: default; }
+
+/* Exact action-GIF posters contain NPCs too. Reversible presentation only:
+   keep slot state and custom character sprites intact in every other scene. */
+#stage-characters[data-embedded-npc="true"] .char-silhouette {
+  visibility: hidden;
+}

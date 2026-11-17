@@ -281,6 +281,10 @@ class WebVisualNovelEngine {
       asset, override:Boolean(this.stageBackground?.id), reducedMotion};
     const animation = SceneAnimation?.pathFor(mediaInput);
     const poster = SceneAnimation?.posterFor(mediaInput);
+    // Registered action scenes already contain their NPCs, including their exact
+    // first-frame fallback. Suppress only generic silhouettes, never real sprites.
+    const characters = typeof document !== "undefined" ? document.getElementById("stage-characters") : null;
+    if (characters?.dataset) characters.dataset.embeddedNpc = poster ? "true" : "false";
     this.currentScenePosterPath = poster || null;
     this.currentSceneAnimationPath = animation || null;
     if (!this.sceneMediaLoader) this.sceneMediaLoader = SceneMedia.create({

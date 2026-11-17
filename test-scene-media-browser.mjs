@@ -57,11 +57,13 @@ try {
         const e=window.__vnEngine;e.currentStoryNodeId=node.id;e.currentCoords=node.coords;e.stageBackground=null;e.refreshStageBackground();
       },world.canonicalTrees.qing.nodes[nodeId]);
       await visible(poster);
+      assert.equal(await page.locator('#stage-characters .char-guard').evaluate(el=>getComputedStyle(el).visibility),'hidden','NPC poster must not be covered by generic guard');
       if(!alreadyVisited) assert.equal(requests.includes(gif),false,'reduced motion must not request new GIF');
       await page.screenshot({path:`${output}/${width}-${stepIndex}-${nodeId}-first-frame.png`});
       await page.emulateMedia({reducedMotion:'no-preference'});
       await page.evaluate(()=>window.__vnEngine.refreshStageBackground());
       await visible(gif);
+      assert.equal(await page.locator('#stage-characters .char-guard').evaluate(el=>getComputedStyle(el).visibility),'hidden','NPC GIF must not be covered by generic guard');
       const storyRequests=requests.filter(p=>p.startsWith('data/illustrations/'));
       assert.ok(storyRequests.every(p=>visited.has(p)),`unexpected old art/prefetch: ${storyRequests}`);
       await page.screenshot({path:`${output}/${width}-${stepIndex++}-${nodeId}-gif.png`});
@@ -75,6 +77,14 @@ try {
     await page.waitForFunction(path => document.querySelector('#mobile-scene-art').getAttribute('src') === path, staticPath);
     await page.setViewportSize({width: 1440, height: 900});
     await page.waitForFunction(() => !document.querySelector('#mobile-scene-art').hasAttribute('src'));
+    // An explicit static override restores placeholders; clearing it returns to
+    // the NPC poster. Slot activation state is not destructively changed.
+    await page.evaluate(()=>window.__vnEngine.setSceneBackground({id:window.__vnEngine.currentSceneIllustration.id}));
+    assert.equal(await page.locator('#stage-characters .char-guard').evaluate(el=>getComputedStyle(el).visibility),'visible');
+    await page.evaluate(()=>window.__vnEngine.setSceneBackground({clear:true}));
+    assert.equal(await page.locator('#stage-characters .char-guard').evaluate(el=>getComputedStyle(el).visibility),'hidden');
+    await page.evaluate(()=>window.__vnEngine.startNewGame('ming'));
+    assert.equal(await page.locator('#stage-characters .char-guard').evaluate(el=>getComputedStyle(el).visibility),'visible','other faction keeps character placeholders');
     assert.deepEqual(errors, []);
     } finally {
       await writeFile(`${output}/${width}-requests.json`, JSON.stringify({requests, errors}, null, 2));
@@ -111,6 +121,7 @@ try {
   await page.waitForFunction(()=>window.__vnEngine.currentSceneMediaStatus.phase==='fallback');
   assert.equal(await page.locator('#bg-active').evaluate(el=>el.style.backgroundImage),`url("${poster}")`);
   assert.equal(sawOldArt,false);
+  assert.equal(await page.locator('#stage-characters .char-guard').evaluate(el=>getComputedStyle(el).visibility),'hidden');
   await page.screenshot({path:`${output}/390-failed-gif-first-frame.png`});
   await context.close();
   console.log('PASS: current-scene-only network requests, first-frame preview and failure retention, branches, return, mobile/desktop and reduced motion.');
