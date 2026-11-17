@@ -38,8 +38,9 @@ try {
    assert.ok(requests.filter(p=>p.startsWith('data/illustrations/')).every(p=>allowed.has(p)),'only current and already visited pages requested');
    await page.screenshot({path:`${out}/${width}-page-${i+1}.png`});
   }
-  await next();await page.waitForFunction(()=>window.__vnEngine.choiceOverlay.classList.contains('visible'));
+  await next();await page.waitForFunction(()=>window.__vnEngine.choiceOverlay.classList.contains('visible') && document.querySelector('#choice-overlay').getAttribute('aria-modal')==='true');
   if(width<769)await page.locator('#mobile-choice-return').click();else await page.keyboard.press('Escape');
+  await page.waitForFunction(()=>!window.__vnEngine.choiceOverlay.classList.contains('visible') && !document.querySelector('#btn-dialogue-prev').closest('[inert]'));
   await visible(3);
   for(let i=2;i>=0;i--){await page.locator('#btn-dialogue-prev').click();await visible(i)}
   await next();await visible(1);

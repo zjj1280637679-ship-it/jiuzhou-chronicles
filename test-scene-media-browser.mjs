@@ -100,7 +100,7 @@ try {
   // Hold the GIF response: its real first frame must already be visible.
   const context = await browser.newContext({viewport: {width:390,height:900}}), page = await context.newPage();
   const opening = registry.sceneFor({faction:'qing',nodeId:'qing_act1'});
-  const poster = animations.posterFor({faction:'qing',nodeId:'qing_act1',asset:opening});
+  const poster = animations.posterFor({faction:'qing',nodeId:'qing_act1',asset:opening,pageText:animations.firstActPages[0].text});
   let held, sawPoster = false, sawOldArt = false;
   page.on('request', r => {
     if (r.url().endsWith(poster)) sawPoster = true;
