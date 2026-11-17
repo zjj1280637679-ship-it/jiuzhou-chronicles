@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="gallery.css?v=20261027-jh10801">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700;900&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700;900&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 </head>
 <body>
 
@@ -22,7 +22,7 @@
 
     <!-- 手机剧场：同一份剧情与表单，抉择仍由剧情临时触发。 -->
     <div class="mobile-theater mobile-only" aria-hidden="true">
-      <img id="mobile-scene-art" src="data/mobile/palace-night.webp" alt="" fetchpriority="high">
+      <img id="mobile-scene-art" alt="" fetchpriority="high">
     </div>
     <header class="mobile-topbar mobile-only" id="mobile-topbar">
       <button type="button" class="mobile-icon-button" id="mobile-home" aria-label="返回首页并自动存档">
@@ -584,11 +584,12 @@
   <script src="harness/plugin-host.js?v=20261027-jh10801"></script>
   <script src="harness/runtime.js?v=20261027-jh10801"></script>
   <script src="harness/scene-animation.js?v=20261117-gif2"></script>
-  <script src="app.js?v=20261117-gif2"></script>
+  <script src="harness/scene-media.js?v=20261117-paged1"></script>
+  <script src="app.js?v=20261117-paged1"></script>
   <script src="recovery-ui.js?v=20261022-0900"></script>
   <script src="favorites-ui.js?v=20261021-0800"></script>
   <script src="gallery-ui.js?v=20261027-jh10801"></script>
-  <script src="mobile-ui.js?v=20261117-gif2"></script>
+  <script src="mobile-ui.js?v=20261117-paged1"></script>
   <script src="settings-ui.js?v=20261023-ui04"></script>
   <script src="input-viewport.js?v=20261021-0800"></script>
 </body>

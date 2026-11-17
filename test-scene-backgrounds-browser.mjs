@@ -66,7 +66,7 @@ try {
           }, node);
           await page.waitForFunction(id => window.__vnEngine.currentSceneIllustration?.id === id &&
             document.querySelector("#bg-active").dataset.backgroundId === id &&
-            document.querySelector("#mobile-scene-art").getAttribute("src")?.includes(id), expected);
+            (innerWidth > 768 ? !document.querySelector("#mobile-scene-art").hasAttribute("src") : document.querySelector("#mobile-scene-art").getAttribute("src")?.includes(id)), expected);
         }
         if (faction === "qing") {
           // Load all editorially repaired nodes through the real scene loader,
@@ -90,7 +90,7 @@ try {
             if (/^qing_act5_[ac]/.test(nodeId)) assert.ok(state.text.includes("前幕风波之后，众人来到北京紫禁城太和殿前。"), nodeId);
             await page.waitForFunction(id => window.__vnEngine.currentSceneIllustration?.id === id &&
               document.querySelector("#bg-active").dataset.backgroundId === id &&
-              document.querySelector("#mobile-scene-art").getAttribute("src")?.includes(id), assetId);
+              (innerWidth > 768 ? !document.querySelector("#mobile-scene-art").hasAttribute("src") : document.querySelector("#mobile-scene-art").getAttribute("src")?.includes(id)), assetId);
             if (output && ["qing_act4_b3_1", "qing_act5_a1_1_1", "qing_act5_c1_1_1"].includes(nodeId)) {
               await page.screenshot({path: join(output, `${nodeId}-${viewport.width}.png`)});
             }
@@ -104,7 +104,7 @@ try {
             }, node);
             await page.waitForFunction(() => window.__vnEngine.currentSceneIllustration === null &&
               document.querySelector("#bg-active").dataset.backgroundId === "" &&
-              document.querySelector("#mobile-scene-art").getAttribute("src") === "data/mobile/palace-night.webp");
+              (innerWidth > 768 ? !document.querySelector("#mobile-scene-art").hasAttribute("src") : document.querySelector("#mobile-scene-art").getAttribute("src") === "data/mobile/palace-night.webp"));
           }
         }
         await page.evaluate(faction => window.__vnEngine.startNewGame(faction), faction);

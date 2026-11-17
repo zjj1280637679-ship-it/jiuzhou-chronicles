@@ -20,15 +20,7 @@
   const pagePosition = byId("mobile-page-position");
   const sceneTitle = byId("mobile-scene-title");
   const sceneArt = byId("mobile-scene-art");
-  const failedAnimations = new Set();
-  sceneArt?.addEventListener("error", () => {
-    const requested = sceneArt.getAttribute("src");
-    if (requested?.endsWith(".gif")) {
-      failedAnimations.add(requested);
-      attr(sceneArt, "src", window.__vnEngine?.currentSceneIllustration?.relativePath || defaultArt);
-    }
-  });
-  const defaultArt = sceneArt?.getAttribute("src") || "data/mobile/palace-night.webp";
+  const defaultArt = "data/mobile/palace-night.webp";
   const branchPill = byId("branch-pill");
   const speaker = byId("speaker-name");
   const speakerSub = byId("speaker-sub");
@@ -326,8 +318,10 @@
 
     if (sceneArt) {
       const scene = window.__vnEngine?.currentSceneIllustration;
-      const animation = window.__vnEngine?.currentSceneAnimationPath;
-      attr(sceneArt, "src", animation && !failedAnimations.has(animation) ? animation : scene?.relativePath || defaultArt);
+      // Hidden <img> still downloads on desktop. Assign a source only when visible.
+      // The engine owns GIF fallback so both layouts display the same resource.
+      const path = window.__vnEngine?.currentSceneMediaPath;
+      attr(sceneArt, "src", mobileQuery.matches ? (path || scene?.relativePath || defaultArt) : null);
       attr(sceneArt, "alt", scene?.title || (speakerSub?.textContent.trim() || title || "九州行旅") + " · 场景画面");
     }
     const promptText = prompt?.textContent || "";

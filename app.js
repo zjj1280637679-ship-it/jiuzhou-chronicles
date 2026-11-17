@@ -18,6 +18,8 @@ const StageEffects = typeof module === "object" && module.exports
   ? require("./harness/effects.js") : globalThis.JiuzhouEffects;
 const SceneAnimation = typeof module === "object" && module.exports
   ? require("./harness/scene-animation.js") : globalThis.JiuzhouSceneAnimation;
+const SceneMedia = typeof module === "object" && module.exports
+  ? require("./harness/scene-media.js") : globalThis.JiuzhouSceneMedia;
 const escapeHTML = value => String(value ?? "").replace(/[&<>"']/g, char => ({
   "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
 })[char]);
@@ -278,12 +280,24 @@ class WebVisualNovelEngine {
     const animation = SceneAnimation?.pathFor({faction: this.currentFaction, nodeId: this.currentStoryNodeId,
       asset, override: Boolean(this.stageBackground?.id), reducedMotion});
     this.currentSceneAnimationPath = animation || null;
-    // A missing GIF falls back to the unchanged original image underneath it.
-    if (layer?.style) layer.style.backgroundImage = asset
-      ? (animation ? `url("${animation}"), url("${asset.relativePath}")` : `url("${asset.relativePath}")`)
-      : (map?.bgGradient || "");
+    if (!this.sceneMediaLoader) this.sceneMediaLoader = SceneMedia.create({
+      createImage: typeof Image !== "undefined" ? () => new Image() : null,
+      onChange: path => {
+        this.currentSceneMediaPath = path;
+        // Re-read the live map; asynchronous GIF errors must not restore an old scene.
+        const currentLayer = typeof document !== "undefined" ? document.getElementById("bg-active") : null;
+        const currentMap = typeof WORLD_PRESETS !== "undefined" ? WORLD_PRESETS.thinMaps?.[this.currentCoords] : null;
+        if (currentLayer?.style) {
+          const background = path ? `url("${path}")` : (currentMap?.bgGradient || "");
+          if (currentLayer.style.backgroundImage !== background) currentLayer.style.backgroundImage = background;
+        }
+        if (typeof window !== "undefined" && typeof window.dispatchEvent === "function") window.dispatchEvent(new Event("jiuzhou:scene-background"));
+      }
+    });
     if (layer?.dataset) layer.dataset.backgroundId = asset?.id || "";
-    if (typeof window !== "undefined" && typeof window.dispatchEvent === "function") window.dispatchEvent(new Event("jiuzhou:scene-background"));
+    this.sceneMediaLoader.select(animation || asset?.relativePath || null, animation ? asset.relativePath : null);
+    if (!asset && layer?.style) layer.style.backgroundImage = map?.bgGradient || "";
+
   }
 
   setSceneBackground(params = {}) {
