@@ -36,7 +36,7 @@ async function closePopup(page) {
 }
 async function background(page, expectedId) {
   await page.waitForFunction(id => window.__vnEngine.currentSceneIllustration?.id === id &&
-    document.querySelector("#mobile-scene-art").getAttribute("src")?.includes(id), expectedId);
+    (innerWidth > 768 ? !document.querySelector("#mobile-scene-art").hasAttribute("src") : document.querySelector("#mobile-scene-art").getAttribute("src")?.includes(id)), expectedId);
   return page.evaluate(() => ({id:window.__vnEngine.currentSceneIllustration?.id,
     stage:window.__vnEngine.stageBackground ?? null, desktop:document.querySelector("#bg-active").style.backgroundImage,
     mobile:document.querySelector("#mobile-scene-art").getAttribute("src")}));

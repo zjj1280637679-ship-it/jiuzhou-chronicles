@@ -22,6 +22,7 @@ try {
     const page = await context.newPage(), requests = [], errors = [];
     page.on('pageerror', e => errors.push(e.message));
     page.on('request', r => {if (r.resourceType() === 'image') requests.push(new URL(r.url()).pathname.slice(1));});
+    try {
     await page.route('**/*', route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
     await page.goto(origin, {waitUntil: 'networkidle'});
     await page.waitForFunction(() => window.__vnEngine);
@@ -29,6 +30,7 @@ try {
     if (width > 768) assert.equal(requests.includes('data/mobile/palace-night.webp'), false, 'hidden mobile image not downloaded');
     await page.evaluate(() => window.__vnEngine.startNewGame('qing'));
     const visited = new Set();
+    let stepIndex = 0;
     for (const nodeId of ['qing_act1', 'qing_act2_iron', 'qing_act1', 'qing_act2_steppe']) {
       const asset = registry.sceneFor({faction: 'qing', nodeId});
       const gif = animations.pathFor({faction: 'qing', nodeId, asset});
@@ -38,7 +40,11 @@ try {
         e.currentStoryNodeId = node.id; e.currentCoords = node.coords; e.stageBackground = null;
         e.refreshStageBackground();
       }, world.canonicalTrees.qing.nodes[nodeId]);
-      await page.waitForLoadState('networkidle');
+      await page.waitForFunction(path => performance.getEntriesByName(new URL(path, document.baseURI).href).some(e => e.responseEnd > 0), gif);
+      if (width < 769) await page.waitForFunction(path => {
+        const img = document.querySelector('#mobile-scene-art');
+        return img.getAttribute('src') === path && img.complete && img.naturalWidth > 0;
+      }, gif);
       assert.ok(requests.includes(gif), 'selected GIF downloaded');
       const storyRequests = requests.filter(p => p.startsWith('data/illustrations/'));
       assert.ok(storyRequests.every(p => visited.has(p)), `unexpected prefetch/fallback: ${storyRequests}`);
@@ -46,24 +52,33 @@ try {
       assert.equal(bg, `url("${gif}")`);
       if (width < 769) assert.equal(await page.locator('#mobile-scene-art').getAttribute('src'), gif);
       else assert.equal(await page.locator('#mobile-scene-art').getAttribute('src'), null);
-      await page.screenshot({path: `${output}/${width}-${nodeId}.png`});
+      await page.screenshot({path: `${output}/${width}-${stepIndex++}-${nodeId}.png`});
     }
     // Reduced motion requests the current static image, not another scene.
     await page.emulateMedia({reducedMotion: 'reduce'});
     await page.evaluate(() => window.__vnEngine.refreshStageBackground());
     await page.waitForLoadState('networkidle');
     const staticPath = registry.sceneFor({faction: 'qing', nodeId: 'qing_act2_steppe'}).relativePath;
+    await page.waitForFunction(path => performance.getEntriesByName(new URL(path, document.baseURI).href).some(e => e.responseEnd > 0), staticPath);
     assert.ok(requests.includes(staticPath));
+    // Resize reuses the current source, with no hidden desktop image left loading.
+    await page.setViewportSize({width: 390, height: 900});
+    await page.waitForFunction(path => document.querySelector('#mobile-scene-art').getAttribute('src') === path, staticPath);
+    await page.setViewportSize({width: 1440, height: 900});
+    await page.waitForFunction(() => !document.querySelector('#mobile-scene-art').hasAttribute('src'));
     assert.deepEqual(errors, []);
-    await writeFile(`${output}/${width}-requests.json`, JSON.stringify(requests, null, 2));
-    await context.close();
+    } finally {
+      await writeFile(`${output}/${width}-requests.json`, JSON.stringify({requests, errors}, null, 2));
+      await page.screenshot({path: `${output}/${width}-final.png`}).catch(() => {});
+      await context.close();
+    }
   }
   // Cold failure: original still image is downloaded only after GIF failure.
   const context = await browser.newContext({viewport: {width: 390, height: 900}});
   const page = await context.newPage();
-  let failed = false;
+  let failed = false, sawFallbackRequest = false;
   const fallback = registry.sceneFor({faction: 'qing', nodeId: 'qing_act1'}).relativePath;
-  page.on('request', r => {if (r.url().endsWith(fallback)) assert.ok(failed, 'fallback must not race ahead of GIF failure');});
+  page.on('request', r => {if (r.url().endsWith(fallback)) {assert.ok(failed, 'fallback must not race ahead of GIF failure'); sawFallbackRequest = true;}});
   await page.route('**/*', route => {
     if (route.request().url().endsWith('.gif')) {failed = true; return route.abort();}
     return new URL(route.request().url()).origin === origin ? route.continue() : route.abort();
@@ -71,6 +86,12 @@ try {
   await page.goto(origin); await page.waitForFunction(() => window.__vnEngine);
   await page.evaluate(() => window.__vnEngine.startNewGame('qing'));
   await page.waitForFunction(path => window.__vnEngine.currentSceneMediaPath === path, fallback);
+  await page.waitForFunction(path => {
+    const img = document.querySelector('#mobile-scene-art');
+    return img.getAttribute('src') === path && img.complete && img.naturalWidth > 0;
+  }, fallback);
+  assert.ok(sawFallbackRequest, 'static fallback actually requested');
+  await page.screenshot({path: `${output}/390-failed-gif-fallback.png`});
   assert.equal(await page.locator('#bg-active').evaluate(el => el.style.backgroundImage), `url("${fallback}")`);
   await context.close();
   console.log('PASS: current-scene-only network requests, cold GIF fallback, branches, return, mobile/desktop and reduced motion.');
