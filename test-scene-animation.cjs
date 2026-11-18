@@ -37,11 +37,10 @@ test('first act pages match actual normalized beats, not arbitrary page indices'
  const paths=beats.map((b,i)=>{
   assert.equal(b.text,animation.firstActPages[i].text);
   const path=animation.pathFor({...input,pageText:b.text});
-  assert.equal(path,`data/illustrations/qing/animated/qing_act1-page-${i+1}-action-v1.gif`);
-  const gif=fs.readFileSync(path);assert.equal(gif.subarray(0,6).toString(),'GIF89a');
-  assert.equal(gif.readUInt16LE(6),836);assert.equal(gif.readUInt16LE(8),470);
+  assert.equal(path,`data/illustrations/qing/static/qing_act1-page-${i+1}-shot-v1.webp`);
+  const webp=fs.readFileSync(path);assert.equal(webp.subarray(0,4).toString(),'RIFF');assert.equal(webp.subarray(8,12).toString(),'WEBP');assert.ok(webp.length < 250000);
   assert.ok(publicPathAllowed(path));assert.ok(fs.existsSync(animation.posterFor({...input,pageText:b.text})));
-  assert.equal(animation.pathFor({...input,pageText:b.text,reducedMotion:true}),null);
+  assert.equal(animation.pathFor({...input,pageText:b.text,reducedMotion:true}),path);
   assert.equal(animation.pathFor({...input,pageText:b.text,override:true}),null);
   return path;
  });

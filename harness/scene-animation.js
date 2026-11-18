@@ -22,26 +22,27 @@
   const firstActPages = Object.freeze([
   {
     "text": "塞外冰封千里，崇政殿外两黄旗与两白旗侍卫甲胄森冷如铁。崇祯殉节密报与李闯入京急报横陈案头。",
-    "path": "data/illustrations/qing/animated/qing_act1-page-1-action-v1.gif"
+    "path": "data/illustrations/qing/static/qing_act1-page-1-shot-v1.webp"
   },
   {
     "text": "“明帝既死，天赐良机！发八旗重兵南下劫掠人口金帛，回师关外坐山观虎斗！”",
-    "path": "data/illustrations/qing/animated/qing_act1-page-2-action-v1.gif"
+    "path": "data/illustrations/qing/static/qing_act1-page-2-shot-v1.webp"
   },
   {
     "text": "“王爷差矣！昔日抢掠乃部落所为，今日中原无主，正当代天申讨，以仁义收抚海内人心！”",
-    "path": "data/illustrations/qing/animated/qing_act1-page-3-action-v1.gif"
+    "path": "data/illustrations/qing/static/qing_act1-page-3-shot-v1.webp"
   },
   {
     "text": "“是行部落掠夺之实、效汉化定鼎之治，抑或联合漠南蒙古，三条大道在此分晓。”",
-    "path": "data/illustrations/qing/animated/qing_act1-page-4-action-v1.gif"
+    "path": "data/illustrations/qing/static/qing_act1-page-4-shot-v1.webp"
   }
 ]);
   function pathFor({faction, nodeId, asset, override, reducedMotion, pageText} = {}) {
-    if (reducedMotion || override || faction !== 'qing' || !asset || scenes[nodeId] !== asset.id) return null;
+    if (override || faction !== 'qing' || !asset || scenes[nodeId] !== asset.id) return null;
     // Shared by desktop and mobile; original NPC GIF and WebP stay available for rollback.
     const page = nodeId === 'qing_act1' && firstActPages.find(p => p.text === pageText);
-    if (page) return page.path;
+    if (page) return page.path; // Static full-quality shots also serve reduced-motion users.
+    if (reducedMotion) return null;
     const version = 'action-v1';
     return `data/illustrations/qing/animated/${asset.id}-${version}.gif`;
   }
@@ -49,7 +50,7 @@
   // Reduced-motion users also see this first frame, without downloading the GIF.
   function posterFor(input = {}) {
     const path = pathFor({...input, reducedMotion:false});
-    return path ? path.replace(/\.gif$/, '-first-frame.png') : null;
+    return path ? (path.endsWith('.webp') ? path.replace(/\.webp$/, '-preview.webp') : path.replace(/\.gif$/, '-first-frame.png')) : null;
   }
   return {scenes, firstActPages, pathFor, posterFor};
 });

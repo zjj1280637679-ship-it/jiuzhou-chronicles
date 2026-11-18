@@ -34,7 +34,7 @@ try {
     await page.evaluate(() => window.__vnEngine.startNewGame('qing'));
     // Starting the actual first page now requests its page poster. Subsequent
     // injected-node tests clear the page text and test scene-level defaults.
-    const visited = new Set([animations.firstActPages[0].path.replace(/\.gif$/,'-first-frame.png')]), nodes = Object.keys(animations.scenes);
+    const visited = new Set([animations.firstActPages[0].path.replace(/\.webp$/,'-preview.webp')]), nodes = Object.keys(animations.scenes);
     assert.ok(nodes.length > 0);
     const sequence = [...nodes, nodes[0]]; // Every mapping, then a return.
     let stepIndex = 0;
@@ -108,7 +108,7 @@ try {
   });
   await page.route('**/*',route => {
     const url = new URL(route.request().url());
-    if (url.pathname.endsWith('.gif')) {held=route;return;}
+    if (url.pathname.endsWith(animations.firstActPages[0].path)) {held=route;return;}
     return url.origin === origin ? route.continue() : route.abort();
   });
   await page.goto(origin);await page.waitForFunction(()=>window.__vnEngine);

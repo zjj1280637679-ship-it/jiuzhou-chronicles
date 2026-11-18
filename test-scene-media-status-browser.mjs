@@ -26,7 +26,7 @@ try {
       await page.route('**/*', route => {
         const url = new URL(route.request().url());
         if (url.origin !== origin) return route.abort();
-        if (url.pathname.endsWith('.gif') && !url.searchParams.has('scene_retry')) {held = route; return;}
+        if (url.pathname.endsWith(openingGIF) && !url.searchParams.has('scene_retry')) {held = route; return;}
         return route.continue();
       });
       await page.goto(origin); await page.waitForFunction(() => window.__vnEngine);
@@ -43,7 +43,7 @@ try {
       assert.equal(requests.some(p=>p.endsWith(opening.relativePath)),false,'never request old static art');
       await held.abort();
       await page.waitForFunction(() => document.querySelector('#scene-media-status').dataset.phase==='fallback');
-      assert.ok((await page.locator('#scene-media-status-text').innerText()).includes('保留首帧'));
+      assert.ok((await page.locator('#scene-media-status-text').innerText()).includes('保留预览图'));
       assert.equal(await page.locator('#bg-active').evaluate(el=>el.style.backgroundImage),`url("${openingPoster}")`);
       const box = await page.locator('#scene-media-status').boundingBox();
       const prose = await page.locator('#dialogue-box').boundingBox();

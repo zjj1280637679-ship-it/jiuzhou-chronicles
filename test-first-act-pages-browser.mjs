@@ -37,7 +37,8 @@ try {
   async function next(){await page.locator(width<769?'#mobile-next':'#continue-prompt').click()}
   for(let i=0;i<4;i++) {
    if(i)await next();await visible(i);
-   const allowed=new Set(firstActPages.slice(0,i+1).flatMap(p=>[p.path,p.path.replace(/\.gif$/,'-first-frame.png')]));
+   assert.ok(!requests.some(p=>p.endsWith('.gif')), 'first act never downloads GIFs');
+   const allowed=new Set(firstActPages.slice(0,i+1).flatMap(p=>[p.path,p.path.replace(/\.webp$/,'-preview.webp')]));
    assert.ok(requests.filter(p=>p.startsWith('data/illustrations/')).every(p=>allowed.has(p)),'only current and already visited pages requested');
    await page.screenshot({path:`${out}/${width}-page-${i+1}.png`});
   }
@@ -84,7 +85,7 @@ try {
  assert.equal(await page.evaluate(()=>window.__vnEngine.currentSceneMediaPath),firstActPages[1].path);
  await page.waitForFunction(()=>!window.__vnEngine.isTyping);await page.keyboard.press('ArrowRight');
  await page.waitForFunction(()=>window.__vnEngine.currentSceneMediaStatus?.phase==='fallback');
- assert.equal(await page.evaluate(()=>window.__vnEngine.currentSceneMediaPath),firstActPages[2].path.replace(/\.gif$/,'-first-frame.png'));
+ assert.equal(await page.evaluate(()=>window.__vnEngine.currentSceneMediaPath),firstActPages[2].path.replace(/\.webp$/,'-preview.webp'));
  await page.screenshot({path:`${out}/390-page-3-failed.png`});
  await page.locator('#scene-media-retry').click();
  await page.waitForFunction(()=>window.__vnEngine.currentSceneMediaStatus?.phase==='ready');

@@ -1,0 +1,34 @@
+[
+  {
+    "page": 1,
+    "png_bytes": 532531,
+    "gif_bytes": 3718008,
+    "webp_bytes": 226446,
+    "preview_bytes": 13008,
+    "lossless_rgb": true
+  },
+  {
+    "page": 2,
+    "png_bytes": 472217,
+    "gif_bytes": 3432883,
+    "webp_bytes": 203290,
+    "preview_bytes": 7672,
+    "lossless_rgb": true
+  },
+  {
+    "page": 3,
+    "png_bytes": 482081,
+    "gif_bytes": 3409669,
+    "webp_bytes": 208306,
+    "preview_bytes": 8868,
+    "lossless_rgb": true
+  },
+  {
+    "page": 4,
+    "png_bytes": 521624,
+    "gif_bytes": 3740687,
+    "webp_bytes": 235450,
+    "preview_bytes": 12156,
+    "lossless_rgb": true
+  }
+]
