@@ -1,37 +1,20 @@
-# 后金第一幕：逐页画面试验
+# 后金第一幕：每页静态镜头图
 
-范围只含 `qing_act1` 的四个实际阅读页，不等同于四个剧情节点。原剧情、选择、存档格式和其他幕均不变。
+2026-11-18 按用户反馈，四页不再播放 GIF，而是每页一张静态镜头。范围只含 `qing_act1` 四个实际阅读页，其他幕不变。
 
-| 页 | 文本情境 | GIF |
-|---|---|---|
-| 1 | 崇政殿风雪、侍卫与案头急报 | `qing_act1-page-1-action-v1.gif` |
-| 2 | 多尔衮按刀主张南下 | `qing_act1-page-2-action-v1.gif` |
-| 3 | 范文程叩首劝谏 | `qing_act1-page-3-action-v1.gif` |
-| 4 | 三条道路的内心权衡 | `qing_act1-page-4-action-v1.gif` |
+| 页 | 剧情镜头 |
+|---|---|
+| 1 | 风雪急报、侍卫递交文书 |
+| 2 | 多尔衮按刀主张南下 |
+| 3 | 范文程叩首劝谏 |
+| 4 | 三条道路的权衡 |
 
-素材位置：`data/illustrations/qing/animated/`。每个 GIF 配同名 `-first-frame.png`，从最终 GIF 精确提取，而非旧图或另画的替代图。
+素材：`data/illustrations/qing/static/qing_act1-page-{1..4}-shot-v1.webp`。
 
-## 接线与边界
+主图采用 836×470 无损 WebP，与此前对应 GIF 首帧 PNG 的 RGB 像素逐一一致。此处“无损”仅指相对已有首帧，原 GIF 色板/抖色产生的损失无法恢复。低分辨率 `-preview.webp` 是 418×235 有损小预览，只在加载或失败时显示，成功后替换为完整无损主图。每页完整请求约 211–248 KB；四页合计 915196 bytes，相对旧四组 GIF+PNG 少 94.39%，并非画质凭空提升。
 
-- `displayDialogue` 先设置实际显示的正文，再刷新媒体。按原文精确匹配本次已制作的四页，不按数字页码推断剧情；回翻/读档对应同一画面。
-- AI 改写、自由探索、其他正文未命中时，仍使用原场景图，不将不相干的第一幕页面强配给新文本。
-- 换幕不提前按旧页状态刷新，避免新幕加载过程中额外请求上一页。
-- 桌面与手机读取同一媒体选择结果，只请求当前页；不预先下载其他页或分支。
-- 加载中与加载失败保留当前 GIF 的真实首帧，并展示角落状态；手动重试不会推进剧情。
-- 系统减少动态偏好显示对应页首帧，不请求 GIF。显式背景覆盖继续优先。
-- 原场景 GIF 和静态资产保留，方便对比或回退。本试验不改变历史画库句柄。
+保持原文精确匹配、回翻/读档稳定、用户背景覆盖优先、当前页才下载。即使启用减少动态，也显示完整静态主图。AI 改写未命中仍沿用幕级原图；本次不扩展到所有幕。加载失败角落提示并可手动重试，不静默失败、不自动翻页。旧素材保留用于回退，但四页正常阅读不请求 GIF。
 
-## 可复验命令
+验证：`npm run test:unit`、`npm test`、`npm run test:content`、`npm run build`，及 `node test-first-act-pages-browser.mjs` / `test-scene-media-browser.mjs` / `test-scene-media-status-browser.mjs`。真实浏览器测试含四页前进/返回/恢复、无 GIF 请求、延迟回调、404/重试。手机尺寸测试不是实际 iPhone Safari。
 
-```
-npm run test:unit
-npm test
-npm run test:content
-npm run build
-python scripts/check-gif-posters.py
-node test-first-act-pages-browser.mjs
-node test-scene-media-browser.mjs
-node test-scene-media-status-browser.mjs
-```
-
-浏览器脚本要求 Playwright 和 Chromium。逐页脚本用实际方向键/返回按钮覆盖四页前进、选项返回、回翻、存档恢复；也含延迟请求和 HTTP 404 注入。测试截图需人工逐图审查，脚本通过并不代表文学质量、历史准确性或真机 iPhone 已验收。
+已知素材局限保留：演员跨页造型不完全一致，手机第四页右侧文臣部分裁切。

@@ -13,12 +13,12 @@
       loading: state.retrying ? '正在重试图片，保留预览图…' : '图片加载中，先看预览图…',
       'loading-poster': state.retrying ? '正在重试预览图和图片…' : '预览图与图片加载中…',
       'loading-no-poster': '预览图未能加载，图片仍在加载…',
-      slow: '图片加载较慢，保留预览图预览',
+      slow: '图片加载较慢，保留预览图',
       'slow-poster': '预览图和图片加载较慢，可继续阅读',
       'slow-no-poster': '预览图未能加载，图片加载较慢',
       'fallback-loading': '图片未能加载，正在载入预览图…',
       'fallback-slow': '图片未能加载，预览图加载较慢',
-      fallback: '图片未能加载，保留预览图预览',
+      fallback: '图片未能加载，保留预览图',
       error: '场景图片未能加载，可继续阅读',
       ready: state.retrying ? '图片已恢复' : ''
     };
